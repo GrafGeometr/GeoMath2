@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  margin-left: 100px;
+  margin-right: 100px;
+  margin-top: 0px;
+  font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+}
+
+.topnav {
+  overflow: hidden;
+  background-color: #46d0fa;
+}
+
+.topnav a {
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav a:hover {
+  background-color: #e8eeff;
+  color: black;
+}
+
+.topnav a.active {
+  background-color: #368dff;
+  color: white;
+}
+
+.logo_img {
+    mix-blend-mode: multiply;
+    height: 50px;
+    vertical-align: middle;
+}
+</style>
+</head>
+<body>
+
+<div style="padding: 10px">
+    <img class = "logo_img" src="/static/images/logo.png" alt="logo">
+    <font size="6" style="vertical-align: middle;">GeoMath</font>
+</div>
+<div class="topnav">
+  
+  <a id="feed_nav" href="/feed">Лента</a>
+  <a id="contests_nav" href="/contests">Соревнования</a>
+  <a id="collections_nav" href="/collections">Подборки</a>
+  <a id="editor_nav" href="/editor">Редактор</a>
+</div>
+{% block content %}{% endblock %}
+
+</body>
+</html>
