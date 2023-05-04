@@ -10,10 +10,6 @@ body {
   font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
 }
 
-.topnav {
-  overflow: hidden;
-  background-color: #46d0fa;
-}
 
 .topnav a {
   float: left;
@@ -39,22 +35,44 @@ body {
     height: 50px;
     vertical-align: middle;
 }
+
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 10px;
+}
+
+.topnav {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: #46d0fa;
+}
+
+.menubar {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
 </style>
 </head>
 <body>
-
-<div style="padding: 10px">
-    <img class = "logo_img" src="/static/images/logo.png" alt="logo">
-    <font size="6" style="vertical-align: middle;">GeoMath</font>
-</div>
-<div class="topnav">
   
-  <a id="feed_nav" href="/feed">Лента</a>
-  <a id="contests_nav" href="/contests">Соревнования</a>
-  <a id="collections_nav" href="/collections">Подборки</a>
-  <a id="editor_nav" href="/editor">Редактор</a>
-</div>
-{% block content %}{% endblock %}
+    <div class="header">
+        <img class = "logo_img" src="/static/images/logo.png" alt="logo">
+        <div size="6" style="vertical-align: middle;">GeoMath2</div>
+    </div>
+
+    <div class="topnav">
+        <div class="menubar">
+            <a id="feed_nav" href="/feed">Лента</a>
+            <a id="contests_nav" href="/contests">Соревнования</a>
+            <a id="collections_nav" href="/collections">Подборки</a>
+            <a id="editor_nav" href="/editor">Редактор</a>
+        </div>
+    </div>
+    {% block content %}{% endblock %}
 
 </body>
 </html>
