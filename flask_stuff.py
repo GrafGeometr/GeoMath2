@@ -47,7 +47,7 @@ def test_registration():
     password = data['password']
     repeat_password = data['repeat_password']
     print(f"Login: {login}\nEmail: {email}\nPassword: {password}\nRepeat password: {repeat_password}")
-    return '/feed'
+    return "/feed"
 
 def main():
     port = int(os.environ.get("PORT", 5000))
