@@ -6,8 +6,8 @@ import os
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['UPLOAD_EXTENSIONS'] = ['.txt', '.pdf', '.doc', '.docx', '.png', '.jpeg', '.jpg', '.gif']
-#login_manager = LoginManager()
-#login_manager.init_app(app)
+
+#login_manager = LoginManager(app)
 
 @app.route('/')
 def index():
@@ -32,6 +32,22 @@ def editor():
 @app.route('/profile/<username>')
 def profile(username):
     return render_template('profile.html', username = username)
+
+
+@app.route('/register')
+def register():
+    return render_template('register.html')
+
+
+@app.route('/test_registration', methods=['POST'])
+def test_registration():
+    data = request.get_json()
+    login = data['login']
+    email = data['email']
+    password = data['password']
+    repeat_password = data['repeat_password']
+    print(f"Login: {login}\nEmail: {email}\nPassword: {password}\nRepeat password: {repeat_password}")
+    return '/feed'
 
 def main():
     port = int(os.environ.get("PORT", 5000))
