@@ -9,10 +9,9 @@ app.config['UPLOAD_EXTENSIONS'] = ['.txt', '.pdf', '.doc', '.docx', '.png', '.jp
 #login_manager = LoginManager()
 #login_manager.init_app(app)
 
-
 @app.route('/')
 def index():
-    return render_template('base.html')
+    return render_template('base.html', username = "EvgenyUtkin")
 
 @app.route('/feed')
 def feed():
@@ -29,6 +28,10 @@ def collections():
 @app.route('/editor')
 def editor():
     return render_template('editor.html')
+
+@app.route('/profile/<username>')
+def profile(username):
+    return render_template('profile.html', username = username)
 
 def main():
     port = int(os.environ.get("PORT", 5000))

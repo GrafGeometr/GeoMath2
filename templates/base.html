@@ -33,21 +33,31 @@ body {
 .logo_img {
     mix-blend-mode: multiply;
     height: 50px;
-    vertical-align: middle;
 }
 
 .header {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    padding: 10px;
+    align-items: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.logo_title {
+    text-align: center;
+    font-size: 30px;
+    padding-top: 16px;
+    padding-bottom: 14px;
+    padding-left: 5px;
 }
 
 .topnav {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    background-color: #46d0fa;
+    align-items: stretch;
+    background-color: rgb(70, 178, 250);
 }
 
 .menubar {
@@ -61,7 +71,7 @@ body {
   
     <div class="header">
         <img class = "logo_img" src="/static/images/logo.png" alt="logo">
-        <div size="6" style="vertical-align: middle;">GeoMath2</div>
+        <div class = "logo_title">GeoMath</div>
     </div>
 
     <div class="topnav">
@@ -70,6 +80,10 @@ body {
             <a id="contests_nav" href="/contests">Соревнования</a>
             <a id="collections_nav" href="/collections">Подборки</a>
             <a id="editor_nav" href="/editor">Редактор</a>
+        </div>
+
+        <div class="profile">
+            <a id="profile_nav" href="/profile/{{username}}">Профиль</a>
         </div>
     </div>
     {% block content %}{% endblock %}
