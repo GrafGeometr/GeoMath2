@@ -38,6 +38,10 @@ def profile(username):
 def register():
     return render_template('register.html')
 
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
 
 @app.route('/test_registration', methods=['POST'])
 def test_registration():
@@ -47,6 +51,14 @@ def test_registration():
     password = data['password']
     repeat_password = data['repeat_password']
     print(f"Login: {login}\nEmail: {email}\nPassword: {password}\nRepeat password: {repeat_password}")
+    return "/feed"
+
+@app.route('/test_login', methods=['POST'])
+def test_login():
+    data = request.get_json()
+    login = data['login']
+    password = data['password']
+    print(f"Login: {login}\nPassword: {password}")
     return "/feed"
 
 def main():
