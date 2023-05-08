@@ -53,6 +53,10 @@ def profile(username):
 def register():
     return render_template('register.html')
 
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
 
 @app.route('/login/<href>')
 def login(href):
@@ -89,6 +93,14 @@ def test_registration():
 
     # print(f"Login: {login}\nEmail: {email}\nPassword: {password}\nRepeat password: {repeat_password}")
 
+    return "/feed"
+
+@app.route('/test_login', methods=['POST'])
+def test_login():
+    data = request.get_json()
+    login = data['login']
+    password = data['password']
+    print(f"Login: {login}\nPassword: {password}")
     return "/feed"
 
 def main():

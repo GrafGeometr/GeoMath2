@@ -7,7 +7,7 @@
         justify-content: center;
         align-items: center;
     }
-    .register_form {
+    .login_form {
         width: 23%;
         border: 2px solid rgb(70, 178, 250);
         border-radius: 10px;
@@ -47,7 +47,7 @@
         border-radius: 5px;
         padding: 5px;
     }
-    .register_button {
+    .login_button {
         width: 55%;
         height: 50px;
         margin-top: 20px;
@@ -61,14 +61,12 @@
     }
 </style>
 <script>
-    function register() {
+    function login() {
         var login = document.getElementById("login").value;
-        var email = document.getElementById("email").value;
         var password = document.getElementById("password").value;
-        var repeat_password = document.getElementById("repeat_password").value;
-        var data = {'login' : login, 'email' : email, 'password' : password, 'repeat_password' : repeat_password};
+        var data = {'login' : login, 'password' : password};
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/test_registration', true);
+        xhr.open('POST', '/test_login', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
@@ -80,28 +78,20 @@
 
 </script>
 <div class="main_div">
-    <form class="register_form" action="javascript:register();">
+    <form class="login_form" action="javascript:login();">
         <div class="greeting">
-            <div style="font-size: 25px; font-weight: bold; margin-bottom: 10px;">Первый раз на GeoMath?</div>
-            <div style="font-size: 15px">Регистрация на сайте</div>
+            <div style="font-size: 25px; font-weight: bold; margin-bottom: 10px;">С возвращением!</div>
+            <div style="font-size: 15px">Вход на сайт</div>
         </div>
         <div class="input_form">
             <div class="input_field_name">Логин</div>
             <input type="text" id="login" class="input_field" required >
         </div>
         <div class="input_form">
-            <div class="input_field_name">Email</div>
-            <input type="email" id="email" class="input_field" required>
-        </div>
-        <div class="input_form">
             <div class="input_field_name">Пароль</div>
             <input type="password" id="password" class="input_field" required>
         </div>
-        <div class="input_form">
-            <div class="input_field_name">Повторите пароль</div>
-            <input type="password" id="repeat_password" class="input_field" required>
-        </div>
-        <input class="register_button" type="submit" value="Зарегистрироваться">
+        <input class="login_button" type="submit" value="Войти">
     </form>
 </div>
 {% endblock %}
