@@ -21,54 +21,59 @@ from flask_login import (
 @app.route("/")
 @go_to_login("/")
 def index():
-    return render_template("base.html", username="EvgenyUtkin")
+    return render_template("base.html", current_user=current_user)
 
 
 @login_required
 @app.route("/feed")
 @go_to_login("/feed")
 def feed():
-    return render_template("feed.html")
+    return render_template("feed.html", current_user=current_user)
 
 
 @login_required
 @app.route("/contests")
 @go_to_login("/contests")
 def contests():
-    return render_template("contests.html")
+    return render_template("contests.html", current_user=current_user)
 
 
 @login_required
 @app.route("/collections")
 @go_to_login("/collections")
 def collections():
-    return render_template("collections.html")
+    return render_template("collections.html", current_user=current_user)
 
 
 @login_required
 @app.route("/editor")
 @go_to_login("/editor")
 def editor():
-    return render_template("editor.html")
+    return render_template("editor.html", current_user=current_user)
 
 
 @login_required
 @app.route("/profile/<username>")
 @go_to_login("/profile/<username>")
 def profile(username):
-    return render_template("profile.html", username=username)
+    return render_template("profile.html", current_user=current_user)
 
 
 @app.route("/register")
 def register():
-    return render_template("register.html")
+    return render_template("register.html", current_user=current_user)
 
 
 @app.route("/login/<href>")
 def login(href):
     print(href)
-    return render_template("login.html", togo=f"/test_login/{href}")
+    return render_template("login.html", current_user=current_user, togo=f"/test_login/{href}")
 
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect("/")
 
 @app.route("/test_login/<href>", methods=["POST"])
 def test_login(href):

@@ -36,13 +36,20 @@ body {
     height: 50px;
 }
 
-.header {
+.logo {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
     padding-top: 10px;
     padding-bottom: 10px;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: stretch;
 }
 
 .logo_title {
@@ -56,37 +63,84 @@ body {
 .topnav {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: stretch;
     background-color: rgb(70, 178, 250);
     border-radius: 5px;
 }
 
-.menubar {
+.profile {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
+    align-items: flex-end;
+    font-size: 17px;
+    padding-bottom: 10px;
 }
+
+.profile a {
+  color: #000000;
+  text-align: center;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.profile a:hover {
+    color: rgb(70, 178, 250);
+    text-decoration: underline;
+}
+
+.profile_link {
+    margin-right: 10px;
+}
+
+.logout {
+    margin-left: 10px;
+}
+
+.login_link {
+    margin-right: 10px;
+}
+
+.register_link {
+    margin-left: 10px;
+}
+
 </style>
 </head>
 <body>
   
     <div class="header">
-        <img class = "logo_img" src="/static/images/logo.png" alt="logo">
-        <div class = "logo_title">GeoMath</div>
+        <div class="logo">
+            <img class = "logo_img" src="/static/images/logo.png" alt="logo">
+            <div class = "logo_title">GeoMath</div>
+        </div>
+        <div class="profile">
+            {% if current_user.is_authenticated %}
+            <div class="profile_link">
+                <a href="/profile/{{ current_user.name }}">{{ current_user.name }}</a>
+            </div>
+            <div class="logout">
+                <a href="/logout">Выйти</a>
+            </div>
+            {% else %}
+            <div class="login_link">
+                <a href="/login/$">Войти</a>
+            </div>
+            <div class="register_link">
+                <a href="/register">Зарегистрироваться</a>
+            </div>
+            {% endif %}
+        </div>
     </div>
 
     <div class="topnav">
-        <div class="menubar">
-            <a id="feed_nav" href="/feed">Лента</a>
-            <a id="contests_nav" href="/contests">Соревнования</a>
-            <a id="collections_nav" href="/collections">Подборки</a>
-            <a id="editor_nav" href="/editor">Редактор</a>
-        </div>
+        <a id="feed_nav" href="/feed">Лента</a>
+        <a id="contests_nav" href="/contests">Соревнования</a>
+        <a id="collections_nav" href="/collections">Подборки</a>
+        <a id="editor_nav" href="/editor">Редактор</a>
+    </div>
 
-        <div class="profile">
-            <a id="profile_nav" href="/profile/{{username}}">Профиль</a>
-        </div>
     </div>
     {% block content %}{% endblock %}
 
