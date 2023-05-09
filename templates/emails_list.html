@@ -26,6 +26,14 @@
         };
         xhr.send(JSON.stringify(data));
     }
+
+    function send_verifying_link(username, email) {
+        var data = {'username' : username, 'email' : email};
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/send_verifying_link', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify(data));
+    }
 </script>
 
 <h2>список почт для дебага:</h2>
@@ -33,6 +41,7 @@
 <br>
 <h2>id={{ email.id }}, name={{ email.name }}, verified={{ email.verified }}, token={{ email.token }}</h2>
 <button onclick="remove_email('{{ current_user.name }}', '{{ email.name }}')">Удалить почту {{ email.name }}</button>
+<button onclick="send_verifying_link('{{ current_user.name }}', '{{ email.name }}')">Подтвердить почту {{ email.name }}</button>
 {% endfor %}
 
 <style>
