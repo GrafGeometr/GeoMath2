@@ -24,3 +24,6 @@ class User(SqlAlchemyBase, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.hashed_password, password)
     
+    def get_verified_emails_count(self):
+        return len([email for email in self.emails if email.verified])
+    
