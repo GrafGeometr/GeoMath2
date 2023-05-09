@@ -56,13 +56,16 @@ def register():
 @app.route("/login/<href>")
 def login(href):
     print(href)
-    return render_template("login.html", current_user=current_user, togo=f"/test_login/{href}")
+    return render_template(
+        "login.html", current_user=current_user, togo=f"/test_login/{href}"
+    )
 
 
 @app.route("/logout")
 def logout():
     logout_user()
     return redirect("/")
+
 
 @app.route("/test_login/<href>", methods=["POST"])
 def test_login(href):
@@ -77,10 +80,8 @@ def test_login(href):
         login_user(user)
         print("Login successful")
         return href.replace("$", "/")
-    
+
     return href.replace("$", "/")
-
-
 
 
 @app.route("/add_email", methods=["POST"])
@@ -97,7 +98,7 @@ def add_email():
         # user doesn't exist
         # TODO say something about this
         return "Error"
-    
+
     if user.name != current_user.name:
         # this is other user
         # TODO say something about this
@@ -108,7 +109,7 @@ def add_email():
     db_sess.commit()
 
     db_sess.refresh(user)
-    
+
     return render_template("emails_list.html", current_user=current_user)
 
 
@@ -123,23 +124,23 @@ def remove_email():
         # email doesn't exist
         # TODO say something about this
         return "Error"
-    
+
     user = db_sess.query(User).filter(User.name == username).first()
     if not user:
         # user doesn't exist
         # TODO say something about this
         return "Error1"
-    
+
     if user.name != current_user.name:
         # this is other user
         # TODO say something about this
         return "Error2"
-    
+
     verified_emails_count = 0
     for email in user.emails:
         if email.verified:
             verified_emails_count += 1
-    
+
     if verified_emails_count < 2:
         # not enough verified emails
         # TODO say something about this
@@ -150,7 +151,6 @@ def remove_email():
     db_sess.commit()
 
     db_sess.refresh(user)
-
 
     return render_template("emails_list.html", current_user=current_user)
 
@@ -193,9 +193,6 @@ def test_registration():
     # print(f"Login: {login}\nEmail: {email}\nPassword: {password}\nRepeat password: {repeat_password}")
 
     return "/feed"
-
-
-
 
 
 def main():
