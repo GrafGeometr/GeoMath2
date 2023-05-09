@@ -18,3 +18,7 @@ def go_to_login(href):
     return decorator
 
 
+def route(href):
+    def decorator(f):
+        return app.route(href)(go_to_login(href)(login_required(f)))
+    return decorator
