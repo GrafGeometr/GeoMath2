@@ -2,3 +2,5 @@
 /shelf/
 /workspace.xml
 /database
+/database/blogs.db
+email_secret_data.py

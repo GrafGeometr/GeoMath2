@@ -9,6 +9,8 @@ app.config['UPLOAD_EXTENSIONS'] = ['.txt', '.pdf', '.doc', '.docx', '.png', '.jp
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+website_link = "http://127.0.0.1:8000"
+
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()

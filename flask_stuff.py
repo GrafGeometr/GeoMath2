@@ -2,9 +2,12 @@ from flask import Flask, render_template, redirect, request, make_response
 import os
 from data.user import User
 from data.email import Email
-from init_app import app, load_user
+from init_app import app, load_user, website_link
 from decorators import route
 from data import db_session
+from token_gen import generate_token
+from send_letter import send_email
+
 
 
 from flask_login import (
@@ -43,8 +46,19 @@ def editor():
     return render_template("editor.html", current_user=current_user)
 
 
-@route("/profile/<username>")
+@login_required
+@app.route("/myprofile")
+def to_profile():
+    if not current_user.is_authenticated:
+        return redirect("/login/$myprofile")
+    return redirect(f"/profile/{current_user.name}")
+    
+
+@login_required
+@app.route("/profile/<username>")
 def profile(username):
+    if not current_user.is_authenticated:
+        return redirect("/login/$myprofile")
     return render_template("profile.html", current_user=current_user)
 
 
@@ -110,7 +124,7 @@ def add_email():
 
     db_sess.refresh(user)
 
-    return render_template("emails_list.html", current_user=current_user)
+    return render_template("emails_list.html", current_user=user)
 
 
 @app.route("/remove_email", methods=["POST"])
@@ -141,7 +155,7 @@ def remove_email():
         if email.verified:
             verified_emails_count += 1
 
-    if verified_emails_count < 2:
+    if verified_emails_count <= 1 and email.verified:
         # not enough verified emails
         # TODO say something about this
         return "Error3"
@@ -152,7 +166,89 @@ def remove_email():
 
     db_sess.refresh(user)
 
-    return render_template("emails_list.html", current_user=current_user)
+    return render_template("emails_list.html", current_user=user)
+
+
+@login_required
+@app.route("/send_verifying_link", methods=["POST"])
+def send_verifying_link():
+    if not current_user.is_authenticated:
+        return redirect("/login/$myprofile")
+    data = request.get_json()
+    email_name = data["email"]
+    db_sess = db_session.create_session()
+    email = db_sess.query(Email).filter(Email.name == email_name).first()
+    if not email:
+        # email doesn't exist
+        # TODO say something about this
+        return "Error"
+    
+    user = db_sess.query(User).filter(User.name == current_user.name).first()
+    if not user:
+        # user doesn't exist
+        # TODO say something about this
+        return "Error1"
+    
+    if user.name != current_user.name:
+        # this is other user
+        # TODO say something about this
+        return "Error2"
+    
+    if email.user_id != current_user.id:
+        # this is other's user email
+        # TODO say something about this
+        return "Error3"
+    
+    email_token = generate_token(30)
+
+    email.token = email_token
+
+    db_sess.commit()
+
+    db_sess.refresh(user)
+
+    send_email(email_name, f"{website_link}/verify/{email_name}/{email_token}")
+
+    return render_template("emails_list.html", current_user=user)
+
+
+@app.route("/verify/<email_name>/<email_token>")
+def verify(email_name, email_token):
+    db_sess = db_session.create_session()
+    email = db_sess.query(Email).filter(Email.name == email_name).first()
+    if not email:
+        # email doesn't exist
+        # TODO say something about this
+        return "Error"
+    
+    user = db_sess.query(User).filter(User.name == current_user.name).first()
+    if not user:
+        # user doesn't exist
+        # TODO say something about this
+        return "Error1"
+    
+    if user.name != current_user.name:
+        # this is other user
+        # TODO say something about this
+        return "Error2"
+    
+    if email.user_id != current_user.id:
+        # this is other's user email
+        # TODO say something about this
+        return "Error3"
+    
+    if email.token != email_token:
+        # wrong token
+        # TODO say something about this
+        return "Error4"
+    
+    email.verified = True
+    db_sess.commit()
+    db_sess.close()
+
+    return redirect("/myprofile")
+
+
 
 
 @app.route("/test_registration", methods=["POST", "GET"])
