@@ -9,7 +9,7 @@ try:
     from email_secret_data import EMAIL, PASSWORD
 except ImportError:
     EMAIL = os.environ.get("EMAIL")
-    
+    PASSWORD = os.environ.get("PASSWORD")
 
 
 def send_email(to, link):
