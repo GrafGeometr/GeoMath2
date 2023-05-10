@@ -101,10 +101,10 @@ def test_login(href):
 @app.route("/add_email", methods=["POST"])
 def add_email():
     data = request.get_json()
-    email = data["email"]
+    email_name = data["email"]
     username = data["username"]
     db_sess = db_session.create_session()
-    email = Email(name=email)
+    email = Email(name=email_name)
     db_sess.add(email)
 
     user = db_sess.query(User).filter(User.name == username).first()
@@ -119,6 +119,12 @@ def add_email():
         return "Error"
 
     user.emails.append(email)
+
+    email_token = generate_token(30)
+
+    email.token = email_token
+
+    send_email(email_name, f"{website_link}/verify/{email_name}/{email_token}")
 
     db_sess.commit()
 
@@ -275,6 +281,12 @@ def test_registration():
     user = User(name=login)
 
     user.emails.append(email)
+
+    email_token = generate_token(30)
+
+    email.token = email_token
+
+    send_email(email_name, f"{website_link}/verify/{email_name}/{email_token}")
 
     user.set_password(password)
 
