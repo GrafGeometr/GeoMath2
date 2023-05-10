@@ -157,8 +157,8 @@ def remove_email():
         return "Error2"
 
     verified_emails_count = 0
-    for email in user.emails:
-        if email.verified:
+    for em in user.emails:
+        if em.verified:
             verified_emails_count += 1
 
     if verified_emails_count <= 1 and email.verified:

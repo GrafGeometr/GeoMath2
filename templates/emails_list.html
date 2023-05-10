@@ -35,14 +35,61 @@
         xhr.send(JSON.stringify(data));
     }
 </script>
-
-<h2>список почт для дебага:</h2>
+<style>
+    .checker_img {
+    mix-blend-mode: multiply;
+    height: 50px;
+    }
+    .email_verify_button {
+        height: 50%;
+        width: 60%;
+        margin-left: 10px;
+        margin-right: 10px;
+        border: 0;
+        border-radius: 10px;
+        font-size: 17px;
+        font-weight: bold;
+        color: rgb(255,255,255);
+        background-color: rgb(255, 97, 116);
+        cursor: pointer;
+    }
+    .remove_email_button {
+        border: 0;
+        background-color: transparent;
+        cursor: pointer;
+    }
+    .emails_list {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        border: 2px solid rgb(70, 178, 250);
+        border-radius: 10px;
+        background-color: rgb(255,255,255);
+        width: 100%;
+        margin-bottom: 15px;
+    }
+</style>
+<h2>Мои почты</h2>
+<div class="emails_list">
 {% for email in current_user.emails %}
-<br>
-<h2>id={{ email.id }}, name={{ email.name }}, verified={{ email.verified }}, token={{ email.token }}</h2>
-<button onclick="remove_email('{{ current_user.name }}', '{{ email.name }}')">Удалить почту {{ email.name }}</button>
-<button onclick="send_verifying_link('{{ current_user.name }}', '{{ email.name }}')">Подтвердить почту {{ email.name }}</button>
+    <div style="display: flex; justify-content: space-between; align-items: center; height: 100px; margin-left: 15px; margin-right: 15px;">
+        <div style="display: flex; height: 100%; width: 55%; flex-direction: row; justify-content: flex-start; align-items: center;">
+            {% if email.verified %}
+                <img class = "checker_img" src="/static/images/check.png" alt="check">
+            {% else %}
+                <img class = "checker_img" src="/static/images/cancel.png" alt="cancel">
+            {% endif %}
+            <h2 style="margin-left: 10px; margin-right: 10px;">{{ email.name }}</h2>
+        </div>
+        <div style="display: flex; height: 100%; width: 30%; flex-direction: row; justify-content: flex-end; align-items: center;">
+            {% if not email.verified %}
+                <button class = "email_verify_button" onclick="send_verifying_link('{{ current_user.name }}', '{{ email.name }}')">Подтвердить</button>
+            {% endif %}
+            <button class = "remove_email_button" onclick="remove_email('{{ current_user.name }}', '{{ email.name }}')"><img class = "checker_img" src="/static/images/bin.png" alt="bin"></button>
+        </div>
+    </div>
 {% endfor %}
+</div>
 
 <style>
 .add_email_form {
@@ -67,7 +114,7 @@
 }
 .input_field {
     height: 100%;
-    width: 80%;
+    width: 60%;
     font-size: 25px;
     background-color:#f4f4f4;
     border: 2px solid #dddddd;
