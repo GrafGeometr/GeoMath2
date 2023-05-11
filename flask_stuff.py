@@ -149,16 +149,14 @@ def remove_email():
     email_name = data["email"]
     
     db_sess = db_session.create_session()
-    email = db_sess.query(Email).filter(Email.name == email_name).first()
-    if not email:
-        return "Email doesn't exist"
 
     user = get_current_user(db_sess)
     if not user:
         return "User doesn't exist"
-    
-    if email.user_id != user.id:
-        return "This is not your email"
+
+    email = db_sess.query(Email).filter(Email.name == email_name, Email.user_id == user.id).first()
+    if not email:
+        return "Email doesn't exist"
 
     if user.get_verified_emails_count() <= 1 and email.verified:
         return "User tries to remove only one verified email he has"
@@ -182,16 +180,14 @@ def send_verifying_link():
     email_name = data["email"]
 
     db_sess = db_session.create_session()
-    email = db_sess.query(Email).filter(Email.name == email_name).first()
-    if not email:
-        return "Email doesn't exist"
-    
+
     user = get_current_user(db_sess)
     if not user:
         return "User doesn't exist"
-    
-    if email.user_id != user.id:
-        return "This is not your email"
+
+    email = db_sess.query(Email).filter(Email.name == email_name, Email.user_id == user.id).first()
+    if not email:
+        return "Email doesn't exist"
     
     email_token_stuff(email)
     
@@ -208,17 +204,15 @@ def verify(email_name, email_token):
         return redirect("/login/$myprofile")
     
     db_sess = db_session.create_session()
-    email = db_sess.query(Email).filter(Email.name == email_name).first()
 
-    if not email:
-        return "Email doesn't exist"
-    
     user = get_current_user(db_sess)
     if not user:
         return "User doesn't exist"
-    
-    if email.user_id != current_user.id:
-        return "This is not your email"
+
+    email = db_sess.query(Email).filter(Email.name == email_name, Email.user_id == user.id).first()
+
+    if not email:
+        return "Email doesn't exist"
     
     if email.token != email_token:
         return "Token doesn't match"
