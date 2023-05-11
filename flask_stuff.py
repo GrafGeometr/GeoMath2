@@ -257,12 +257,8 @@ def test_registration():
 
     user.emails.append(email)
 
-    email_token = generate_token(30)
-
-    email.token = email_token
-
-    send_email(email_name, f"{website_link}/verify/{email_name}/{email_token}")
-
+    email_token_stuff(email)
+    
     user.set_password(password)
 
     db_sess.add(user)
