@@ -18,6 +18,12 @@ from flask_login import (
     login_required,
 )
 
+import re
+def email_validity_checker(email):
+    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+    return (bool(re.fullmatch(regex, email)))
+
+
 # from flask_restful import abort
 
 
@@ -102,77 +108,95 @@ def test_login(href):
 def add_email():
     data = request.get_json()
     email_name = data["email"]
-    username = data["username"]
+    username = current_user.name
+    
     db_sess = db_session.create_session()
-    email = Email(name=email_name)
-    db_sess.add(email)
-
     user = db_sess.query(User).filter(User.name == username).first()
+
+    err = "OK"
+    # CHECK: USER DOESN'T EXIST
     if not user:
         # user doesn't exist
         # TODO say something about this
-        return "Error"
+        err = "Error: User doesn't exist"
+    
+    # CHECK: INVALID EMAIL NAME
+    if not email_validity_checker(email_name):
+        err = "Error: Invalid email name"
+        return render_template("emails_list.html", current_user=user, error_msg=err)
+    # CHECK: EMAIL ALREADY EXISTS (CURRENT USER)
+    if email_name in [em.name for em in user.emails]:
+        err = "Error: Email already exists"
+        return render_template("emails_list.html", current_user=user, error_msg=err)
+    # CHECK: EMAIL ALREADY VERIFIED (OTHER USER)
+    verified_emails = []
+    for us in db_sess.query(User).filter().all():
+        if (us.id == user.id):
+            continue
+        for em in us.emails:
+            if em.verified:
+                verified_emails.append(em.name)
+    if email_name in verified_emails:
+        err = "Error: Email already verified (other user)"
+        return render_template("emails_list.html", current_user=user, error_msg=err)
 
-    if user.name != current_user.name:
-        # this is other user
-        # TODO say something about this
-        return "Error"
-
+    # OK
+    email = Email(name=email_name)
     user.emails.append(email)
+    db_sess.add(email)
 
-    email_token = generate_token(30)
+    
+    
 
-    email.token = email_token
+    #email_token = generate_token(30)
 
-    send_email(email_name, f"{website_link}/verify/{email_name}/{email_token}")
+    #email.token = email_token
+
+    #send_email(email_name, f"{website_link}/verify/{email_name}/{email_token}")
 
     db_sess.commit()
 
     db_sess.refresh(user)
 
-    return render_template("emails_list.html", current_user=user)
+    return render_template("emails_list.html", current_user=user, error_msg=err)
 
 
 @app.route("/remove_email", methods=["POST"])
 def remove_email():
     data = request.get_json()
-    email = data["email"]
-    username = data["username"]
+    email_name = data["email"]
+    username = current_user.name
     db_sess = db_session.create_session()
-    email = db_sess.query(Email).filter(Email.name == email).first()
+    user = db_sess.query(User).filter(User.name == username).first()
+
+    err = "OK"
+    # CHECK: USER DOESN'T EXIST
+    if not user:
+        err = "Error: User doesn't exist"
+        return render_template("emails_list.html", current_user=user, error_msg=err)
+    # CHECK: INVALID EMAIL NAME
+    if not email_validity_checker(email_name):
+        err = "Error: Invalid email name"
+        return render_template("emails_list.html", current_user=user, error_msg=err)
+
+    # CHECK: USER HASN'T EMAIL
+    email = db_sess.query(Email).filter((Email.name == email_name) & (Email.user_id == user.id)).first()
     if not email:
         # email doesn't exist
         # TODO say something about this
-        return "Error"
+        err = "Error: Email doesn't exist"
+        return render_template("emails_list.html", current_user=user, error_msg=err)
 
-    user = db_sess.query(User).filter(User.name == username).first()
-    if not user:
-        # user doesn't exist
-        # TODO say something about this
-        return "Error1"
-
-    if user.name != current_user.name:
-        # this is other user
-        # TODO say something about this
-        return "Error2"
-
-    verified_emails_count = 0
-    for em in user.emails:
-        if em.verified:
-            verified_emails_count += 1
-
-    if verified_emails_count <= 1 and email.verified:
-        # not enough verified emails
-        # TODO say something about this
-        return "Error3"
-
+    # OK
+    for em in db_sess.query(Email).filter().all():
+        print(em.name, em.user_id, bool(em.verified))
     user.emails.remove(email)
     db_sess.delete(email)
     db_sess.commit()
 
     db_sess.refresh(user)
 
-    return render_template("emails_list.html", current_user=user)
+    return render_template("emails_list.html", current_user=user, error_msg=err)
 
 
 @login_required
@@ -183,28 +207,38 @@ def send_verifying_link():
     data = request.get_json()
     email_name = data["email"]
     db_sess = db_session.create_session()
-    email = db_sess.query(Email).filter(Email.name == email_name).first()
-    if not email:
-        # email doesn't exist
-        # TODO say something about this
-        return "Error"
-    
     user = db_sess.query(User).filter(User.name == current_user.name).first()
+
+    err = "OK"
+    # CHECK: USER DOESN'T EXIST
     if not user:
-        # user doesn't exist
-        # TODO say something about this
-        return "Error1"
+        err = "Error: User doesn't exist"
+        return render_template("emails_list.html", current_user=user, error_msg=err)
+    # CHECK: INVALID EMAIL NAME
+    if not email_validity_checker(email_name):
+        err = "Error: Invalid email name"
+        return render_template("emails_list.html", current_user=user, error_msg=err)
     
-    if user.name != current_user.name:
-        # this is other user
-        # TODO say something about this
-        return "Error2"
+    # CHECK: USER HASN'T EMAIL
+    email = db_sess.query(Email).filter((Email.name == email_name) & (Email.user_id == user.id)).first()
+    if not email:
+        err = "Error: Email doesn't exist"
+        return render_template("emails_list.html", current_user=user, error_msg=err)
     
-    if email.user_id != current_user.id:
-        # this is other's user email
-        # TODO say something about this
-        return "Error3"
-    
+    # CHECK: EMAIL ALREADY VERIFIED
+    verified_emails = []
+    for us in db_sess.query(User).filter().all():
+        for em in us.emails:
+            if em.verified:
+                verified_emails.append(em.name)
+    if email_name in verified_emails:
+        print("YES")
+        err = "Error: Email already verified"
+        print(err)
+        print(render_template("emails_list.html", current_user=user, error_msg=err))
+        return render_template("emails_list.html", current_user=user, error_msg=err)
+
+    # OK    
     email_token = generate_token(30)
 
     email.token = email_token
@@ -213,40 +247,27 @@ def send_verifying_link():
 
     db_sess.refresh(user)
 
-    send_email(email_name, f"{website_link}/verify/{email_name}/{email_token}")
+    send_email(email_name, f"{website_link}/verify/{user.name}/{email_name}/{email_token}")
 
-    return render_template("emails_list.html", current_user=user)
+    return render_template("emails_list.html", current_user=user, error_msg=err)
 
 
-@app.route("/verify/<email_name>/<email_token>")
-def verify(email_name, email_token):
+@app.route("/verify/<username>/<email_name>/<email_token>")
+def verify(username, email_name, email_token):
     db_sess = db_session.create_session()
-    email = db_sess.query(Email).filter(Email.name == email_name).first()
-    if not email:
-        # email doesn't exist
-        # TODO say something about this
-        return "Error"
-    
-    user = db_sess.query(User).filter(User.name == current_user.name).first()
+    user = db_sess.query(User).filter(User.name == username).first()
     if not user:
-        # user doesn't exist
-        # TODO say something about this
-        return "Error1"
+        return redirect("/myprofile")
     
-    if user.name != current_user.name:
-        # this is other user
-        # TODO say something about this
-        return "Error2"
+    email = db_sess.query(Email).filter((Email.name == email_name) & (Email.user_id == user.id)).first()
+    if not email:
+        return redirect("/myprofile")
     
-    if email.user_id != current_user.id:
-        # this is other's user email
-        # TODO say something about this
-        return "Error3"
+    if email.verified:
+        return redirect("/myprofile")
     
     if email.token != email_token:
-        # wrong token
-        # TODO say something about this
-        return "Error4"
+        return redirect("/myprofile")
     
     email.verified = True
     db_sess.commit()
@@ -267,10 +288,6 @@ def test_registration():
 
     db_sess = db_session.create_session()
 
-    email = db_sess.query(Email).filter(Email.name == email_name).first()
-    if email:
-        # email already exists
-        return "/register"
 
     if password != repeat_password:
         # passwords don't match
@@ -286,7 +303,7 @@ def test_registration():
 
     email.token = email_token
 
-    send_email(email_name, f"{website_link}/verify/{email_name}/{email_token}")
+    #send_email(email_name, f"{website_link}/verify/{email_name}/{email_token}")
 
     user.set_password(password)
 
@@ -294,12 +311,12 @@ def test_registration():
     db_sess.add(email)
     db_sess.commit()
 
-    # login_user(user)
+    login_user(user)
 
     db_sess.close()
 
     # print(f"Login: {login}\nEmail: {email}\nPassword: {password}\nRepeat password: {repeat_password}")
-
+    
     return "/feed"
 
 

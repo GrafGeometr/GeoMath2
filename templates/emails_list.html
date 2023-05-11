@@ -1,6 +1,6 @@
 <script>
-    function remove_email(username, email) {
-        var data = {'username' : username, 'email' : email};
+    function remove_email(email) {
+        var data = {'email' : email};
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '/remove_email', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -13,9 +13,8 @@
     }
 
     function add_email() {
-        var username = '{{ current_user.name }}';
         var email = document.getElementById("add_email_input").value;
-        var data = {'username' : username, 'email' : email};
+        var data = {'email' : email};
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '/add_email', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -27,11 +26,16 @@
         xhr.send(JSON.stringify(data));
     }
 
-    function send_verifying_link(username, email) {
-        var data = {'username' : username, 'email' : email};
+    function send_verifying_link(email) {
+        var data = {'email' : email};
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '/send_verifying_link', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                document.getElementById("emails_block").innerHTML = this.responseText;
+            }
+        };
         xhr.send(JSON.stringify(data));
     }
 </script>
@@ -83,9 +87,9 @@
         </div>
         <div style="display: flex; height: 100%; width: 30%; flex-direction: row; justify-content: flex-end; align-items: center;">
             {% if not email.verified %}
-                <button class = "email_verify_button" onclick="send_verifying_link('{{ current_user.name }}', '{{ email.name }}')">Подтвердить</button>
+                <button class = "email_verify_button" onclick="send_verifying_link('{{ email.name }}')">Подтвердить</button>
             {% endif %}
-            <button class = "remove_email_button" onclick="remove_email('{{ current_user.name }}', '{{ email.name }}')"><img class = "checker_img" src="/static/images/bin.png" alt="bin"></button>
+            <button class = "remove_email_button" onclick="remove_email('{{ email.name }}')"><img class = "checker_img" src="/static/images/bin.png" alt="bin"></button>
         </div>
     </div>
 {% endfor %}
@@ -134,6 +138,12 @@
         cursor: pointer;
     }
 </style>
+
+{% if error_msg != "OK" %}
+    <p style="color: red;">{{ error_msg }}</p>
+{% else %}
+    <p style="color: green;">{{ error_msg }}</p>
+{% endif %}
 
 <form class="add_email_form" action="javascript:add_email();">
     <div class="input_form">
