@@ -3,7 +3,8 @@ import os
 from data.user import User
 from data.email import Email
 from init_app import app, load_user, website_link
-from decorators import route
+from decorators import route, email_required
+from usefull_functions import *
 from data import db_session
 from token_gen import generate_token
 from send_letter import send_email
@@ -104,8 +105,12 @@ def test_login(href):
     return href.replace("$", "/")
 
 
+@login_required
 @app.route("/add_email", methods=["POST"])
 def add_email():
+    if not current_user.is_authenticated:
+        return redirect("/login/$myprofile")
+
     data = request.get_json()
     email_name = data["email"]
     username = current_user.name
@@ -161,8 +166,12 @@ def add_email():
     return render_template("emails_list.html", current_user=user, error_msg=err)
 
 
+@login_required
 @app.route("/remove_email", methods=["POST"])
 def remove_email():
+    if not current_user.is_authenticated:
+        return redirect("/login/$myprofile")
+    
     data = request.get_json()
     email_name = data["email"]
     username = current_user.name
@@ -204,8 +213,10 @@ def remove_email():
 def send_verifying_link():
     if not current_user.is_authenticated:
         return redirect("/login/$myprofile")
+    
     data = request.get_json()
     email_name = data["email"]
+
     db_sess = db_session.create_session()
     user = db_sess.query(User).filter(User.name == current_user.name).first()
 
