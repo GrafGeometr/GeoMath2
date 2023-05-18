@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display: flex; flex-direction: row">
+    <a id="problems_href" href="/pools/{{ current_pool.id }}/problems" style="color: black; font-weight: bold;">Задачи</a>
+    <a id="participants_href" href="/pools/{{ current_pool.id }}/participants" style="color: black; font-weight: bold;">Состав</a>
+</div>
+{% block pool_body %}{% endblock %}
+{% endblock %}
