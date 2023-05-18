@@ -3,6 +3,7 @@ from flask_login import LoginManager
 from data import db_session
 from data.user import User
 
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 app.config['UPLOAD_EXTENSIONS'] = ['.txt', '.pdf', '.doc', '.docx', '.png', '.jpeg', '.jpg', '.gif']
@@ -15,3 +16,4 @@ website_link = "http://127.0.0.1:8000"
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
+

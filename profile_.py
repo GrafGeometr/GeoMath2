@@ -14,4 +14,10 @@ def to_profile():
 def profile(username):
     if not current_user.is_authenticated:
         return redirect("/login/$myprofile")
-    return render_template("profile.html", current_user=current_user)
+    
+    db_sess = db_session.create_session()
+
+    user = get_current_user(db_sess)
+
+
+    return render_template("profile.html", current_user=user)

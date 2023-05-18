@@ -47,8 +47,8 @@
                 <tr style="font-size: 15px; background-color: white;">
                     <td><a href="/pools/{{ userpool.pool.id }}/problems" style="color: black; font-weight: bold;">{{ userpool.pool.name }}</a></td>
                     {% if userpool.role == 'Owner' %} <td>Владелец</td>
-                    {% else if userpool.role == 'Participant' %} <td>Участник</td>
-                    {% else if userpool.role == 'Invited' %} <td>Приглашённый</td>
+                    {% elif userpool.role == 'Participant' %} <td>Участник</td>
+                    {% elif userpool.role == 'Invited' %} <td>Приглашённый</td>
                     {% endif %}
                     {% if userpool.role != 'Invited' %} <td><span style="color: #0000bb; margin: 5px;">Принято</span></td>
                     {% else %}

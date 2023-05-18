@@ -1,5 +1,5 @@
 import datetime
-import math
+from data.user_pool import UserPool
 import sqlalchemy
 from .db_session import SqlAlchemyBase
 from sqlalchemy import orm
@@ -17,6 +17,8 @@ class User(SqlAlchemyBase, UserMixin):
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
 
     emails = orm.relationship("Email", back_populates="user")
+
+    pools_rels = orm.relationship("UserPool", back_populates="user")
     
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)
@@ -26,4 +28,6 @@ class User(SqlAlchemyBase, UserMixin):
     
     def get_verified_emails_count(self):
         return len([email for email in self.emails if email.verified])
-    
+
+    def get_pools(self):
+        return self.pools_rels

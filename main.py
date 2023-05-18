@@ -12,7 +12,7 @@ for module in needs_to_import:
 
 
 def main():
-    db_session.global_init("database/blogs.db")
+    db_session.global_init("database/data.db")
 
     port = int(os.environ.get("PORT", 5000))
     # app.run(host='0.0.0.0', port=port)
