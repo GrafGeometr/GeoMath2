@@ -3,6 +3,7 @@ from .db_session import SqlAlchemyBase
 from sqlalchemy import orm
 from data.user_pool import UserPool
 from utils_and_functions.token_gen import generate_token
+from data import db_session
 
 
 class Pool(SqlAlchemyBase):
@@ -24,6 +25,10 @@ class Pool(SqlAlchemyBase):
                 break
         
         self.hashed_id = hashed_id
+
+    def get_users(self):
+        db_sess = db_session.create_session()
+        return db_sess.query(UserPool).filter(UserPool.pool_id == self.id).all()
     
 
 print(2)

@@ -1,6 +1,6 @@
 <script>
-    function Accept(poolname) {
-        var data = {'poolname' : poolname};
+    function Accept(pool_hashed_id) {
+        var data = {'pool_hashed_id' : pool_hashed_id};
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '/accept_pool_invitation', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -11,8 +11,8 @@
         }
         xhr.send(JSON.stringify(data));
     }
-    function Decline(poolname) {
-        var data = {'poolname' : poolname};
+    function Decline(pool_hashed_id) {
+        var data = {'pool_hashed_id' : pool_hashed_id};
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '/decline_pool_invitation', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -28,7 +28,7 @@
 
 </style>
 
-<div style="display: flex; flex-direction: column; margin: 10px; background-color: #7c7c7c;">
+<div style="display: flex; flex-direction: column; margin: 10px; border: 2px solid rgb(70, 178, 250); background-color: rgb(255,255,255);">
     <div style="display: flex; flex-direction: row; justify-content: flex-end;">
         <a href="/pools/create" style="text-decoration: none; color: black;">Создать пул</a>
     </div>
@@ -45,17 +45,17 @@
                 </tr>
                 {% for userpool in current_user.get_pools() %}
                 <tr style="font-size: 15px; background-color: white;">
-                    <td><a href="/pools/{{ userpool.pool.id }}/problems" style="color: black; font-weight: bold;">{{ userpool.pool.name }}</a></td>
-                    {% if userpool.role == 'Owner' %} <td>Владелец</td>
-                    {% elif userpool.role == 'Participant' %} <td>Участник</td>
-                    {% elif userpool.role == 'Invited' %} <td>Приглашённый</td>
+                    <td><a href="/pool/{{ userpool.pool.hashed_id }}/problems" style="color: black; font-weight: bold;">{{ userpool.pool.name }}</a></td>
+                    {% if userpool.role == 'Owner' %} <td style="color: orange;">Владелец</td>
+                    {% elif userpool.role == 'Participant' %} <td style="color: green;">Участник</td>
+                    {% elif userpool.role == 'Invited' %} <td style="color: gray;">Приглашённый</td>
                     {% endif %}
                     {% if userpool.role != 'Invited' %} <td><span style="color: #0000bb; margin: 5px;">Принято</span></td>
                     {% else %}
                     <td>
                         <div style="display: flex; flex-direction: row;">
-                            <a href="javascript:Accept({{ userpool.pool.name }});" style="color: #00bb00; margin: 5px;">Принять</a>
-                            <a href="javascript:Decline({{ userpool.pool.name }});" style="color: #bb0000; margin: 5px;">Отклонить</a>
+                            <a href="javascript:Accept('{{ userpool.pool.hashed_id }}');" style="color: #00bb00; margin: 5px;">Принять</a>
+                            <a href="javascript:Decline('{{ userpool.pool.hashed_id }}');" style="color: #bb0000; margin: 5px;">Отклонить</a>
                         </div>
                     </td>
                     {% endif %}

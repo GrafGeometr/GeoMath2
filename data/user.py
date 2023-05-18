@@ -5,6 +5,7 @@ from .db_session import SqlAlchemyBase
 from sqlalchemy import orm
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from data import db_session
 
 
 class User(SqlAlchemyBase, UserMixin):
@@ -30,4 +31,5 @@ class User(SqlAlchemyBase, UserMixin):
         return len([email for email in self.emails if email.verified])
 
     def get_pools(self):
-        return self.pools_rels
+        db_sess = db_session.create_session()
+        return db_sess.query(UserPool).filter(UserPool.user_id == self.id).all()

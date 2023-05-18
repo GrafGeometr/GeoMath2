@@ -4,7 +4,7 @@ from data.user import User
 from data.user_pool import UserPool
 
 
-@route("/accept_pool_invitation")
+@app.route("/accept_pool_invitation", methods=["POST"])
 def accept_pool_invitation():
     data = request.get_json()
     pool_hashed_id = data["pool_hashed_id"]
@@ -26,11 +26,13 @@ def accept_pool_invitation():
     relation.role = "Participant"
 
     db_sess.commit()
+    db_sess.close()
+    print("DONE")
 
     return "ok"
 
 
-@route("/decline_pool_invitation")
+@app.route("/decline_pool_invitation", methods=["POST"])
 def decline_pool_invitation():
     data = request.get_json()
     pool_hashed_id = data["pool_hashed_id"]
@@ -51,11 +53,12 @@ def decline_pool_invitation():
     
     db_sess.delete(relation)
     db_sess.commit()
+    db_sess.close()
 
     return "ok"
 
 
-@route("/pools/<pool_hashed_id>/problems")
+@route("/pool/<pool_hashed_id>/problems")
 def get_pool_problems(pool_hashed_id):
     db_sess = db_session.create_session()
 
@@ -81,4 +84,64 @@ def get_pool_participants(pool_hashed_id):
 
 @route("/pools/create")
 def create_pool():
-    pass
+    return render_template("pool_create.html")
+
+@app.route("/create_new_pool", methods=["POST"])
+def create_new_pool():
+    data = request.get_json()
+    name = data["name"]
+    db_sess = db_session.create_session()
+    used_tokens = [p.hashed_id for p in db_sess.query(Pool).all()]
+    hashed_id = generate_token(30)
+    while hashed_id in used_tokens:
+        hashed_id = generate_token(30)
+    
+    pool = Pool(hashed_id=hashed_id, name=name)
+    db_sess.add(pool)
+    db_sess.commit()
+
+
+    user = get_current_user(db_sess)
+    relation = UserPool(user_id=user.id, pool_id=pool.id, role="Owner")
+    db_sess.add(relation)
+    db_sess.commit()
+    db_sess.close()
+
+    return "/myprofile"
+
+@app.route("/add_participant", methods=["POST"])
+def add_participant():
+    data = request.get_json()
+    login = data["login"]
+    pool_hashed_id = data["pool_hashed_id"]
+    db_sess = db_session.create_session()
+
+
+    relation = UserPool(user_id=db_sess.query(User).filter(User.name == login).first().id, pool_id=db_sess.query(Pool).filter(Pool.hashed_id == pool_hashed_id).first().id, role="Invited")
+    db_sess.add(relation)
+    db_sess.commit()
+
+    db_sess.close()
+
+    return render_template("mypools.html")
+
+
+@app.route("/remove_participant", methods=["POST"])
+def remove_participant():
+    data = request.get_json()
+    login = data["login"]
+    pool_hashed_id = data["pool_hashed_id"]
+    db_sess = db_session.create_session()
+
+    user = db_sess.query(User).filter(User.name == login).first()
+    pool = db_sess.query(Pool).filter(Pool.hashed_id == pool_hashed_id).first()
+
+    relation = db_sess.query(UserPool).filter(UserPool.user_id == user.id, UserPool.pool_id == pool.id).first()
+    db_sess.delete(relation)
+
+    db_sess.commit()
+
+    db_sess.refresh(user)
+    db_sess.refresh(pool)
+  
+    return render_template("mypools.html")

@@ -14,10 +14,10 @@
             </tr>
             {% for userpool in current_pool.get_users() %}
             <tr style="font-size: 15px; background-color: white;">
-                <td><a href="/pools/{{ userpool.pool.id }}/problems" style="color: black; font-weight: bold;">{{ userpool.pool.name }}</a></td>
-                {% if userpool.role == 'Owner' %} <td>Владелец</td>
-                {% else if userpool.role == 'Participant' %} <td>Участник</td>
-                {% else if userpool.role == 'Invited' %} <td>Приглашённый</td>
+                <td>{{ userpool.user.name }}</td>
+                {% if userpool.role == 'Owner' %} <td style="color: orange;">Владелец</td>
+                {% elif userpool.role == 'Participant' %} <td style="color: green;">Участник</td>
+                {% elif userpool.role == 'Invited' %} <td style="color: gray;">Приглашённый</td>
                 {% endif %}
             </tr>
             {% endfor %}
