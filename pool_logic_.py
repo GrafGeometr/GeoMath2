@@ -102,12 +102,16 @@ def create_new_pool():
 
 
     user = get_current_user(db_sess)
+    
+    link = f"/pool/{hashed_id}/problems"
+
     relation = UserPool(user_id=user.id, pool_id=pool.id, role="Owner")
     db_sess.add(relation)
     db_sess.commit()
     db_sess.close()
-
-    return "/myprofile"
+    
+    print(link)
+    return link
 
 @app.route("/add_participant", methods=["POST"])
 def add_participant():
