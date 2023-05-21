@@ -59,7 +59,7 @@ def decline_pool_invitation():
 
 
 @route("/pool/<pool_hashed_id>/problems")
-def get_pool_problems(pool_hashed_id):
+def pool_problems(pool_hashed_id):
     db_sess = db_session.create_session()
 
     pool = db_sess.query(Pool).filter(Pool.hashed_id == pool_hashed_id).first()
@@ -71,7 +71,7 @@ def get_pool_problems(pool_hashed_id):
 
 
 @route("/pool/<pool_hashed_id>/participants")
-def get_pool_participants(pool_hashed_id):
+def pool_participants(pool_hashed_id):
     db_sess = db_session.create_session()
 
     pool = db_sess.query(Pool).filter(Pool.hashed_id == pool_hashed_id).first()
@@ -80,6 +80,17 @@ def get_pool_participants(pool_hashed_id):
         return "pool not found"
     
     return render_template("pool_participants.html", current_pool=pool)
+
+@route("/pool/<pool_hashed_id>/management")
+def pool_manager(pool_hashed_id):
+    db_sess = db_session.create_session()
+
+    pool = db_sess.query(Pool).filter(Pool.hashed_id == pool_hashed_id).first()
+
+    if pool is None:
+        return "pool not found"
+    
+    return render_template("pool_management.html", current_pool=pool)
 
 
 @route("/pools/create")

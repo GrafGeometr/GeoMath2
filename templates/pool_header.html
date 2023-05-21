@@ -1,129 +1,49 @@
 {% extends "base.html" %}
 {% block content %}
-<div>
-    <p style="color: black; font-weight: bold; font-size: 17px;">
-        <a href="/profile/{{ current_user.name }}/pools" style="color: black; margin: 10px; text-decoration: none;">Мои пулы</a>
-        /
-        <a href="/pool/{{ current_pool.hashed_id }}/problems" style="color: black; margin: 10px; text-decoration: none;">{{ current_pool.name }}</a>
-    </p>
-</div>
-<div style="width: 100%; height: 1px; background-color: rgb(197, 197, 197); margin-bottom: 15px;"></div>
-<div style="display: flex; flex-direction: row">
-    <a id="problems_href" href="/pool/{{ current_pool.hashed_id }}/problems" style="color: black; font-weight: bold; margin: 10px;">Задачи</a>
-    <a id="participants_href" href="/pool/{{ current_pool.hashed_id }}/participants" style="color: black; font-weight: bold; margin: 10px;">Состав</a>
-</div>
-{% block pool_body %}{% endblock %}
-<script>
-    function add_participant() {
-        var login = document.getElementById("login1").value;
-        var pool_hashed_id = "{{ current_pool.hashed_id }}";
-        var data = {'login' : login, 'pool_hashed_id' : pool_hashed_id};
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/add_participant', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    document.findElementById("pools_block").innerHTML = this.responseText;
-                }
-            };
-        xhr.send(JSON.stringify(data));
-    }
-    function remove_participant() {
-        var login = document.getElementById("login2").value;
-        var pool_hashed_id = "{{ current_pool.hashed_id }}";
-        var data = {'login' : login, 'pool_hashed_id' : pool_hashed_id};
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/remove_participant', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    document.findElementById("pools_block").innerHTML = this.responseText;
-                }
-            };
-        xhr.send(JSON.stringify(data));
-    }
-
-</script>
 <style>
-    .main_div {
-        margin-top: 100px;
+    .pool_topnav_item {
         display: flex;
-        justify-content: center;
+        text-decoration: none;
         align-items: center;
-    }
-    .form {
-        width: 23%;
-        border: 2px solid rgb(70, 178, 250);
-        border-radius: 10px;
-        
-        background-color: rgb(255,255,255);
-
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
-        align-items: center;
-        padding: 15px;
-    }
-    .greeting {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
-    }
-    .input_form {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: flex-start;
-        width: 100%;
-        margin-bottom: 10px;
-    }
-    .input_field_name {
-        margin-bottom: 10px;
-        font-size: 20px;
-    }
-    .input_field {
-        height: 100%;
-        width: 80%;
-        font-size: 25px;
-        background-color:#f4f4f4;
-        border: 2px solid #dddddd;
-        border-radius: 5px;
-        padding: 5px;
-    }
-    .submit_button {
-        width: 55%;
-        height: 50px;
-        margin-top: 20px;
+        color: black;
+        background-color: initial;
         border: 0;
-        border-radius: 10px;
-        font-size: 17px;
-        font-weight: bold;
-        color: rgb(255,255,255);
-        background-image: radial-gradient(rgb(137, 196, 238), rgb(70, 178, 250));
+        border-radius: 6px;
         cursor: pointer;
+        font-size: 20px;
+        text-align: center;
+        line-height: 30px;
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-right: 20px;
+    }
+    .pool_topnav_item:hover {
+        background-color: #dadada;
     }
 </style>
-<form class="form" action="javascript:add_participant();">
-    <div class="greeting">
-        <div style="font-size: 25px; font-weight: bold; margin-bottom: 10px;">Добавить участника!</div>
-        <div style="font-size: 15px">...</div>
-    </div>
-    <div class="input_form">
-        <div class="input_field_name">Логин</div>
-        <input type="text" id="login1" class="input_field" required >
-    </div>
-    <input class="submit_button" type="submit" value="Добавить">
-</form>
-<form class="form" action="javascript:remove_participant();">
-    <div class="greeting">
-        <div style="font-size: 25px; font-weight: bold; margin-bottom: 10px;">Удалить участника!</div>
-        <div style="font-size: 15px">...</div>
-    </div>
-    <div class="input_form">
-        <div class="input_field_name">Логин</div>
-        <input type="text" id="login2" class="input_field" required >
-    </div>
-    <input class="submit_button" type="submit" value="Удалить">
-</form>
+<div>
+    <p style="color: black; font-size: 17px;">
+        <a href="/profile/{{ current_user.name }}/pools" style="color: black; margin: 10px; text-decoration: none;">Мои пулы</a>
+        /
+        <a href="/pool/{{ current_pool.hashed_id }}/problems" style="color: black; margin: 10px; text-decoration: none; font-weight: bold;">{{ current_pool.name }}</a>
+    </p>
+</div>
+
+<div style="display: flex; flex-direction: row; margin-top: 20px;">
+    <a id="problems_href" href="/pool/{{ current_pool.hashed_id }}/problems" class="pool_topnav_item">
+        <img src="/static/images/math.png" style="margin-right: 10px; width: 20px;">
+        <span>Задачи</span>
+    </a>
+    <a id="participants_href" href="/pool/{{ current_pool.hashed_id }}/participants" class="pool_topnav_item">
+        <img src="/static/images/users.png" style="margin-right: 10px; width: 20px;">
+        <span>Состав</span>
+    </a>
+    <a id="management_href" href="/pool/{{ current_pool.hashed_id }}/management" class="pool_topnav_item">
+        <img src="/static/images/management.png" style="margin-right: 10px; width: 20px;">
+        <span>Управление</span>
+    </a>
+</div>
+<div style="width: 100%; height: 1px; background-color: rgb(197, 197, 197); margin-top: 15px; margin-bottom: 15px;"></div>
+{% block pool_body %}{% endblock %}
+
 {% endblock %}
