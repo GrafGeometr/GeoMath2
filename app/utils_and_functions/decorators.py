@@ -1,6 +1,5 @@
 from flask import redirect
 from flask_login import current_user, login_required
-from init_app import app
 
 
 from flask import redirect
@@ -13,7 +12,6 @@ def go_to_login(href):
         def decorated_function(*args, **kwargs):
             if not current_user.is_authenticated:
                 return redirect(f"/login/{href.replace('/', '$')}")
-            print("OK")
             return f(*args, **kwargs)
         return decorated_function
     return decorator
@@ -26,8 +24,3 @@ def email_required(f):
             return redirect("/myprofile")
         return f(*args, **kwargs)
     return decorated_function
-
-def route(href):
-    def decorator(f):
-        return app.route(href)(go_to_login(href)(email_required(login_required(f))))
-    return decorator

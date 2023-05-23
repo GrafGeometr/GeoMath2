@@ -1,3 +1,2 @@
-database/blogs.db
+database/data.sqlite
 email_secret_data.py
-database/data.db

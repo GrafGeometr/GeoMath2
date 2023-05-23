@@ -74,7 +74,7 @@
                             {% if userpool.role != 'Invited' %} <td style="color: blue; text-align: center;">Принято</td>
                             {% else %}
                             <td>
-                                <div style="display: flex; flex-direction: row;">
+                                <div style="display: flex; flex-direction: row; justify-content: center;">
                                     <a href="javascript:Accept('{{ userpool.pool.hashed_id }}');" style="color: #00bb00; margin: 5px; text-decoration: none;">Принять</a>
                                     <a href="javascript:Decline('{{ userpool.pool.hashed_id }}');" style="color: #bb0000; margin: 5px; text-decoration: none;">Отклонить</a>
                                 </div>
