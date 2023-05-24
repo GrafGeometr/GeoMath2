@@ -12,6 +12,27 @@ body {
 }
 
 
+.notification {
+        width: 80%;
+        color: #fff;
+        border-radius: 4px;
+        padding: 1.25rem 1.5rem 1.25rem 1.5rem;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+.notification.danger {
+    background-color: #ff3860;
+}
+
+.notification.success {
+    background-color: #4eff56;
+}
+
+.notification.warning {
+    background-color: #ffc400;
+}
+
 .topnav a {
   float: left;
   color: #f2f2f2;
@@ -125,7 +146,7 @@ body {
             </div>
             {% else %}
             <div class="login_link">
-                <a href="/login/$">Войти</a>
+                <a href="/login">Войти</a>
             </div>
             <div class="register_link">
                 <a href="/register">Зарегистрироваться</a>

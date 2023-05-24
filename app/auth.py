@@ -3,26 +3,23 @@ from .model_imports import *
 
 auth = Blueprint('auth', __name__)
 
-@auth.route("/login/<href>")
-def login(href):
-    print(href)
-    return render_template("login.html", togo=f"/test_login/{href}")
+@auth.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        login = request.form.get("login")
+        password = request.form.get("password")
+        next_url = request.form.get("next")
 
-@auth.route("/test_login/<href>", methods=["POST"])
-def login_processing(href):
-    data = request.get_json()
-    login = data["login"]
-    password = data["password"]
-    print(login, password)
-    user = User.query.filter_by(name = login).first()
-    print(user)
-    if user and user.check_password(password):
-        login_user(user)
-        print("Login successful")
-        return href.replace("$", "/")
-    print("UnAuth")
-    return "/login/"+href
-
+        user = User.query.filter_by(name = login).first()
+        if user and user.check_password(password):
+            login_user(user)
+            if next_url:
+                return redirect(next_url)
+            return redirect("/myprofile")
+        else:
+            flash("Неверный логин или пароль", "danger")
+    
+    return render_template("login.html")
 
 @auth.route("/register")
 def register():
@@ -63,4 +60,4 @@ def test_registration():
 @auth.route("/logout")
 def logout():
     logout_user()
-    return redirect("/")
+    return redirect(url_for("auth.login"))

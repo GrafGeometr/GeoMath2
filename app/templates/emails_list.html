@@ -139,11 +139,12 @@
     }
 </style>
 
-{% if error_msg != "OK" %}
-    <p style="color: red;">{{ error_msg }}</p>
-{% else %}
-    <p style="color: green;">{{ error_msg }}</p>
-{% endif %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+        <div class="notification {{ category }}">{{ message }}</div>
+    {% endfor %}
+{% endwith %}
 
 <form class="add_email_form" action="javascript:add_email();">
     <div class="input_form">

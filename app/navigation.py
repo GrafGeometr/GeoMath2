@@ -4,31 +4,31 @@ from .model_imports import *
 nav = Blueprint('nav', __name__)
 
 @nav.route("/")
-@go_to_login("/")
+@login_required
 def index():
     return render_template("base.html", current_user=current_user)
 
 
 @nav.route("/feed")
-@go_to_login("/feed")
+@login_required
 def feed():
     return render_template("feed.html", current_user=current_user)
 
 
 @nav.route("/contests")
-@go_to_login("/contests")
+@login_required
 def contests():
     return render_template("contests.html", current_user=current_user)
 
 
 @nav.route("/collections")
-@go_to_login("/collections")
+@login_required
 def collections():
     return render_template("collections.html", current_user=current_user)
 
 
 @nav.route("/editor")
-@go_to_login("/editor")
+@login_required
 def editor():
     return render_template("editor.html", current_user=current_user)
 
