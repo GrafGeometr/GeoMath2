@@ -4,6 +4,74 @@
     #problems_href {
         color: rgb(70, 178, 250);
     }
+
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    ul li {
+        border: 4px solid rgb(70, 178, 250);
+        border-radius: 5px;
+        background-color: #ffffff;
+        margin-bottom: 10px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    ul li textarea {
+        font-size: 15px;
+        resize: none;
+        border: 0;
+    }
+
+    ul li:hover {
+        border-color: #1f883d;
+    }
+
+    ul a{
+        text-decoration: none;
+        color: black;
+        font-size: 20px;
+    }
+    ul a:hover {
+        text-decoration: underline;
+    }
+    ul p{
+        margin: 0;
+        font-size: 15px;
+        min-height: 18px;
+    }
+    ul button {
+        border: 0;
+        background-color: transparent;
+        cursor: pointer;
+    }
 </style>
-<h1>Задачи (в разработке)</h1>
+<h1>Задачи</h1>
+<form action="/pool/{{ current_pool.hashed_id }}/new_problem" method="post" style="margin-bottom: 10px;">
+<input type="submit" value="Новая задача" style="text-decoration: none; color: white; background-color: #1f883d; font-size: 20px; padding: 10px; border-radius: 5px; border: 0; cursor: pointer;">
+</form>
+
+
+<script>
+    function remove_problem(pool, problem) {
+        var data = {'pool' : pool, 'problem' : problem};
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/remove_problem_from_pool', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    document.getElementById("pool_problemlist").innerHTML = this.responseText;
+                }
+            }
+        xhr.send(JSON.stringify(data));
+    }
+</script>
+
+<div id="pool_problemlist">
+{% include "pool_problemlist.html" %}
+</div>
+
 {% endblock %}

@@ -1,0 +1,39 @@
+{% extends "pool_header.html" %}
+{% block pool_body %}
+<style>
+    h2 {
+        margin: 0;
+        text-align: center;
+    }
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+    textarea {
+        width: 40%;
+        margin-bottom: 10px;
+        resize: none;
+        padding: 1.25rem 1.5rem 1.25rem 1.5rem;
+
+    }
+</style>
+<form action="/pool/{{ current_pool.hashed_id }}/problem/{{ current_problem.id }}" method="post">
+    <div style="display: flex; flex-direction: row;">
+        <h2 style="margin-right: 15px;">{{ current_problem.name }}</h2>
+        <input type="submit" value="Сохранить" style="text-decoration: none; color: white; background-color: #1f883d; font-size: 20px; padding: 10px; border-radius: 5px; border: 0; cursor: pointer;">
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+        <div class="notification {{ category }}" style="margin-top: 10px; width: 40%;">{{ message }}</div>
+    {% endfor %}
+    {% endwith %}
+    <span style="color: gray; font-weight: bold;">Название:</span>
+    <textarea rows="3" cols="50" name="name" style="font-size: 20px;">{{ current_problem.name }}</textarea>
+    <span style="color: gray; font-weight: bold;">Условие:</span>
+    <textarea rows="10" cols="50" name="statement" style="font-size: 20px;">{{ current_problem.statement }}</textarea>
+    <span style="color: gray; font-weight: bold;">Решение:</span>
+    <textarea rows="10" cols="50" name="solution" style="font-size: 20px;">{{ current_problem.solution }}</textarea>
+    
+</form>
+
+{% endblock %}

@@ -79,6 +79,51 @@ def pool_manager(pool_hashed_id):
     
     return render_template("pool_management.html", current_pool=pool)
 
+@pool.route("/pool/<pool_hashed_id>/new_problem", methods=["POST"])
+def new_problem(pool_hashed_id):
+    pool = Pool.query.filter_by(hashed_id = pool_hashed_id).first()
+
+    if pool is None:
+        return "pool not found"
+    
+    problem = Problem(statement="Условие", solution="Решение", pool_id=pool.id)
+    db.session.add(problem)
+    db.session.commit()
+    problem.name = f"Задача #{problem.id}"
+    db.session.commit()
+    return redirect(f"/pool/{pool_hashed_id}/problem/{problem.id}")
+
+@pool.route("/remove_problem_from_pool", methods=["POST"])
+def remove_problem_from_pool():
+    data = request.get_json()
+    pool_hashed_id = data["pool"]
+    problem_id = data["problem"]
+    pool = Pool.query.filter_by(hashed_id = pool_hashed_id).first()
+    problem = Problem.query.filter_by(id = problem_id).first()
+    db.session.delete(problem)
+    db.session.commit()
+    return render_template("pool_problemlist.html", current_pool=pool)
+
+@pool.route("/pool/<pool_hashed_id>/problem/<problem_id>", methods=["GET", "POST"])
+def problem(pool_hashed_id, problem_id):
+    pool = Pool.query.filter_by(hashed_id = pool_hashed_id).first()
+    problem = Problem.query.filter_by(id = problem_id).first()
+    if request.method == "POST":
+        name = request.form["name"]
+        statement = request.form["statement"]
+        solution = request.form["solution"]
+        if name in [pr.name for pr in pool.problems if pr.id != problem.id]:
+            flash("Задача с таким именем уже существует", "danger")
+        elif name == "" or statement == "" or solution == "":
+            flash("Заполните все поля", "danger")
+        else:
+            problem.name = name
+            problem.statement = statement
+            problem.solution = solution
+            db.session.commit()
+            flash("Задача успешно сохранена", "success")    
+        return redirect(f"/pool/{pool_hashed_id}/problem/{problem_id}")
+    return render_template("pool_1problem.html", current_pool=pool, current_problem=problem)
 
 @pool.route("/pools/create")
 def create_pool():

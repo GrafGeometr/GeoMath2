@@ -34,6 +34,7 @@ class Pool(db.Model):
     name = db.Column(db.String, unique=True, nullable=True)
     hashed_id = db.Column(db.String, unique=True, nullable=True)
     userpools = db.relationship("UserPool", backref="pool")
+    problems = db.relationship("Problem", backref="pool")
 
     def set_hashed_id(self):
         while True:
@@ -47,8 +48,18 @@ class Pool(db.Model):
     def get_users(self):
         return UserPool.query.filter_by(pool_id = self.id).all()
     
+    def get_problems(self):
+        return Problem.query.filter_by(pool_id = self.id).all()
+    
 class UserPool(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
     role = db.Column(db.String)
+
+class Problem(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String)
+    pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
+    statement = db.Column(db.String)
+    solution = db.Column(db.String)
