@@ -26,14 +26,13 @@ class User(UserMixin, db.Model):
         pool = Pool(name=name)
         pool.set_hashed_id()
         db.session.add(pool)
-
-        relation = UserPool(user_id=self.id, pool_id=pool.id, role=Owner)
-
-        db.session.add(relation)
-
         db.session.commit()
 
-        return pool
+        relation = UserPool(user_id=self.id, pool_id=pool.id, role=Owner)
+        db.session.add(relation)
+        db.session.commit()
+
+        return pool.hashed_id
 
 
 
@@ -55,7 +54,7 @@ class Pool(db.Model):
 
     def set_hashed_id(self):
         while True:
-            hashed_id = generate_token()
+            hashed_id = generate_token(20)
             if not Pool.query.filter_by(hashed_id = hashed_id).first():
                 self.hashed_id = hashed_id
                 break

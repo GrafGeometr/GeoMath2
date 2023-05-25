@@ -20,7 +20,7 @@ def accept_pool_invitation():
     if relation is None:
         return "user not invited"
     
-    relation.role = "Participant"
+    relation.role = Participant
 
     db.session.commit()
     print("DONE")
@@ -131,7 +131,8 @@ def problem(pool_hashed_id, problem_id): # reworked
 @pool.route("/pool/create", methods=["POST", "GET"])
 def create_new_pool():
     if request.method == "POST":
-        name = request.form["name"]
+        name = request.form.get("name")
+        print(name)
         hashed_id = current_user.create_new_pool(name)
         return redirect(f"/pool/{hashed_id}/problems")
     

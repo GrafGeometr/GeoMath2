@@ -18,6 +18,8 @@ def email_token_stuff(email_obj):
 
     token = generate_token(30)
     email_obj.token = token
-
-    send_email(email_obj.name, f"{website_link}/verify/{email_obj.user.name}/{email_obj.name}/{token}")
+    try:
+        send_email(email_obj.name, f"{website_link}/verify/{email_obj.user.name}/{email_obj.name}/{token}")
+    except:
+        pass
 
