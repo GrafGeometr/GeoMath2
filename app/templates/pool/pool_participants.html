@@ -15,9 +15,9 @@
             {% for userpool in current_pool.get_users() %}
             <tr style="font-size: 15px; background-color: white;">
                 <td>{{ userpool.user.name }}</td>
-                {% if userpool.role == 'Owner' %} <td style="color: orange;">Владелец</td>
-                {% elif userpool.role == 'Participant' %} <td style="color: green;">Участник</td>
-                {% elif userpool.role == 'Invited' %} <td style="color: gray;">Приглашённый</td>
+                {% if userpool.role.isOwner() %} <td style="color: orange;">Владелец</td>
+                {% elif userpool.role.isParticipant() %} <td style="color: green;">Участник</td>
+                {% elif userpool.role.isInvited() %} <td style="color: gray;">Приглашённый</td>
                 {% endif %}
             </tr>
             {% endfor %}

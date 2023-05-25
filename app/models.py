@@ -1,4 +1,5 @@
 from .imports import *
+from .sqlalchemy_custom_types import *
 from .utils_and_functions.token_gen import generate_token
 
 class User(UserMixin, db.Model):
@@ -20,6 +21,22 @@ class User(UserMixin, db.Model):
     
     def get_pools(self):
         return UserPool.query.filter_by(user_id = self.id).all()
+    
+    def create_new_pool(self, name):
+        pool = Pool(name=name)
+        pool.set_hashed_id()
+        db.session.add(pool)
+
+        relation = UserPool(user_id=self.id, pool_id=pool.id, role=Owner)
+
+        db.session.add(relation)
+
+        db.session.commit()
+
+        return pool
+
+
+
 
 class Email(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -51,11 +68,20 @@ class Pool(db.Model):
     def get_problems(self):
         return Problem.query.filter_by(pool_id = self.id).all()
     
+    def new_problem(self):
+        problem = Problem(statement="Условие", solution="Решение", pool_id=self.id)
+        db.session.add(problem)
+        db.session.commit()
+        problem.name = f"Задача #{problem.id}"
+        db.session.commit()
+        return problem
+
+    
 class UserPool(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
-    role = db.Column(db.String)
+    role = db.Column(RoleType)
 
 class Problem(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

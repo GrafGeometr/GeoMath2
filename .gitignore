@@ -1,2 +1,6 @@
 database/data.sqlite
 email_secret_data.py
+app/__pycache__/model_imports.cpython-310.pyc
+app/__pycache__/models.cpython-310.pyc
+app/__pycache__/pool.cpython-310.pyc
+app/__pycache__/sqlalchemy_custom_types.cpython-310.pyc
