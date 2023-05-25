@@ -6,10 +6,11 @@ import os
 
 
 try:
-    from .email_secret_data import EMAIL, PASSWORD
+    from email_secret_data import EMAIL, PASSWORD
 except ImportError:
     EMAIL = os.environ.get("EMAIL")
     PASSWORD = os.environ.get("PASSWORD")
+    print("EMAIL and PASSWORD not set")
 
 
 def send_email(to, link):

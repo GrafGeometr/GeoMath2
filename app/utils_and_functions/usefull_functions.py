@@ -14,6 +14,8 @@ def get_current_user():
     return User.query.filter_by(name = current_user.name).first()
 
 def email_token_stuff(email_obj):
+    print(email_obj)
+
     token = generate_token(30)
     email_obj.token = token
 

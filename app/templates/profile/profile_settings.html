@@ -1,4 +1,4 @@
-{% extends "profile.html" %}
+{% extends "profile/profile.html" %}
 {% block profile_content %}
 <style>
     #profile_settings_href {
@@ -6,6 +6,6 @@
     }
 </style>
 <div id="emails_block" style="display: flex; flex-direction: column;">
-{% include "emails_list.html" %}
+{% include "profile/emails_list.html" %}
 </div>
 {% endblock %}

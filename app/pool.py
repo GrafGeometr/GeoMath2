@@ -58,7 +58,7 @@ def pool_problems(pool_hashed_id):
     if pool is None:
         return "pool not found"
     
-    return render_template("pool_problems.html", current_pool=pool)
+    return render_template("pool/pool_problems.html", current_pool=pool)
 
 
 @pool.route("/pool/<pool_hashed_id>/participants")
@@ -68,7 +68,7 @@ def pool_participants(pool_hashed_id):
     if pool is None:
         return "pool not found"
     
-    return render_template("pool_participants.html", current_pool=pool)
+    return render_template("pool/pool_participants.html", current_pool=pool)
 
 @pool.route("/pool/<pool_hashed_id>/management")
 def pool_manager(pool_hashed_id):
@@ -77,7 +77,7 @@ def pool_manager(pool_hashed_id):
     if pool is None:
         return "pool not found"
     
-    return render_template("pool_management.html", current_pool=pool)
+    return render_template("pool/pool_management.html", current_pool=pool)
 
 @pool.route("/pool/<pool_hashed_id>/new_problem", methods=["POST"])
 def new_problem(pool_hashed_id):
@@ -102,7 +102,7 @@ def remove_problem_from_pool():
     problem = Problem.query.filter_by(id = problem_id).first()
     db.session.delete(problem)
     db.session.commit()
-    return render_template("pool_problemlist.html", current_pool=pool)
+    return render_template("pool/pool_problemlist.html", current_pool=pool)
 
 @pool.route("/pool/<pool_hashed_id>/problem/<problem_id>", methods=["GET", "POST"])
 def problem(pool_hashed_id, problem_id):
@@ -123,11 +123,11 @@ def problem(pool_hashed_id, problem_id):
             db.session.commit()
             flash("Задача успешно сохранена", "success")    
         return redirect(f"/pool/{pool_hashed_id}/problem/{problem_id}")
-    return render_template("pool_1problem.html", current_pool=pool, current_problem=problem)
+    return render_template("pool/pool_1problem.html", current_pool=pool, current_problem=problem)
 
 @pool.route("/pools/create")
 def create_pool():
-    return render_template("pool_create.html")
+    return render_template("pool/pool_create.html")
 
 @pool.route("/create_new_pool", methods=["POST"])
 def create_new_pool():
@@ -156,7 +156,7 @@ def add_participant():
     db.session.add(relation)
     db.session.commit()
 
-    return render_template("mypools.html")
+    return render_template("pool/profile_pools.html")
 
 
 @pool.route("/remove_participant", methods=["POST"])
@@ -172,4 +172,4 @@ def remove_participant():
     db.session.delete(relation)
     db.session.commit()
   
-    return render_template("mypools.html")
+    return render_template("pool/profile_pools.html")

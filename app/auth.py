@@ -3,6 +3,7 @@ from .model_imports import *
 
 auth = Blueprint('auth', __name__)
 
+
 @auth.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -19,43 +20,46 @@ def login():
         else:
             flash("Неверный логин или пароль", "danger")
     
-    return render_template("login.html")
+    return render_template("auth/login.html")
 
-@auth.route("/register")
+
+
+@auth.route("/register", methods=["POST", "GET"])
 def register():
-    print("REG")
-    return render_template("register.html", current_user=current_user)
+    if request.method == "POST":
+        login = request.form.get("login")
+        email_name = request.form.get("email")
+        password = request.form.get("password")
+        repeat_password = request.form.get("repeat_password")
+        next_url = request.form.get("next")
 
+        print(login, email_name, password, repeat_password)
 
-@auth.route("/test_registration", methods=["POST", "GET"])
-def test_registration():
-    data = request.get_json()
-    login = data["login"]
-    email_name = data["email"]
-    password = data["password"]
-    repeat_password = data["repeat_password"]
+        if password != repeat_password:
+            # passwords don't match
+            flash("Пароли не совпадают", "danger")
 
+        user = User(name=login)
+        email = Email(name=email_name, user=user)
 
-    if password != repeat_password:
-        # passwords don't match
-        return "/register"
+        print(email.name)
 
-    user = User(name=login)
-    email = Email(name=email_name, user=user)
+        email_token_stuff(email)
 
-    email_token_stuff(email)
+        user.set_password(password)
 
-    user.set_password(password)
+        db.session.add(user)
+        db.session.add(email)
+        db.session.commit()
 
-    db.session.add(user)
-    db.session.add(email)
-    db.session.commit()
+        login_user(user)
 
-    login_user(user)
-
-    # print(f"Login: {login}\nEmail: {email}\nPassword: {password}\nRepeat password: {repeat_password}")
-
-    return "/feed"
+        # print(f"Login: {login}\nEmail: {email}\nPassword: {password}\nRepeat password: {repeat_password}")
+        if next_url:
+            return redirect(next_url)
+        return redirect("/myprofile")
+    
+    return render_template("auth/register.html", current_user=current_user)
 
 @auth.route("/logout")
 def logout():
