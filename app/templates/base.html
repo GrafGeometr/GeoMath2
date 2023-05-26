@@ -126,6 +126,11 @@ body {
 .register_link {
     margin-left: 10px;
 }
+.multiline_paragraph {
+    margin: 0;
+    font-size: 15px;
+    min-height: 18px;
+}
 
 </style>
 <script type="text/x-mathjax-config">
@@ -137,9 +142,24 @@ body {
     charset="utf-8"
     src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
+<script>
+    function render_multiline_text(text) {
+        var result = "";
+        var paragraphs = text.split("\n");
+        for (var i = 0; i < paragraphs.length; i++) {
+            result += "<p class='multiline_paragraph'>" + paragraphs[i] + "</p>";
+        }
+        return result;
+    }
+</script>
+<script>
+    function prevent_injection(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+</script>
+
 </head>
 <body>
-  
     <div class="header">
         <div class="logo">
             <img class = "logo_img" src="/static/images/logo.png" alt="logo">

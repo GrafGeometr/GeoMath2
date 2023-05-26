@@ -8,12 +8,12 @@
         <hr>
         <span style="color: gray; font-weight: bold;">Условие:</span>
         {% for paragraph in problem.statement.split("\n") %}
-        <p>{{ paragraph }}</p>
+        <p class="multiline_paragraph">{{ paragraph }}</p>
         {% endfor %}
         <hr>
         <span style="color: gray; font-weight: bold;">Решение:</span>
         {% for paragraph in problem.solution.split("\n") %}
-        <p>{{ paragraph }}</p>
+        <p class="multiline_paragraph">{{ paragraph }}</p>
         {% endfor %}
     </li>
     {% endfor %}

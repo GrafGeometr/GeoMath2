@@ -14,11 +14,25 @@
         margin-bottom: 10px;
         resize: none;
         padding: 1.25rem 1.5rem 1.25rem 1.5rem;
-
     }
-    p {
-        width: 50%;
+    
+    #statement_latex_output {
         margin-left: 10px;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #ffffff;
+        border: 2px solid rgb(70, 178, 250);
+        border-radius: 5px;
+        width: 50%;
+    }
+    #solution_latex_output {
+        margin-left: 10px;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #ffffff;
+        border: 2px solid rgb(70, 178, 250);
+        border-radius: 5px;
+        width: 50%;
     }
 </style>
 
@@ -26,13 +40,13 @@
 
 <script>
     function RenderStatement() {
-      var input = document.getElementById("statement_textarea");
-      document.getElementById("statement_latex_output").innerHTML = input.value;
+      var input = prevent_injection(document.getElementById("statement_textarea").value);
+      document.getElementById("statement_latex_output").innerHTML = render_multiline_text(input);
       MathJax.Hub.Queue(["Typeset",MathJax.Hub,"statement_latex_output"]);
       }
     function RenderSolution() {
-      var input = document.getElementById("solution_textarea");
-      document.getElementById("solution_latex_output").innerHTML = input.value;
+      var input = prevent_injection(document.getElementById("solution_textarea").value);
+      document.getElementById("solution_latex_output").innerHTML = render_multiline_text(input);
       MathJax.Hub.Queue(["Typeset",MathJax.Hub,"solution_latex_output"]);
     }
     </script>
@@ -58,14 +72,14 @@
     <span style="color: gray; font-weight: bold;">Условие:</span>
     <div style="display: flex; flex-direction: row; width: 100%;">
         <textarea id="statement_textarea" rows="10" cols="50" name="statement" style="font-size: 20px; width: 50%;" oninput="RenderStatement();">{{ current_problem.statement }}</textarea>
-        <p id="statement_latex_output"></p>
+        <div id="statement_latex_output"></div>
     </div>
     
 
     <span style="color: gray; font-weight: bold;">Решение:</span>
     <div style="display: flex; flex-direction: row; width: 100%;">
         <textarea id="solution_textarea" rows="10" cols="50" name="solution" style="font-size: 20px; width: 50%;" oninput="RenderSolution();">{{ current_problem.solution }}</textarea>
-        <p id="solution_latex_output"></p>
+        <div id="solution_latex_output"></div>
     </div>
     
 </form>
