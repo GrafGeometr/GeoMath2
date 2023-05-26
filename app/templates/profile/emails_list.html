@@ -74,6 +74,7 @@
     }
 </style>
 <h2>Мои почты</h2>
+{% if current_user.emails %}
 <div class="emails_list">
 {% for email in current_user.emails %}
     <div style="display: flex; justify-content: space-between; align-items: center; height: 100px; margin-left: 15px; margin-right: 15px;">
@@ -94,6 +95,7 @@
     </div>
 {% endfor %}
 </div>
+{% endif %}
 
 <style>
 .add_email_form {
@@ -124,9 +126,10 @@
     border: 2px solid #dddddd;
     border-radius: 5px;
     padding: 5px;
+    box-sizing: border-box;
 }
 .add_email_button {
-        width: 55%;
+        width: 60%;
         height: 50px;
         margin-top: 20px;
         border: 0;
@@ -136,13 +139,15 @@
         color: rgb(255,255,255);
         background-image: radial-gradient(rgb(137, 196, 238), rgb(70, 178, 250));
         cursor: pointer;
+        padding-left: 5px;
+        padding-right: 5px;
     }
 </style>
 
 
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% for category, message in messages %}
-        <div class="notification {{ category }}">{{ message }}</div>
+        <div class="notification {{ category }}" style="width: 60%;">{{ message }}</div>
     {% endfor %}
 {% endwith %}
 

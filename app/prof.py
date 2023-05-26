@@ -4,35 +4,30 @@ from .model_imports import *
 prof = Blueprint('prof', __name__)
 
 @prof.route("/myprofile")
+@login_required
 def to_profile():
-    if not current_user.is_authenticated:
-        return redirect("/login/$myprofile")
     return redirect(f"/profile/{current_user.name}")
     
 
 
 @prof.route("/profile/<username>")
+@login_required
 def profile(username):
-    if not current_user.is_authenticated:
-        return redirect("/login/$myprofile")
-    return render_template("profile/profile_about.html", current_user=current_user)
+    return render_template("profile/profile_about.html")
 
 
 @prof.route("/profile/<username>/pools")
+@login_required
 def profile_pools(username):
-    if not current_user.is_authenticated:
-        return redirect("/login/$myprofile")
-    return render_template("profile/profile_pools.html", current_user=current_user)
+    return render_template("profile/profile_pools.html")
 
 
 @prof.route("/profile/<username>/groups")
+@login_required
 def profile_groups(username):
-    if not current_user.is_authenticated:
-        return redirect("/login/$myprofile")
-    return render_template("profile/profile_groups.html", current_user=current_user)
+    return render_template("profile/profile_groups.html")
 
 @prof.route("/profile/<username>/settings")
+@login_required
 def profile_settings(username):
-    if not current_user.is_authenticated:
-        return redirect("/login/$myprofile")
-    return render_template("profile/profile_settings.html", current_user=current_user)
+    return render_template("profile/profile_settings.html")

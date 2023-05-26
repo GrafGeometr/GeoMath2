@@ -33,12 +33,18 @@ def register():
         repeat_password = request.form.get("repeat_password")
         next_url = request.form.get("next")
 
-        print(login, email_name, password, repeat_password)
+        if not email_validity_checker(email_name):
+            flash("Некорректный email", "danger")
+            return redirect("/register")
 
         if password != repeat_password:
             # passwords don't match
             flash("Пароли не совпадают", "danger")
+            return redirect("/register")
 
+        if User.query.filter_by(name = login).first():
+            flash("Пользователь с таким именем уже существует", "danger")
+            return redirect("/register")
         user = User(name=login)
         email = Email(name=email_name, user=user)
 
