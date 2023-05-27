@@ -5,7 +5,7 @@
         display: flex;
         text-decoration: none;
         align-items: center;
-        color: black;
+        color: var(--black);
         background-color: initial;
         border: 0;
         border-radius: 6px;
@@ -18,14 +18,14 @@
         margin-right: 20px;
     }
     .pool_topnav_item:hover {
-        background-color: #dadada;
+        background-color: var(--light-gray);
     }
 </style>
 <div>
-    <p style="color: black; font-size: 17px;">
-        <a href="/profile/{{ current_user.name }}/pools" style="color: black; margin: 10px; text-decoration: none;">Мои пулы</a>
+    <p style="color: var(--black); font-size: 17px;">
+        <a href="/profile/{{ current_user.name }}/pools" style="color: var(--black); margin: 10px; text-decoration: none;">Мои пулы</a>
         /
-        <a href="/pool/{{ current_pool.hashed_id }}/problems" style="color: black; margin: 10px; text-decoration: none; font-weight: bold;">{{ current_pool.name }}</a>
+        <a href="/pool/{{ current_pool.hashed_id }}/problems" style="color: var(--black); margin: 10px; text-decoration: none; font-weight: bold;">{{ current_pool.name }}</a>
     </p>
 </div>
 
@@ -43,7 +43,7 @@
         <span>Управление</span>
     </a>
 </div>
-<div style="width: 100%; height: 1px; background-color: rgb(197, 197, 197); margin-top: 15px; margin-bottom: 15px;"></div>
+<div style="width: 100%; height: 1px; background-color: var(--medium-gray); margin-top: 15px; margin-bottom: 15px;"></div>
 {% block pool_body %}{% endblock %}
 
 {% endblock %}

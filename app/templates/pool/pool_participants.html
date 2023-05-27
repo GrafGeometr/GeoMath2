@@ -2,22 +2,22 @@
 {% block pool_body %}
 <style>
     #participants_href {
-        color: rgb(70, 178, 250);
+        color: var(--blue);
     }
 </style>
 <div>
     <table>
         <tbody>
-            <tr style="background-color: white;">
+            <tr style="background-color: var(--white);">
                 <th>Пользователь</th>
                 <th>Роль</th>
             </tr>
             {% for userpool in current_pool.get_users() %}
-            <tr style="font-size: 15px; background-color: white;">
+            <tr style="font-size: 15px; background-color: var(--white);">
                 <td>{{ userpool.user.name }}</td>
-                {% if userpool.role.isOwner() %} <td style="color: orange;">Владелец</td>
-                {% elif userpool.role.isParticipant() %} <td style="color: green;">Участник</td>
-                {% elif userpool.role.isInvited() %} <td style="color: gray;">Приглашённый</td>
+                {% if userpool.role.isOwner() %} <td style="color: var(--yellow);">Владелец</td>
+                {% elif userpool.role.isParticipant() %} <td style="color: var(--dark-green);">Участник</td>
+                {% elif userpool.role.isInvited() %} <td style="color: var(--dark-gray);">Приглашённый</td>
                 {% endif %}
             </tr>
             {% endfor %}

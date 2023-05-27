@@ -20,8 +20,8 @@
         margin-left: 10px;
         margin-bottom: 10px;
         padding: 10px;
-        background-color: #ffffff;
-        border: 2px solid rgb(70, 178, 250);
+        background-color: var(--white);
+        border: 2px solid var(--blue);
         border-radius: 5px;
         width: 50%;
     }
@@ -29,8 +29,8 @@
         margin-left: 10px;
         margin-bottom: 10px;
         padding: 10px;
-        background-color: #ffffff;
-        border: 2px solid rgb(70, 178, 250);
+        background-color: var(--white);
+        border: 2px solid var(--blue);
         border-radius: 5px;
         width: 50%;
     }
@@ -55,7 +55,7 @@
 <form action="/pool/{{ current_pool.hashed_id }}/problem/{{ current_problem.id }}" method="post" style="width: 100%;">
     <div style="display: flex; flex-direction: row;">
         <h2 style="margin-right: 15px;">{{ current_problem.name }}</h2>
-        <input type="submit" value="Сохранить" style="text-decoration: none; color: white; background-color: #1f883d; font-size: 20px; padding: 10px; border-radius: 5px; border: 0; cursor: pointer;">
+        <input type="submit" value="Сохранить" style="text-decoration: none; color: var(--white); background-color: var(--dark-green); font-size: 20px; padding: 10px; border-radius: 5px; border: 0; cursor: pointer;">
     </div>
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% for category, message in messages %}
@@ -63,20 +63,20 @@
     {% endfor %}
     {% endwith %}
     
-    <span style="color: gray; font-weight: bold;">Название:</span>
+    <span style="color: var(--dark-gray); font-weight: bold;">Название:</span>
     <div style="display: flex; flex-direction: row; width: 100%;">
         <textarea rows="3" cols="50" name="name" style="font-size: 20px; width: 100%;">{{ current_problem.name }}</textarea>
         
     </div>
 
-    <span style="color: gray; font-weight: bold;">Условие:</span>
+    <span style="color: var(--dark-gray); font-weight: bold;">Условие:</span>
     <div style="display: flex; flex-direction: row; width: 100%;">
         <textarea id="statement_textarea" rows="10" cols="50" name="statement" style="font-size: 20px; width: 50%;" oninput="RenderStatement();">{{ current_problem.statement }}</textarea>
         <div id="statement_latex_output"></div>
     </div>
     
 
-    <span style="color: gray; font-weight: bold;">Решение:</span>
+    <span style="color: var(--dark-gray); font-weight: bold;">Решение:</span>
     <div style="display: flex; flex-direction: row; width: 100%;">
         <textarea id="solution_textarea" rows="10" cols="50" name="solution" style="font-size: 20px; width: 50%;" oninput="RenderSolution();">{{ current_problem.solution }}</textarea>
         <div id="solution_latex_output"></div>

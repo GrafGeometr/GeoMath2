@@ -6,12 +6,12 @@
             <button onclick="remove_problem('{{ current_pool.hashed_id }}', '{{ problem.id }}')"><img style="width: 20px; border: 0;" src="/static/images/bin.png" alt="bin"></button>
         </div>
         <hr>
-        <span style="color: gray; font-weight: bold;">Условие:</span>
+        <span style="color: var(--dark-gray); font-weight: bold;">Условие:</span>
         {% for paragraph in problem.statement.split("\n") %}
         <p class="multiline_paragraph">{{ paragraph }}</p>
         {% endfor %}
         <hr>
-        <span style="color: gray; font-weight: bold;">Решение:</span>
+        <span style="color: var(--dark-gray); font-weight: bold;">Решение:</span>
         {% for paragraph in problem.solution.split("\n") %}
         <p class="multiline_paragraph">{{ paragraph }}</p>
         {% endfor %}
