@@ -90,7 +90,7 @@
             {% if not email.verified %}
                 <button class = "email_verify_button" onclick="send_verifying_link('{{ email.name }}')">Подтвердить</button>
             {% endif %}
-            <button class = "remove_email_button" onclick="remove_email('{{ email.name }}')"><img class = "checker_img" src="/static/images/bin.png" alt="bin"></button>
+            <button class = "remove_email_button" onclick="remove_email('{{ email.name }}')"><img class = "checker_img" src="/static/images/bin.png" alt="bin" onmouseover="this.src='/static/images/bin_colored.png'" onmouseout="this.src='/static/images/bin.png'"></button>
         </div>
     </div>
 {% endfor %}

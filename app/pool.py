@@ -61,12 +61,54 @@ def pool_problems(pool_hashed_id): # ok
     return render_template("pool/pool_problems.html", current_pool=pool)
 
 
-@pool.route("/pool/<pool_hashed_id>/participants")
+@pool.route("/pool/<pool_hashed_id>/participants", methods=["GET", "POST"])
 def pool_participants(pool_hashed_id): # ok
     pool = Pool.query.filter_by(hashed_id = pool_hashed_id).first()
-
     if pool is None:
-        return "pool not found" # TODO rework errors system
+        flash("Пул с таким id не найден", "danger")
+        return redirect("/myprofile")
+    if request.method == "POST":
+        if not current_user.get_pool_relation(pool.id).role.isOwner():
+            flash("Вы не имеете доступа к этой странице", "danger")
+            return redirect(url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id))
+        if request.form.get("make_owner_user_id") is not None:
+            user_id = request.form.get("make_owner_user_id")
+            user = User.query.filter_by(id = user_id).first()
+            if user is None:
+                flash("Пользователь не найден", "danger")
+                return redirect(url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id))
+            user_relation = user.get_pool_relation(pool.id)
+            if user_relation is None:
+                flash("Такого пользователя нет в пуле", "danger")
+                return redirect(url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id))
+            if user_relation.role.isOwner():
+                flash("Пользователь уже владелец пула", "warning")
+                return redirect(url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id))
+            if user_relation.role.isInvited():
+                flash("Передать права владельца можно только участнику", "warning")
+                return redirect(url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id))
+            user_relation.role = Owner
+            current_user.get_pool_relation(pool.id).role = Participant
+            db.session.commit()
+            flash(f"Права владельца успешно переданы пользователю {user.name}", "success")
+            return redirect(url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id))
+        else:
+            user_id = request.form.get("remove_user_id")
+            user = User.query.filter_by(id = user_id).first()
+            if user is None:
+                flash("Пользователь не найден", "danger")
+                return redirect(url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id))
+            user_relation = user.get_pool_relation(pool.id)
+            if user_relation is None:
+                flash("Такого пользователя нет в пуле", "danger")
+                return redirect(url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id))
+            if user_id == current_user.id:
+                flash("Вы не можете удалить себя из пула на этой странице", "danger")
+                return redirect(url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id))
+            db.session.delete(user_relation)
+            db.session.commit()
+            flash(f"Пользователь {user.name} успешно удалён", "success")
+            return redirect(url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id))  
     
     return render_template("pool/pool_participants.html", current_pool=pool)
 

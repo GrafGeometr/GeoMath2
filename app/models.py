@@ -33,6 +33,10 @@ class User(UserMixin, db.Model):
         db.session.commit()
 
         return pool.hashed_id
+    
+    def get_pool_relation(self, pool_id):
+        relation = UserPool.query.filter_by(user_id = self.id, pool_id = pool_id).first()
+        return relation
 
 
 
@@ -62,7 +66,9 @@ class Pool(db.Model):
         self.hashed_id = hashed_id
 
     def get_users(self):
-        return UserPool.query.filter_by(pool_id = self.id).all()
+        userpools = UserPool.query.filter_by(pool_id = self.id).all()
+        userpools.sort(key = lambda up: (0, up.user.name) if up.role.isOwner() else (1, up.user.name) if up.role.isParticipant() else (2, up.user.name))
+        return userpools
     
     def get_problems(self):
         return Problem.query.filter_by(pool_id = self.id).all()
