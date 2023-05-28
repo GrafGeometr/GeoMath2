@@ -58,7 +58,7 @@ def pool_problems(pool_hashed_id): # ok
     if pool is None:
         return "pool not found" # TODO rework errors system
     
-    return render_template("pool/pool_problems.html", current_pool=pool)
+    return render_template("pool/pool_problems.html", current_pool=pool, title=f"{pool.name} - задачи")
 
 
 @pool.route("/pool/<pool_hashed_id>/participants", methods=["GET", "POST"])
@@ -110,7 +110,7 @@ def pool_participants(pool_hashed_id): # ok
             flash(f"Пользователь {user.name} успешно удалён", "success")
             return redirect(url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id))  
     
-    return render_template("pool/pool_participants.html", current_pool=pool)
+    return render_template("pool/pool_participants.html", current_pool=pool, title=f"{pool.name} - участники")
 
 @pool.route("/pool/<pool_hashed_id>/management")
 def pool_manager(pool_hashed_id): # ok
@@ -119,7 +119,7 @@ def pool_manager(pool_hashed_id): # ok
     if pool is None:
         return "pool not found" # TODO rework errors system
     
-    return render_template("pool/pool_management.html", current_pool=pool)
+    return render_template("pool/pool_management.html", current_pool=pool, title=f"{pool.name} - управление")
 
 @pool.route("/pool/<pool_hashed_id>/new_problem", methods=["POST"])
 def new_problem(pool_hashed_id): # reworked
@@ -167,7 +167,7 @@ def problem(pool_hashed_id, problem_id): # reworked
         db.session.commit()
         flash("Задача успешно сохранена", "success")    
         return redirect(f"/pool/{pool_hashed_id}/problem/{problem_id}")
-    return render_template("pool/pool_1problem.html", current_pool=pool, current_problem=problem)
+    return render_template("pool/pool_1problem.html", current_pool=pool, current_problem=problem, title=f"Редактор - {problem.name}")
 
 
 @pool.route("/pool/create", methods=["POST", "GET"])
@@ -178,7 +178,7 @@ def create_new_pool():
         hashed_id = current_user.create_new_pool(name)
         return redirect(f"/pool/{hashed_id}/problems")
     
-    return render_template("pool/pool_create.html")
+    return render_template("pool/pool_create.html", title=f"Создание пула")
 
 @pool.route("/add_participant", methods=["POST"])
 def add_participant(): # reworked

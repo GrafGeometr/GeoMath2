@@ -20,7 +20,7 @@ def login():
         else:
             flash("Неверный логин или пароль", "danger")
     
-    return render_template("auth/login.html")
+    return render_template("auth/login.html", title="GeoMath - авторизация")
 
 
 
@@ -65,7 +65,7 @@ def register():
             return redirect(next_url)
         return redirect("/myprofile")
     
-    return render_template("auth/register.html", current_user=current_user)
+    return render_template("auth/register.html", current_user=current_user, title="GeoMath - регистрация")
 
 @auth.route("/logout")
 def logout():
