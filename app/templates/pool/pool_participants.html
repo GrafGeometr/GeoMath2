@@ -8,11 +8,7 @@
         padding: 10px;
     }
 </style>
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% for category, message in messages %}
-        <div class="notification {{ category }}" style="width: 60%;">{{ message }}</div>
-    {% endfor %}
-{% endwith %}
+
 
 <form action="/pool/{{ current_pool.hashed_id }}/participants" method="POST">
     <input type="hidden" name="leave_pool" value="Hm, Value">

@@ -44,6 +44,11 @@
     </a>
 </div>
 <div style="width: 100%; height: 1px; background-color: var(--medium-gray); margin-top: 15px; margin-bottom: 15px;"></div>
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+        <div class="notification {{ category }}" style="width: 100%;">{{ message }}</div>
+    {% endfor %}
+{% endwith %}
 {% block pool_body %}{% endblock %}
 
 {% endblock %}
