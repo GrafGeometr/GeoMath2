@@ -13,58 +13,12 @@
         <div class="notification {{ category }}" style="width: 60%;">{{ message }}</div>
     {% endfor %}
 {% endwith %}
-<div>
-    <table>
-        <tbody>
-            <tr style="background-color: var(--white);">
-                <th>Пользователь</th>
-                <th>Роль</th>
-            </tr>
-            {% for userpool in current_pool.get_users() %}
-            <tr style="font-size: 25px; background-color: var(--white);">
-                <td>{{ userpool.user.name }}</td>
-                <td>
-                    <div style="display: flex; flex-direction: row; align-items: center;">
-                        {% if userpool.role.isOwner() %}
-                        <span style="color: var(--yellow); width: 250px;">Владелец</span>
-                        {% elif userpool.role.isParticipant() %}
-                        <span style="color: var(--dark-green); width: 250px;">Участник</span>
-                        {% else %}
-                        <span style="color: var(--dark-gray); width: 250px;">Приглашённый</span>
-                        {% endif %}
 
-                        <div style="margin-left: 10px; width: 30px;">
-                            {% if current_user.get_pool_relation(current_pool.id).role.isOwner() %}
-                                <form action="/pool/{{ current_pool.hashed_id }}/participants", method="POST">
-                                        <input type="hidden" name="make_owner_user_id" value="{{ userpool.user.id }}">
-                                    {% if userpool.role.isParticipant() %}
-                                        <input type="image" style="width: 100%;" src="/static/images/crown.png" onmouseover="this.src='/static/images/crown_colored.png';" onmouseout="this.src='/static/images/crown.png';" />
-                                    {% elif userpool.role.isOwner() %}
-                                        <img src="/static/images/crown_colored.png" style="width: 100%;" alt="crown">
-                                    {% endif %}
-                                </form>
-                            {% elif current_user.get_pool_relation(current_pool.id).role.isParticipant() %}
-                                {% if userpool.role.isOwner() %}
-                                    <img src="/static/images/crown_colored.png" style="width: 100%;" alt="crown">
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                        <div style="margin-left: 10px; width: 30px;">
-                            {% if current_user.get_pool_relation(current_pool.id).role.isOwner() %}
-                                {% if userpool.user.id != current_user.id %}
-                                    <form action="/pool/{{ current_pool.hashed_id }}/participants", method="POST">
-                                        <input type="hidden" name="remove_user_id" value="{{ userpool.user.id }}">
-                                        <input type="image" style="width: 100%;" src="/static/images/bin.png" onmouseover="this.src='/static/images/bin_colored.png';" onmouseout="this.src='/static/images/bin.png';"/>
-                                    </form>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                    
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<form action="/pool/{{ current_pool.hashed_id }}/participants" method="POST">
+    <input type="hidden" name="leave_pool" value="Hm, Value">
+    <input class="submit_button" type="submit" value="Выйти из пула">
+</form>
+
+{% include "pool/table_of_collaborators.html" %}
+
 {% endblock %}

@@ -5,39 +5,6 @@
         color: var(--blue);
     }
 </style>
-<p>To be continued...</p>
-
-<script>
-    function add_participant() {
-        var login = document.getElementById("login1").value;
-        var pool_hashed_id = "{{ current_pool.hashed_id }}";
-        var data = {'login' : login, 'pool_hashed_id' : pool_hashed_id};
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/add_participant', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    document.findElementById("pools_block").innerHTML = this.responseText;
-                }
-            };
-        xhr.send(JSON.stringify(data));
-    }
-    function remove_participant() {
-        var login = document.getElementById("login2").value;
-        var pool_hashed_id = "{{ current_pool.hashed_id }}";
-        var data = {'login' : login, 'pool_hashed_id' : pool_hashed_id};
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/remove_participant', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    document.findElementById("pools_block").innerHTML = this.responseText;
-                }
-            };
-        xhr.send(JSON.stringify(data));
-    }
-
-</script>
 <style>
     .main_div {
         margin-top: 100px;
@@ -45,70 +12,80 @@
         justify-content: center;
         align-items: center;
     }
-    .form {
-        width: 23%;
-        border: 2px solid var(--blue);
-        border-radius: 10px;
-        
-        background-color: var(--white);
 
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
-        align-items: center;
-        padding: 15px;
-    }
+
+
     .greeting {
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
     }
-    .input_form {
+
+
+
+    .content {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: top;
+        width: 100%;
+        height: 100%;
+        background-color: var(--white);
+        border: 2px solid var(--blue);
+        border-radius: 10px;
+        padding: 10px;
+
+    }
+
+    .sidenav a {
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .sidenav_item {
+        display: flex;
+        text-decoration: none;
+        align-items: center;
+        color: var(--black);
+        background-color: initial;
+        border: 0;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 20px;
+        text-align: center;
+        line-height: 30px;
+        padding-left: 10px;
+        padding-right: 10px;
+        margin-right: 20px;
+    }
+    .pool_topnav_item:hover {
+        background-color: var(--light-gray);
+    }
+
+    .settings_content {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        align-items: flex-start;
+        align-items: left;
         width: 100%;
-        margin-bottom: 10px;
-    }
-    .input_field_name {
-        margin-bottom: 10px;
-        font-size: 20px;
-    }
-    .input_field {
         height: 100%;
-        width: 80%;
-        font-size: 25px;
-        background-color: var(--light-gray);
-        border: 2px solid var(--medium-gray);
-        border-radius: 5px;
-        padding: 5px;
-    }
-    .submit_button {
-        width: 55%;
-        height: 50px;
-        margin-top: 20px;
-        border: 0;
-        border-radius: 10px;
-        font-size: 17px;
-        font-weight: bold;
-        color: var(--white);
-        background-image: radial-gradient(var(--light-blue), var(--blue));
-        cursor: pointer;
+        background-color: var(--white);
     }
 </style>
-<form class="form" action="javascript:add_participant();">
-    <div class="greeting">
-        <div style="font-size: 25px; font-weight: bold; margin-bottom: 10px;">Добавить участника!</div>
-        <div style="font-size: 15px">...</div>
+
+
+<div class="content">
+    <div class="sidenav">
+        <a class="sidenav_item" id="management_general_href" href="/pool/{{ current_pool.hashed_id }}/management/general"><span>Общие настройки</span></a>
+        <a class="sidenav_item" id="management_collaborators_href" href="/pool/{{ current_pool.hashed_id }}/management/collaborators"><span>Участники</span></a>
     </div>
-    <div class="input_form">
-        <div class="input_field_name">Логин</div>
-        <input type="text" id="login1" class="input_field" required >
+    <div style="border-left: 2px solid var(--medium-gray);"></div>
+    <div class="settings_content">
+        {% block pools_settings %}{% endblock %}
     </div>
-    <input class="submit_button" type="submit" value="Добавить">
-</form>
+</div>
 
 
 {% endblock %}

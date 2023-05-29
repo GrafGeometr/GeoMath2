@@ -1,0 +1,58 @@
+{% extends "pool/pool_management.html" %}
+{% block pools_settings %}
+<style>
+    #management_general_href {
+        color: var(--blue);
+    }
+
+    .rename_pool_form {
+        display: flex;
+        width: 24%;
+        border: 2px solid var(--blue);
+        border-radius: 10px;
+        background-color: var(--white);
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        padding: 15px;
+    }
+
+    .input_field {
+        height: 100%;
+        width: 80%;
+        font-size: 25px;
+        background-color: var(--light-gray);
+        border: 2px solid var(--medium-gray);
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    .submit_button {
+        width: 55%;
+        height: 50px;
+        margin-top: 20px;
+        border: 0;
+        border-radius: 10px;
+        font-size: 17px;
+        font-weight: bold;
+        color: var(--white);
+        background-image: radial-gradient(var(--light-blue), var(--blue));
+        cursor: pointer;
+    }
+
+</style>
+
+<h1>Общие настройки</h1>
+<form class="rename_pool_form" action="/pool/{{ current_pool.hashed_id }}/management/general" method="POST">
+    <div class="greeting">
+        Новое название пула
+    </div>
+    <div class="input_field">
+        <input class="input_field" type="text" name="pool_name" value="{{ current_pool.name }}" required>
+    </div>
+    <input class="submit_button" type="submit" value="Сохранить">
+</form>
+<form action="/pool/{{ current_pool.hashed_id }}/management/general" method="POST">
+    <input type="hidden" name="delete_pool" value="Hm, Value">
+    <input class="submit_button" type="submit" value="Удалить пул">
+{% endblock %}
