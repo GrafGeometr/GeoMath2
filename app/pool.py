@@ -167,15 +167,21 @@ def pool_manager_general(pool_hashed_id):
         return redirect("/myprofile")
     
     if request.method == "POST":
+        print(request.form.get("pool_name"))
         if not current_user.get_pool_relation(pool.id).role.isOwner():
+            print("OOPS")
             flash("Вы не имеете доступа к этой странице", "danger")
             return redirect(url_for("pool.pool_manager_general", pool_hashed_id=pool_hashed_id))
         if request.form.get("pool_name") is not None:
+            print(type(request.form.get("pool_name")))
             pool.name = request.form.get("pool_name")
             db.session.commit()
+            print(pool.name)
             flash("Имя пула успешно изменено", "success")
             return redirect(url_for("pool.pool_manager_general", pool_hashed_id=pool_hashed_id))
         if request.form.get("delete_pool") is not None:
+            for relation in UserPool.query.filter_by(pool_id = pool.id).all():
+                db.session.delete(relation)
             db.session.delete(pool)
             db.session.commit()
             flash("Пул успешно удален", "success")
