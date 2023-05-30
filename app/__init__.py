@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 
 from flask import Flask
@@ -14,9 +13,8 @@ def create_app():
     app = Flask(__name__)
     app.config['SERVER_NAME'] = 'ge0math.ru'
     app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database/data.sqlite') + "/?charset=utf8mb4"
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database/data.sqlite')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['RESTFUL_JSON'] = {'ensure_ascii': False}
     db.init_app(app)
 
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .imports import *
 from .model_imports import *
 
@@ -206,7 +205,7 @@ def problem(pool_hashed_id, problem_id): # reworked
 @login_required
 def create_new_pool():
     if request.method == "POST":
-        name = request.form.get("name").encode('utf-8').decode('utf-8')
+        name = request.form.get("name")
         print(name)
         hashed_id = current_user.create_new_pool(name)
         return redirect(f"/pool/{hashed_id}/problems")

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .imports import *
 from .sqlalchemy_custom_types import *
 from .utils_and_functions.token_gen import generate_token

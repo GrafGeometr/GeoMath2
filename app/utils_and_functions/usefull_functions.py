@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from app.imports import *
 from app.model_imports import *
 from app.utils_and_functions.token_gen import generate_token
