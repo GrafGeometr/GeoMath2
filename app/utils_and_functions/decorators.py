@@ -21,6 +21,7 @@ def login_required(f):
     def secure_function(*args, **kwargs):
         if not current_user.is_authenticated:
             flash("Войдите в аккаунт для доступа к сайту", "warning")
+            print("Войдите в аккаунт для доступа к сайту")
             return redirect(url_for("auth.login", next=request.url))
         return f(*args, **kwargs)
 
