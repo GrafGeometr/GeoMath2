@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flask import redirect
 from flask_login import current_user, login_required
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 
 from flask import Flask
@@ -19,7 +20,7 @@ def create_app():
 
     #make db in utf-8
     app.config['JSON_AS_ASCII'] = False
-    
+
 
     login_manager = LoginManager()
     login_manager.init_app(app)
