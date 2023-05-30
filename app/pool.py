@@ -303,7 +303,7 @@ def pool_collaborators(pool_hashed_id):
             current_user.get_pool_relation(pool.id).role = Participant
             db.session.commit()
             flash(f"Права владельца успешно переданы пользователю {user.name}", "success")
-            return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
+            return redirect(url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id))
         elif request.form.get("remove_user_id") is not None:
             user_id = request.form.get("remove_user_id")
             user = User.query.filter_by(id = user_id).first()
