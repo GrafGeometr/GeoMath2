@@ -17,6 +17,10 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
+    #make db in utf-8
+    app.config['JSON_AS_ASCII'] = False
+    
+
     login_manager = LoginManager()
     login_manager.init_app(app)
 
