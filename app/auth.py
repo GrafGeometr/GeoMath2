@@ -14,6 +14,8 @@ def login():
         user = User.query.filter_by(name = login).first()
         if user and user.check_password(password):
             login_user(user)
+            print(user.is_authenticated)
+            print(current_user.is_authenticated)
             if next_url:
                 return redirect(next_url)
             return redirect("/myprofile")
