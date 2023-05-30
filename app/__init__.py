@@ -11,6 +11,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 def create_app():
     app = Flask(__name__)
+    app.config['SERVER_NAME'] = '0.0.0.0:5000'
     app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database/data.sqlite')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
