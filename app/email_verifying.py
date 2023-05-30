@@ -4,8 +4,8 @@ from .model_imports import *
 emv = Blueprint('emv', __name__)
 
 
-@login_required
 @emv.route("/add_email", methods=["POST"])
+@login_required
 def add_email():
     if not current_user.is_authenticated:
         return redirect("/login")
@@ -53,8 +53,8 @@ def add_email():
     return render_template("profile/emails_list.html")
 
 
-@login_required
 @emv.route("/remove_email", methods=["POST"])
+@login_required
 def remove_email():
     if not current_user.is_authenticated:
         return redirect("/login")
@@ -92,8 +92,8 @@ def remove_email():
     return render_template("profile/emails_list.html")
 
 
-@login_required
 @emv.route("/send_verifying_link", methods=["POST"])
+@login_required
 def send_verifying_link():
     if not current_user.is_authenticated:
         return redirect("/login")
@@ -138,6 +138,7 @@ def send_verifying_link():
 
 
 @emv.route("/verify/<username>/<email_name>/<email_token>")
+@login_required
 def verify(username, email_name, email_token):
     print(username, email_name, email_token)
     if not current_user:

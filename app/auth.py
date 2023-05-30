@@ -68,6 +68,7 @@ def register():
     return render_template("auth/register.html", current_user=current_user, title="GeoMath - регистрация")
 
 @auth.route("/logout")
+@login_required
 def logout():
     logout_user()
     return redirect(url_for("auth.login"))

@@ -38,10 +38,12 @@
         <img src="/static/images/users.png" style="margin-right: 10px; width: 20px;">
         <span>Состав</span>
     </a>
+    {% if current_user.get_pool_relation(current_pool.id).role.isOwner() %}
     <a id="management_href" href="/pool/{{ current_pool.hashed_id }}/management" class="pool_topnav_item">
         <img src="/static/images/management.png" style="margin-right: 10px; width: 20px;">
         <span>Управление</span>
     </a>
+    {% endif %}
 </div>
 <div style="width: 100%; height: 1px; background-color: var(--medium-gray); margin-top: 15px; margin-bottom: 15px;"></div>
 {% with messages = get_flashed_messages(with_categories=true) %}

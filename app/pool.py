@@ -3,8 +3,24 @@ from .model_imports import *
 
 pool = Blueprint('pool', __name__)
 
-@login_required
+
+def check_user_in_pool(user, pool):
+    if user.get_pool_relation(pool.id) is None:
+        flash("Вы не можете просматривать этот пул", "danger")
+        return "/myprofile"
+    if user.get_pool_relation(pool.id).role.isInvited():
+        flash("Вы не приняли приглашение в этот пул", "danger")
+        return f"/profile/{user.name}/pools"
+    return None      
+
+def check_management_access(user, pool):
+    if user.get_pool_relation(pool.id).role.isOwner():
+        return None
+    flash("Вы не можете управлять этим пулом", "danger")
+    return url_for("pool.pool_participants", pool_hashed_id=pool.hashed_id)
+
 @pool.route("/accept_pool_invitation", methods=["POST"])
+@login_required
 def accept_pool_invitation():
     data = request.get_json()
     pool_hashed_id = data["pool_hashed_id"]
@@ -26,10 +42,11 @@ def accept_pool_invitation():
     db.session.commit()
     print("DONE")
 
-    return "ok"
+    return render_template("profile/profile_pools_table.html")
 
-@login_required
+
 @pool.route("/decline_pool_invitation", methods=["POST"])
+@login_required
 def decline_pool_invitation():
     data = request.get_json()
     pool_hashed_id = data["pool_hashed_id"]
@@ -50,10 +67,11 @@ def decline_pool_invitation():
     db.session.delete(relation)
     db.session.commit()
 
-    return "ok"
+    return render_template("profile/profile_pools_table.html")
 
 
 @pool.route("/pool/<pool_hashed_id>/problems")
+@login_required
 def pool_problems(pool_hashed_id): # ok
     pool = Pool.query.filter_by(hashed_id = pool_hashed_id).first()
 
@@ -61,15 +79,24 @@ def pool_problems(pool_hashed_id): # ok
         flash("Пул с таким id не найден", "danger")
         return redirect("/myprofile")
     
+    user_checked = check_user_in_pool(current_user, pool)
+    if user_checked is not None:
+        return redirect(user_checked)
+    
     return render_template("pool/pool_problems.html", current_pool=pool, title=f"{pool.name} - задачи")
 
 
 @pool.route("/pool/<pool_hashed_id>/participants", methods=["GET", "POST"])
+@login_required
 def pool_participants(pool_hashed_id): # ok
     pool = Pool.query.filter_by(hashed_id = pool_hashed_id).first()
     if pool is None:
         flash("Пул с таким id не найден", "danger")
         return redirect("/myprofile")
+    
+    user_checked = check_user_in_pool(current_user, pool)
+    if user_checked is not None:
+        return redirect(user_checked)
     
     if request.method == "POST":
         if request.form.get("leave_pool") is not None:
@@ -90,6 +117,7 @@ def pool_participants(pool_hashed_id): # ok
 
 
 @pool.route("/pool/<pool_hashed_id>/new_problem", methods=["POST"])
+@login_required
 def new_problem(pool_hashed_id): # reworked
     pool = Pool.query.filter_by(hashed_id = pool_hashed_id).first()
 
@@ -97,25 +125,59 @@ def new_problem(pool_hashed_id): # reworked
         flash("Пул с таким id не найден", "danger")
         return redirect("/myprofile")
     
+    user_checked = check_user_in_pool(current_user, pool)
+    if user_checked is not None:
+        return redirect(user_checked)
+    
     problem = pool.new_problem()
 
     return redirect(f"/pool/{pool_hashed_id}/problem/{problem.id}")
 
 @pool.route("/remove_problem_from_pool", methods=["POST"])
+@login_required
 def remove_problem_from_pool(): # ok
     data = request.get_json()
     pool_hashed_id = data["pool"]
     problem_id = data["problem"]
     pool = Pool.query.filter_by(hashed_id = pool_hashed_id).first()
+
+    if pool is None:
+        flash("Пул с таким id не найден", "danger")
+        return redirect("/myprofile")
+    
+    user_checked = check_user_in_pool(current_user, pool)
+    if user_checked is not None:
+        return redirect(user_checked)
+
     problem = Problem.query.filter_by(id = problem_id).first()
+
+    if problem is None:
+        flash("Задача не найдена", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/problems")
+    
     db.session.delete(problem)
     db.session.commit()
     return render_template("pool/pool_problemlist.html", current_pool=pool)
 
 @pool.route("/pool/<pool_hashed_id>/problem/<problem_id>", methods=["GET", "POST"])
+@login_required
 def problem(pool_hashed_id, problem_id): # reworked
     pool = Pool.query.filter_by(hashed_id = pool_hashed_id).first()
+
+    if pool is None:
+        flash("Пул с таким id не найден", "danger")
+        return redirect("/myprofile")
+    
+    user_checked = check_user_in_pool(current_user, pool)
+    if user_checked is not None:
+        return redirect(user_checked)
+
     problem = Problem.query.filter_by(id = problem_id).first()
+
+    if problem is None:
+        flash("Задача не найдена", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/problems")
+    
     if request.method == "POST":
         name = request.form["name"]
         statement = request.form["statement"]
@@ -140,6 +202,7 @@ def problem(pool_hashed_id, problem_id): # reworked
 
 
 @pool.route("/pool/create", methods=["POST", "GET"])
+@login_required
 def create_new_pool():
     if request.method == "POST":
         name = request.form.get("name")
@@ -154,17 +217,27 @@ def create_new_pool():
 # pool management
 
 @pool.route("/pool/<pool_hashed_id>/management")
+@login_required
 def pool_manager(pool_hashed_id): # ok
     return redirect(f"/pool/{pool_hashed_id}/management/general")
 
 
 @pool.route("/pool/<pool_hashed_id>/management/general", methods=["GET", "POST"])
+@login_required
 def pool_manager_general(pool_hashed_id):
     pool = Pool.query.filter_by(hashed_id = pool_hashed_id).first()
     
     if pool is None:
         flash("Пул с таким id не найден", "danger")
         return redirect("/myprofile")
+    
+    user_checked = check_user_in_pool(current_user, pool)
+    if user_checked is not None:
+        return redirect(user_checked)
+    
+    management_access_checked = check_management_access(current_user, pool)
+    if management_access_checked is not None:
+        return redirect(management_access_checked)
     
     if request.method == "POST":
         print(request.form.get("pool_name"))
@@ -190,12 +263,21 @@ def pool_manager_general(pool_hashed_id):
     return render_template("pool/pool_management_general.html", current_pool=pool, title=f"{pool.name} - управление")
 
 @pool.route("/pool/<pool_hashed_id>/management/collaborators", methods=["GET", "POST"])
+@login_required
 def pool_collaborators(pool_hashed_id):
     pool = Pool.query.filter_by(hashed_id = pool_hashed_id).first()
     
     if pool is None:
         flash("Пул с таким id не найден", "danger")
         return redirect("/myprofile")
+    
+    user_checked = check_user_in_pool(current_user, pool)
+    if user_checked is not None:
+        return redirect(user_checked)
+    
+    management_access_checked = check_management_access(current_user, pool)
+    if management_access_checked is not None:
+        return redirect(management_access_checked)
 
     if request.method == "POST":
         if not current_user.get_pool_relation(pool.id).role.isOwner():
