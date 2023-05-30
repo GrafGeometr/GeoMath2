@@ -19,6 +19,9 @@ def email_required(f):
 def login_required(f):
     @wraps(f)
     def secure_function(*args, **kwargs):
+        print("login_required")
+        print("Войдите в аккаунт для доступа к сайту")
+        print(current_user.is_authenticated)
         if not current_user.is_authenticated:
             flash("Войдите в аккаунт для доступа к сайту", "warning")
             print("Войдите в аккаунт для доступа к сайту")
