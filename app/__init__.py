@@ -17,9 +17,7 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database/data.sqlite')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
-
-    #make db in utf-8
-    app.config['JSON_AS_ASCII'] = False
+    db.set_character_set('utf8')
 
 
     login_manager = LoginManager()
