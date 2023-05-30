@@ -2,7 +2,7 @@ from app.imports import *
 from app.model_imports import *
 from app.utils_and_functions.token_gen import generate_token
 from app.utils_and_functions.send_letter import send_email
-from app import website_link
+
 
 
 
@@ -19,7 +19,8 @@ def email_token_stuff(email_obj):
     token = generate_token(30)
     email_obj.token = token
     try:
-        send_email(email_obj.name, f"{website_link}/verify/{email_obj.user.name}/{email_obj.name}/{token}")
-    except:
-        pass
+        send_email(email_obj.name, url_for("emv.verify", username=email_obj.user.name, email_name=email_obj.name, email_token=token, _external=True))
+    except Exception as e:
+        print(e)
+        
 

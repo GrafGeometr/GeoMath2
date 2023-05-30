@@ -4,4 +4,3 @@ from .utils_and_functions.token_gen import generate_token
 from .utils_and_functions.send_letter import send_email
 from .utils_and_functions.decorators import login_required
 from .sqlalchemy_custom_types import *
-from . import website_link

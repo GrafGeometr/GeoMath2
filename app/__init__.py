@@ -7,7 +7,7 @@ from flask_login import LoginManager
 
 db = SQLAlchemy()
 basedir = os.path.abspath(os.path.dirname(__file__))
-website_link = "http://127.0.0.1:5000"
+
 
 def create_app():
     app = Flask(__name__)
