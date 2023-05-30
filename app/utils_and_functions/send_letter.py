@@ -19,46 +19,47 @@ except ImportError:
 
 
 def send_email(to, link):
+    try:
+        print([EMAIL])
+        print([PASSWORD])
 
-    print([EMAIL])
-    print([PASSWORD])
+        headers = [
+            "Подтверждение электронной почты",
+            "Подтверждение электронной почты на сайте ge0math.ru", 
+        ]
 
-    headers = [
-        "Подтверждение электронной почты",
-        "Подтверждение электронной почты на сайте ge0math.ru", 
-    ]
+        texts = [
+            "Для подтверждения электронной почты перейдите по ссылке:",
+            "Для подтверждения электронной почты на сайте ge0math.ru перейдите по ссылке:",
+            "Вы добавили эту почту на сайте ge0math.ru. Чтобы подтвердить электронную почту, перейдите по ссылке:",
+            "Вы добавили эту почту на сайте ge0math.ru. Если это не вы, проигнорируйте это письмо. Чтобы подтвердить электронную почту, перейдите по ссылке:",
+        ]
+        
+        text = f"""
+        <html>
+        <body>
+        <h1>{choice(headers)}</h1>
+        <p>{choice(texts)}</p>
+        <a href="{link}">{link}</a>
+        </body>
+        </html>
+        """
 
-    texts = [
-        "Для подтверждения электронной почты перейдите по ссылке:",
-        "Для подтверждения электронной почты на сайте ge0math.ru перейдите по ссылке:",
-        "Вы добавили эту почту на сайте ge0math.ru. Чтобы подтвердить электронную почту, перейдите по ссылке:",
-        "Вы добавили эту почту на сайте ge0math.ru. Если это не вы, проигнорируйте это письмо. Чтобы подтвердить электронную почту, перейдите по ссылке:",
-    ]
-    
-    text = f"""
-    <html>
-    <body>
-    <h1>{choice(headers)}</h1>
-    <p>{choice(texts)}</p>
-    <a href="{link}">{link}</a>
-    </body>
-    </html>
-    """
+        msg = MIMEMultipart()
+        msg['From'] = EMAIL
+        msg['To'] = to
 
-    msg = MIMEMultipart()
-    msg['From'] = EMAIL
-    msg['To'] = to
+        msg['Subject'] = 'Подтверждение электронной почты'
+        message = text
+        msg.attach(MIMEText(message, 'html'))
 
-    msg['Subject'] = 'Подтверждение электронной почты'
-    message = text
-    msg.attach(MIMEText(message, 'html'))
-
-    mailserver = smtplib.SMTP('smtp.yandex.ru', 587)
-    mailserver.ehlo()
-    mailserver.starttls()
-    mailserver.ehlo()
-    mailserver.login(EMAIL, PASSWORD)
-    mailserver.sendmail(EMAIL, to, msg.as_string())
-    mailserver.quit()
-
+        mailserver = smtplib.SMTP('smtp.yandex.ru', 587)
+        mailserver.ehlo()
+        mailserver.starttls()
+        mailserver.ehlo()
+        mailserver.login(EMAIL, PASSWORD)
+        mailserver.sendmail(EMAIL, to, msg.as_string())
+        mailserver.quit()
+    except:
+        pass
     
