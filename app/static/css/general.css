@@ -41,6 +41,13 @@
     --color-notification-warning-border: #cc9c00;
     --color-notification-danger: #ff3860;
     --color-notification-danger-border: #cc0029;
+
+    --color-pool-owner: #ff8c00;
+    --color-pool-participant: #0000ff;
+    --color-pool-invited: #03a89e;
+    --color-pool-accept-invitation: #008000;
+    --color-pool-decline-invitation: #ff0000;
+    --color-pool-accepted: #0000ff;
 }
 
 /* || GENERAL STYLES */
