@@ -1,220 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-<link rel="icon" href="/static/images/logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="icon" href="/static/images/logo.png">
+    <link rel="stylesheet" type="text/css" href="/static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/general.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css">
 <title>{{ title }}</title>
-<style>
-:root {
-    --white: #ffffff;
-    --light-gray: #f4f4f4;
-    --medium-gray: #cccccc;
-    --dark-gray: #666666;
-    --black: #000000;
 
-    --light-blue: #c4d3ff;
-    --blue: #46b2fa;
-    --dark-blue: #368dff;
-
-    --light-green: #22cf2a;
-    --dark-green: #1f883d;
-
-    --yellow: #ffc400;
-
-    --red: #ff3860;
-}
-body {
-    background-color: var(--light-gray);
-    margin-left: 100px;
-    margin-right: 100px;
-    margin-top: 0px;
-    font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-}
-
-
-.notification {
-        color: var(--white);
-        border-radius: 4px;
-        padding: 1.25rem 1.5rem 1.25rem 1.5rem;
-        margin-bottom: 10px;
-        text-align: center;
-        box-sizing: border-box;
-    }
-
-.notification.danger {
-    background-color: var(--red);
-}
-
-.notification.success {
-    background-color: var(--light-green);
-}
-
-.notification.warning {
-    background-color: var(--yellow);
-}
-
-.topnav a {
-  float: left;
-  color: var(--light-gray);
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  font-size: 17px;
-}
-
-.topnav a:hover {
-  background-color: var(--light-blue);
-  color: var(--black);
-}
-
-.topnav a.active {
-  background-color: var(--blue);
-  color: var(--white);
-}
-
-.logo_img {
-    mix-blend-mode: multiply;
-    height: 50px;
-}
-
-.logo {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
-.header {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: stretch;
-}
-
-.logo_title {
-    text-align: center;
-    font-size: 30px;
-    padding-top: 16px;
-    padding-bottom: 14px;
-    margin-left: 10px;
-}
-
-.topnav {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: stretch;
-    background-color: var(--blue);
-    border-radius: 5px;
-}
-
-.profile {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: flex-end;
-    font-size: 17px;
-    padding-bottom: 10px;
-}
-
-.profile a {
-  color: var(--black);
-  text-align: center;
-  text-decoration: none;
-  font-size: 17px;
-}
-
-.profile a:hover {
-    color: var(--blue);
-    text-decoration: underline;
-}
-
-.profile_link {
-    margin-right: 10px;
-}
-
-.logout {
-    margin-left: 10px;
-}
-
-.login_link {
-    margin-right: 10px;
-}
-
-.register_link {
-    margin-left: 10px;
-}
-.multiline_paragraph {
-    margin: 0;
-    font-size: 15px;
-    min-height: 18px;
-}
-.auth_main_div {
-    margin-top: 100px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.auth_form {
-    width: 23%;
-    border: 2px solid var(--blue);
-    border-radius: 10px;
-    
-    background-color: var(--white);
-
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    padding: 15px;
-}
-.auth_form_header {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-}
-.auth_form_input_block {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-start;
-    width: 100%;
-    margin-bottom: 10px;
-}
-.auth_form_input_field_name {
-    margin-bottom: 10px;
-    font-size: 20px;
-}
-.auth_form_input_field {
-    height: 100%;
-    width: 100%;
-    font-size: 25px;
-    background-color: var(--light-gray);
-    border: 2px solid var(--medium-gray);
-    border-radius: 5px;
-    padding: 5px;
-    box-sizing: border-box;
-}
-.auth_form_submit_button {
-    width: 55%;
-    height: 50px;
-    margin-top: 20px;
-    border: 0;
-    border-radius: 10px;
-    font-size: 17px;
-    font-weight: bold;
-    color: var(--white);
-    background-image: radial-gradient(var(--light-blue), var(--blue));
-    cursor: pointer;
-}
-
-
-
-</style>
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({tex2jax: {inlineMath: [ ['$','$'], ["\\(","\\)"] ],processEscapes: true}});
   </script>
@@ -243,38 +37,31 @@ body {
 
 </head>
 <body>
-    <div class="header">
-        <div class="logo">
-            <a href="/feed"><img class = "logo_img" src="/static/images/logo.png" alt="logo"></a>
-            <div class = "logo_title">GeoMath</div>
+    <header class="header">
+        <div class="header__logo">
+            <a href="/feed"><img class = "header__logo__img" src="/static/images/logo.png" alt="logo"></a>
+            <span class = "header__logo__title">GeoMath</span>
         </div>
-        <div class="profile">
+        <div class="header__profile">
             {% if current_user.is_authenticated %}
-            <div class="profile_link">
-                <a href="/profile/{{ current_user.name }}">{{ current_user.name }}</a>
-            </div>
-            <div class="logout">
-                <a href="/logout">Выйти</a>
+            <a class="header__profile__link" href="/profile/{{ current_user.name }}">{{ current_user.name }}</a>
+            <a class="header__logout__link" href="/logout">Выйти</a>
             </div>
             {% else %}
-            <div class="login_link">
-                <a href="/login">Войти</a>
-            </div>
-            <div class="register_link">
-                <a href="/register">Зарегистрироваться</a>
-            </div>
+            <a class="header__login__link" href="/login">Войти</a>
+            <a class="header__register__link" href="/register">Зарегистрироваться</a>
             {% endif %}
         </div>
-    </div>
+    </header>
 
-    <div class="topnav">
-        <a id="feed_nav" href="/feed">Лента</a>
-        <a id="contests_nav" href="/contests">Соревнования</a>
-        <a id="collections_nav" href="/collections">Подборки</a>
-        <a id="editor_nav" href="/editor">Редактор</a>
-    </div>
-
-    </div>
+    <nav class="topnav">
+        <a class="topnav__link" id="feed_nav" href="/feed">Лента</a>
+        <a class="topnav__link" id="contests_nav" href="/contests">Соревнования</a>
+        <a class="topnav__link" id="collections_nav" href="/collections">Подборки</a>
+        <a class="topnav__link" id="editor_nav" href="/editor">Редактор</a>
+    </nav>
+    <div class="content">
     {% block content %}{% endblock %}
+    </div>
 </body>
 </html>

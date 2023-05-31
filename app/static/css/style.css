@@ -1,0 +1,190 @@
+/* || CLASSES */
+.notification {
+    color: var(--color-text-default-dark);
+    font-weight: 600;
+    border-radius: 0.5rem;
+    padding: 1.25rem 1.5rem 1.25rem 1.5rem;
+    font-size: 1.25rem;
+    text-align: center;
+}
+.notification--danger {
+    background-color: var(--color-notification-danger);
+    border: 2px solid var(--color-notification-danger-border);
+}
+
+.notification--warning {
+    background-color: var(--color-notification-warning);
+    border: 2px solid var(--color-notification-warning-border);
+}
+ 
+.notification--success {
+    background-color: var(--color-notification-success);
+    border: 2px solid var(--color-notification-success-border);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+}
+.header__logo {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+}
+.header__logo__img {
+    mix-blend-mode: multiply;
+    height: 5rem;
+}
+.header__logo__title {
+    text-align: center;
+    font-size: 2rem;
+    padding: 1rem;
+    color: var(--color-text-default-dark);
+    font-weight: 600;
+}
+.header__profile {
+    display: flex;
+    align-items: flex-end;
+    column-gap: 1rem;
+    font-size: 1.3rem;
+    padding-bottom: 0.7rem;
+    & > * {
+        text-decoration: none;
+        text-align: center;
+        font-weight: 500;
+        color: var(--color-text-default-dark);
+    }
+    & > *:hover {
+        color: var(--color-text-default-blue);
+        text-decoration: underline;
+    }
+}
+
+.topnav {
+    display: flex;
+    align-items: center;
+    background-color: var(--color-topnav-blue);
+    border-radius: 5px;
+    & .topnav__link:first-child {
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+    }
+}
+.topnav__link {
+    color: var(--color-text-default-light);
+    text-decoration: none;
+    text-align: center;
+    font-size: 1.5rem;
+    padding: 1rem 1rem;
+    &:hover {
+        background-color: var(--color-topnav-blue-link-hover);
+        color: var(--color-text-default-dark);
+    }
+    &:active {
+        background-color: var(--color-topnav-blue-link-active);
+        color: var(--color-text-default-dark);
+    }
+}
+
+.form {
+    border: 2px solid var(--color-border-blue);
+    border-radius: 10px;
+    background-color: var(--color-bg-white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+}
+.form__auth {
+    margin: auto;
+    margin-top: 6rem;
+    width: 30%;
+    min-width: 18rem;
+    color: var(--color-text-default-dark);
+}
+.form__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.form__header__title {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+.form__header__subtitle {
+    font-size: 1rem;
+}
+.form__content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    row-gap: 1rem;
+    margin: 1rem 0;
+}
+.form__content__input {
+    display: flex;
+    flex-direction: column;
+}
+.form__content__input__span {
+    font-size: 1.4rem;
+}
+.form__content__input__field {
+    font-size: 1.7rem;
+    background-color: var(--color-bg-default);
+    border: 2px solid var(--color-border-gray);
+    border-radius: 5px;
+    padding: 0.3rem;
+}
+.form__submit {
+    padding: 1rem 5rem;
+    border: 0;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+
+
+.btn {
+    cursor: pointer;
+}
+
+.btn--green {
+    background-color: var(--color-button-green);
+    color: var(--color-text-default-light);
+    &:hover {
+        background-color: var(--color-button-green-hover);
+    }
+    &:active {
+        background-color: var(--color-button-green-active);
+    }
+}
+.btn--red {
+    background-color: var(--color-button-red);
+    color: var(--color-text-default-light);
+    &:hover {
+        background-color: var(--color-button-red-hover);
+    }
+    &:active {
+        background-color: var(--color-button-red-active);
+    }
+}
+.btn--blue {
+    background-color: var(--color-button-blue);
+    color: var(--color-text-default-light);
+    &:hover {
+        background-color: var(--color-button-blue-hover);
+    }
+    &:active {
+        background-color: var(--color-button-blue-active);
+    }
+}
+
+
+
+.multiline-paragraph {
+    margin: 0;
+    font-size: 15px;
+    min-height: 18px;
+}
