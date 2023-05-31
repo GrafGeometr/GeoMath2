@@ -3,7 +3,7 @@
 <form class="form form__auth form-anticlear" action="/register" method="POST">
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% for category, message in messages %}
-        <div class="notification notification--{{ category }}" style="width: 100%;">{{ message }}</div>
+        <div class="notification notification--{{ category }} fw">{{ message }}</div>
     {% endfor %}
     {% endwith %}
     <div class="form__header">

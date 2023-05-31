@@ -2,7 +2,7 @@
 {% block profile_content %}
 <style>
     #profile_pools_href {
-        border-bottom: 3px solid var(--blue);
+        border-bottom: 3px solid var(--color-border-blue);
     }
 </style>
     <script>
@@ -31,26 +31,10 @@
             xhr.send(JSON.stringify(data));
         }
     </script>
-    <style>
-        table {
-        border-collapse: collapse;
-        }
-
-        table tr {
-        border-bottom: 1px solid var(--light-gray);
-        }
-        table tr:hover td{
-            background-color: var(--light-gray);
-        }
-
-        table tr:last-child {
-        border: 0;
-        }
-    </style>
-    <div style="display: flex; flex-direction: column;">
-        <div style="display: flex; flex-direction: row; justify-content: space-between;">
-            <input type="text" placeholder="Найти пул..." style="font-size: 20px;">
-            <a href="/pool/create" style="text-decoration: none; color: var(--white); background-color: var(--dark-green); font-size: 20px; padding: 10px; border-radius: 5px;">Новый пул</a>
+    <div class="profile__content__pools">
+        <div class="profile__content__pools__header">
+            <input type="text" placeholder="Найти пул...">
+            <a href="/pool/create" class="no-decoration btn btn--green form__submit">Новый пул</a>
         </div>
         
         <div id="pools_block">

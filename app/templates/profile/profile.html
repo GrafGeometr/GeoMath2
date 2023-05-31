@@ -1,33 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
-<style>
-    .profile_header_href {
-        margin: 10px;
-        padding-top: 5px;
-        padding-bottom: 5px;
-        padding-left: 15px;
-        padding-right: 15px;
-        border-radius: 5px;
-        text-decoration: none;
-        color: var(--black);
-    }
-    .profile_header_href:hover {
-        background-color: var(--medium-gray);
-    }
-</style>
-<div style="display: flex; flex-direction: row;">
-    <a id="profile_about_href" class="profile_header_href" href="/profile/{{ current_user.name }}">Основное</a>
-    <a id="profile_pools_href" class="profile_header_href" href="/profile/{{ current_user.name }}/pools">Пулы</a>
-    <a id="profile_groups_href" class="profile_header_href" href="/profile/{{ current_user.name }}/groups">Кружки</a>
-    <a id="profile_settings_href" class="profile_header_href" href="/profile/{{ current_user.name }}/settings">Настройки</a>
-</div>
-<div style="width: 100%; height: 1px; background-color: var(--medium-gray); margin-bottom: 15px;"></div>
+<nav class="profile__nav">
+    <a id="profile_about_href" class="profile__nav__link" href="/profile/{{ current_user.name }}">Основное</a>
+    <a id="profile_pools_href" class="profile__nav__link" href="/profile/{{ current_user.name }}/pools">Пулы</a>
+    <a id="profile_groups_href" class="profile__nav__link" href="/profile/{{ current_user.name }}/groups">Кружки</a>
+    <a id="profile_settings_href" class="profile__nav__link" href="/profile/{{ current_user.name }}/settings">Настройки</a>
+</nav>
+<div class="separator--horizontal"></div>
 
-<div style="display: flex; flex-direction: row; width: 100%;">
-    <div style="display: flex; flex-direction: column; margin-right: 20px;">
-        <img src="/static/images/user.png" style="width: 200px; height: 200px; border: 2px solid var(--blue); border-radius: 50%; mix-blend-mode: multiply;">
-        <span style="color: var(--black); font-size: 20px; text-align: center; margin-top: 10px;">{{ current_user.name }}</span>
-    </div>
+<div class="profile__container">
+    <section class="profile__picture">
+        <img src="/static/images/user.png" class="profile__picture__img circle img--mixed">
+        <span class="profile__picture__username">{{ current_user.name }}</span>
+    </section>
+    <section class="profile__content">
     {% block profile_content %}{% endblock %}
+    </section>
 </div>
 {% endblock %}
