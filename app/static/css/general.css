@@ -54,9 +54,3 @@
 html {
     font-family: Calibri, Candara, Segoe, Segoe UI, Optima, Arial, sans-serif
 }
-
-body {
-    background-color: var(--color-bg-default);
-    margin-left: 8rem;
-    margin-right: 8rem;
-}

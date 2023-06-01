@@ -22,8 +22,6 @@ def login_required(f):
         print("login_required")
         print(current_user.is_authenticated)
         if not current_user.is_authenticated:
-            flash("Войдите в аккаунт для доступа к сайту", "warning")
-            print("hbdgdg")
             return redirect(url_for("auth.login", next=request.url))
         return f(*args, **kwargs)
 
