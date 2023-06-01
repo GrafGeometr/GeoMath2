@@ -1,34 +1,36 @@
 {% extends "base.html" %}
 {% block content %}
-<form class="form form__auth form-anticlear" action="/register" method="POST">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% for category, message in messages %}
-        <div class="notification notification--{{ category }} fw">{{ message }}</div>
-    {% endfor %}
-    {% endwith %}
-    <div class="form__header">
-        <span class="form__header__title">Первый раз на GeoMath?</span>
-        <span class="form__header__subtitle">Регистрация на сайте</span>
-    </div>
-    <div class="form__content">
-        <div class="form__content__input">
-            <span class="form__content__input__span">Логин</span>
-            <input type="text" name="login" class="form__content__input__field" required >
+<div class="flex flex-col items-center">
+    <form class="border-2 border-solid border-sky-400 rounded-lg text-stone-800 bg-white flex flex-col items-center p-4 mt-24 w-1/3 min-w-fit form-anticlear" action="/register" method="POST">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="notification notification--{{ category }} w-full">{{ message }}</div>
+        {% endfor %}
+        {% endwith %}
+        <div class="flex flex-col items-center">
+            <span class="text-xl font-bold">Первый раз на GeoMath?</span>
+            <span class="text-base font-light">Регистрация на сайте</span>
         </div>
-        <div class="form__content__input">
-            <span class="form__content__input__span">Email</span>
-            <input type="text" name="email" class="form__content__input__field" required>
+        <div class="flex flex-col w-full gap-y-4 my-4">
+            <div class="flex flex-col">
+                <span class="text-xl">Логин</span>
+                <input type="text" name="login" class="text-2xl bg-neutral-100 border-2 border-solid border-neutral-300 rounded-md p-2" required >
+            </div>
+            <div class="flex flex-col">
+                <span class="text-xl">Email</span>
+                <input type="text" name="email" class="text-2xl bg-neutral-100 border-2 border-solid border-neutral-300 rounded-md p-2" required>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-xl">Пароль</span>
+                <input type="password" name="password" class="text-2xl bg-neutral-100 border-2 border-solid border-neutral-300 rounded-md p-2" required>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-xl">Повторите пароль</span>
+                <input type="password" name="repeat_password" class="text-2xl bg-neutral-100 border-2 border-solid border-neutral-300 rounded-md p-2" required>
+            </div>
         </div>
-        <div class="form__content__input">
-            <span class="form__content__input__span">Пароль</span>
-            <input type="password" name="password" class="form__content__input__field" required>
-        </div>
-        <div class="form__content__input">
-            <span class="form__content__input__span">Повторите пароль</span>
-            <input type="password" name="repeat_password" class="form__content__input__field" required>
-        </div>
-    </div>
-    <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
-    <input class="form__submit btn btn--blue" type="submit" value="Зарегистрироваться">
-</form>
+        <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+        <input class="hover: cursor-pointer px-16 py-4 rounded-xl text-lg text-white font-semibold bg-blue-400 hover:bg-blue-500 active:bg-blue-600" type="submit" value="Зарегистрироваться">
+    </form>
+</div>
 {% endblock %}

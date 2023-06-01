@@ -1,10 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
-<style>
-    #contests_nav {
-        background-color: var(--dark-blue);
-        color: var(--white);
-    }
-</style>
+<script>
+    var element = document.getElementById("contests_nav");
+    element.classList.add("bg-blue-600");
+</script>
 <h1> Соревнования </h1>
 {% endblock %}
