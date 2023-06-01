@@ -39,109 +39,49 @@
         xhr.send(JSON.stringify(data));
     }
 </script>
-<style>
 
-    .email_verify_button {
-        height: 50%;
-        width: 60%;
-        margin-left: 10px;
-        margin-right: 10px;
-        border: 0;
-        border-radius: 10px;
-        font-size: 17px;
-        font-weight: bold;
-        color: var(--white);
-        background-color: var(--red);
-        cursor: pointer;
-    }
-    .remove_email_button {
-        border: 0;
-        background-color: transparent;
-        cursor: pointer;
-    }
-</style>
-<h2>Мои почты</h2>
+<h2 class="mb-4 text-3xl text-stone-800 font-bold ml-4">Мои почты</h2>
 {% if current_user.emails %}
 <div class="flex flex-col border-2 border-solid border-sky-400 rounded-lg w-full mb-4 min-w-fit">
 {% for email in current_user.emails %}
-    <div class="flex justify-between items-center h-24 mx-4">
+    <div class="flex justify-between items-center h-24 px-4 odd:bg-white even:bg-neutral-100 first:rounded-t-lg last:rounded-b-lg">
         <div class="flex items-center h-full w-full">
             {% if email.verified %}
                 <img class = "h-16 w-16 mix-blend-multiply" src="/static/images/check.png" alt="check">
             {% else %}
                 <img class = "h-16 w-16 mix-blend-multiply" src="/static/images/cancel.png" alt="cancel">
             {% endif %}
-            <h2 class="mx-3 ">{{ email.name }}</h2>
+            <h2 class="mx-3 text-2xl text-stone-800 font-bold">{{ email.name }}</h2>
         </div>
         <div class="flex justify-end items-center h-full w-full gap-x-4">
             {% if not email.verified %}
-                <button class = "hover: cursor-pointer px-16 py-4 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700" onclick="send_verifying_link('{{ email.name }}')">Подтвердить</button>
+                <button class = "hover:cursor-pointer px-16 py-4 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700" onclick="send_verifying_link('{{ email.name }}')">Подтвердить</button>
             {% endif %}
-            <button class = "remove_email_button" onclick="remove_email('{{ email.name }}')"><img class = "h-16 w-16 mix-blend-multiply" src="/static/images/bin.png" alt="bin" onmouseover="this.src='/static/images/bin_colored.png'" onmouseout="this.src='/static/images/bin.png'"></button>
+            <button class = "border-0 bg-transparent hover:cursor-pointer" onclick="remove_email('{{ email.name }}')"><img class = "h-16 w-16 mix-blend-multiply" src="/static/images/bin.png" alt="bin" onmouseover="this.src='/static/images/bin_colored.png'" onmouseout="this.src='/static/images/bin.png'"></button>
         </div>
     </div>
 {% endfor %}
 </div>
 {% endif %}
 
-<style>
-.add_email_form {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-start;
-    width: 100%;
-    margin-bottom: 10px;
-}
-.input_form {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: flex-start;
-        width: 100%;
-        margin-bottom: 10px;
-}
-.input_field_name {
-    margin-bottom: 10px;
-    font-size: 20px;
-}
-.input_field {
-    height: 100%;
-    width: 60%;
-    font-size: 25px;
-    background-color: var(--light-gray);
-    border: 2px solid var(--medium-gray);
-    border-radius: 5px;
-    padding: 5px;
-    box-sizing: border-box;
-}
-.add_email_button {
-        width: 60%;
-        height: 50px;
-        margin-top: 20px;
-        border: 0;
-        border-radius: 10px;
-        font-size: 17px;
-        font-weight: bold;
-        color: var(--white);
-        background-image: radial-gradient(var(--light-blue), var(--blue));
-        cursor: pointer;
-        padding-left: 5px;
-        padding-right: 5px;
-    }
-</style>
+
+
+<div class="flex flex-col w-1/2">
+<form class="rounded-lg text-stone-800 flex gap-x-4 items-stretch mb-4 min-w-fit form-anticlear" action="javascript:add_email();">
+    <input placeholder="Email" type="text" name="login" id="add_email_input" class="text-2xl bg-neutral-100 border-2 border-solid border-neutral-300 rounded-md p-2 w-2/3" required >
+    <input class="hover: cursor-pointer px-12 py-3 rounded-xl text-lg text-white font-semibold bg-blue-400 hover:bg-blue-500 active:bg-blue-600" type="submit" value="Добавить">
+</form>
 
 
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% for category, message in messages %}
-        <div class="notification {{ category }}" style="width: 60%;">{{ message }}</div>
+        {% if category == "danger" %}
+            <div class="w-full text-stone-800 text-semibold rounded p-6 text-lg text-center bg-red-400 border-2 border-solid border-red-600">{{ message }}</div>
+        {% elif category == "warning" %}
+            <div class="w-full text-stone-800 text-semibold rounded p-6 text-lg text-center bg-yellow-400 border-2 border-solid border-yellow-600">{{ message }}</div>
+        {% elif category == "success" %}
+            <div class="w-full text-stone-800 text-semibold rounded p-6 text-lg text-center bg-green-400 border-2 border-solid border-green-600">{{ message }}</div>
+        {% endif %}
     {% endfor %}
 {% endwith %}
-
-<form class="add_email_form" action="javascript:add_email();">
-    <div class="input_form">
-        <div class="input_field_name">Добавить почту:</div>
-        <input type="text" id="add_email_input" class="input_field" required>
-    </div>
-    <input class="add_email_button" type="submit" value="Добавить">
-</form>
+</div>

@@ -1,29 +1,5 @@
 /* || CLASSES */
 
-.notification {
-    color: var(--color-text-default-dark);
-    font-weight: 600;
-    border-radius: 0.5rem;
-    padding: 1.25rem 1.5rem 1.25rem 1.5rem;
-    font-size: 1.25rem;
-    text-align: center;
-}
-.notification--danger {
-    background-color: var(--color-notification-danger);
-    border: 2px solid var(--color-notification-danger-border);
-}
-
-.notification--warning {
-    background-color: var(--color-notification-warning);
-    border: 2px solid var(--color-notification-warning-border);
-}
- 
-.notification--success {
-    background-color: var(--color-notification-success);
-    border: 2px solid var(--color-notification-success-border);
-}
-
-
 
 .multiline-paragraph {
     margin: 0;
