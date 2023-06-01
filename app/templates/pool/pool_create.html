@@ -60,17 +60,19 @@
         cursor: pointer;
     }
 </style>
-<form class="form form__pool-create" action="/pool/create" method="POST">
-    <div class="form__header">
-        <div class="form__header__title">Работай над задачами в команде!</div>
-        <div class="form__header__subtitle">Создание пула</div>
-    </div>
-    <div class="form__content">
-        <div class="form__content__input">
-            <span class="form__content__input__span">Название</span>
-            <input type="text" id="name" name="name" class="form__content__input__field" required >
+<div class="flex flex-col items-center">
+    <form class="border-2 border-solid border-sky-400 rounded-lg text-stone-800 bg-white flex flex-col items-center p-4 mt-24 w-1/2 min-w-fit form-anticlear" action="/pool/create" method="POST">
+        <div class="flex flex-col items-center">
+            <div class="text-xl font-bold">Работай над задачами в команде!</div>
+            <div class="text-base font-light">Создание пула</div>
         </div>
-    </div>
-    <input class="form__submit btn btn--green" type="submit" value="Создать">
-</form>
+        <div class="flex flex-col w-full gap-y-4 my-4">
+            <div class="flex flex-col">
+                <span class="text-xl">Название</span>
+                <input type="text" id="name" name="name" class="text-2xl bg-neutral-100 border-2 border-solid border-neutral-300 rounded-md p-2" required >
+            </div>
+        </div>
+        <input class="hover: cursor-pointer px-16 py-4 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700" type="submit" value="Создать">
+    </form>
+</div>
 {% endblock %}
