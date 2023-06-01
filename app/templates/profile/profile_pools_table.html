@@ -1,32 +1,32 @@
-<table class="table">
+<table class="border-collapse border-2 border-solid border-sky-400">
     <tbody>
-        <tr class="table__row">
-            <th class="table__header">Название пула</th>
-            <th class="table__header">Роль</th>
-            <th class="table__header">Приглашение</th>
-            <th class="table__header">Время вступления</th>
-            <th class="table__header">Время приглашения</th>
+        <tr class="odd:bg-white even:bg-neutral-100">
+            <th class="text-xl py-2 px-8">Название пула</th>
+            <th class="text-xl py-2 px-8">Роль</th>
+            <th class="text-xl py-2 px-8">Приглашение</th>
+            <th class="text-xl py-2 px-8">Время вступления</th>
+            <th class="text-xl py-2 px-8">Время приглашения</th>
         </tr>
         {% for userpool in current_user.get_pools() %}
-        <tr class="table__row">
-            <td class="table__cell"><a href="/pool/{{ userpool.pool.hashed_id }}/problems" style="color: black; font-weight: bold; text-decoration: none;">{{ userpool.pool.name }}</a></td>
-            {% if userpool.role.isOwner() %} <td class="table__cell pool--owner">Владелец</td>
-            {% elif userpool.role.isParticipant() %} <td class="table__cell pool--participant">Участник</td>
-            {% elif userpool.role.isInvited() %} <td class="table__cell pool--invited">Приглашённый</td>
+        <tr class="odd:bg-white even:bg-neutral-100">
+            <td class="text-center text-base py-2"><a href="/pool/{{ userpool.pool.hashed_id }}/problems" style="color: black; font-weight: bold; text-decoration: none;">{{ userpool.pool.name }}</a></td>
+            {% if userpool.role.isOwner() %} <td class="text-center text-base py-2 text-amber-500">Владелец</td>
+            {% elif userpool.role.isParticipant() %} <td class="text-center text-base py-2 text-blue-700">Участник</td>
+            {% elif userpool.role.isInvited() %} <td class="text-center text-base py-2 text-teal-500">Приглашённый</td>
             {% endif %}
-            {% if not userpool.role.isInvited() %} <td class="table__cell pool--accepted">Принято</td>
+            {% if not userpool.role.isInvited() %} <td class="text-center text-base py-2 text-blue-700">Принято</td>
             {% else %}
-            <td class="table__cell">
-                <div class="pools__table__accept-decline">
-                    <a href="javascript:Accept('{{ userpool.pool.hashed_id }}');" class="no-decoration pool--accept--invitation">Принять</a>
-                    <a href="javascript:Decline('{{ userpool.pool.hashed_id }}');" class="no-decoration pool--decline--invitation">Отклонить</a>
+            <td class="text-center text-base py-2">
+                <div class="flex justify-center gap-x-4">
+                    <a href="javascript:Accept('{{ userpool.pool.hashed_id }}');" class="no-underline text-green-500">Принять</a>
+                    <a href="javascript:Decline('{{ userpool.pool.hashed_id }}');" class="no-underline text-red-500">Отклонить</a>
                 </div>
             </td>
             {% endif %}
-            <td class="table__cell">
+            <td class="text-center text-base py-2">
                 ???
             </td>
-            <td class="table__cell">
+            <td class="text-center text-base py-2">
                 ???
             </td>
         </tr>

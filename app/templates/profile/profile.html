@@ -1,19 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
-<nav class="profile__nav">
-    <a id="profile_about_href" class="profile__nav__link" href="/profile/{{ current_user.name }}">Основное</a>
-    <a id="profile_pools_href" class="profile__nav__link" href="/profile/{{ current_user.name }}/pools">Пулы</a>
-    <a id="profile_groups_href" class="profile__nav__link" href="/profile/{{ current_user.name }}/groups">Кружки</a>
-    <a id="profile_settings_href" class="profile__nav__link" href="/profile/{{ current_user.name }}/settings">Настройки</a>
+<nav class="flex gap-x-4 my-2">
+    <a id="profile_about_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/{{ current_user.name }}">Основное</a>
+    <a id="profile_pools_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/{{ current_user.name }}/pools">Пулы</a>
+    <a id="profile_groups_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/{{ current_user.name }}/groups">Кружки</a>
+    <a id="profile_settings_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/{{ current_user.name }}/settings">Настройки</a>
 </nav>
-<div class="separator--horizontal"></div>
 
-<div class="profile__container">
-    <section class="profile__picture">
-        <img src="/static/images/user.png" class="profile__picture__img circle img--mixed">
-        <span class="profile__picture__username">{{ current_user.name }}</span>
+<div class="h-px w-full bg-neutral-300"></div>
+
+<div class="flex mt-4 gap-x-4">
+    <section class="flex flex-col items-center gap-y-4">
+        <img src="/static/images/user.png" class="w-48 h-48 rounded-full border-2 border-solid border-sky-400 mix-blend-multiply">
+        <span class="text-xl text-stone-800">{{ current_user.name }}</span>
     </section>
-    <section class="profile__content">
+    <section>
     {% block profile_content %}{% endblock %}
     </section>
 </div>

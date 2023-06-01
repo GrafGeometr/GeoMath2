@@ -1,10 +1,11 @@
 {% extends "profile/profile.html" %}
 {% block profile_content %}
-<style>
-    #profile_pools_href {
-        border-bottom: 3px solid var(--color-border-blue);
-    }
-</style>
+<script>
+    var element = document.getElementById("profile_pools_href");
+    element.classList.add("border-b-2");
+    element.classList.add("border-b-sky-400");
+    element.classList.add("border-solid");
+</script>
     <script>
         function Accept(pool_hashed_id) {
             var data = {'pool_hashed_id' : pool_hashed_id};
@@ -31,10 +32,10 @@
             xhr.send(JSON.stringify(data));
         }
     </script>
-    <div class="profile__content__pools">
-        <div class="profile__content__pools__header">
-            <input type="text" placeholder="Найти пул...">
-            <a href="/pool/create" class="no-decoration btn btn--green form__submit">Новый пул</a>
+    <div class="flex flex-col gap-y-4">
+        <div class="flex justify-between">
+            <input type="text" placeholder="Найти пул..." class="border-2 border-neutral-500 rounded text-xl p-4">
+            <a href="/pool/create" class="hover: cursor-pointer px-16 py-4 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700">Новый пул</a>
         </div>
         
         <div id="pools_block">

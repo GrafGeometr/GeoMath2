@@ -1,9 +1,10 @@
 {% extends "profile/profile.html" %}
 {% block profile_content %}
-<style>
-    #profile_about_href {
-        border-bottom: 3px solid var(--color-border-blue);
-    }
-</style>
+<script>
+    var element = document.getElementById("profile_about_href");
+    element.classList.add("border-b-2");
+    element.classList.add("border-b-sky-400");
+    element.classList.add("border-solid");
+</script>
 <p>Some info about user...</p>
 {% endblock %}
