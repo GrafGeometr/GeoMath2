@@ -1,10 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
-<style>
-    #collections_nav {
-        background-color: var(--dark-blue);
-        color: var(--white);
-    }
-</style>
+<script>
+    var element = document.getElementById("collections_nav");
+    element.classList.add("bg-blue-600");
+</script>
 <h1> Подборки </h1>
 {% endblock %}
