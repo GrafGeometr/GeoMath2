@@ -40,10 +40,7 @@
     }
 </script>
 <style>
-    .checker_img {
-    mix-blend-mode: multiply;
-    height: 50px;
-    }
+
     .email_verify_button {
         height: 50%;
         width: 60%;
@@ -62,35 +59,25 @@
         background-color: transparent;
         cursor: pointer;
     }
-    .emails_list {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        border: 2px solid var(--blue);
-        border-radius: 10px;
-        background-color: var(--white);
-        width: 100%;
-        margin-bottom: 15px;
-    }
 </style>
 <h2>Мои почты</h2>
 {% if current_user.emails %}
-<div class="emails_list">
+<div class="flex flex-col border-2 border-solid border-sky-400 rounded-lg w-full mb-4 min-w-fit">
 {% for email in current_user.emails %}
-    <div style="display: flex; justify-content: space-between; align-items: center; height: 100px; margin-left: 15px; margin-right: 15px;">
-        <div style="display: flex; height: 100%; width: 400px; flex-direction: row; justify-content: flex-start; align-items: center;">
+    <div class="flex justify-between items-center h-24 mx-4">
+        <div class="flex items-center h-full w-full">
             {% if email.verified %}
-                <img class = "checker_img" src="/static/images/check.png" alt="check">
+                <img class = "h-16 w-16 mix-blend-multiply" src="/static/images/check.png" alt="check">
             {% else %}
-                <img class = "checker_img" src="/static/images/cancel.png" alt="cancel">
+                <img class = "h-16 w-16 mix-blend-multiply" src="/static/images/cancel.png" alt="cancel">
             {% endif %}
-            <h2 style="margin-left: 10px; margin-right: 10px;">{{ email.name }}</h2>
+            <h2 class="mx-3 ">{{ email.name }}</h2>
         </div>
-        <div style="display: flex; height: 100%; width: 300px; flex-direction: row; justify-content: flex-end; align-items: center;">
+        <div class="flex justify-end items-center h-full w-full gap-x-4">
             {% if not email.verified %}
-                <button class = "email_verify_button" onclick="send_verifying_link('{{ email.name }}')">Подтвердить</button>
+                <button class = "hover: cursor-pointer px-16 py-4 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700" onclick="send_verifying_link('{{ email.name }}')">Подтвердить</button>
             {% endif %}
-            <button class = "remove_email_button" onclick="remove_email('{{ email.name }}')"><img class = "checker_img" src="/static/images/bin.png" alt="bin" onmouseover="this.src='/static/images/bin_colored.png'" onmouseout="this.src='/static/images/bin.png'"></button>
+            <button class = "remove_email_button" onclick="remove_email('{{ email.name }}')"><img class = "h-16 w-16 mix-blend-multiply" src="/static/images/bin.png" alt="bin" onmouseover="this.src='/static/images/bin_colored.png'" onmouseout="this.src='/static/images/bin.png'"></button>
         </div>
     </div>
 {% endfor %}
