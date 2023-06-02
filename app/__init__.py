@@ -26,6 +26,12 @@ def create_app():
     def load_user(user_id):
         return User.query.get(int(user_id))
     
+    @app.after_request
+    def add_header(response):
+        response.cache_control.private = True
+        response.cache_control.public = False
+        return response
+    
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
 
@@ -50,5 +56,6 @@ def create_app():
     with app.app_context():
         db.create_all()
 
+    
 
     return app
