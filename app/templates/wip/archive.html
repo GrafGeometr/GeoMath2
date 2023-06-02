@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<script>
+    var element = document.getElementById("archive_nav");
+    element.classList.add("bg-sky-500");
+</script>
+
+<nav class="flex gap-x-4 my-2">
+    <a id="archive_all_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/archive/all">Все задачи</a>
+    <a id="archive_my_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/archive/my">Мои задачи</a>
+</nav>
+
+<div class="h-px w-full bg-neutral-300"></div>
+
+{% block archive_content %}{% endblock %}
+
+{% endblock %}

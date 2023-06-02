@@ -9,6 +9,7 @@ class User(UserMixin, db.Model):
     created_date = db.Column(db.DateTime, default=datetime.datetime.now)
     emails = db.relationship("Email", backref="user")
     userpools = db.relationship("UserPool", backref="user")
+    archs = db.relationship("Arch", backref="user")
     
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -110,4 +111,9 @@ class Arch(db.Model):
     name = db.Column(db.String)
     statement = db.Column(db.String)
     solution = db.Column(db.String)
+    show_solution = db.Column(db.Boolean, default=False)
     archtags = db.relationship("ArchTag", backref="arch")
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+
+    def get_tags(self):
+        return [archtag.tag for archtag in ArchTag.query.filter_by(arch_id = self.id).all()]

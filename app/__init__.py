@@ -35,6 +35,9 @@ def create_app():
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
 
+    from .archive import arch as arch_blueprint
+    app.register_blueprint(arch_blueprint)
+
     from .prof import prof as prof_blueprint
     app.register_blueprint(prof_blueprint)
 
