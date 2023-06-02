@@ -94,3 +94,20 @@ class Problem(db.Model):
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
     statement = db.Column(db.String)
     solution = db.Column(db.String)
+
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String, unique=True, nullable=True)
+    archtags = db.relationship("ArchTag", backref="tag")
+
+class ArchTag(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey("tag.id"))
+    arch_id = db.Column(db.Integer, db.ForeignKey("arch.id"))
+
+class Arch(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String)
+    statement = db.Column(db.String)
+    solution = db.Column(db.String)
+    archtags = db.relationship("ArchTag", backref="arch")
