@@ -1,19 +1,25 @@
-<ul>
+<ul class="list-none p-0">
     {% for problem in current_pool.problems %}
-    <li>
-        <div style="display: flex; flex-direction: row; justify-content: space-between">
-            <a href="/pool/{{ current_pool.hashed_id }}/problem/{{ problem.id }}">{{ problem.name }}</a>
-            <button onclick="remove_problem('{{ current_pool.hashed_id }}', '{{ problem.id }}')"><img style="width: 20px; border: 0;" src="/static/images/bin.png" alt="bin"></button>
+
+
+    <li class="border-4 border-solid border-sky-400 bg-white mb-4 p-4 flex flex-col rounded-lg hover:border-green-600">
+        <div class="flex justify-between">
+            <a href="/pool/{{ current_pool.hashed_id }}/problem/{{ problem.id }}" class="no-underline text-black text-xl hover:underline">{{ problem.name }}</a>
+            <button class="border-0 bg-transparent cursor-pointer" onclick="remove_problem('{{ current_pool.hashed_id }}', '{{ problem.id }}')"><img class="w-6 border-0" src="/static/images/bin.png" alt="bin"></button>
         </div>
-        <hr>
-        <span style="color: var(--dark-gray); font-weight: bold;">Условие:</span>
+
+        <div class="h-px w-full bg-neutral-300 my-2"></div>
+        
+        <span class="text-slate-500 font-bold">Условие:</span>
         {% for paragraph in problem.statement.split("\n") %}
-        <p class="multiline_paragraph">{{ paragraph }}</p>
+        <p class="m-0 text-base">{{ paragraph }}</p>
         {% endfor %}
-        <hr>
-        <span style="color: var(--dark-gray); font-weight: bold;">Решение:</span>
+
+        <div class="h-px w-full bg-neutral-300 my-2"></div>
+
+        <span class="text-slate-500 font-bold">Решение:</span>
         {% for paragraph in problem.solution.split("\n") %}
-        <p class="multiline_paragraph">{{ paragraph }}</p>
+        <p class="m-0 text-base">{{ paragraph }}</p>
         {% endfor %}
     </li>
     {% endfor %}

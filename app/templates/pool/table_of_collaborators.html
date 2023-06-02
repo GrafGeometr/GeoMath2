@@ -1,13 +1,13 @@
 <div id="table_of_collaborators">
-    <table>
+    <table class="border-collapse border-2 border-solid border-sky-400 w-full h-full">
         <tbody>
-            <tr style="background-color: var(--white);">
-                <th>Пользователь</th>
-                <th>Роль</th>
+            <tr class="odd:bg-white even:bg-neutral-100 hover:bg-neutral-200">
+                <th class="text-xl py-2 px-8">Пользователь</th>
+                <th class="text-xl py-2 px-8">Роль</th>
             </tr>
             {% for userpool in current_pool.get_users() %}
-            <tr style="font-size: 25px; background-color: var(--white);">
-                <td>{{ userpool.user.name }}</td>
+            <tr class="odd:bg-white even:bg-neutral-100 hover:bg-neutral-200">
+                <td class="text-center text-base py-2">{{ userpool.user.name }}</td>
                 <td>
                     <div style="display: flex; flex-direction: row; align-items: center;">
                         {% if userpool.role.isOwner() %}

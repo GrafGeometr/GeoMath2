@@ -51,7 +51,7 @@ class Email(db.Model):
 
 class Pool(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String, unique=True, nullable=True)
+    name = db.Column(db.String, nullable=True)
     hashed_id = db.Column(db.String, unique=True, nullable=True)
     userpools = db.relationship("UserPool", backref="pool")
     problems = db.relationship("Problem", backref="pool")
