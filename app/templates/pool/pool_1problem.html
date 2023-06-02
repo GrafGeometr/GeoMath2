@@ -14,6 +14,12 @@
     }
     </script>
 
+<div class="flex justify-end">
+    <form action="/archive/publish/{{current_problem.id}}" method="post">
+        <input type="submit" class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700" value="Опубликовать в архив">
+    </form>
+</div>
+
 <form action="/pool/{{ current_pool.hashed_id }}/problem/{{ current_problem.id }}" method="post" class="w-full mt-2 px-4">
 
     {% with messages = get_flashed_messages(with_categories=true) %}

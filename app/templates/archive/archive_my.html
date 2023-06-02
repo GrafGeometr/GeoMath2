@@ -1,0 +1,34 @@
+{% extends "wip/archive.html" %}
+{% block archive_content %}
+<ul class="list-none p-0 mt-4">
+    {% for arch in archs %}
+
+
+    <li class="border-4 border-solid border-sky-400 bg-white mb-4 p-4 flex flex-col rounded-lg hover:border-green-600">
+        <div class="flex justify-between">
+            <a href="/archive/my/{{ arch.id }}" class="no-underline text-black text-xl hover:underline">{{ arch.name }}</a>
+        </div>
+
+        <div class="h-px w-full bg-neutral-300 my-2"></div>
+        
+        <span class="text-slate-500 font-bold">Условие:</span>
+        {% for paragraph in arch.statement.split("\n") %}
+        <p class="m-0 text-base">{{ paragraph }}</p>
+        {% endfor %}
+
+            <div class="h-px w-full bg-neutral-300 my-2"></div>
+
+            <div>
+                {% if arch.show_solution %}
+                    <span class="text-slate-500 font-bold">Решение:</span> <span class="text-green-600 ml-4">доступно</span>
+                {% else %}
+                    <span class="text-slate-500 font-bold">Решение:</span> <span class="text-red-500 ml-4">скрыто</span>
+                {% endif %}
+            </div>
+            {% for paragraph in arch.solution.split("\n") %}
+            <p class="m-0 text-base">{{ paragraph }}</p>
+            {% endfor %}
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
