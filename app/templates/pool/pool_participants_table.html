@@ -1,0 +1,22 @@
+<table class="border-2 border-solid border-sky-400 rounded-md w-1/2 h-full">
+    <tbody>
+        <tr class="odd:bg-white even:bg-neutral-100 hover:bg-neutral-200">
+            <th class="text-xl py-2 px-8">Пользователь</th>
+            <th class="text-xl py-2 px-8">Роль</th>
+        </tr>
+        {% for userpool in current_pool.get_users() %}
+        <tr class="odd:bg-white even:bg-neutral-100 hover:bg-neutral-200">
+            <td class="text-center text-base py-2">{{ userpool.user.name }}</td>
+            <td class="text-center text-base py-2">
+                {% if userpool.role.isOwner() %}
+                <span class="text-amber-500">Владелец</span>
+                {% elif userpool.role.isParticipant() %}
+                <span class="text-purple-500">Участник</span>
+                {% else %}
+                <span class="text-teal-500">Приглашённый</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

@@ -1,58 +1,17 @@
 {% extends "pool/pool_management.html" %}
 {% block pools_settings %}
-<style>
-    #management_general_href {
-        color: var(--blue);
-    }
 
-    .rename_pool_form {
-        display: flex;
-        width: 24%;
-        border: 2px solid var(--blue);
-        border-radius: 10px;
-        background-color: var(--white);
-        flex-direction: column;
-        justify-content: space-around;
-        align-items: center;
-        padding: 15px;
-    }
-
-    .input_field {
-        height: 100%;
-        width: 80%;
-        font-size: 25px;
-        background-color: var(--light-gray);
-        border: 2px solid var(--medium-gray);
-        border-radius: 5px;
-        padding: 5px;
-    }
-
-    .submit_button {
-        width: 55%;
-        height: 50px;
-        margin-top: 20px;
-        border: 0;
-        border-radius: 10px;
-        font-size: 17px;
-        font-weight: bold;
-        color: var(--white);
-        background-image: radial-gradient(var(--light-blue), var(--blue));
-        cursor: pointer;
-    }
-
-</style>
-
-<h1>Общие настройки</h1>
-<form class="rename_pool_form" action="/pool/{{ current_pool.hashed_id }}/management/general" method="POST">
-    <div class="greeting">
-        Новое название пула
-    </div>
-    <div class="input_field">
-        <input class="input_field" type="text" name="pool_name" value="{{ current_pool.name }}" required>
-    </div>
-    <input class="submit_button" type="submit" value="Сохранить">
-</form>
-<form action="/pool/{{ current_pool.hashed_id }}/management/general" method="POST">
-    <input type="hidden" name="delete_pool" value="Hm, Value">
-    <input class="submit_button" type="submit" value="Удалить пул">
+<div class="grow">
+    <form class="flex flex-col justify-around items-center w-1/2 border-2 border-sky-400 bg-white p-4 mb-4" action="/pool/{{ current_pool.hashed_id }}/management/general" method="POST">
+        <div class="flex flex-col w-full items-start mb-4">
+            <span class="text-xl font-bold">Новое название пула</span>
+        </div>
+        <input class="text-2xl bg-neutral-100 border-2 border-solid border-neutral-300 rounded-md p-2 w-full mb-4" type="text" name="pool_name" value="{{ current_pool.name }}" required>
+        <input class="hover:cursor-pointer px-8 py-2 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700" type="submit" value="Сохранить">
+    </form>
+    <form action="/pool/{{ current_pool.hashed_id }}/management/general" method="POST">
+        <input type="hidden" name="delete_pool" value="Hm, Value">
+        <input class="hover: cursor-pointer px-12 py-3 rounded-xl text-lg text-white font-semibold bg-red-400 hover:bg-red-500 active:bg-red-600" type="submit" value="Удалить пул">
+    </form>
+</div>
 {% endblock %}
