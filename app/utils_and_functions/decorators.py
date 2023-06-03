@@ -26,3 +26,12 @@ def login_required(f):
         return f(*args, **kwargs)
 
     return secure_function
+
+def admin_required(f):
+    @wraps(f)
+    def secure_function(*args, **kwargs):
+        if (not current_user.is_authenticated) or (not current_user.admin):
+            return redirect("/admin/enter")
+        return f(*args, **kwargs)
+    
+    return secure_function

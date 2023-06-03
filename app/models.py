@@ -44,7 +44,7 @@ class User(UserMixin, db.Model):
 
 class AdminPassword(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    password = db.Column(db.String, nullable=True)
+    password = db.Column(db.String, nullable=True, default=generate_password_hash("qwerty"))
 
 class Email(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

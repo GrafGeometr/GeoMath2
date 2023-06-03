@@ -38,6 +38,9 @@ def create_app():
     from .archive import arch as arch_blueprint
     app.register_blueprint(arch_blueprint)
 
+    from .admin import admin as admin_blueprint
+    app.register_blueprint(admin_blueprint)
+
     from .prof import prof as prof_blueprint
     app.register_blueprint(prof_blueprint)
 
@@ -57,8 +60,7 @@ def create_app():
     app.register_blueprint(err_blueprint)
 
     with app.app_context():
+        db.drop_all()
         db.create_all()
-
-    
 
     return app

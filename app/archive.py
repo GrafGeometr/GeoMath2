@@ -23,7 +23,8 @@ def publish(problem_id):
 
 @arch.route("/archive/all", methods=["GET"])
 def all():
-    return render_template("archive/archive_all.html", archs = Arch.query.all())
+    print(Arch.query.filter_by(moderated=True))
+    return render_template("archive/archive_all.html", archs=Arch.query.filter_by(moderated=True).all())
 
 @arch.route("/archive/my", methods=["GET"])
 def my():
@@ -44,7 +45,7 @@ def my_arch(arch_id):
         if request.form.get("add_tag") is not None:
             tag_name = request.form["tag_name"]
             tag = Tag.query.filter_by(name=tag_name).first()
-            if tag is None:
+            if (tag is None) and (current_user.admin):
                 tag = Tag(name=tag_name)
                 db.session.add(tag)
                 db.session.commit()
@@ -62,5 +63,9 @@ def my_arch(arch_id):
                 db.session.delete(ArchTag.query.filter_by(arch=arch, tag=tag).first())
                 db.session.commit()
             return redirect(f"/archive/my/{arch_id}")
+        if request.form.get("delete_arch") is not None:
+            db.session.delete(arch)
+            db.session.commit()
+            return redirect("/archive/my")
 
     return render_template("archive/archive_1arch.html", arch=arch, all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
