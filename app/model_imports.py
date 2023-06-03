@@ -1,4 +1,4 @@
-from .models import User, Email, Pool, UserPool, Problem, Tag, ArchTag, Arch
+from .models import User, AdminPassword, Email, Pool, UserPool, Problem, Tag, ArchTag, Arch
 from .utils_and_functions.usefull_functions import email_token_stuff, email_validity_checker
 from .utils_and_functions.token_gen import generate_token
 from .utils_and_functions.send_letter import send_email

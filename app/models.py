@@ -6,8 +6,10 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, unique=True, nullable=True)
     password = db.Column(db.String, nullable=True)
+    admin = db.Column(db.Boolean, default=False)
     created_date = db.Column(db.DateTime, default=datetime.datetime.now)
     emails = db.relationship("Email", backref="user")
+
     userpools = db.relationship("UserPool", backref="user")
     archs = db.relationship("Arch", backref="user")
     
@@ -40,7 +42,9 @@ class User(UserMixin, db.Model):
         return relation
 
 
-
+class AdminPassword(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    password = db.Column(db.String, nullable=True)
 
 class Email(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -111,6 +115,7 @@ class Arch(db.Model):
     name = db.Column(db.String)
     statement = db.Column(db.String)
     solution = db.Column(db.String)
+    moderated = db.Column(db.Boolean, default=False)
     show_solution = db.Column(db.Boolean, default=False)
     archtags = db.relationship("ArchTag", backref="arch")
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
