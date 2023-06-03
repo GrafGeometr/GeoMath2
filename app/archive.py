@@ -7,9 +7,9 @@ arch = Blueprint('arch', __name__)
 def publish(problem_id):
     problem = Problem.query.filter_by(id = problem_id).first()
     if problem is None:
-        return
+        return redirect(f"/pool/{pool_hashed_id}/problems")
     if not current_user.get_pool_relation(problem.pool_id).role.isOwner():
-        return
+        return redirect(f"/pool/{pool_hashed_id}/problems")
     
 
     pool_hashed_id = problem.pool.hashed_id
