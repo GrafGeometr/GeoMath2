@@ -63,4 +63,4 @@ def my_arch(arch_id):
                 db.session.commit()
             return redirect(f"/archive/my/{arch_id}")
 
-    return render_template("archive/archive_1arch.html", arch=arch)
+    return render_template("archive/archive_1arch.html", arch=arch, all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))

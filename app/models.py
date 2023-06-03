@@ -116,4 +116,4 @@ class Arch(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
     def get_tags(self):
-        return [archtag.tag for archtag in ArchTag.query.filter_by(arch_id = self.id).all()]
+        return sorted([archtag.tag for archtag in ArchTag.query.filter_by(arch_id = self.id).all()], key=lambda t:t.name.lower())
