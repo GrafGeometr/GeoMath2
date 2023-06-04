@@ -28,6 +28,10 @@ def settings():
     if request.method == "POST":
         old_password = request.form.get("old_password")
         new_password = request.form.get("new_password")
+        confirm_password = request.form.get("confirm_password")
+        if confirm_password != new_password:
+            flash("Пароли не совпадают", "danger")
+            return redirect("/admin/settings")
         if check_password_hash(AdminPassword.query.first().password, old_password):
             AdminPassword.query.first().password = generate_password_hash(new_password)
             db.session.commit()
