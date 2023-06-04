@@ -15,8 +15,6 @@ def login():
         if user and user.check_password(password):
             login_user(user, remember=True, duration=datetime.timedelta(days=5))
             confirm_login()
-            print(user.is_authenticated)
-            print(current_user.is_authenticated)
             if next_url:
                 return redirect(next_url)
             return redirect("/myprofile")

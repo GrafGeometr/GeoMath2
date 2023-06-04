@@ -60,3 +60,60 @@ def moderation():
             db.session.commit()
     need_to_moderate = Arch.query.filter_by(moderated = False).all()
     return render_template("admin/admin_moderation.html", title="GeoMath - модерация", need_to_moderate = need_to_moderate)
+
+
+@admin_required
+def show_db(obj):
+    result = []
+    d = dict()
+    d['class_name'] = str(obj)
+    result.append(list(d.items()))
+    for o in obj.query.all():
+        variables = vars(o)
+        for var in variables:
+            d[var] = variables[var]
+        d.pop('_sa_instance_state')
+        result.append(sorted(list(d.items()), key=lambda x: 0 if x[0]=='class_name' else 1 if x[0]=='id' else 2))
+    return result
+
+@admin_required
+def get_class(s):
+    if s == "<class 'app.models.User'>":
+        return User
+    if s == "<class 'app.models.AdminPassword'>":
+        return AdminPassword
+    if s == "<class 'app.models.Email'>":
+        return Email
+    if s == "<class 'app.models.Pool'>":
+        return Pool
+    if s == "<class 'app.models.UserPool'>":
+        return UserPool
+    if s == "<class 'app.models.Problem'>":
+        return Problem
+    if s == "<class 'app.models.Tag'>":
+        return Tag
+    if s == "<class 'app.models.ArchTag'>":
+        return ArchTag
+    if s == "<class 'app.models.Arch'>":
+        return Arch
+
+@admin.route("/admin/database", methods=["GET", "POST"])
+@admin_required
+def database():
+    if request.method == "POST":
+        class_obj = get_class(request.form.get("class_name"))
+        id = int(request.form.get("id"))
+        obj = class_obj.query.filter_by(id = id).first()
+        db.session.delete(obj)
+        db.session.commit()
+    return render_template("admin/admin_database.html", title="GeoMath - top secret", tables=[
+        show_db(User),
+        show_db(AdminPassword),
+        show_db(Email),
+        show_db(Pool),
+        show_db(UserPool),
+        show_db(Problem),
+        show_db(Tag),
+        show_db(ArchTag),
+        show_db(Arch)
+    ])
