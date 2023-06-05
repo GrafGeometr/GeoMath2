@@ -55,21 +55,28 @@
             a.classList.add("absolute", "z-50", "top-full", "inset-x-0", "overflow-y-auto", "h-60", "autocomplete-items");
             /*append the DIV element as a child of the autocomplete container:*/
             this.parentNode.appendChild(a);
+
+
+            /*multitag support*/
+            last_semicolon = val.lastIndexOf(";");
+            prefix = val.substring(0, last_semicolon+1);
+            suffix = val.substring(last_semicolon+1).trim();
+
             /*for each item in the array...*/
             for (i = 0; i < arr.length; i++) {
                 /*check if the item starts with the same letters as the text field value:*/
-                if (arr[i].toUpperCase().includes(val.toUpperCase())) {
+                if (arr[i].toUpperCase().includes(suffix.toUpperCase())) {
                     /*create a DIV element for each matching element:*/
                     b = document.createElement("DIV");
                     b.classList.add("p-4", "cursor-pointer", "bg-white", "border-b-2", "border-gray-200", "hover:bg-gray-100");
-                    var idx = arr[i].toUpperCase().indexOf(val.toUpperCase());
+                    var idx = arr[i].toUpperCase().indexOf(suffix.toUpperCase());
                     /*make the matching letters bold:*/
                     b.innerHTML += arr[i].substr(0, idx);
-                    b.innerHTML += "<strong>" + arr[i].substr(idx, val.length) + "</strong>";
-                    b.innerHTML += arr[i].substr(idx + val.length);
+                    b.innerHTML += "<strong>" + arr[i].substr(idx, suffix.length) + "</strong>";
+                    b.innerHTML += arr[i].substr(idx + suffix.length);
 
                     /*insert a input field that will hold the current array item's value:*/
-                    b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                    b.innerHTML += "<input type='hidden' value='" + prefix + arr[i] + "'>";
                     /*execute a function when someone clicks on the item value (DIV element):*/
                     b.addEventListener("click", function (e) {
                         /*insert the value for the autocomplete text field:*/
