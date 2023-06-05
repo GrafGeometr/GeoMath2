@@ -22,10 +22,56 @@ def publish(problem_id):
     db.session.commit()
     return redirect(f"/pool/{pool_hashed_id}/problems")
 
-@arch.route("/archive/all", methods=["GET"])
-def all():
-    print(Arch.query.filter_by(moderated=True))
-    return render_template("archive/archive_all.html", archs=Arch.query.filter_by(moderated=True).all())
+# @arch.route("/archive/all", methods=["GET"])
+# def all():
+#     print(Arch.query.filter_by(moderated=True))
+#     return render_template("archive/archive_all.html", archs=Arch.query.filter_by(moderated=True).all())
+
+@arch.route("/archive/all", methods=["POST", "GET"])
+def archive_search():
+    if request.method == "POST":
+        tags = request.form.get("tags")
+        if tags is not None:
+            return redirect(url_for("arch.archive_search", tags=tags, page=0))
+        
+    
+    tags = request.args.get("tags")
+    page = request.args.get("page")
+
+    if page is None:
+        page = 0
+    else:
+        page = int(page)
+    
+    if tags is None or tags == "":
+        tags = []
+    else:
+        tags = list(map(lambda x: x.strip() , tags.split(";")))
+
+    print(tags)
+    print(page)
+
+    problems_per_page = 10
+
+    if len(tags) == 0:
+        # no tags, show all
+        problems = Arch.query.filter_by(moderated=True).all()
+    else:
+        problems = [problem for problem in Arch.query.filter_by(moderated=True).all() if any(tag.name in tags for tag in problem.get_tags())]
+    
+    total_pages = (len(problems)+problems_per_page-1) // problems_per_page
+    problems = problems[page*problems_per_page:(page+1)*problems_per_page]
+
+    pages_to_show1 = [x for x in range(0, total_pages) if x < 3 or x >= total_pages - 3 or abs(x - page) <= 3]
+    pages_to_show = []
+    for i in range(len(pages_to_show1)):
+        pages_to_show.append(pages_to_show1[i])
+        if i>=1 and pages_to_show1[i] != pages_to_show1[i-1] + 1:
+            pages_to_show.append("...")
+
+    return render_template("archive/archive_search.html", archs=problems, pages_to_show=pages_to_show, current_page=page, tags=";".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
+
+
 
 @arch.route("/archive/my", methods=["GET"])
 def my():
