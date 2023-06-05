@@ -13,10 +13,8 @@ def login():
 
         user = User.query.filter_by(name = login).first()
         if user and user.check_password(password):
-            login_user(user)
+            login_user(user, remember=True, duration=datetime.timedelta(days=5))
             confirm_login()
-            print(user.is_authenticated)
-            print(current_user.is_authenticated)
             if next_url:
                 return redirect(next_url)
             return redirect("/myprofile")
@@ -61,7 +59,7 @@ def register():
         db.session.add(email)
         db.session.commit()
 
-        login_user(user)
+        login_user(user, remember=True, duration=datetime.timedelta(days=5))
         confirm_login()
 
         # print(f"Login: {login}\nEmail: {email}\nPassword: {password}\nRepeat password: {repeat_password}")

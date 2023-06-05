@@ -3,13 +3,17 @@ from .sqlalchemy_custom_types import *
 from .utils_and_functions.token_gen import generate_token
 
 class User(UserMixin, db.Model):
+    __tablename__ = 'user'
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, unique=True, nullable=True)
     password = db.Column(db.String, nullable=True)
+    admin = db.Column(db.Boolean, default=False)
     created_date = db.Column(db.DateTime, default=datetime.datetime.now)
     emails = db.relationship("Email", backref="user")
-    userpools = db.relationship("UserPool", backref="user")
-    archs = db.relationship("Arch", backref="user")
+
+    userpools = db.relationship("User_Pool", backref="user")
+    archs = db.relationship("ArchivedProblem", backref="user")
     
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -21,7 +25,7 @@ class User(UserMixin, db.Model):
         return len([email for email in self.emails if email.verified])
     
     def get_pools(self):
-        return UserPool.query.filter_by(user_id = self.id).all()
+        return User_Pool.query.filter_by(user_id = self.id).all()
     
     def create_new_pool(self, name):
         pool = Pool(name=name)
@@ -29,20 +33,26 @@ class User(UserMixin, db.Model):
         db.session.add(pool)
         db.session.commit()
 
-        relation = UserPool(user_id=self.id, pool_id=pool.id, role=Owner)
+        relation = User_Pool(user_id=self.id, pool_id=pool.id, role=Owner)
         db.session.add(relation)
         db.session.commit()
 
         return pool.hashed_id
     
     def get_pool_relation(self, pool_id):
-        relation = UserPool.query.filter_by(user_id = self.id, pool_id = pool_id).first()
+        relation = User_Pool.query.filter_by(user_id = self.id, pool_id = pool_id).first()
         return relation
 
 
+class AdminPassword(db.Model):
+    __tablename__ = 'admin_password'
 
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    password = db.Column(db.String, nullable=True, default=generate_password_hash("qwerty"))
 
 class Email(db.Model):
+    __tablename__ = 'email'
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=True)
     created_date = db.Column(db.DateTime, default=datetime.datetime.now)
@@ -51,10 +61,12 @@ class Email(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
 class Pool(db.Model):
+    __tablename__ = 'pool'
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=True)
     hashed_id = db.Column(db.String, unique=True, nullable=True)
-    userpools = db.relationship("UserPool", backref="pool")
+    userpools = db.relationship("User_Pool", backref="pool")
     problems = db.relationship("Problem", backref="pool")
 
     def set_hashed_id(self):
@@ -67,7 +79,7 @@ class Pool(db.Model):
         self.hashed_id = hashed_id
 
     def get_users(self):
-        userpools = UserPool.query.filter_by(pool_id = self.id).all()
+        userpools = User_Pool.query.filter_by(pool_id = self.id).all()
         userpools.sort(key = lambda up: (0, up.user.name) if up.role.isOwner() else (1, up.user.name) if up.role.isParticipant() else (2, up.user.name))
         return userpools
     
@@ -83,13 +95,17 @@ class Pool(db.Model):
         return problem
 
     
-class UserPool(db.Model):
+class User_Pool(db.Model):
+    __tablename__ = 'user_pool'
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
     role = db.Column(RoleType)
 
 class Problem(db.Model):
+    __tablename__ = 'problem'
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
@@ -97,23 +113,30 @@ class Problem(db.Model):
     solution = db.Column(db.String)
 
 class Tag(db.Model):
+    __tablename__ = 'tag'
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, unique=True, nullable=True)
-    archtags = db.relationship("ArchTag", backref="tag")
+    archtags = db.relationship("ArchivedProblem_Tag", backref="tag")
 
-class ArchTag(db.Model):
+class ArchivedProblem_Tag(db.Model):
+    __tablename__ = 'archived_problem_tag'
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tag_id = db.Column(db.Integer, db.ForeignKey("tag.id"))
-    arch_id = db.Column(db.Integer, db.ForeignKey("arch.id"))
+    arch_id = db.Column(db.Integer, db.ForeignKey("archived_problem.id"))
 
-class Arch(db.Model):
+class ArchivedProblem(db.Model):
+    __tablename__ = 'archived_problem'
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
     statement = db.Column(db.String)
     solution = db.Column(db.String)
+    moderated = db.Column(db.Boolean, default=False)
     show_solution = db.Column(db.Boolean, default=False)
-    archtags = db.relationship("ArchTag", backref="arch")
+    archtags = db.relationship("ArchivedProblem_Tag", backref="archived_problem")
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
     def get_tags(self):
-        return sorted([archtag.tag for archtag in ArchTag.query.filter_by(arch_id = self.id).all()], key=lambda t:t.name.lower())
+        return sorted([archtag.tag for archtag in ArchivedProblem_Tag.query.filter_by(arch_id = self.id).all()], key=lambda t:t.name.lower())

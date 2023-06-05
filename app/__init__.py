@@ -3,6 +3,7 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_migrate import Migrate
 
 
 db = SQLAlchemy()
@@ -11,11 +12,13 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 def create_app():
     app = Flask(__name__)
-    app.config['SERVER_NAME'] = 'ge0math.ru'
-    app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+    # app.config['SERVER_NAME'] = 'ge0math.ru'
+    app.config['SECRET_KEY'] = 'yandexlyceum_secret_key_2'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database/data.sqlite')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
     db.init_app(app)
+    migrate = Migrate(app, db)
 
 
     login_manager = LoginManager()
@@ -38,6 +41,9 @@ def create_app():
     from .archive import arch as arch_blueprint
     app.register_blueprint(arch_blueprint)
 
+    from .admin import admin as admin_blueprint
+    app.register_blueprint(admin_blueprint)
+
     from .prof import prof as prof_blueprint
     app.register_blueprint(prof_blueprint)
 
@@ -58,7 +64,5 @@ def create_app():
 
     with app.app_context():
         db.create_all()
-
-    
 
     return app
