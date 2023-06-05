@@ -17,10 +17,12 @@
         {% if archived_problem.show_solution %}
             <div class="h-px w-full bg-neutral-300 my-2"></div>
 
-            <span class="text-slate-500 font-bold">Решение:</span>
-            {% for paragraph in archived_problem.solution.split("\n") %}
-            <p class="mathjax-class m-0 text-base">{{ paragraph }}</p>
-            {% endfor %}
+            <details>
+                <summary class="text-slate-500 font-bold hover:cursor-pointer hover:text-slate-600">Решение:</summary>
+                {% for paragraph in archived_problem.solution.split("\n") %}
+                <p class="mathjax-class m-0 text-base">{{ paragraph }}</p>
+                {% endfor %}
+            </details>
         {% endif %}
     </li>
     {% endfor %}
