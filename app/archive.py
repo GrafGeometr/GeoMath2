@@ -25,20 +25,39 @@ def publish(problem_id):
 
 
 
+def get_correct_page_slice(num_of_pages, len_of_slice, index_of_current_page):
+    n = num_of_pages
+    k = len_of_slice
+    i = index_of_current_page
+    print(n, k, i)
+    # look how google search works to understand
+    # in a nutshell, it returns a slice with len = k, where i is the middle (except for when i is close to the borders)
+    # everything is 1-indexed
+    
+    if k >= n:
+        return [x for x in range(1, n+1)]
+    half = k // 2
+    if i <= half + 1:
+        return [x for x in range(1, k+1)]
+    elif n - (i-1) <= (k-half):
+        return [x for x in range(n-k+1, n+1)]
+    else:
+        return [x for x in range(i-half, i+(k-half))]
+
 @arch.route("/archive/<string:mode>", methods=["POST", "GET"])
 @login_required
 def archive_search(mode):
     if request.method == "POST":
         tags = request.form.get("tags")
         if tags is not None:
-            return redirect(url_for("arch.archive_search", tags=tags, page=0, mode=mode))
+            return redirect(url_for("arch.archive_search", tags=tags, page=1, mode=mode))
         
     
     tags = request.args.get("tags")
     page = request.args.get("page")
 
     if page is None:
-        page = 0
+        page = 1
     else:
         page = int(page)
     
@@ -67,15 +86,15 @@ def archive_search(mode):
 
     print(problems)
 
-    total_pages = (len(problems)+problems_per_page-1) // problems_per_page
-    problems = problems[page*problems_per_page:(page+1)*problems_per_page]
+    num_of_pages = (len(problems)+problems_per_page-1) // problems_per_page
+    problems = problems[(page-1)*problems_per_page : page*problems_per_page]
+    if page > num_of_pages:
+        return redirect(url_for("arch.archive_search", tags=tags, page=num_of_pages, mode=mode))
+    if page <= 0:
+        return redirect(url_for("arch.archive_search", tags=tags, page=1, mode=mode))
 
-    pages_to_show1 = [x for x in range(0, total_pages) if x < 3 or x >= total_pages - 3 or abs(x - page) <= 3]
-    pages_to_show = []
-    for i in range(len(pages_to_show1)):
-        pages_to_show.append(pages_to_show1[i])
-        if i>=1 and pages_to_show1[i] != pages_to_show1[i-1] + 1:
-            pages_to_show.append("...")
+    pages_to_show = get_correct_page_slice(num_of_pages, 7, page)
+    
 
     return render_template("archive/archive_search.html", mode=mode, archived_problems=problems, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
 
