@@ -9,8 +9,8 @@
         <div class="flex">
             <span class="text-2xl text-stone-800"> <a href="/archive/my" class="no-underline hover:underline">Мои задачи</a> </span>
             <span class="text-2xl text-stone-800 mx-2"> / </span>
-            <span class="text-2xl text-stone-800 font-bold"> <a href="/archive/my/{{ arch.id }}" class="no-underline hover:underline">{{ arch.name }}</a> </span>
-            {% if not arch.moderated %}
+            <span class="text-2xl text-stone-800 font-bold"> <a href="/archive/my/{{ archived_problem.id }}" class="no-underline hover:underline">{{ archived_problem.name }}</a> </span>
+            {% if not archived_problem.moderated %}
                 <span class="text-2xl text-stone-800 mx-2"> (на модерации) </span>
             {% endif %}
         </div>
@@ -18,46 +18,46 @@
         <div class="h-px w-full bg-neutral-300 my-2"></div>
 
         <span class="text-slate-500 font-bold">Условие:</span>
-        {% for paragraph in arch.statement.split("\n") %}
+        {% for paragraph in archived_problem.statement.split("\n") %}
         <p class="mathjax-class m-0 text-base">{{ paragraph }}</p>
         {% endfor %}
 
             <div class="h-px w-full bg-neutral-300 my-2"></div>
 
             <div class="flex">
-                {% if arch.show_solution %}
+                {% if archived_problem.show_solution %}
                     <span class="flex text-slate-500 font-bold">Решение:</span> <span class="text-green-600 ml-4">доступно</span>
                 {% else %}
                     <span class="flex text-slate-500 font-bold">Решение:</span> <span class="text-red-500 ml-4">скрыто</span>
                 {% endif %}
                 
             </div>
-            {% for paragraph in arch.solution.split("\n") %}
+            {% for paragraph in archived_problem.solution.split("\n") %}
             <p class="mathjax-class m-0 text-base">{{ paragraph }}</p>
             {% endfor %}
     </div>
     <div class="ml-4 mb-12">
-        <form action="/archive/my/{{ arch.id }}" method="post" class="my-4">
+        <form action="/archive/my/{{ archived_problem.id }}" method="post" class="my-4">
             <input type="hidden" name="switch_solution_access" value="239">
-            {% if arch.show_solution %}
+            {% if archived_problem.show_solution %}
             <input type="submit" class="hover:cursor-pointer hover:underline text-black" value="Скрыть доступ к решению">
             {% else %}
             <input type="submit" class="hover:cursor-pointer hover:underline text-black" value="Показывать пользователям решение">
             {% endif %}
         </form>
-        <form action="/archive/my/{{ arch.id }}" method="post" class="my-4">
-            <input type="hidden" name="delete_arch" value="239">
+        <form action="/archive/my/{{ archived_problem.id }}" method="post" class="my-4">
+            <input type="hidden" name="delete_archived_problem" value="239">
             <input type="submit" value="Удалить задачу" class="hover:font-bold hover:cursor-pointer hover:text-red-600">
         </form>
         <span class="text-slate-500 font-bold">Теги:</span>
         <div class="flex gap-x-8 items-start">
             <ul class="w-full">
-                {% for tag in arch.get_tags() %}
+                {% for tag in archived_problem.get_tags() %}
                 <li class="flex">
                     <span class="text-slate-500 font-bold mr-4">#</span>
                     <div class="w-2/3"><span>{{ tag.name }}</span></div>
                     <span class="text-slate-500 font-bold mx-4">|</span>
-                    <form action="/archive/my/{{ arch.id }}" method="post">
+                    <form action="/archive/my/{{ archived_problem.id }}" method="post">
                         <input type="hidden" name="remove_tag" value="{{ tag.id }}">
                         <input type="submit" value="Удалить тег" class="hover:font-bold hover:cursor-pointer hover:text-red-600">
                     </form>
@@ -65,7 +65,7 @@
                 {% endfor %}
             </ul>
             <div class="flex w-full">
-                <form autocomplete="off" action="/archive/my/{{ arch.id }}" method="post" class="flex w-full">
+                <form autocomplete="off" action="/archive/my/{{ archived_problem.id }}" method="post" class="flex w-full">
                     <span class="text-slate-500 font-bold mr-4">#</span>
                     <input type="hidden" name="add_tag" value="239">
                     <div class="w-2/3 relative inline-block">

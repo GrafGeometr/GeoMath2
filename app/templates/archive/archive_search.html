@@ -22,7 +22,7 @@
     {% for x in pages_to_show %}
     {% if x == current_page %}
         <li class="page-item">
-            <a class="page-link" href="{{ url_for("arch.archive_search", tags=tags, page=x) }}">Текущая страница</a>
+            <a class="page-link active" href="{{ url_for("arch.archive_search", tags=tags, page=x) }}">{{ x }}</a>
         </li>
     {% elif x == '...' %}
         <li class="page-item">
@@ -76,7 +76,7 @@
                     b.innerHTML += arr[i].substr(idx + suffix.length);
 
                     /*insert a input field that will hold the current array item's value:*/
-                    b.innerHTML += "<input type='hidden' value='" + prefix + arr[i] + "'>";
+                    b.innerHTML += "<input type='hidden' value='" + prevent_injection(prefix) + " " + prevent_injection(arr[i]) + "'>";
                     /*execute a function when someone clicks on the item value (DIV element):*/
                     b.addEventListener("click", function (e) {
                         /*insert the value for the autocomplete text field:*/

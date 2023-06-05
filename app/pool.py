@@ -32,7 +32,7 @@ def accept_pool_invitation():
         flash("Пул с таким id не найден", "danger")
         return redirect("/myprofile")
 
-    relation = UserPool.query.filter_by(user_id = current_user.id, pool_id = pool.id).first()
+    relation = User_Pool.query.filter_by(user_id = current_user.id, pool_id = pool.id).first()
 
     if relation is None:
         return "user not invited"
@@ -59,7 +59,7 @@ def decline_pool_invitation():
         return redirect("/myprofile")
     
 
-    relation = UserPool.query.filter_by(user_id = current_user.id, pool_id = pool.id).first()
+    relation = User_Pool.query.filter_by(user_id = current_user.id, pool_id = pool.id).first()
 
     if relation is None:
         return "user not invited"
@@ -253,7 +253,7 @@ def pool_manager_general(pool_hashed_id):
             flash("Имя пула успешно изменено", "success")
             return redirect(url_for("pool.pool_manager_general", pool_hashed_id=pool_hashed_id))
         if request.form.get("delete_pool") is not None:
-            for relation in UserPool.query.filter_by(pool_id = pool.id).all():
+            for relation in User_Pool.query.filter_by(pool_id = pool.id).all():
                 db.session.delete(relation)
             db.session.delete(pool)
             db.session.commit()
@@ -335,7 +335,7 @@ def pool_collaborators(pool_hashed_id):
 
             # add this user to the pool
 
-            relation = UserPool(user=user, pool=pool, role=Invited)
+            relation = User_Pool(user=user, pool=pool, role=Invited)
             db.session.add(relation)
             db.session.commit()
             flash(f"Пользователь {user.name} успешно приглашен", "success")

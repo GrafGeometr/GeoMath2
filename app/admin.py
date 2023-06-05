@@ -54,15 +54,15 @@ def moderation():
     if request.method == "POST":
         if request.form.get("accept arch_id") is not None:
             arch_id = request.form.get("accept arch_id")
-            arch = Arch.query.filter_by(id = arch_id).first()
+            arch = ArchivedProblem.query.filter_by(id = arch_id).first()
             arch.moderated = True
             db.session.commit()
         if request.form.get("reject arch_id") is not None:
             arch_id = request.form.get("reject arch_id")
-            arch = Arch.query.filter_by(id = arch_id).first()
+            arch = ArchivedProblem.query.filter_by(id = arch_id).first()
             db.session.delete(arch)
             db.session.commit()
-    need_to_moderate = Arch.query.filter_by(moderated = False).all()
+    need_to_moderate = ArchivedProblem.query.filter_by(moderated = False).all()
     return render_template("admin/admin_moderation.html", title="GeoMath - модерация", need_to_moderate = need_to_moderate)
 
 
@@ -90,16 +90,16 @@ def get_class(s):
         return Email
     if s == "<class 'app.models.Pool'>":
         return Pool
-    if s == "<class 'app.models.UserPool'>":
-        return UserPool
+    if s == "<class 'app.models.User_Pool'>":
+        return User_Pool
     if s == "<class 'app.models.Problem'>":
         return Problem
     if s == "<class 'app.models.Tag'>":
         return Tag
-    if s == "<class 'app.models.ArchTag'>":
-        return ArchTag
-    if s == "<class 'app.models.Arch'>":
-        return Arch
+    if s == "<class 'app.models.ArchivedProblem_Tag'>":
+        return ArchivedProblem_Tag
+    if s == "<class 'app.models.ArchivedProblem'>":
+        return ArchivedProblem
 
 @admin.route("/admin/database", methods=["GET", "POST"])
 @admin_required
@@ -115,9 +115,9 @@ def database():
         show_db(AdminPassword),
         show_db(Email),
         show_db(Pool),
-        show_db(UserPool),
+        show_db(User_Pool),
         show_db(Problem),
         show_db(Tag),
-        show_db(ArchTag),
-        show_db(Arch)
+        show_db(ArchivedProblem_Tag),
+        show_db(ArchivedProblem)
     ])
