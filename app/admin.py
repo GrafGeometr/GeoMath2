@@ -48,7 +48,7 @@ def settings():
 
     return render_template("admin/admin_settings.html", title="GeoMath - настройки")
 
-@admin.route("/admin/moderation", methods=["GET", "POST"])
+@admin.route("/admin/problem_moderation", methods=["GET", "POST"])
 @admin_required
 def moderation():
     if request.method == "POST":
