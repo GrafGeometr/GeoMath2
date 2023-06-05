@@ -1,29 +1,34 @@
 <ul class="list-none p-0 mt-4">
     {% for archived_problem in archived_problems %}
 
+    {% with textcolor='text-white' %}
+    {% if archived_problem[1] >= 0.9*archived_problem[2] %}
+        {% set bgcolor = 'text-green-500' %}
+    {% elif archived_problem[1] >= 0.75*archived_problem[2] %}
+        {% set bgcolor = 'text-lime-500' %}
+    {% elif archived_problem[1] >= 0.5*archived_problem[2] %}
+        {% set bgcolor = 'text-yellow-500' %}
+    {% elif archived_problem[1] >= 0.25*archived_problem[2] %}
+        {% set bgcolor = 'text-orange-500' %}
+    {% else %}
+        {% set bgcolor = 'text-red-500' %}
+    {% endif %}
+    {% with perc=0 %}
+    {% if archived_problem[2] == 0 %}
+        {% set perc = 100 %}
+    {% else %}
+        {% set perc = (100*archived_problem[1]/archived_problem[2])|round|int %}
+    {% endif %}
+    
 
-    <li class="border-4 border-solid border-sky-400 bg-white mb-4 p-4 flex flex-col rounded-lg hover:border-green-600">
-        <div class="flex justify-between">
-            <span class="text-black text-xl">{{ archived_problem.name }}</span>
-        </div>
 
-        <div class="h-px w-full bg-neutral-300 my-2"></div>
-        
-        <span class="text-slate-500 font-bold">Условие:</span>
-        {% for paragraph in archived_problem.statement.split("\n") %}
-        <p class="mathjax-class m-0 text-base">{{ paragraph }}</p>
-        {% endfor %}
-
-        {% if archived_problem.show_solution %}
-            <div class="h-px w-full bg-neutral-300 my-2"></div>
-
-            <details>
-                <summary class="text-slate-500 font-bold hover:cursor-pointer hover:text-slate-600">Решение:</summary>
-                {% for paragraph in archived_problem.solution.split("\n") %}
-                <p class="mathjax-class m-0 text-base">{{ paragraph }}</p>
-                {% endfor %}
-            </details>
-        {% endif %}
+    <li class="border-2 border-solid border-slate-200 bg-white mb-4 p-4 flex flex-row gap-x-8 items-center rounded-lg hover:border-slate-600">
+        <a href="/archive/problem/{{ archived_problem[0].id }}" class="no-underline text-black text-xl hover:underline">
+            <span class="text-black text-xl">{{ archived_problem[0].name }}</span>
+        </a>
+        <span>Совпадение: <span class="text-bold {{bgcolor}}">{{ perc }}%</span></span>
     </li>
+    {% endwith %}
+    {% endwith %}
     {% endfor %}
 </ul>

@@ -22,7 +22,7 @@
     {% for x in pages_to_show %}
     {% if x == current_page %}
         <li class="page-item">
-            <a class="page-link active" href="{{ url_for("arch.archive_search", tags=tags, page=x) }}">{{ x }}</a>
+            <a class="page-link active" href="{{ url_for('arch.archive_search', tags=tags, page=x, mode=mode) }}">{{ x }}</a>
         </li>
     {% elif x == '...' %}
         <li class="page-item">
@@ -30,7 +30,7 @@
         </li>
     {% else %}
         <li class="page-item">
-            <a class="page-link" href="{{ url_for('arch.archive_search', tags=tags, page=x) }}">{{ x }}</a>
+            <a class="page-link" href="{{ url_for('arch.archive_search', tags=tags, page=x, mode=mode) }}">{{ x }}</a>
         </li>
     {% endif %}
     {% endfor %}
