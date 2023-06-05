@@ -2,52 +2,51 @@
     <table class="border-collapse border-2 border-solid border-sky-400 w-full h-full">
         <tbody>
             <tr class="odd:bg-white even:bg-neutral-100 hover:bg-neutral-200">
-                <th class="text-xl py-2 px-8">Пользователь</th>
-                <th class="text-xl py-2 px-8">Роль</th>
+                <th class="text-xl py-2 px-8 w-1/2">Пользователь</th>
+                <th class="text-xl py-2 px-8 w-1/2">Роль</th>
             </tr>
             {% for userpool in current_pool.get_users() %}
             <tr class="odd:bg-white even:bg-neutral-100 hover:bg-neutral-200">
-                <td class="text-center text-base py-2">{{ userpool.user.name }}</td>
-                <td>
-                    <div style="display: flex; flex-direction: row; align-items: center;">
-                        {% if userpool.role.isOwner() %}
-                        <span style="color: var(--yellow); width: 250px;">Владелец</span>
-                        {% elif userpool.role.isParticipant() %}
-                        <span style="color: var(--dark-green); width: 250px;">Участник</span>
-                        {% else %}
-                        <span style="color: var(--dark-gray); width: 250px;">Приглашённый</span>
-                        {% endif %}
-
-                        <div style="margin-left: 10px; width: 30px;">
-                            {% if current_user.get_pool_relation(current_pool.id).role.isOwner() %}
-                                <!-- check if we are in Management page -->
-                                <form action="/pool/{{ current_pool.hashed_id }}/management/collaborators", method="POST">
-                                        <input type="hidden" name="make_owner_user_id" value="{{ userpool.user.id }}">
-                                    {% if userpool.role.isParticipant() %}
-                                        <input type="image" style="width: 100%;" src="/static/images/crown.png" onmouseover="this.src='/static/images/crown_colored.png';" onmouseout="this.src='/static/images/crown.png';" />
-                                    {% elif userpool.role.isOwner() %}
-                                        <img src="/static/images/crown_colored.png" style="width: 100%;" alt="crown">
-                                    {% endif %}
-                                </form>
-                            {% elif current_user.get_pool_relation(current_pool.id).role.isParticipant() %}
-                                {% if userpool.role.isOwner() %}
-                                    <img src="/static/images/crown_colored.png" style="width: 100%;" alt="crown">
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                        <div style="margin-left: 10px; width: 30px;">
-                            {% if current_user.get_pool_relation(current_pool.id).role.isOwner() %}
-                                {% if userpool.user.id != current_user.id %}
-                                    <form action="/pool/{{ current_pool.hashed_id }}/management/collaborators", method="POST">
-                                        <input type="hidden" name="remove_user_id" value="{{ userpool.user.id }}">
-                                        <input type="image" style="width: 100%;" src="/static/images/bin.png" onmouseover="this.src='/static/images/bin_colored.png';" onmouseout="this.src='/static/images/bin.png';"/>
-                                    </form>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                    
-                    </div>
+                <td class="p-2">
+                    <span>{{ userpool.user.name }}</span>
                 </td>
+                <td class="p-2">
+                    <details>
+                        {% if userpool.role.isOwner() %}
+                            <summary class="font-bold text-amber-500">
+                                <span>Владелец</span>
+                            </summary>
+                            <div class="h-px w-full bg-gray-500 mb-4 mt-2"></div>
+                            <form action="/pool/{{ current_pool.hashed_id }}/management/collaborators" method="POST">
+                                <input type="hidden" name="downgrade_to_participant" value="{{ userpool.user.id }}">
+                                <input type="submit" value="Понизить до участника" class="font-bold hover:text-red-500 hover:cursor-pointer">
+                            </form>
+
+                        {% elif userpool.role.isParticipant() %} 
+                            <summary class="font-bold text-purple-500">
+                                <span>Участник</span>
+                            </summary>
+                            <div class="h-px w-full bg-gray-500 mb-4 mt-2"></div>
+                            <form action="/pool/{{ current_pool.hashed_id }}/management/collaborators" method="POST">
+                                <input type="hidden" name="upgrade_to_owner" value="{{ userpool.user.id }}">
+                                <input type="submit" value="Повысить до владельца" class="font-bold hover:text-green-500 hover:cursor-pointer">
+                            </form>
+                            <form action="/pool/{{ current_pool.hashed_id }}/management/collaborators" method="POST">
+                                <input type="hidden" name="remove_participant" value="{{ userpool.user.id }}">
+                                <input type="submit" value="Удалить из пула" class="font-bold hover:text-red-500 hover:cursor-pointer">
+                            </form>
+
+                        {% elif userpool.role.isInvited() %}
+                            <summary class="font-bold text-teal-500">
+                                <span>Приглашённый</span>
+                            </summary>
+                            <div class="h-px w-full bg-gray-500 mb-4 mt-2"></div>
+                            <form action="/pool/{{ current_pool.hashed_id }}/management/collaborators" method="POST">
+                                <input type="hidden" name="remove_participant" value="{{ userpool.user.id }}">
+                                <input type="submit" value="Отменить приглашение" class="font-bold hover:text-red-500 hover:cursor-pointer">
+                            </form>
+                        {% endif %}
+                    </details>
             </tr>
             {% endfor %}
         </tbody>

@@ -6,14 +6,16 @@
     element.classList.add("text-blue-600");
 </script>
 
-<div class="flex items-start">
-    <ul class="border-2 border-slate-200 rounded-md w-1/4 mr-8">
-        <li id="management_general_href" class="border-b-2 border-slate-200 last:border-0 first:rounded-t-md last:rounded-b-md"><a class="flex h-full w-full items-center hover:bg-neutral-200 p-2" href="/pool/{{ current_pool.hashed_id }}/management/general"><span>Общие настройки</span></a></li>
-        <li id="management_collaborators_href" class="border-b-2 border-slate-200 last:border-0 first:rounded-t-md last:rounded-b-md"><a class="flex h-full w-full items-center hover:bg-neutral-200 p-2" href="/pool/{{ current_pool.hashed_id }}/management/collaborators"><span>Участники</span></a></li>
-    </ul>
-
-        {% block pools_settings %}{% endblock %}
+<div class="flex w-full justify-center mt-8">
+    <div class="flex w-3/4 items-start">
+        <ul class="border border-slate-400 rounded-md w-1/4 mr-8">
+            <li id="management_general_href" class="border-b border-slate-400 last:border-0 first:rounded-t-md last:rounded-b-md"><a class="flex h-full w-full items-center hover:bg-neutral-200 p-2" href="/pool/{{ current_pool.hashed_id }}/management/general"><span>Общие настройки</span></a></li>
+            <li id="management_collaborators_href" class="border-b border-slate-400 last:border-0 first:rounded-t-md last:rounded-b-md"><a class="flex h-full w-full items-center hover:bg-neutral-200 p-2" href="/pool/{{ current_pool.hashed_id }}/management/collaborators"><span>Участники</span></a></li>
+        </ul>
+        <div class="grow flex flex-col gap-y-8">
+            {% block pools_settings %}{% endblock %}
+        </div>
+    </div>
 </div>
-
 
 {% endblock %}

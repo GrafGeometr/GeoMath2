@@ -82,6 +82,13 @@ class Pool(db.Model):
         userpools.sort(key = lambda up: (0, up.user.name) if up.role.isOwner() else (1, up.user.name) if up.role.isParticipant() else (2, up.user.name))
         return userpools
     
+    def count_owners(self):
+        return len([user for user in self.get_users() if user.role.isOwner()])
+    def count_participants(self):
+        return len([user for user in self.get_users() if user.role.isParticipant()])
+    def count_invited(self):
+        return len([user for user in self.get_users() if user.role.isInvited()])
+    
     def get_problems(self):
         return Problem.query.filter_by(pool_id = self.id).all()
     
