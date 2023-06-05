@@ -11,14 +11,14 @@
     class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300"
     href="{{ url_for('arch.archive_search',
                         tags=request.args.get('tags'),
-                        page=0,
+                        page=1,
                         mode='all') }}">Все задачи</a>
     <a
     id="archive_my_href"
     class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300"
     href="{{ url_for('arch.archive_search',
                         tags=request.args.get('tags'),
-                        page=0,
+                        page=1,
                         mode='my') }}">Мои задачи</a>
 </nav>
 
