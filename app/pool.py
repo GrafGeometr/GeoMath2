@@ -364,7 +364,10 @@ def pool_collaborators(pool_hashed_id):
                 flash(f"Пользователь {user_name} не найден", "danger")
                 print("Пользователь не найден")
                 return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
-
+            user_relation = user.get_pool_relation(pool.id)
+            if user_relation is not None:
+                flash(f"Пользователь {user.name} уже приглашен или состоит в пуле", "danger")
+                return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
             # add this user to the pool
 
             relation = User_Pool(user=user, pool=pool, role=Invited)
