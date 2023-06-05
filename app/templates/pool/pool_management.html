@@ -8,8 +8,8 @@
 
 <div class="flex items-start">
     <ul class="border-2 border-slate-200 rounded-md w-1/4 mr-8">
-        <li class="border-b-2 border-slate-200 last:border-0 first:rounded-t-md last:rounded-b-md"><a class="flex h-full w-full items-center hover:bg-neutral-200 p-2" href="/pool/{{ current_pool.hashed_id }}/management/general"><span>Общие настройки</span></a></li>
-        <li class="border-b-2 border-slate-200 last:border-0 first:rounded-t-md last:rounded-b-md"><a class="flex h-full w-full items-center hover:bg-neutral-200 p-2" href="/pool/{{ current_pool.hashed_id }}/management/collaborators"><span>Участники</span></a></li>
+        <li id="management_general_href" class="border-b-2 border-slate-200 last:border-0 first:rounded-t-md last:rounded-b-md"><a class="flex h-full w-full items-center hover:bg-neutral-200 p-2" href="/pool/{{ current_pool.hashed_id }}/management/general"><span>Общие настройки</span></a></li>
+        <li id="management_collaborators_href" class="border-b-2 border-slate-200 last:border-0 first:rounded-t-md last:rounded-b-md"><a class="flex h-full w-full items-center hover:bg-neutral-200 p-2" href="/pool/{{ current_pool.hashed_id }}/management/collaborators"><span>Участники</span></a></li>
     </ul>
 
         {% block pools_settings %}{% endblock %}
