@@ -88,10 +88,7 @@ def archive_search(mode):
 
     num_of_pages = (len(problems)+problems_per_page-1) // problems_per_page
     problems = problems[(page-1)*problems_per_page : page*problems_per_page]
-    if page > num_of_pages:
-        return redirect(url_for("arch.archive_search", tags=tags, page=num_of_pages, mode=mode))
-    if page <= 0:
-        return redirect(url_for("arch.archive_search", tags=tags, page=1, mode=mode))
+
 
     pages_to_show = get_correct_page_slice(num_of_pages, 7, page)
     

@@ -15,7 +15,7 @@
         {% if pages_to_show %}
             <ul class="flex text-lg text-center">
                     <li>
-                        {% if current_page != pages_to_show[0] %}
+                        {% if current_page > pages_to_show[0] %}
                         <a class="text-sky-500 px-4 hover:underline font-bold text-xl" href="{{ url_for('arch.archive_search', tags=tags, page=current_page-1, mode=mode) }}">&lt;</a>
                         {% else %}
                         <a class="invisible text-sky-500 px-4 hover:underline" href="{{ url_for('arch.archive_search', tags=tags, page=current_page-1, mode=mode) }}">&lt;</a>
@@ -33,7 +33,7 @@
                     {% endif %}
                 {% endfor %}
                 <li>
-                    {% if current_page != pages_to_show[-1] %}
+                    {% if current_page < pages_to_show[-1] %}
                     <a class="text-sky-500 px-4 hover:underline font-bold text-xl" href="{{ url_for('arch.archive_search', tags=tags, page=current_page+1, mode=mode) }}">&gt;</a>
                     {% else %}
                     <a class="invisible text-sky-500 px-4 hover:underline" href="{{ url_for('arch.archive_search', tags=tags, page=current_page+1, mode=mode) }}">&gt;</a>
