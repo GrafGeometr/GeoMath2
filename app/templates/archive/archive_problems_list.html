@@ -1,24 +1,24 @@
 <ul class="list-none p-0 mt-4">
-    {% for arch in archs %}
+    {% for archived_problem in archived_problems %}
 
 
     <li class="border-4 border-solid border-sky-400 bg-white mb-4 p-4 flex flex-col rounded-lg hover:border-green-600">
         <div class="flex justify-between">
-            <span class="text-black text-xl">{{ arch.name }}</span>
+            <span class="text-black text-xl">{{ archived_problem.name }}</span>
         </div>
 
         <div class="h-px w-full bg-neutral-300 my-2"></div>
         
         <span class="text-slate-500 font-bold">Условие:</span>
-        {% for paragraph in arch.statement.split("\n") %}
+        {% for paragraph in archived_problem.statement.split("\n") %}
         <p class="m-0 text-base">{{ paragraph }}</p>
         {% endfor %}
 
-        {% if arch.show_solution %}
+        {% if archived_problem.show_solution %}
             <div class="h-px w-full bg-neutral-300 my-2"></div>
 
             <span class="text-slate-500 font-bold">Решение:</span>
-            {% for paragraph in arch.solution.split("\n") %}
+            {% for paragraph in archived_problem.solution.split("\n") %}
             <p class="m-0 text-base">{{ paragraph }}</p>
             {% endfor %}
         {% endif %}

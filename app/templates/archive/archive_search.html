@@ -76,7 +76,7 @@
                     b.innerHTML += arr[i].substr(idx + suffix.length);
 
                     /*insert a input field that will hold the current array item's value:*/
-                    b.innerHTML += "<input type='hidden' value='" + prefix + arr[i] + "'>";
+                    b.innerHTML += "<input type='hidden' value='" + prevent_injection(prefix) + " " + prevent_injection(arr[i]) + "'>";
                     /*execute a function when someone clicks on the item value (DIV element):*/
                     b.addEventListener("click", function (e) {
                         /*insert the value for the autocomplete text field:*/

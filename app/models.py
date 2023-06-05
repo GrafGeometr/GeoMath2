@@ -13,7 +13,7 @@ class User(UserMixin, db.Model):
     emails = db.relationship("Email", backref="user")
 
     userpools = db.relationship("User_Pool", backref="user")
-    archs = db.relationship("ArchivedProblem", backref="user")
+    archived_problems = db.relationship("ArchivedProblem", backref="user")
     
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -42,7 +42,6 @@ class User(UserMixin, db.Model):
     def get_pool_relation(self, pool_id):
         relation = User_Pool.query.filter_by(user_id = self.id, pool_id = pool_id).first()
         return relation
-
 
 class AdminPassword(db.Model):
     __tablename__ = 'admin_password'
@@ -93,7 +92,6 @@ class Pool(db.Model):
         problem.name = f"Задача #{problem.id}"
         db.session.commit()
         return problem
-
     
 class User_Pool(db.Model):
     __tablename__ = 'user_pool'
@@ -117,14 +115,14 @@ class Tag(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, unique=True, nullable=True)
-    archtags = db.relationship("ArchivedProblem_Tag", backref="tag")
+    archived_problem_tags = db.relationship("ArchivedProblem_Tag", backref="tag")
 
 class ArchivedProblem_Tag(db.Model):
     __tablename__ = 'archived_problem_tag'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tag_id = db.Column(db.Integer, db.ForeignKey("tag.id"))
-    arch_id = db.Column(db.Integer, db.ForeignKey("archived_problem.id"))
+    archived_problem_id = db.Column(db.Integer, db.ForeignKey("archived_problem.id"))
 
 class ArchivedProblem(db.Model):
     __tablename__ = 'archived_problem'
@@ -135,8 +133,8 @@ class ArchivedProblem(db.Model):
     solution = db.Column(db.String)
     moderated = db.Column(db.Boolean, default=False)
     show_solution = db.Column(db.Boolean, default=False)
-    archtags = db.relationship("ArchivedProblem_Tag", backref="archived_problem")
+    archived_problem_tags = db.relationship("ArchivedProblem_Tag", backref="archived_problem")
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
     def get_tags(self):
-        return sorted([archtag.tag for archtag in ArchivedProblem_Tag.query.filter_by(arch_id = self.id).all()], key=lambda t:t.name.lower())
+        return sorted([archived_problem_tag.tag for archived_problem_tag in ArchivedProblem_Tag.query.filter_by(archived_problem_id = self.id).all()], key=lambda t:t.name.lower())
