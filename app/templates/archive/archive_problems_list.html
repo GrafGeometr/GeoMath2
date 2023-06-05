@@ -26,7 +26,11 @@
         <a href="/archive/problem/{{ archived_problem[0].id }}" class="no-underline text-black text-xl hover:underline">
             <span class="text-black text-xl">{{ archived_problem[0].name }}</span>
         </a>
+        
         <span>Совпадение: <span class="text-bold {{bgcolor}}">{{ perc }}%</span></span>
+        {% if not archived_problem[0].moderated %}
+            <span class="text-stone-800 flex grow justify-end items-center"> (на модерации) </span>
+        {% endif %}
     </li>
     {% endwith %}
     {% endwith %}
