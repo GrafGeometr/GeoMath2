@@ -63,6 +63,7 @@ def create_app():
     app.register_blueprint(err_blueprint)
 
     with app.app_context():
+        db.drop_all()
         db.create_all()
 
     return app
