@@ -6,8 +6,20 @@
 </script>
 
 <nav class="flex gap-x-4 my-2">
-    <a id="archive_all_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/archive/all">Все задачи</a>
-    <a id="archive_my_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/archive/my">Мои задачи</a>
+    <a
+    id="archive_all_href"
+    class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300"
+    href="{{ url_for('arch.archive_search',
+                        tags=request.args.get('tags'),
+                        page=0,
+                        mode='all') }}">Все задачи</a>
+    <a
+    id="archive_my_href"
+    class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300"
+    href="{{ url_for('arch.archive_search',
+                        tags=request.args.get('tags'),
+                        page=0,
+                        mode='my') }}">Мои задачи</a>
 </nav>
 
 <div class="h-px w-full bg-neutral-300"></div>
