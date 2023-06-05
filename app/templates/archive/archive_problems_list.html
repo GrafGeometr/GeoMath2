@@ -11,7 +11,7 @@
         
         <span class="text-slate-500 font-bold">Условие:</span>
         {% for paragraph in arch.statement.split("\n") %}
-        <p class="m-0 text-base">{{ paragraph }}</p>
+        <p class="mathjax-class m-0 text-base">{{ paragraph }}</p>
         {% endfor %}
 
         {% if arch.show_solution %}
@@ -19,7 +19,7 @@
 
             <span class="text-slate-500 font-bold">Решение:</span>
             {% for paragraph in arch.solution.split("\n") %}
-            <p class="m-0 text-base">{{ paragraph }}</p>
+            <p class="mathjax-class m-0 text-base">{{ paragraph }}</p>
             {% endfor %}
         {% endif %}
     </li>

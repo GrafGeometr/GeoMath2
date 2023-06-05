@@ -8,14 +8,8 @@
     <link rel="stylesheet" type="text/css" href="/static/css/general.css">
 <title>{{ title }}</title>
 
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({tex2jax: {inlineMath: [ ['$','$'], ["\\(","\\)"] ],processEscapes: true}});
-  </script>
-<script
-    type="text/javascript"
-    charset="utf-8"
-    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
+
+
 <script src="https://cdn.jsdelivr.net/gh/akjpro/form-anticlear/base.js"></script>
 <script>
     function render_multiline_text(text) {
@@ -34,7 +28,7 @@
 </script>
 
 </head>
-<body class="mx-32 bg-slate-50 mb-32">
+<body class="mx-32 bg-slate-50 mb-32 tex2jax_ignore">
     <header class="flex justify-between items-stretch">
         <div class="flex items-center py-4">
             <a href="/feed"><img class = "mix-blend-multiply h-20" src="/static/images/logo.png" alt="logo"></a>
@@ -63,4 +57,12 @@
     {% block content %}{% endblock %}
     </div>
 </body>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true}, elements: document.getElementsByClassName("mathjax-class")});
+</script>
+<script
+    type="text/javascript"
+    charset="utf-8"
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
 </html>

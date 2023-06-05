@@ -12,14 +12,14 @@
         
         <span class="text-slate-500 font-bold">Условие:</span>
         {% for paragraph in problem.statement.split("\n") %}
-        <p class="m-0 text-base">{{ paragraph }}</p>
+        <p class="mathjax-class m-0 text-base">{{ paragraph }}</p>
         {% endfor %}
 
         <div class="h-px w-full bg-neutral-300 my-2"></div>
 
         <span class="text-slate-500 font-bold">Решение:</span>
         {% for paragraph in problem.solution.split("\n") %}
-        <p class="m-0 text-base">{{ paragraph }}</p>
+        <p class="mathjax-class m-0 text-base">{{ paragraph }}</p>
         {% endfor %}
     </li>
     {% endfor %}
