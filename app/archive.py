@@ -14,7 +14,7 @@ def publish(problem_id):
     
 
     pool_hashed_id = problem.pool.hashed_id
-    arch = Arch(name=problem.name, statement=problem.statement, solution=problem.solution, user=current_user)
+    arch = ArchivedProblem(name=problem.name, statement=problem.statement, solution=problem.solution, user=current_user)
     db.session.add(arch)
     db.session.commit()
 
@@ -55,9 +55,9 @@ def archive_search():
 
     if len(tags) == 0:
         # no tags, show all
-        problems = Arch.query.filter_by(moderated=True).all()
+        problems = ArchivedProblem.query.filter_by(moderated=True).all()
     else:
-        problems = [problem for problem in Arch.query.filter_by(moderated=True).all() if any(tag.name in tags for tag in problem.get_tags())]
+        problems = [problem for problem in ArchivedProblem.query.filter_by(moderated=True).all() if any(tag.name in tags for tag in problem.get_tags())]
     
     total_pages = (len(problems)+problems_per_page-1) // problems_per_page
     problems = problems[page*problems_per_page:(page+1)*problems_per_page]
@@ -75,11 +75,11 @@ def archive_search():
 
 @arch.route("/archive/my", methods=["GET"])
 def my():
-    return render_template("archive/archive_my.html", archs=Arch.query.filter_by(user=current_user))
+    return render_template("archive/archive_my.html", archs=ArchivedProblem.query.filter_by(user=current_user))
 
 @arch.route("/archive/my/<int:arch_id>", methods=["GET", "POST"])
 def my_arch(arch_id):
-    arch = Arch.query.filter_by(id = arch_id).first()
+    arch = ArchivedProblem.query.filter_by(id = arch_id).first()
     if arch is None:
         return redirect("/archive/my")
     if arch.user != current_user:
@@ -96,8 +96,8 @@ def my_arch(arch_id):
                 tag = Tag(name=tag_name)
                 db.session.add(tag)
                 db.session.commit()
-            if ArchTag.query.filter_by(arch=arch, tag=tag).first() is None:
-                archtag = ArchTag(arch=arch, tag=tag)
+            if ArchivedProblem_Tag.query.filter_by(arch=arch, tag=tag).first() is None:
+                archtag = ArchivedProblem_Tag(arch=arch, tag=tag)
                 db.session.add(archtag)
                 db.session.commit()
             return redirect(f"/archive/my/{arch_id}")
@@ -106,8 +106,8 @@ def my_arch(arch_id):
             tag = Tag.query.filter_by(id=tag_id).first()
             if tag is None:
                 return redirect(f"/archive/my/{arch_id}")
-            if ArchTag.query.filter_by(arch=arch, tag=tag).first() is not None:
-                db.session.delete(ArchTag.query.filter_by(arch=arch, tag=tag).first())
+            if ArchivedProblem_Tag.query.filter_by(arch=arch, tag=tag).first() is not None:
+                db.session.delete(ArchivedProblem_Tag.query.filter_by(arch=arch, tag=tag).first())
                 db.session.commit()
             return redirect(f"/archive/my/{arch_id}")
         if request.form.get("delete_arch") is not None:
