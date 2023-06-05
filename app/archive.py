@@ -45,16 +45,14 @@ def archive_search():
     else:
         tags = list(map(lambda x: x.strip() , tags.split(";")))
 
+
+    tags = list(set(tags))
     print(tags)
     print(page)
 
     problems_per_page = 10
 
-    if len(tags) == 0:
-        # no tags, show all
-        problems = ArchivedProblem.query.filter_by(moderated=True).all()
-    else:
-        problems = [problem for problem in ArchivedProblem.query.filter_by(moderated=True).all() if any(tag.name in tags for tag in problem.get_tags())]
+    problems = sorted([problem for problem in ArchivedProblem.query.filter_by(moderated=True).all()], key=lambda p: len([tag for tag in tags if tag in p.get_tag_names()]), reverse=True)
     
     print(problems)
 

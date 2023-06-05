@@ -138,3 +138,5 @@ class ArchivedProblem(db.Model):
 
     def get_tags(self):
         return sorted([archived_problem_tag.tag for archived_problem_tag in ArchivedProblem_Tag.query.filter_by(archived_problem_id = self.id).all()], key=lambda t:t.name.lower())
+    def get_tag_names(self):
+        return [tag.name for tag in self.get_tags()]
