@@ -255,6 +255,8 @@ def pool_manager_general(pool_hashed_id):
         if request.form.get("delete_pool") is not None:
             for relation in User_Pool.query.filter_by(pool_id = pool.id).all():
                 db.session.delete(relation)
+            for problem in Problem.query.filter_by(pool_id = pool.id).all():
+                db.session.delete(problem)
             db.session.delete(pool)
             db.session.commit()
             flash("Пул успешно удален", "success")
