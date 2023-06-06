@@ -14,11 +14,13 @@
     }
     </script>
 
-<div class="flex justify-end">
-    <form action="/archive/publish/{{current_problem.id}}" method="post">
-        <input type="submit" class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700" value="Опубликовать в архив">
-    </form>
-</div>
+{% if current_user.get_pool_relation(current_pool.id).role.isOwner() %}
+    <div class="flex justify-end">
+        <form action="/archive/publish/{{current_problem.id}}" method="post">
+            <input type="submit" class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700" value="Опубликовать в архив">
+        </form>
+    </div>
+{% endif %}
 
 <form action="/pool/{{ current_pool.hashed_id }}/problem/{{ current_problem.id }}" method="post" class="w-full mt-2 px-4">
 
@@ -47,14 +49,14 @@
     <span class="text-slate-500 font-bold text-xl">Условие:</span>
     <div class="flex w-full">
         <textarea id="statement_textarea" rows="10" cols="50" name="statement" class="text-lg w-1/2 p-4 border-slate-200 border-2 rounded-lg" oninput="RenderStatement();">{{ current_problem.statement }}</textarea>
-        <div id="statement_latex_output" class="text-lg ml-4 p-4 bg-white border-2 border-solid border-sky-400 rounded-lg w-1/2"></div>
+        <div id="statement_latex_output" class="mathjax-class text-lg ml-4 p-4 bg-white border-2 border-solid border-sky-400 rounded-lg w-1/2"></div>
     </div>
     
 
     <span class="text-slate-500 font-bold text-xl">Решение:</span>
     <div class="flex w-full">
         <textarea id="solution_textarea" rows="10" cols="50" name="solution" class="text-lg w-1/2 p-4 border-slate-200 border-2 rounded-lg" oninput="RenderSolution();">{{ current_problem.solution }}</textarea>
-        <div id="solution_latex_output" class="text-lg ml-4 p-4 bg-white border-2 border-solid border-sky-400 rounded-lg w-1/2"></div>
+        <div id="solution_latex_output" class="mathjax-class text-lg ml-4 p-4 bg-white border-2 border-solid border-sky-400 rounded-lg w-1/2"></div>
     </div>
     
 </form>

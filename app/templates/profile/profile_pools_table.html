@@ -1,11 +1,11 @@
 <table class="border-collapse border-2 border-solid border-sky-400 w-full h-full">
     <tbody>
         <tr class="odd:bg-white even:bg-neutral-100 hover:bg-neutral-200">
-            <th class="text-xl py-2 px-8">Название пула</th>
-            <th class="text-xl py-2 px-8">Роль</th>
-            <th class="text-xl py-2 px-8">Приглашение</th>
-            <th class="text-xl py-2 px-8">Время вступления</th>
-            <th class="text-xl py-2 px-8">Время приглашения</th>
+            <th class="text-lg py-2 px-6">Название пула</th>
+            <th class="text-lg py-2 px-6">Роль</th>
+            <th class="text-lg py-2 px-6">Приглашение</th>
+            <th class="text-lg py-2 px-6">Время вступления</th>
+            <th class="text-lg py-2 px-6">Время приглашения</th>
         </tr>
         {% for userpool in current_user.get_pools() %}
         <tr class="odd:bg-white even:bg-neutral-100 hover:bg-neutral-200">

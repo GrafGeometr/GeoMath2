@@ -1,5 +1,12 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "admin/admin_header.html" %}
+{% block admin_panel_body %}
+
+<script>
+    var element = document.getElementById("databse_href");
+    element.classList.remove("text-stone-800");
+    element.classList.add("text-blue-600");
+</script>
+
 <div class="flex flex-col gap-y-8 mt-8">
     {% for tb in tables %}
     <div class="h-120 w-full overflow-y-auto">

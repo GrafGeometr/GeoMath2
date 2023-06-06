@@ -10,10 +10,11 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String, nullable=True)
     admin = db.Column(db.Boolean, default=False)
     created_date = db.Column(db.DateTime, default=datetime.datetime.now)
+    profile_pic = db.Column(db.String(), nullable=True)
     emails = db.relationship("Email", backref="user")
 
     userpools = db.relationship("User_Pool", backref="user")
-    archs = db.relationship("ArchivedProblem", backref="user")
+    archived_problems = db.relationship("ArchivedProblem", backref="user")
     
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -42,7 +43,6 @@ class User(UserMixin, db.Model):
     def get_pool_relation(self, pool_id):
         relation = User_Pool.query.filter_by(user_id = self.id, pool_id = pool_id).first()
         return relation
-
 
 class AdminPassword(db.Model):
     __tablename__ = 'admin_password'
@@ -83,6 +83,13 @@ class Pool(db.Model):
         userpools.sort(key = lambda up: (0, up.user.name) if up.role.isOwner() else (1, up.user.name) if up.role.isParticipant() else (2, up.user.name))
         return userpools
     
+    def count_owners(self):
+        return len([user for user in self.get_users() if user.role.isOwner()])
+    def count_participants(self):
+        return len([user for user in self.get_users() if user.role.isParticipant()])
+    def count_invited(self):
+        return len([user for user in self.get_users() if user.role.isInvited()])
+    
     def get_problems(self):
         return Problem.query.filter_by(pool_id = self.id).all()
     
@@ -93,7 +100,6 @@ class Pool(db.Model):
         problem.name = f"Задача #{problem.id}"
         db.session.commit()
         return problem
-
     
 class User_Pool(db.Model):
     __tablename__ = 'user_pool'
@@ -117,14 +123,14 @@ class Tag(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, unique=True, nullable=True)
-    archtags = db.relationship("ArchivedProblem_Tag", backref="tag")
+    archived_problem_tags = db.relationship("ArchivedProblem_Tag", backref="tag")
 
 class ArchivedProblem_Tag(db.Model):
     __tablename__ = 'archived_problem_tag'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tag_id = db.Column(db.Integer, db.ForeignKey("tag.id"))
-    arch_id = db.Column(db.Integer, db.ForeignKey("archived_problem.id"))
+    archived_problem_id = db.Column(db.Integer, db.ForeignKey("archived_problem.id"))
 
 class ArchivedProblem(db.Model):
     __tablename__ = 'archived_problem'
@@ -135,8 +141,10 @@ class ArchivedProblem(db.Model):
     solution = db.Column(db.String)
     moderated = db.Column(db.Boolean, default=False)
     show_solution = db.Column(db.Boolean, default=False)
-    archtags = db.relationship("ArchivedProblem_Tag", backref="archived_problem")
+    archived_problem_tags = db.relationship("ArchivedProblem_Tag", backref="archived_problem")
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
     def get_tags(self):
-        return sorted([archtag.tag for archtag in ArchivedProblem_Tag.query.filter_by(arch_id = self.id).all()], key=lambda t:t.name.lower())
+        return sorted([archived_problem_tag.tag for archived_problem_tag in ArchivedProblem_Tag.query.filter_by(archived_problem_id = self.id).all()], key=lambda t:t.name.lower())
+    def get_tag_names(self):
+        return [tag.name for tag in self.get_tags()]

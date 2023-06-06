@@ -1,18 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
 <nav class="flex gap-x-4 my-2">
-    <a id="profile_about_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/{{ current_user.name }}">Основное</a>
-    <a id="profile_pools_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/{{ current_user.name }}/pools">Пулы</a>
-    <a id="profile_groups_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/{{ current_user.name }}/groups">Кружки</a>
-    <a id="profile_settings_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/{{ current_user.name }}/settings">Настройки</a>
+    <a id="profile_about_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/{{ user.name }}">Основное</a>
+    {% if current_user.is_authenticated and (current_user.name == user.name) %}
+        <a id="profile_pools_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/pools">Пулы</a>
+        <a id="profile_groups_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/groups">Кружки</a>
+        <a id="profile_settings_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/settings">Настройки</a>
+    {% endif %}
 </nav>
 
 <div class="h-px w-full bg-neutral-300"></div>
 
-<div class="flex mt-4 gap-x-4">
+<div class="flex mt-4 gap-x-12 w-3/4">
     <section class="flex flex-col items-center gap-y-4">
-        <img src="/static/images/user.png" class="w-48 h-48 rounded-full border-2 border-solid border-stone-300 mix-blend-multiply">
-        <span class="text-xl text-stone-900 font-semibold">{{ current_user.name }}</span>
+        {% if (user.profile_pic is none) or (user.profile_pic=="") %}
+            <img src="/static/images/user.png" class="w-48 rounded-md border-2 border-solid border-stone-300 mix-blend-multiply">
+        {% else %}
+            <img src="{{ url_for('prof.show_profile_pic', filename=user.profile_pic) }}" alt="{{ user.name }}" class="w-48 rounded-md border-2 border-solid border-stone-300 mix-blend-multiply">
+        {% endif %}
+        <span class="text-xl text-stone-900 font-semibold">{{ user.name }}</span>
+        {% if current_user.is_authenticated and (current_user.name == user.name) %}
+            <form class="flex flex-col items-center" action="/profile/{{user.name}}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="update_profile_pic" value="239">
+                <input type="file" name="profile_pic" accept="image/*">
+                <input type="submit" value="Обновить фото">
+            </form>
+            <form class="flex flex-col items-center" action="/profile/{{user.name}}" method="POST">
+                <input type="hidden" name="delete_profile_pic" value="239">
+                <input type="submit" value="Удалить фото" class="font-bold hover:text-red-500 hover:cursor-pointer">
+            </form>
+        {% endif %}
     </section>
     <section class="grow">
     {% block profile_content %}{% endblock %}
