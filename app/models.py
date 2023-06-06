@@ -10,6 +10,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String, nullable=True)
     admin = db.Column(db.Boolean, default=False)
     created_date = db.Column(db.DateTime, default=datetime.datetime.now)
+    profile_pic = db.Column(db.String(), nullable=True)
     emails = db.relationship("Email", backref="user")
 
     userpools = db.relationship("User_Pool", backref="user")

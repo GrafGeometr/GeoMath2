@@ -3,31 +3,82 @@ from .model_imports import *
 
 prof = Blueprint('prof', __name__)
 
+
+
+@prof.route("/show_profile_pic/<path:filename>")
+def show_profile_pic(filename):
+    print(filename)
+    try:
+        return send_from_directory(os.path.join(basedir, 'database/profile_pics'), filename, as_attachment=True)
+    except Exception as e:
+        print(e)
+
 @prof.route("/myprofile")
 @login_required
 def to_profile():
     return redirect(f"/profile/{current_user.name}")
     
 
+def squarify(d, f):
+    path = os.path.join(d, f)
+    img = Image.open(path)
+    x, y = img.size
+    if x > y:
+        img = img.crop(((x-y)//2, 0, (x+y)//2, y))
+    else:
+        img = img.crop((0, (y-x)//2, x, (y+x)//2))
+    img.save(path)
 
-@prof.route("/profile/<username>")
-@login_required
+
+@prof.route("/profile/<username>", methods=["GET", "POST"])
 def profile(username):
-    return render_template("profile/profile_about.html", title="Мой профиль")
+    user = User.query.filter_by(name = username).first()
+    if user is None:
+        flash("Пользователь не найден", "danger")
+        return redirect("/myprofile")
+    if request.method == "POST":
+        if user.name != current_user.name:
+            return redirect(f"/profile/{user.name}")
+        if request.form.get("update_profile_pic") is not None:
+            directory = 'app/database/profile_pics'
+            filename = safe_image_upload(request, 'profile_pic', directory, 5*1024*1024)
+            if filename is not None:
+                try:
+                    os.remove(os.path.join(directory, current_user.profile_pic))
+                except:
+                    pass
+                squarify(directory, filename)
+                current_user.profile_pic = filename
+                db.session.commit()
+                return redirect(f"/profile/{user.name}")
+        if request.form.get("delete_profile_pic") is not None:
+            directory = 'app/database/profile_pics'
+            try:
+                os.remove(os.path.join(directory, current_user.profile_pic))
+            except:
+                pass
+            current_user.profile_pic = None
+            db.session.commit()
+            return redirect(f"/profile/{user.name}")
 
 
-@prof.route("/profile/<username>/pools")
+
+
+    return render_template("profile/profile_about.html", title="Мой профиль", user=user)
+
+
+@prof.route("/profile/pools")
 @login_required
-def profile_pools(username):
-    return render_template("profile/profile_pools.html", title="Мои пулы")
+def profile_pools():
+    return render_template("profile/profile_pools.html", title="Мои пулы", user=current_user)
 
 
-@prof.route("/profile/<username>/groups")
+@prof.route("/profile/groups")
 @login_required
-def profile_groups(username):
-    return render_template("profile/profile_groups.html", title="Мои кружки")
+def profile_groups():
+    return render_template("profile/profile_groups.html", title="Мои кружки", user=current_user)
 
-@prof.route("/profile/<username>/settings")
+@prof.route("/profile/settings")
 @login_required
-def profile_settings(username):
-    return render_template("profile/profile_settings.html", title="Настройки")
+def profile_settings():
+    return render_template("profile/profile_settings.html", title="Настройки", user=current_user)
