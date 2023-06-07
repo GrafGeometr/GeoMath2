@@ -174,5 +174,28 @@ def my_arch(archived_problem_id):
                 attachment.locked = not attachment.locked
                 db.session.commit()
                 return redirect(f"/archive/problem/{archived_problem_id}")
+            if request.form.get("back_to_pool") is not None:
+                pool_hashed_id = request.form.get("back_to_pool")
+                pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
+                if pool is None:
+                    return redirect(f"/archive/problem/{archived_problem_id}")
+                relation = User_Pool.query.filter_by(user_id=current_user.id, pool_id=pool.id).first()
+                if relation is None or relation.role.isInvited():
+                    return redirect(f"/archive/problem/{archived_problem_id}")
+                
+                problem = Problem(name=archived_problem.name, statement=archived_problem.statement, solution=archived_problem.solution, pool=pool)
+                db.session.add(problem)
+                db.session.commit()
+
+                for attachment in archived_problem.attachments:
+                    attachment_copy = ProblemAttachment(db_folder=attachment.db_folder, db_filename=attachment.db_filename, preview_name=attachment.preview_name, problem_id=problem.id)
+                    db.session.add(attachment_copy)
+                    db.session.delete(attachment)
+                    db.session.commit()
+
+                db.session.delete(archived_problem)
+                db.session.commit()
+                return redirect(f"/pool/{pool.hashed_id}/problem/{problem.id}")
+
 
     return render_template("archive/archive_problem_template.html", archived_problem=archived_problem, all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))

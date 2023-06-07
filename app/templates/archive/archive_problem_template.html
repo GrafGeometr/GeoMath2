@@ -128,10 +128,21 @@
                     <input type="submit" class="hover:cursor-pointer hover:underline text-black" value="Показывать пользователям решение">
                     {% endif %}
                 </form>
-                <form action="/archive/problem/{{ archived_problem.id }}" method="post" class="my-4">
-                    <input type="hidden" name="delete_archived_problem" value="239">
-                    <input type="submit" value="Удалить задачу" class="hover:font-bold hover:cursor-pointer hover:text-red-600">
-                </form>
+                <details>
+                    <summary>Вернуть в пул на доработку</summary>
+                    <ul>
+                    {% for userpool in current_user.get_pools() %}
+                    {% if (userpool.role.isOwner() or userpool.role.isParticipant) %}
+                        <li>
+                            <form action="/archive/problem/{{ archived_problem.id }}" method="post" class="my-4">
+                                <input type="hidden" name="back_to_pool" value="{{ userpool.pool.hashed_id }}">
+                                <input type="submit" value="{{ userpool.pool.name }}" class="hover:font-bold hover:cursor-pointer hover:text-blue-600">
+                            </form>
+                        </li>
+                    {% endif %}
+                    {% endfor %}
+                    </ul>
+                </details>
             </div>
         {% endif %}
     </div>
