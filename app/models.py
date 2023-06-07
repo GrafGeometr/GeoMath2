@@ -117,6 +117,14 @@ class Problem(db.Model):
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
     statement = db.Column(db.String)
     solution = db.Column(db.String)
+    attachments = db.relationship("ProblemAttachment", backref="problem")
+    def delete_attachment(self, attachment):
+        try:
+            os.remove(os.path.join(attachment.db_folder, attachment.db_filename))
+        except:
+            pass
+        db.session.delete(attachment)
+        db.session.commit()
 
 class Tag(db.Model):
     __tablename__ = 'tag'
@@ -142,9 +150,28 @@ class ArchivedProblem(db.Model):
     moderated = db.Column(db.Boolean, default=False)
     show_solution = db.Column(db.Boolean, default=False)
     archived_problem_tags = db.relationship("ArchivedProblem_Tag", backref="archived_problem")
+    attachments = db.relationship("ProblemAttachment", backref="archived_problem")
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    def delete_attachment(self, attachment):
+        try:
+            os.remove(os.path.join(attachment.db_folder, attachment.db_filename))
+        except:
+            pass
+        db.session.delete(attachment)
+        db.session.commit()
 
     def get_tags(self):
         return sorted([archived_problem_tag.tag for archived_problem_tag in ArchivedProblem_Tag.query.filter_by(archived_problem_id = self.id).all()], key=lambda t:t.name.lower())
     def get_tag_names(self):
         return [tag.name for tag in self.get_tags()]
+    
+class ProblemAttachment(db.Model):
+    __tablename__ = 'problem_attachment'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    db_folder = db.Column(db.String)
+    db_filename = db.Column(db.String)
+    preview_name = db.Column(db.String)
+    locked = db.Column(db.Boolean, default=True)
+    problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
+    archived_problem_id = db.Column(db.Integer, db.ForeignKey("archived_problem.id"))

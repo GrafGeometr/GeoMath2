@@ -1,4 +1,6 @@
 /* || GENERAL STYLES */
+@import url('https://fonts.googleapis.com/css2?family=Roboto');
 html {
-    font-family: Calibri, Candara, Segoe, Segoe UI, Optima, Arial, sans-serif
+    font-family: Calibri, Candara, Segoe, Segoe UI, Optima, Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
 }

@@ -74,6 +74,20 @@
                         {% endif %}
                     </div>
                 </details>
+
+                <div class="h-px w-full bg-neutral-300 my-2"></div>
+
+                <details>
+                    <summary class="text-slate-500 font-bold">Вложения:</summary>
+                    <div>
+                        <ul>
+                            {% for attachment in archived_problem.attachments %}
+                            <li>
+                                <span>{{ attachment.preview_name }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </details>
             {% endif %}
 
         </div>
