@@ -40,6 +40,47 @@
                 </details>
 
                 <div class="h-px w-full bg-neutral-300 my-2"></div>
+                
+                <details>
+                    <summary class="text-slate-500 font-bold">Вложения:</summary>
+                    <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
+                        <div class="border-r-2 border-slate-300 grow">
+                            <div class="flex flex-col gap-y-4 mr-4">
+                                <ul class="flex flex-col gap-y-2">
+                                    {% for attachment in archived_problem.attachments %}
+                                        {% if not attachment.locked or attachment.archived_problem.user == current_user %}
+                                        <li class="flex w-full gap-x-2">
+                                            <input type="text" name="attachment_name {{ attachment.id }}" value="{{ attachment.preview_name }}" placeholder="Как назвать картинку?"
+                                            class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow" readonly>
+                                            {% if attachment.archived_problem.user == current_user %}
+                                                <form action="/archive/problem/{{ archived_problem.id }}" method="post">
+                                                {% if attachment.locked %}
+                                                <label class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-red-200 rounded">
+                                                    <input type="submit" class="lock-attachment w-0 h-0" name="lock_attachment {{ attachment.id }}" checked>
+                                                    <img src="/static/images/pwd_hide.png" class="h-8">
+                                                {% else %}
+                                                <label class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-green-200 rounded">
+                                                    <input type="submit" class="lock-attachment w-0 h-0" name="lock_attachment {{ attachment.id }}">
+                                                    <img src="/static/images/pwd_show.png" class="h-8">
+                                                {% endif %}
+                                                </label>
+                                                <input type="hidden" name="switch_attachment_access" value="{{ attachment.id }}">
+                                                </form>
+                                            {% endif %}
+                                        </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                
+                        <div class="w-2/3 ml-4">
+                            <img id="display-attachment" class="hidden border-2 border-sky-400 padding-8 rounded-xl">
+                        </div>
+                    </div>
+                </details>
+
+                <div class="h-px w-full bg-neutral-300 my-2"></div>
 
                 <details>
                     <summary class="text-slate-500 font-bold">Теги:</summary>
@@ -72,20 +113,6 @@
                                 </form>
                             </div>
                         {% endif %}
-                    </div>
-                </details>
-
-                <div class="h-px w-full bg-neutral-300 my-2"></div>
-
-                <details>
-                    <summary class="text-slate-500 font-bold">Вложения:</summary>
-                    <div>
-                        <ul>
-                            {% for attachment in archived_problem.attachments %}
-                            <li>
-                                <span>{{ attachment.preview_name }}</span>
-                            </li>
-                        </ul>
                     </div>
                 </details>
             {% endif %}
@@ -223,5 +250,32 @@
         /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
         autocomplete(document.getElementById("addtag"), tags);
     </script>
+
+
+
+<script>
+    var inputs = document.querySelectorAll(".input-attachment-name");
+    var display = document.querySelector("#display-attachment");
+    display.onerror = () => {
+        this.classList.add("hidden");
+        this.onerror = null;
+    }
+    {% set it = namespace(value=0) %}
+    {% for attachment in archived_problem.attachments %}
+        {% if not attachment.locked or attachment.archived_problem.user == current_user %}
+        inputs[{{it.value}}].addEventListener("focus", function(event) {
+            inputs.forEach((input) => {
+                input.classList.remove("border-black", "bg-slate-100");
+            })
+            this.classList.add("border-black", "bg-slate-100");
+            display.src = "{{ url_for('arch.show_problem_attachment', problem_id=archived_problem.id, filename=attachment.db_filename) }}";
+            display.classList.remove("hidden");
+            display.classList.add("block");
+        })
+        {% set it.value = it.value + 1 %}
+        {% endif %}
+    {% endfor %}
+</script>
+
 
 {% endblock %}

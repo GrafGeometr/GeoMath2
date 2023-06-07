@@ -3,6 +3,29 @@ from .model_imports import *
 
 arch = Blueprint('arch', __name__)
 
+
+@arch.route("/archive/problem/<problem_id>/<filename>")
+def show_problem_attachment(problem_id, filename):
+    print("TEST", problem_id, filename)
+    if not current_user.is_authenticated:
+        print("not authenticated")
+        return
+    problem = ArchivedProblem.query.filter_by(id = problem_id).first()
+    if problem is None:
+        print("problem none")
+        return
+    attachment = ProblemAttachment.query.filter_by(archived_problem_id = problem_id, db_filename = filename).first()
+    if attachment is None:
+        print("attachment none")
+        return
+    if (problem.user != current_user) and attachment.locked:
+        print("attachment locked")
+        return
+    try:
+        return send_from_directory(os.path.join(basedir, 'database/attachments/problems'), filename, as_attachment=True)
+    except Exception as e:
+        print(e)
+
 @arch.route("/archive/publish/<int:problem_id>", methods=["POST"])
 @login_required
 def publish(problem_id):
@@ -18,6 +41,12 @@ def publish(problem_id):
     archived_problem = ArchivedProblem(name=problem.name, statement=problem.statement, solution=problem.solution, user=current_user)
     db.session.add(archived_problem)
     db.session.commit()
+
+    for attachment in problem.attachments:
+        attachment_copy = ProblemAttachment(db_folder=attachment.db_folder, db_filename=attachment.db_filename, preview_name=attachment.preview_name, archived_problem_id=archived_problem.id)
+        db.session.add(attachment_copy)
+        db.session.delete(attachment)
+        db.session.commit()
 
     db.session.delete(problem)
     db.session.commit()
@@ -135,5 +164,15 @@ def my_arch(archived_problem_id):
                 db.session.delete(archived_problem)
                 db.session.commit()
                 return redirect("/archive/my")
+            if request.form.get("switch_attachment_access") is not None:
+                attachment_id = request.form.get("switch_attachment_access")
+                attachment = ProblemAttachment.query.filter_by(id=attachment_id).first()
+                if attachment is None:
+                    return redirect(f"/archive/problem/{archived_problem_id}")
+                if attachment.archived_problem_id != archived_problem_id:
+                    return redirect(f"/archive/problem/{archived_problem_id}")
+                attachment.locked = not attachment.locked
+                db.session.commit()
+                return redirect(f"/archive/problem/{archived_problem_id}")
 
     return render_template("archive/archive_problem_template.html", archived_problem=archived_problem, all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))

@@ -3,6 +3,17 @@ from .model_imports import *
 
 admin = Blueprint('admin', __name__)
 
+@admin.route("/admin/problem_moderation/<filename>")
+def show_problem_attachment(filename):
+    attachment = ProblemAttachment.query.filter_by(db_filename = filename).first()
+    if attachment is None:
+        print("attachment none")
+        return
+    try:
+        return send_from_directory(os.path.join(basedir, 'database/attachments/problems'), filename, as_attachment=True)
+    except Exception as e:
+        print(e)
+
 @admin.route("/admin", methods=["GET", "POST"])
 @admin.route("/admin/enter", methods=["GET", "POST"])
 @login_required
