@@ -111,6 +111,8 @@ def get_class(s):
         return ArchivedProblem_Tag
     if s == "<class 'app.models.ArchivedProblem'>":
         return ArchivedProblem
+    if s == "<class 'app.models.ProblemAttachment'>":
+        return ProblemAttachment
 
 @admin.route("/admin/database", methods=["GET", "POST"])
 @admin_required
@@ -130,5 +132,6 @@ def database():
         show_db(Problem),
         show_db(Tag),
         show_db(ArchivedProblem_Tag),
-        show_db(ArchivedProblem)
+        show_db(ArchivedProblem),
+        show_db(ProblemAttachment)
     ])
