@@ -1235,6 +1235,10 @@ video {
   text-align: center;
 }
 
+.indent-8 {
+  text-indent: 2rem;
+}
+
 .text-2xl {
   font-size: 1.5rem;
   line-height: 2rem;
