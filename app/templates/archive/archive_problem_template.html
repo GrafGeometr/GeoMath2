@@ -47,13 +47,13 @@
                         <div class="border-r-2 border-slate-300 grow">
                             <div class="flex flex-col gap-y-4 mr-4">
                                 <ul class="flex flex-col gap-y-2">
-                                    {% for attachment in archived_problem.attachments %}
-                                        {% if not attachment.locked or attachment.archived_problem.user == current_user %}
+                                    {% for attachment in problem.attachments %}
+                                        {% if not attachment.locked or attachment.problem.user == current_user %}
                                         <li class="flex w-full gap-x-2">
                                             <input type="text" name="attachment_name {{ attachment.id }}" value="{{ attachment.preview_name }}" placeholder="Как назвать картинку?"
                                             class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow" readonly>
-                                            {% if attachment.archived_problem.user == current_user %}
-                                                <form action="/archive/problem/{{ archived_problem.id }}" method="post">
+                                            {% if attachment.problem.user == current_user %}
+                                                <form action="/archive/problem/{{ problem.id }}" method="post">
                                                 {% if attachment.locked %}
                                                 <label class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-red-200 rounded">
                                                     <input type="submit" class="lock-attachment w-0 h-0" name="lock_attachment {{ attachment.id }}" checked>
@@ -272,14 +272,14 @@
         this.onerror = null;
     }
     {% set it = namespace(value=0) %}
-    {% for attachment in archived_problem.attachments %}
-        {% if not attachment.locked or attachment.archived_problem.user == current_user %}
+    {% for attachment in problem.attachments %}
+        {% if not attachment.locked or attachment.problem.user == current_user %}
         inputs[{{it.value}}].addEventListener("focus", function(event) {
             inputs.forEach((input) => {
                 input.classList.remove("border-black", "bg-slate-100");
             })
             this.classList.add("border-black", "bg-slate-100");
-            display.src = "{{ url_for('arch.show_problem_attachment', problem_id=archived_problem.id, filename=attachment.db_filename) }}";
+            display.src = "{{ url_for('arch.show_problem_attachment', problem_id=problem.id, filename=attachment.db_filename) }}";
             display.classList.remove("hidden");
             display.classList.add("block");
         })

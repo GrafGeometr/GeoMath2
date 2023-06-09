@@ -157,3 +157,12 @@ class Problem_Tag(db.Model):
     tag_id = db.Column(db.Integer, db.ForeignKey("tag.id"))
     problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
 
+class ProblemAttachment(db.Model):
+    __tablename__ = 'problem_attachment'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    db_folder = db.Column(db.String)
+    db_filename = db.Column(db.String)
+    preview_name = db.Column(db.String)
+    locked = db.Column(db.Boolean, default=True)
+    problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))

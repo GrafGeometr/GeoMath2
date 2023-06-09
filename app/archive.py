@@ -10,11 +10,11 @@ def show_problem_attachment(problem_id, filename):
     if not current_user.is_authenticated:
         print("not authenticated")
         return
-    problem = ArchivedProblem.query.filter_by(id = problem_id).first()
+    problem = Problem.query.filter_by(id = problem_id).first()
     if problem is None:
         print("problem none")
         return
-    attachment = ProblemAttachment.query.filter_by(archived_problem_id = problem_id, db_filename = filename).first()
+    attachment = ProblemAttachment.query.filter_by(problem_id = problem_id, db_filename = filename).first()
     if attachment is None:
         print("attachment none")
         return
@@ -158,16 +158,16 @@ def my_arch(problem_id):
                 attachment_id = request.form.get("switch_attachment_access")
                 attachment = ProblemAttachment.query.filter_by(id=attachment_id).first()
                 if attachment is None:
-                    return redirect(f"/archive/problem/{archived_problem_id}")
-                if attachment.archived_problem_id != archived_problem_id:
-                    return redirect(f"/archive/problem/{archived_problem_id}")
-                if ArchivedProblem_Tag.query.filter_by(archived_problem=archived_problem, tag=tag).first() is not None:
-                    db.session.delete(ArchivedProblem_Tag.query.filter_by(archived_problem=archived_problem, tag=tag).first())
+                    return redirect(f"/archive/problem/{problem_id}")
+                if attachment.problem_id != problem_id:
+                    return redirect(f"/archive/problem/{problem_id}")
+                if Problem_Tag.query.filter_by(problem=problem, tag=tag).first() is not None:
+                    db.session.delete(Problem_Tag.query.filter_by(problem=problem, tag=tag).first())
                     db.session.commit()
-                return redirect(f"/archive/problem/{archived_problem_id}")
-            if request.form.get("delete_archived_problem") is not None:
-                db.session.delete(archived_problem)
+                return redirect(f"/archive/problem/{problem_id}")
+            if request.form.get("delete_problem") is not None:
+                db.session.delete(problem)
                 db.session.commit()
                 return redirect("/archive/my")
 
-    return render_template("archive/archive_problem_template.html", archived_problem=archived_problem, all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
+    return render_template("archive/archive_problem_template.html", problem=problem, all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))

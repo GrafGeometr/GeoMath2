@@ -62,7 +62,7 @@
                 <div class="border-r-2 border-slate-300 grow">
                     <div class="flex flex-col gap-y-4 mr-4">
                         <ul class="flex flex-col gap-y-2">
-                            {% for attachment in arch.attachments %}
+                            {% for attachment in problem.attachments %}
                                 <li class="flex w-full gap-x-2">
                                     <input type="text" name="attachment_name {{ attachment.id }}" value="{{ attachment.preview_name }}" placeholder="Как назвать картинку?"
                                     class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow" readonly>
@@ -122,7 +122,7 @@
             this.classList.add("hidden");
             this.onerror = null;
         }
-        {% for attachment in arch.attachments %}
+        {% for attachment in problem.attachments %}
             inputs[{{loop.index - 1}}].addEventListener("focus", function(event) {
                 inputs.forEach((input) => {
                     input.classList.remove("border-black", "bg-slate-100");
