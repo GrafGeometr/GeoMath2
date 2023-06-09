@@ -4,6 +4,36 @@ from .model_imports import *
 pool = Blueprint('pool', __name__)
 
 
+@pool.route("/pool/<pool_hashed_id>/problem/<problem_id>/<filename>")
+def show_problem_attachment(pool_hashed_id, problem_id, filename):
+    print(pool_hashed_id, problem_id, filename)
+    if not current_user.is_authenticated:
+        print("not authenticated")
+        return
+    pool = Pool.query.filter_by(hashed_id = pool_hashed_id).first()
+    if pool is None:
+        print("pool none")
+        return
+    relation = current_user.get_pool_relation(pool.id)
+    if relation is None:
+        print("user not in pool")
+        return
+    if relation.role.isInvited():
+        print("user is invited")
+        return
+    problem = Problem.query.filter_by(id = problem_id).first()
+    if problem is None:
+        print("problem none")
+        return
+    attachment = ProblemAttachment.query.filter_by(problem_id = problem_id, db_filename = filename).first()
+    if attachment is None:
+        print("attachment none")
+        return
+    try:
+        return send_from_directory(os.path.join(basedir, 'database/attachments/problems'), filename, as_attachment=True)
+    except Exception as e:
+        print(e)
+
 def check_user_in_pool(user, pool):
     if user.get_pool_relation(pool.id) is None:
         flash("Вы не можете просматривать этот пул", "danger")
@@ -159,7 +189,7 @@ def remove_problem_from_pool(): # ok
     db.session.commit()
     return render_template("pool/pool_problemlist.html", current_pool=pool)
 
-@pool.route("/pool/<pool_hashed_id>/problem/<problem_id>", methods=["GET", "POST"])
+@pool.route("/pool/<pool_hashed_id>/problem/<int:problem_id>", methods=["GET", "POST"])
 @login_required
 def problem(pool_hashed_id, problem_id): # reworked
     pool = Pool.query.filter_by(hashed_id = pool_hashed_id).first()
@@ -173,31 +203,55 @@ def problem(pool_hashed_id, problem_id): # reworked
         return redirect(user_checked)
 
     problem = Problem.query.filter_by(id = problem_id).first()
+    #print("pr", problem.id)
 
     if problem is None:
         flash("Задача не найдена", "danger")
         return redirect(f"/pool/{pool_hashed_id}/problems")
     
     if request.method == "POST":
-        name = request.form["name"]
-        statement = request.form["statement"]
-        solution = request.form["solution"]
-        """if name in [pr.name for pr in pool.problems if pr.id != problem.id]:
+        if request.form.get("save_problem") is not None:
+            name = request.form.get("name")
+            statement = request.form.get("statement")
+            solution = request.form.get("solution")
+            
+            # TODO add problem states checking
+
+            problem.name = name
             problem.statement = statement
             problem.solution = solution
-            db.session.commit()
-            flash("Задача с таким именем уже существует", "danger")
-        elif name == "" or statement == "" or solution == "":
-            flash("Заполните все поля", "danger")"""
-        
-        # TODO add problem states checking
 
-        problem.name = name
-        problem.statement = statement
-        problem.solution = solution
-        db.session.commit()
-        flash("Задача успешно сохранена", "success")    
-        return redirect(f"/pool/{pool_hashed_id}/problem/{problem_id}")
+            for attachment in problem.attachments:
+                preview_name = request.form.get("attachment_name " + str(attachment.id))
+                if preview_name is None:
+                    problem.delete_attachment(attachment)
+                    continue
+                
+                attachment.preview_name = preview_name
+                show = request.form.get("lock_attachment " + str(attachment.id))
+                if show is None:
+                    attachment.locked = False
+                else:
+                    attachment.locked = True
+                print(attachment.id, show)
+
+            db.session.commit()
+
+            print(request.files.getlist("attachments"))
+
+            directory = "app/database/attachments/problems"
+            filenames = safe_image_upload(request, "attachments", directory, 5*1024*1024)
+            
+            for filename in filenames:
+                if filename is None:
+                    continue
+                attachment = ProblemAttachment(db_folder=directory, db_filename=filename, preview_name="Рисунок", problem_id=problem.id)
+                db.session.add(attachment)
+
+            db.session.commit()
+
+            flash("Задача успешно сохранена", "success")    
+            return redirect(f"/pool/{pool_hashed_id}/problem/{problem_id}")
     return render_template("pool/pool_1problem.html", current_pool=pool, current_problem=problem, title=f"Редактор - {problem.name}")
 
 

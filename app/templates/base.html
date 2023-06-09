@@ -6,8 +6,8 @@
     <link rel="icon" href="/static/images/logo.png">
     <link rel="stylesheet" type="text/css" href="/static/css/tailwind.css">
     <link rel="stylesheet" type="text/css" href="/static/css/general.css">
+    <link rel="stylesheet" href="/static/css/style.css">
 <title>{{ title }}</title>
-
 
 
 <script src="https://cdn.jsdelivr.net/gh/akjpro/form-anticlear/base.js"></script>
@@ -52,6 +52,11 @@
         <a class="text-white hover:text-blue-100 no-underline text-center text-xl p-4" id="collections_nav" href="/collections">Подборки</a>
         <a class="text-white hover:text-blue-100 no-underline text-center text-xl p-4" id="archive_nav" href="/archive/all">Архив</a>
     </nav>
+
+    <div class="hidden mathjax-class">
+        $\DeclareMathOperator{\tg}{tg}$
+        $\DeclareMathOperator{\ctg}{ctg}$
+    </div>
 
     <div class="content">
     {% block content %}{% endblock %}

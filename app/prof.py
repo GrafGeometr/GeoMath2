@@ -41,8 +41,9 @@ def profile(username):
             return redirect(f"/profile/{user.name}")
         if request.form.get("update_profile_pic") is not None:
             directory = 'app/database/profile_pics'
-            filename = safe_image_upload(request, 'profile_pic', directory, 5*1024*1024)
-            if filename is not None:
+            filenames = safe_image_upload(request, 'profile_pic', directory, 5*1024*1024)
+            if filenames and filenames[0] is not None:
+                filename = filenames[0]
                 try:
                     os.remove(os.path.join(directory, current_user.profile_pic))
                 except:

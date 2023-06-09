@@ -22,8 +22,8 @@
     </div>
 {% endif %}
 
-<form action="/pool/{{ current_pool.hashed_id }}/problem/{{ current_problem.id }}" method="post" class="w-full mt-2 px-4">
-
+<form action="/pool/{{ current_pool.hashed_id }}/problem/{{ current_problem.id }}" method="post" class="w-full mt-2 px-4" enctype="multipart/form-data">
+    <input type="hidden" name="save_problem" value="239">
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% for category, message in messages %}
             {% if category == "danger" %}
@@ -37,28 +37,70 @@
     {% endwith %}
 
     <div class="flex flex-row items-center mt-4">
-        <span class="mr-4 text-2xl font-bold">{{ current_problem.name }}</span>
+        <h1 class="mr-4 text-2xl font-bold">{{ current_problem.name }}</h1>
         <input type="submit" value="Сохранить" class="hover:cursor-pointer px-8 py-2 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700">
     </div>
     
-    <span class="text-slate-500 font-bold text-xl">Название:</span>
+    <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Название:</h2>
     <div class="flex w-full">
         <textarea rows="1" cols="50" name="name" class="text-lg w-full p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.name }}</textarea>
     </div>
 
-    <span class="text-slate-500 font-bold text-xl">Условие:</span>
+    <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Условие:</h2>
     <div class="flex w-full">
         <textarea id="statement_textarea" rows="10" cols="50" name="statement" class="text-lg w-1/2 p-4 border-slate-200 border-2 rounded-lg" oninput="RenderStatement();">{{ current_problem.statement }}</textarea>
         <div id="statement_latex_output" class="mathjax-class text-lg ml-4 p-4 bg-white border-2 border-solid border-sky-400 rounded-lg w-1/2"></div>
     </div>
     
-
-    <span class="text-slate-500 font-bold text-xl">Решение:</span>
+    
+    <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Решение:</h2>
     <div class="flex w-full">
         <textarea id="solution_textarea" rows="10" cols="50" name="solution" class="text-lg w-1/2 p-4 border-slate-200 border-2 rounded-lg" oninput="RenderSolution();">{{ current_problem.solution }}</textarea>
         <div id="solution_latex_output" class="mathjax-class text-lg ml-4 p-4 bg-white border-2 border-solid border-sky-400 rounded-lg w-1/2"></div>
     </div>
+
+    <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Вложения:</h2>
+    <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
+        <div class="border-r-2 border-slate-300 grow">
+            <div class="flex flex-col gap-y-4 mr-4">
+                <ul class="flex flex-col gap-y-2">
+                    {% for attachment in current_problem.attachments %}
+                    <li class="flex w-full gap-x-2">
+                        <input type="text" name="attachment_name {{ attachment.id }}" value="{{ attachment.preview_name }}" placeholder="Как назвать картинку?"
+                        class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow">
+                        <button onclick="DeleteAttachment(this)" class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
+                        {% if attachment.locked %}
+                        <label class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-red-200 rounded">
+                            <input type="checkbox" class="lock-attachment w-0 h-0" name="lock_attachment {{ attachment.id }}" checked>
+                            <img src="/static/images/pwd_hide.png" class="h-8">
+                        {% else %}
+                        <label class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-green-200 rounded">
+                            <input type="checkbox" class="lock-attachment w-0 h-0" name="lock_attachment {{ attachment.id }}">
+                            <img src="/static/images/pwd_show.png" class="h-8">
+                        {% endif %}
+                        </label>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <div class="border-2 border-blue-500 border-dashed px-8 py-4 rounded-xl flex justify-center">
+                    <label class="label text-lg">
+                        <input type="file" class="file-input w-0 h-0" name="attachments" accept="image/*" multiple>
+                        <span class="browse-files-text text-blue-500 font-semibold cursor-pointer inline-block" onclick="ResetFileInput()">загрузить файлы</span>
+                    </label>
+                </div>
+                <ul class="uploaded-files-list flex flex-col gap-y-2"></ul>
+            </div>
+        </div>
+
+        <div class="w-2/3 ml-4">
+            <img id="display-attachment" class="hidden border-2 border-sky-400 padding-8 rounded-xl">
+        </div>
+    </div>
+
+
+
     
+
 </form>
 
 <script>
@@ -66,6 +108,79 @@
 </script>
 <script>
     RenderSolution();
+</script>
+
+<script>
+    var inputs = document.querySelectorAll(".input-attachment-name");
+    var display = document.querySelector("#display-attachment");
+    display.onerror = () => {
+        this.classList.add("hidden");
+        this.onerror = null;
+    }
+    {% for attachment in current_problem.attachments %}
+        inputs[{{loop.index - 1}}].addEventListener("focus", function(event) {
+            inputs.forEach((input) => {
+                input.classList.remove("border-black", "bg-slate-100");
+            })
+            this.classList.add("border-black", "bg-slate-100");
+            display.src = "{{ url_for('pool.show_problem_attachment', pool_hashed_id=current_pool.hashed_id, problem_id=current_problem.id, filename=attachment.db_filename) }}";
+            display.classList.remove("hidden");
+            display.classList.add("block");
+        })
+    {% endfor %}
+</script>
+
+<script>
+    let fileInput = document.querySelector(".file-input");
+    let filesList = document.querySelector(".uploaded-files-list");
+    fileInput.addEventListener("change", function(event) {
+        for (let i = 0; i < this.files.length; i++) {
+            filesList.appendChild(document.createElement("li"));
+            let child = filesList.lastChild;
+            let fileName = document.createElement("span");
+            let fileSize = document.createElement("span");
+            fileName.innerHTML = this.files[i].name;
+            fileName.classList.add("bg-blue-500", "text-white", "px-2", "py-1", "rounded-full");
+            fileSize.innerHTML = (this.files[i].size/1024).toFixed(1) + " КБ";
+            child.appendChild(fileName);
+            child.appendChild(fileSize);
+            child.classList.add("text-base", "flex", "gap-x-2", "items-center");
+        }
+    })
+</script>
+
+<script>
+    function DeleteAttachment(element) {
+        element.parentElement.remove();
+    }
+    function ResetFileInput() {
+        let fileInput = document.querySelector(".file-input");
+        let filesList = document.querySelector(".uploaded-files-list");
+        fileInput.value = "";
+        fileInput.type = "";
+        fileInput.type = "file";
+        filesList.innerHTML = "";
+    }
+</script>
+
+<script>
+    let lockers = document.querySelectorAll(".lock-attachment");
+    for (i = 0; i < lockers.length; i++) {
+        let locker = lockers[i];
+        locker.addEventListener("change", function(event) {
+            if (this.checked) {
+                this.parentNode.querySelector('img').src = "/static/images/pwd_hide.png";
+                this.parentNode.classList.remove("bg-green-200");
+                this.parentNode.classList.add("bg-red-200");
+            }
+            else {
+                this.parentNode.querySelector('img').src = "/static/images/pwd_show.png";
+                this.parentNode.classList.remove("bg-red-200");
+                this.parentNode.classList.add("bg-green-200");
+            }
+        })
+        
+    }
 </script>
 
 {% endblock %}

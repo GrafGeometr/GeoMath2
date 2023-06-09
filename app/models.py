@@ -126,10 +126,20 @@ class Problem(db.Model):
 
     problem_tags = db.relationship("Problem_Tag", backref="problem")
 
+    attachments = db.relationship("ProblemAttachment", backref="problem")
+
     def get_tags(self):
         return sorted([problem_tag.tag for problem_tag in Problem_Tag.query.filter_by(problem_id = self.id).all()], key=lambda t:t.name.lower())
     def get_tag_names(self):
         return list(map(lambda t:t.name, self.get_tags()))
+    
+    def delete_attachment(self, attachment):
+        try:
+            os.remove(os.path.join(attachment.db_folder, attachment.db_filename))
+        except:
+            pass
+        db.session.delete(attachment)
+        db.session.commit()
 
 
 class Tag(db.Model):

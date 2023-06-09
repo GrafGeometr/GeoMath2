@@ -3,6 +3,17 @@ from .model_imports import *
 
 admin = Blueprint('admin', __name__)
 
+@admin.route("/admin/problem_moderation/<filename>")
+def show_problem_attachment(filename):
+    attachment = ProblemAttachment.query.filter_by(db_filename = filename).first()
+    if attachment is None:
+        print("attachment none")
+        return
+    try:
+        return send_from_directory(os.path.join(basedir, 'database/attachments/problems'), filename, as_attachment=True)
+    except Exception as e:
+        print(e)
+
 @admin.route("/admin", methods=["GET", "POST"])
 @admin.route("/admin/enter", methods=["GET", "POST"])
 @login_required
@@ -99,6 +110,8 @@ def get_class(s):
         return Tag
     if s == "<class 'app.models.Problem_Tag'>":
         return Problem_Tag
+    if s == "<class 'app.models.ProblemAttachment'>":
+        return ProblemAttachment
 
 @admin.route("/admin/database", methods=["GET", "POST"])
 @admin_required
@@ -117,5 +130,6 @@ def database():
         show_db(User_Pool),
         show_db(Problem),
         show_db(Tag),
-        show_db(Problem_Tag)
+        show_db(Problem_Tag),
+        show_db(ProblemAttachment)
     ])

@@ -22,8 +22,10 @@
         {% if current_user.is_authenticated and (current_user.name == user.name) %}
             <form class="flex flex-col items-center" action="/profile/{{user.name}}" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="update_profile_pic" value="239">
-                <input type="file" name="profile_pic" accept="image/*">
-                <input type="submit" value="Обновить фото">
+                <label for="inp_file" class="label_for_file">Выберите файлы</label>
+                <input type="file" class="my_file_input" id="inp_file" name="profile_pic" accept="image/*">
+
+                <input type="submit" class="my">
             </form>
             <form class="flex flex-col items-center" action="/profile/{{user.name}}" method="POST">
                 <input type="hidden" name="delete_profile_pic" value="239">
