@@ -52,17 +52,18 @@ def settings():
 @admin_required
 def moderation():
     if request.method == "POST":
-        if request.form.get("accept arch_id") is not None:
-            arch_id = request.form.get("accept arch_id")
-            arch = ArchivedProblem.query.filter_by(id = arch_id).first()
-            arch.moderated = True
+        if request.form.get("accept problem_id") is not None:
+            problem_id = request.form.get("accept problem_id")
+            problem = Problem.query.filter_by(id = problem_id).first()
+            problem.moderated = True
             db.session.commit()
-        if request.form.get("reject arch_id") is not None:
-            arch_id = request.form.get("reject arch_id")
-            arch = ArchivedProblem.query.filter_by(id = arch_id).first()
-            db.session.delete(arch)
+        if request.form.get("reject problem_id") is not None:
+            problem_id = request.form.get("reject problem_id")
+            problem = Problem.query.filter_by(id = problem_id).first()
+            # db.session.delete(arch)
+            problem.is_public = False
             db.session.commit()
-    need_to_moderate = ArchivedProblem.query.filter_by(moderated = False).all()
+    need_to_moderate = Problem.query.filter_by(is_public=True, moderated = False).all()
     return render_template("admin/admin_moderation.html", title="GeoMath - модерация", need_to_moderate = need_to_moderate)
 
 
@@ -96,10 +97,8 @@ def get_class(s):
         return Problem
     if s == "<class 'app.models.Tag'>":
         return Tag
-    if s == "<class 'app.models.ArchivedProblem_Tag'>":
-        return ArchivedProblem_Tag
-    if s == "<class 'app.models.ArchivedProblem'>":
-        return ArchivedProblem
+    if s == "<class 'app.models.Problem_Tag'>":
+        return Problem_Tag
 
 @admin.route("/admin/database", methods=["GET", "POST"])
 @admin_required
@@ -118,6 +117,5 @@ def database():
         show_db(User_Pool),
         show_db(Problem),
         show_db(Tag),
-        show_db(ArchivedProblem_Tag),
-        show_db(ArchivedProblem)
+        show_db(Problem_Tag)
     ])

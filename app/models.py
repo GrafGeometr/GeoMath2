@@ -14,7 +14,7 @@ class User(UserMixin, db.Model):
     emails = db.relationship("Email", backref="user")
 
     userpools = db.relationship("User_Pool", backref="user")
-    archived_problems = db.relationship("ArchivedProblem", backref="user")
+
     
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -113,38 +113,37 @@ class Problem(db.Model):
     __tablename__ = 'problem'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
     name = db.Column(db.String)
-    pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
     statement = db.Column(db.String)
     solution = db.Column(db.String)
+
+    pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
+
+    is_public = db.Column(db.Boolean, default=False)
+    moderated = db.Column(db.Boolean, default=False)
+    show_solution = db.Column(db.Boolean, default=False)
+
+    problem_tags = db.relationship("Problem_Tag", backref="problem")
+
+    def get_tags(self):
+        return sorted([problem_tag.tag for problem_tag in Problem_Tag.query.filter_by(problem_id = self.id).all()], key=lambda t:t.name.lower())
+    def get_tag_names(self):
+        return list(map(lambda t:t.name, self.get_tags()))
+
 
 class Tag(db.Model):
     __tablename__ = 'tag'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, unique=True, nullable=True)
-    archived_problem_tags = db.relationship("ArchivedProblem_Tag", backref="tag")
+    problem_tags = db.relationship("Problem_Tag", backref="tag")
 
-class ArchivedProblem_Tag(db.Model):
-    __tablename__ = 'archived_problem_tag'
+
+class Problem_Tag(db.Model):
+    __tablename__ = 'problem_tag'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tag_id = db.Column(db.Integer, db.ForeignKey("tag.id"))
-    archived_problem_id = db.Column(db.Integer, db.ForeignKey("archived_problem.id"))
+    problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
 
-class ArchivedProblem(db.Model):
-    __tablename__ = 'archived_problem'
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String)
-    statement = db.Column(db.String)
-    solution = db.Column(db.String)
-    moderated = db.Column(db.Boolean, default=False)
-    show_solution = db.Column(db.Boolean, default=False)
-    archived_problem_tags = db.relationship("ArchivedProblem_Tag", backref="archived_problem")
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-
-    def get_tags(self):
-        return sorted([archived_problem_tag.tag for archived_problem_tag in ArchivedProblem_Tag.query.filter_by(archived_problem_id = self.id).all()], key=lambda t:t.name.lower())
-    def get_tag_names(self):
-        return [tag.name for tag in self.get_tags()]

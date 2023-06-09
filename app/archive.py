@@ -13,14 +13,10 @@ def publish(problem_id):
     if not current_user.get_pool_relation(problem.pool_id).role.isOwner():
         return redirect(f"/pool/{pool_hashed_id}/problems")
     
+    problem.is_public = True
 
-    pool_hashed_id = problem.pool.hashed_id
-    archived_problem = ArchivedProblem(name=problem.name, statement=problem.statement, solution=problem.solution, user=current_user)
-    db.session.add(archived_problem)
     db.session.commit()
 
-    db.session.delete(problem)
-    db.session.commit()
     return redirect(f"/pool/{pool_hashed_id}/problems")
 
 
@@ -74,7 +70,7 @@ def archive_search(mode):
     problems_per_page = 10
 
 
-    problems = ArchivedProblem.query.all()
+    problems = Problem.query.all()
     problems = [(p, len([tag for tag in tags if tag in p.get_tag_names()]), len(tags)) for p in problems]
     problems.sort(key = lambda p: p[1], reverse=True)
     
@@ -93,23 +89,23 @@ def archive_search(mode):
     pages_to_show = get_correct_page_slice(num_of_pages, 7, page)
     
 
-    return render_template("archive/archive_search.html", mode=mode, archived_problems=problems, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
+    return render_template("archive/archive_search.html", mode=mode, problems=problems, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
 
 
 
 
-@arch.route("/archive/problem/<int:archived_problem_id>", methods=["GET", "POST"])
+@arch.route("/archive/problem/<int:problem_id>", methods=["GET", "POST"])
 @login_required
-def my_arch(archived_problem_id):
-    archived_problem = ArchivedProblem.query.filter_by(id = archived_problem_id).first()
-    if archived_problem is None:
+def my_arch(problem_id):
+    problem = Problem.query.filter_by(id = problem_id).first()
+    if problem is None:
         return redirect("/archive/all")
     if request.method == "POST":
-        if archived_problem.user_id == current_user.id:
+        if problem.user_id == current_user.id:
             if request.form.get("switch_solution_access") is not None:
-                archived_problem.show_solution = not archived_problem.show_solution
+                problem.show_solution = not problem.show_solution
                 db.session.commit()
-                return redirect(f"/archive/problem/{archived_problem_id}")
+                return redirect(f"/archive/problem/{problem_id}")
             if request.form.get("add_tag") is not None:
                 tag_name = request.form["tag_name"]
                 tag = Tag.query.filter_by(name=tag_name).first()
@@ -117,23 +113,23 @@ def my_arch(archived_problem_id):
                     tag = Tag(name=tag_name)
                     db.session.add(tag)
                     db.session.commit()
-                if ArchivedProblem_Tag.query.filter_by(archived_problem=archived_problem, tag=tag).first() is None:
-                    archived_problem_tag = ArchivedProblem_Tag(archived_problem=archived_problem, tag=tag)
-                    db.session.add(archived_problem_tag)
+                if Problem_Tag.query.filter_by(problem=problem, tag=tag).first() is None:
+                    problem_tag = Problem_Tag(problem=problem, tag=tag)
+                    db.session.add(problem_tag)
                     db.session.commit()
-                return redirect(f"/archive/problem/{archived_problem_id}")
+                return redirect(f"/archive/problem/{problem_id}")
             if request.form.get("remove_tag") is not None:
                 tag_id = request.form.get("remove_tag")
                 tag = Tag.query.filter_by(id=tag_id).first()
                 if tag is None:
-                    return redirect(f"/archive/problem/{archived_problem_id}")
-                if ArchivedProblem_Tag.query.filter_by(archived_problem=archived_problem, tag=tag).first() is not None:
-                    db.session.delete(ArchivedProblem_Tag.query.filter_by(archived_problem=archived_problem, tag=tag).first())
+                    return redirect(f"/archive/problem/{problem_id}")
+                if Problem_Tag.query.filter_by(problem=problem, tag=tag).first() is not None:
+                    db.session.delete(Problem_Tag.query.filter_by(problem=problem, tag=tag).first())
                     db.session.commit()
-                return redirect(f"/archive/problem/{archived_problem_id}")
-            if request.form.get("delete_archived_problem") is not None:
-                db.session.delete(archived_problem)
+                return redirect(f"/archive/problem/{problem_id}")
+            if request.form.get("delete_problem") is not None:
+                db.session.delete(problem)
                 db.session.commit()
                 return redirect("/archive/my")
 
-    return render_template("archive/archive_problem_template.html", archived_problem=archived_problem, all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
+    return render_template("archive/archive_problem_template.html", problem=problem, all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))

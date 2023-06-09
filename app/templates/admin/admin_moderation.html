@@ -31,17 +31,17 @@
 </div>
 {% endif %}
 <ul class="list-none p-0 mt-4">
-    {% for arch in need_to_moderate %}
+    {% for problem in need_to_moderate %}
 
     <li class="border-4 border-solid border-sky-400 bg-white mb-4 p-4 flex flex-col rounded-lg hover:border-green-600">
         <div class="flex justify-between">
-            <span class="text-black text-xl font-bold">{{ arch.name }}</span>
+            <span class="text-black text-xl font-bold">{{ problem.name }}</span>
         </div>
 
         <div class="h-px w-full bg-neutral-300 my-2"></div>
         
         <span class="text-slate-500 font-bold">Условие:</span>
-        {% for paragraph in arch.statement.split("\n") %}
+        {% for paragraph in problem.statement.split("\n") %}
         <p class="mathjax-class m-0 text-base">{{ paragraph }}</p>
         {% endfor %}
 
@@ -49,7 +49,7 @@
 
         <details>
             <summary class="text-slate-500 font-bold">Решение:</summary>
-            {% for paragraph in arch.solution.split("\n") %}
+            {% for paragraph in problem.solution.split("\n") %}
             <p class="mathjax-class m-0 text-base">{{ paragraph }}</p>
             {% endfor %}
         </details>
@@ -60,7 +60,7 @@
             <summary class="text-slate-500 font-bold">Теги:</summary>
             <div class="flex gap-x-8 items-start">
                 <ul class="w-full">
-                    {% for tag in arch.get_tags() %}
+                    {% for tag in problem.get_tags() %}
                     <li class="flex">
                         <span class="text-slate-500 font-bold mr-4">#</span>
                         <div class="w-2/3"><span>{{ tag.name }}</span></div>
@@ -74,11 +74,11 @@
 
         <div class="flex gap-x-8">
             <form action="/admin/problem_moderation" method="POST">
-                <input type="hidden" name="accept arch_id" value="{{ arch.id }}">
+                <input type="hidden" name="accept problem_id" value="{{ problem.id }}">
                 <input type="submit" value="Опубликовать" class="hover:cursor-pointer px-8 py-2 rounded-md text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700">
             </form>
             <form action="/admin/problem_moderation" method="POST">
-                <input type="hidden" name="reject arch_id" value="{{ arch.id }}">
+                <input type="hidden" name="reject problem_id" value="{{ problem.id }}">
                 <input type="submit" value="Отклонить" class="hover:cursor-pointer px-8 py-2 rounded-md text-white font-semibold bg-red-500 hover:bg-red-600 active:bg-red-700">
             </form>
         </div>
