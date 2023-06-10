@@ -100,7 +100,7 @@ def decline_pool_invitation():
     return render_template("profile/profile_pools_table.html")
 
 
-@pool.route("/pool/<pool_hashed_id>/problems")
+@pool.route("/pool/<pool_hashed_id>/problems", methods=["GET", "POST"])
 @login_required
 def pool_problems(pool_hashed_id): # ok
     pool = Pool.query.filter_by(hashed_id = pool_hashed_id).first()
@@ -112,6 +112,58 @@ def pool_problems(pool_hashed_id): # ok
     user_checked = check_user_in_pool(current_user, pool)
     if user_checked is not None:
         return redirect(user_checked)
+    
+    if request.method == "POST":
+        if request.form.get("back_to_pool") is not None:
+            problem_id = request.form.get("problem_id")
+            problem = Problem.query.filter_by(id = problem_id).first()
+            problem.is_public = problem.moderated = False
+            db.session.commit()
+
+        """if request.form.get("switch_solution_access") is not None:
+            problem.show_solution = not problem.show_solution
+            db.session.commit()
+            return redirect(f"/archive/problem/{problem_id}")
+        if request.form.get("add_tag") is not None:
+            tag_name = request.form["tag_name"]
+            tag = Tag.query.filter_by(name=tag_name).first()
+            if (tag is None) and (current_user.admin):
+                tag = Tag(name=tag_name)
+                db.session.add(tag)
+                db.session.commit()
+            if Problem_Tag.query.filter_by(problem=problem, tag=tag).first() is None:
+                problem_tag = Problem_Tag(problem=problem, tag=tag)
+                db.session.add(problem_tag)
+                db.session.commit()
+            return redirect(f"/archive/problem/{problem_id}")
+        if request.form.get("remove_tag") is not None:
+            tag_id = request.form.get("remove_tag")
+            tag = Tag.query.filter_by(id=tag_id).first()
+            if tag is None:
+                return redirect(f"/archive/problem/{problem_id}")
+            if Problem_Tag.query.filter_by(problem=problem, tag=tag).first() is not None:
+                db.session.delete(Problem_Tag.query.filter_by(problem=problem, tag=tag).first())
+                db.session.commit()
+            return redirect(f"/archive/problem/{problem_id}")
+        if request.form.get("delete_problem") is not None:
+            db.session.delete(problem)
+            db.session.commit()
+            return redirect("/archive/my")
+        if request.form.get("switch_attachment_access") is not None:
+            attachment_id = request.form.get("switch_attachment_access")
+            attachment = ProblemAttachment.query.filter_by(id=attachment_id).first()
+            if attachment is None:
+                return redirect(f"/archive/problem/{problem_id}")
+            if attachment.problem_id != problem_id:
+                return redirect(f"/archive/problem/{problem_id}")
+            if Problem_Tag.query.filter_by(problem=problem, tag=tag).first() is not None:
+                db.session.delete(Problem_Tag.query.filter_by(problem=problem, tag=tag).first())
+                db.session.commit()
+            return redirect(f"/archive/problem/{problem_id}")
+        if request.form.get("delete_problem") is not None:
+            db.session.delete(problem)
+            db.session.commit()
+            return redirect("/archive/my")"""
     
     return render_template("pool/pool_problems.html", current_pool=pool, title=f"{pool.name} - задачи")
 

@@ -4,23 +4,29 @@
 
     <li class="border-4 border-solid border-sky-400 bg-white mb-4 p-4 flex flex-col rounded-lg hover:border-green-600">
         <div class="flex justify-between">
-            <a href="/pool/{{ current_pool.hashed_id }}/problem/{{ problem.id }}" class="no-underline text-black text-xl hover:underline">{{ problem.name }}</a>
+            <div>
+                <div class="flex flex-row">
+                <a href="/pool/{{ current_pool.hashed_id }}/problem/{{ problem.id }}" class="no-underline text-black text-xl hover:underline">{{ problem.name }}</a>
+                {% if problem.is_public and not problem.moderated %}
+                <span class="text-slate-500 font-bold mx-4">|</span>
+                <span class="no-underline text-black text-xl">Задача уже на модерации</span>
+
+                {% elif problem.is_public and problem.moderated %}
+                <span class="text-slate-500 font-bold mx-4">|</span>
+                <div class="flex flex-col">
+                    <span class="no-underline text-black text-xl">Задача в архиве</span>
+                    <form action="/pool/{{ current_pool.hashed_id }}/problems" method="post" class="my-4">
+                        <input type="hidden" name="back_to_pool" value="{{ current_pool.hashed_id }}">
+                        <input type="hidden" name="problem_id" value="{{ problem.id }}">
+                        <input type="submit" value="Вернуть на доработку?"
+                            class="hover:font-bold hover:cursor-pointer hover:text-blue-600">
+                    </form>
+                </div>
+                {% endif %}
+                </div>
+            </div>
             <button class="border-0 bg-transparent cursor-pointer" onclick="remove_problem('{{ current_pool.hashed_id }}', '{{ problem.id }}')"><img class="w-6 border-0" src="/static/images/bin.png" alt="bin"></button>
         </div>
-
-        <div class="h-px w-full bg-neutral-300 my-2"></div>
-        
-        <span class="text-slate-500 font-bold">Условие:</span>
-        {% for paragraph in problem.statement.split("\n") %}
-        <p class="mathjax-class m-0 text-base">{{ paragraph }}</p>
-        {% endfor %}
-
-        <div class="h-px w-full bg-neutral-300 my-2"></div>
-
-        <span class="text-slate-500 font-bold">Решение:</span>
-        {% for paragraph in problem.solution.split("\n") %}
-        <p class="mathjax-class m-0 text-base">{{ paragraph }}</p>
-        {% endfor %}
     </li>
     {% endfor %}
 </ul>

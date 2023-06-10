@@ -124,6 +124,7 @@ def my_arch(problem_id):
     if problem is None:
         return redirect("/archive/all")
     if request.method == "POST":
+        # TODO rewrite this !!! - now this should be in pool
         if problem.user_id == current_user.id:
             if request.form.get("switch_solution_access") is not None:
                 problem.show_solution = not problem.show_solution
