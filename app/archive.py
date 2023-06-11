@@ -18,7 +18,7 @@ def show_problem_attachment(problem_id, filename):
     if attachment is None:
         print("attachment none")
         return
-    if (problem.user != current_user) and attachment.locked:
+    if attachment.locked:
         print("attachment locked")
         return
     try:
@@ -100,8 +100,8 @@ def archive_search(mode):
 
     if mode == "all":
         problems = [problem for problem in problems if problem[0].moderated]
-    elif mode == "my":
-        problems = [problem for problem in problems if problem[0].user_id == current_user.id]
+    # elif mode == "my":
+    #     problems = [problem for problem in problems if problem[0].user_id == current_user.id]
 
     print(problems)
 
@@ -117,58 +117,10 @@ def archive_search(mode):
 
 
 
-@arch.route("/archive/problem/<int:problem_id>", methods=["GET", "POST"])
+@arch.route("/archive/problem/<int:problem_id>")
 @login_required
 def my_arch(problem_id):
     problem = Problem.query.filter_by(id = problem_id).first()
     if problem is None:
         return redirect("/archive/all")
-    if request.method == "POST":
-        # TODO rewrite this !!! - now this should be in pool
-        if problem.user_id == current_user.id:
-            if request.form.get("switch_solution_access") is not None:
-                problem.show_solution = not problem.show_solution
-                db.session.commit()
-                return redirect(f"/archive/problem/{problem_id}")
-            if request.form.get("add_tag") is not None:
-                tag_name = request.form["tag_name"]
-                tag = Tag.query.filter_by(name=tag_name).first()
-                if (tag is None) and (current_user.admin):
-                    tag = Tag(name=tag_name)
-                    db.session.add(tag)
-                    db.session.commit()
-                if Problem_Tag.query.filter_by(problem=problem, tag=tag).first() is None:
-                    problem_tag = Problem_Tag(problem=problem, tag=tag)
-                    db.session.add(problem_tag)
-                    db.session.commit()
-                return redirect(f"/archive/problem/{problem_id}")
-            if request.form.get("remove_tag") is not None:
-                tag_id = request.form.get("remove_tag")
-                tag = Tag.query.filter_by(id=tag_id).first()
-                if tag is None:
-                    return redirect(f"/archive/problem/{problem_id}")
-                if Problem_Tag.query.filter_by(problem=problem, tag=tag).first() is not None:
-                    db.session.delete(Problem_Tag.query.filter_by(problem=problem, tag=tag).first())
-                    db.session.commit()
-                return redirect(f"/archive/problem/{problem_id}")
-            if request.form.get("delete_problem") is not None:
-                db.session.delete(problem)
-                db.session.commit()
-                return redirect("/archive/my")
-            if request.form.get("switch_attachment_access") is not None:
-                attachment_id = request.form.get("switch_attachment_access")
-                attachment = ProblemAttachment.query.filter_by(id=attachment_id).first()
-                if attachment is None:
-                    return redirect(f"/archive/problem/{problem_id}")
-                if attachment.problem_id != problem_id:
-                    return redirect(f"/archive/problem/{problem_id}")
-                if Problem_Tag.query.filter_by(problem=problem, tag=tag).first() is not None:
-                    db.session.delete(Problem_Tag.query.filter_by(problem=problem, tag=tag).first())
-                    db.session.commit()
-                return redirect(f"/archive/problem/{problem_id}")
-            if request.form.get("delete_problem") is not None:
-                db.session.delete(problem)
-                db.session.commit()
-                return redirect("/archive/my")
-
     return render_template("archive/archive_problem_template.html", problem=problem, all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))

@@ -16,15 +16,27 @@
 
 {% if current_user.get_pool_relation(current_pool.id).role.isOwner() %}
 <div class="flex justify-end">
+    {% if not current_problem.is_public %}
     <form action="/archive/publish/{{current_problem.id}}" method="post">
         <input type="submit"
             class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
             value="Опубликовать в архив">
     </form>
+    {% elif current_problem.is_public and not current_problem.moderated %}
+    <span
+        class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">
+        На модерации
+    </span>
+    {% else %}
+    <span
+        class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">
+        В архиве
+    </span>
+    {% endif %}
 </div>
 {% endif %}
 <div class="flex flex-col">
-    <form action="/pool/{{ current_pool.hashed_id }}/problem/{{ current_problem.id }}" method="post"
+    <form autocomplete="off" action="/pool/{{ current_pool.hashed_id }}/problem/{{ current_problem.id }}" method="post"
         class="w-full mt-2 px-4" enctype="multipart/form-data">
         <input type="hidden" name="save_problem" value="239">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -50,17 +62,28 @@
             <input type="submit" value="Сохранить"
                 class="hover:cursor-pointer px-8 py-2 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700">
         </div>
-
+        {% if current_problem.is_public %}
+        <div class="flex flex-row items-center mt-4">
+            <h3 class="text-red-400 font-bold text-xl">Вы не можете редактировать задачу, если она опубликована</h3>
+            <span class="text-slate-500 font-bold mx-4">|</span>
+            <form action="/pool/{{ current_pool.hashed_id }}/problems" method="post">
+                <input type="hidden" name="back_to_pool" value="{{ current_pool.hashed_id }}">
+                <input type="hidden" name="problem_id" value="{{ current_problem.id }}">
+                <input type="submit" value="Вернуть на доработку?"
+                    class="hover:font-bold hover:cursor-pointer hover:text-blue-600">
+            </form>
+        </div>
+        {% endif %}
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Название:</h2>
         <div class="flex w-full">
-            <textarea rows="1" cols="50" name="name"
-                class="text-lg w-full p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.name }}</textarea>
+            <textarea rows="1" cols="50" name="name" class="text-lg w-full p-4 border-slate-200 border-2 rounded-lg" {%
+                if current_problem.is_public %} readonly {% endif %}>{{ current_problem.name }}</textarea>
         </div>
 
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Условие:</h2>
         <div class="flex w-full">
-            <textarea id="statement_textarea" rows="10" cols="50" name="statement"
-                class="text-lg w-1/2 p-4 border-slate-200 border-2 rounded-lg"
+            <textarea id="statement_textarea" rows="10" cols="50" name="statement" {% if current_problem.is_public %}
+                readonly {% endif %} class="text-lg w-1/2 p-4 border-slate-200 border-2 rounded-lg"
                 oninput="RenderStatement();">{{ current_problem.statement }}</textarea>
             <div id="statement_latex_output"
                 class="mathjax-class text-lg ml-4 p-4 bg-white border-2 border-solid border-sky-400 rounded-lg w-1/2">
@@ -68,10 +91,29 @@
         </div>
 
 
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Решение:</h2>
+        <div class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2 flex flex-row justify-between items-center">
+            <span>Решение:</span>
+            <span class="flex flex-row justify-center items-center">
+                Показывать пользователям решение
+                <span class="text-slate-500 font-bold mx-4">|</span>
+                {% if current_problem.show_solution %}
+                <label
+                    class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-green-200 rounded">
+                    <input type="checkbox" name="show_solution" class="w-0 h-0" id="show_solution_checkbox" checked>
+                    <img src="/static/images/pwd_hide.png" class="h-8">
+                </label>
+                {% else %}
+                <label
+                    class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-red-200 rounded">
+                    <input type="checkbox" name="show_solution" class="w-0 h-0" id="show_solution_checkbox">
+                    <img src="/static/images/pwd_show.png" class="h-8">
+                </label>
+                {% endif %}
+            </span>
+        </div>
         <div class="flex w-full">
-            <textarea id="solution_textarea" rows="10" cols="50" name="solution"
-                class="text-lg w-1/2 p-4 border-slate-200 border-2 rounded-lg"
+            <textarea id="solution_textarea" rows="10" cols="50" name="solution" {% if current_problem.is_public %}
+                readonly {% endif %} class="text-lg w-1/2 p-4 border-slate-200 border-2 rounded-lg"
                 oninput="RenderSolution();">{{ current_problem.solution }}</textarea>
             <div id="solution_latex_output"
                 class="mathjax-class text-lg ml-4 p-4 bg-white border-2 border-solid border-sky-400 rounded-lg w-1/2">
@@ -86,32 +128,38 @@
                         {% for attachment in current_problem.attachments %}
                         <li class="flex w-full gap-x-2">
                             <input type="text" name="attachment_name {{ attachment.id }}"
-                                value="{{ attachment.preview_name }}" placeholder="Как назвать картинку?"
+                                value="{{ attachment.preview_name }}" placeholder="Как назвать картинку?" {% if current_problem.is_public %} readonly {% endif %}
                                 class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow">
-                            <button onclick="DeleteAttachment(this)"
+                            {% if not current_problem.is_public %}
+                                <button onclick="DeleteAttachment(this)"
                                 class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
+                            {% endif %}
                             {% if attachment.locked %}
                             <label
                                 class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-red-200 rounded">
                                 <input type="checkbox" class="lock-attachment w-0 h-0"
                                     name="lock_attachment {{ attachment.id }}" checked>
                                 <img src="/static/images/pwd_hide.png" class="h-8">
-                                {% else %}
-                                <label
-                                    class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-green-200 rounded">
-                                    <input type="checkbox" class="lock-attachment w-0 h-0"
-                                        name="lock_attachment {{ attachment.id }}">
-                                    <img src="/static/images/pwd_show.png" class="h-8">
-                                    {% endif %}
-                                </label>
+                            </label>
+                            {% else %}
+                            <label
+                                class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-green-200 rounded">
+                                <input type="checkbox" class="lock-attachment w-0 h-0"
+                                    name="lock_attachment {{ attachment.id }}">
+                                <img src="/static/images/pwd_show.png" class="h-8">
+                            </label>
+                            {% endif %}
+
                         </li>
                         {% endfor %}
                     </ul>
-                    <div class="border-2 border-blue-500 border-dashed px-8 py-4 rounded-xl flex justify-center">
+                    <div class="border-2 border-blue-500 border-dashed px-8 py-4 rounded-xl flex justify-center {% if current_problem.is_public %} hidden {% endif %}">
                         <label class="label text-lg">
-                            <input type="file" class="file-input w-0 h-0" name="attachments" accept="image/*" multiple>
+                            <input type="file" class="file-input w-0 h-0" name="attachments" accept="image/*" multiple {% if current_problem.is_public %} readonly {% endif %}>
+                            {% if not current_problem.is_public %}
                             <span class="browse-files-text text-blue-500 font-semibold cursor-pointer inline-block"
                                 onclick="ResetFileInput()">загрузить файлы</span>
+                            {% endif %}
                         </label>
                     </div>
                     <ul class="uploaded-files-list flex flex-col gap-y-2"></ul>
@@ -122,25 +170,39 @@
                 <img id="display-attachment" class="hidden border-2 border-sky-400 padding-8 rounded-xl">
             </div>
         </div>
+        <div class="h-px w-full bg-neutral-300 my-2"></div>
+        <details>
+            <summary class="text-slate-500 font-bold">Теги:</summary>
+            <div class="flex gap-x-8 items-start">
+                <ul class="w-full" id="tas_list">
+                    {% for tag in current_problem.get_tags() %}
+                    <li class="flex">
+                        <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
+                        <span class="text-slate-500 font-bold mr-4">#</span>
+                        <div class="w-2/3"><span>{{ tag.name }}</span></div>
+                        <span class="text-slate-500 font-bold mx-4">|</span>
+                        <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-red-600"
+                            onclick="DeleteTag(this)">Удалить тег</button>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <div class="flex w-full">
+                    <span class="text-slate-500 font-bold mr-4">#</span>
+                    <div class="w-2/3 relative inline-block">
+                        <input id="addtag" type="text" placeholder="Введите тег" name="tag_name"
+                            class="w-full border-slate-400 border-2 rounded px-2">
+                    </div>
+                    <span class="text-slate-700 font-bold mx-4">|</span>
+                    <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-green-600"
+                        onclick="AddTag()">Добавить тег</button>
+                </div>
+            </div>
+        </details>
     </form>
-    
-    <div class="h-px w-full bg-neutral-300 my-2"></div>
 
-    <details class="w-full bg-white rounded-xl p-4 border-2 border-slate-200 border shadow focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2">
-        <summary class="text-slate-500 font-bold">Настройки доступа</summary>
-        <div class="flex flex-col gap-y-2">
-            <form action="/archive/problem/{{ current_problem.id }}" method="post" class="my-4">
-                <input type="hidden" name="switch_solution_access" value="239">
-                {% if current_problem.show_solution %}
-                <input type="submit" class="hover:cursor-pointer hover:underline text-black"
-                    value="Скрыть доступ к решению">
-                {% else %}
-                <input type="submit" class="hover:cursor-pointer hover:underline text-black"
-                    value="Показывать пользователям решение">
-                {% endif %}
-            </form>
-        </div>
-    </details>
+
+
+
 </div>
 
 <script>
@@ -221,6 +283,166 @@
         })
 
     }
+</script>
+
+<script>
+    let show_solution_checkbox = document.getElementById("show_solution_checkbox");
+    show_solution_checkbox.addEventListener("change", function (event) {
+        if (this.checked) {
+            this.parentNode.querySelector('img').src = "/static/images/pwd_show.png";
+            this.parentNode.classList.remove("bg-red-200");
+            this.parentNode.classList.add("bg-green-200");
+        }
+        else {
+            this.parentNode.querySelector('img').src = "/static/images/pwd_hide.png";
+            this.parentNode.classList.remove("bg-green-200");
+            this.parentNode.classList.add("bg-red-200");
+        }
+    })
+</script>
+
+<script>
+    function AddTag() {
+
+        let tag = document.getElementById("addtag");
+        let tag_name = prevent_injection(tag.value);
+        tag.value = "";
+
+        let tags_list = document.getElementById("tas_list");
+
+        tags_list.appendChild(document.createElement("li"));
+        let child = tags_list.lastChild;
+
+        child.classList = "flex";
+
+
+        child.innerHTML = `<input type="hidden" name="tag ${tag_name}" value="${tag_name}">
+        <span class="text-slate-500 font-bold mr-4">#</span>
+        <div class="w-2/3"><span>${tag_name}</span></div>
+        <span class="text-slate-500 font-bold mx-4">|</span>
+        <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-red-600" onclick="DeleteTag(this)">Удалить тег</button>`
+
+    }
+</script>
+
+<script>
+    function DeleteTag(element) {
+        element.parentElement.remove();
+    }
+</script>
+
+<script>
+    function autocomplete(inp, arr) {
+        /*the autocomplete function takes two arguments,
+        the text field element and an array of possible autocompleted values:*/
+        var currentFocus;
+        /*execute a function when someone writes in the text field:*/
+        inp.addEventListener("input", function (e) {
+            var a, b, i, val = this.value;
+            /*close any already open lists of autocompleted values*/
+            closeAllLists();
+            /* comment if you want to process empty input */
+            if (!val) { return false; }
+            currentFocus = -1;
+            /*create a DIV element that will contain the items (values):*/
+            a = document.createElement("DIV");
+            a.setAttribute("id", this.id + "autocomplete-list");
+            a.classList.add("absolute", "z-50", "top-full", "inset-x-0", "overflow-y-auto", "h-60", "autocomplete-items");
+            /*append the DIV element as a child of the autocomplete container:*/
+            this.parentNode.appendChild(a);
+            /*for each item in the array...*/
+            for (i = 0; i < arr.length; i++) {
+                /*check if the item starts with the same letters as the text field value:*/
+                if (arr[i].toUpperCase().includes(val.toUpperCase())) {
+                    /*create a DIV element for each matching element:*/
+                    b = document.createElement("DIV");
+                    b.classList.add("p-4", "cursor-pointer", "bg-white", "border-b-2", "border-gray-200", "hover:bg-gray-100");
+                    var idx = arr[i].toUpperCase().indexOf(val.toUpperCase());
+                    /*make the matching letters bold:*/
+                    b.innerHTML += arr[i].substr(0, idx);
+                    b.innerHTML += "<strong>" + arr[i].substr(idx, val.length) + "</strong>";
+                    b.innerHTML += arr[i].substr(idx + val.length);
+
+                    /*insert a input field that will hold the current array item's value:*/
+                    b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                    /*execute a function when someone clicks on the item value (DIV element):*/
+                    b.addEventListener("click", function (e) {
+                        /*insert the value for the autocomplete text field:*/
+                        inp.value = this.getElementsByTagName("input")[0].value;
+                        /*close the list of autocompleted values,
+                        (or any other open lists of autocompleted values:*/
+                        closeAllLists();
+                    });
+                    a.appendChild(b);
+                }
+            }
+        });
+        /*execute a function presses a key on the keyboard:*/
+        inp.addEventListener("keydown", function (e) {
+            var x = document.getElementById(this.id + "autocomplete-list");
+            if (x) x = x.getElementsByTagName("div");
+            if (e.keyCode == 40) {
+                /*If the arrow DOWN key is pressed,
+                increase the currentFocus variable:*/
+                currentFocus++;
+                /*and and make the current item more visible:*/
+                addActive(x);
+            } else if (e.keyCode == 38) { //up
+                /*If the arrow UP key is pressed,
+                decrease the currentFocus variable:*/
+                currentFocus--;
+                /*and and make the current item more visible:*/
+                addActive(x);
+            } else if (e.keyCode == 13) {
+                /*If the ENTER key is pressed, prevent the form from being submitted,*/
+                e.preventDefault();
+                if (currentFocus > -1) {
+                    /*and simulate a click on the "active" item:*/
+                    if (x) x[currentFocus].click();
+                }
+            }
+        });
+        function addActive(x) {
+            /*a function to classify an item as "active":*/
+            if (!x) return false;
+            /*start by removing the "active" class on all items:*/
+            removeActive(x);
+            if (currentFocus >= x.length) currentFocus = 0;
+            if (currentFocus < 0) currentFocus = (x.length - 1);
+            /*add class "autocomplete-active":*/
+            x[currentFocus].classList.add("!bg-sky-400", "autocomplete-active");
+        }
+        function removeActive(x) {
+            /*a function to remove the "active" class from all autocomplete items:*/
+            for (var i = 0; i < x.length; i++) {
+                x[i].classList.remove("!bg-sky-400", "autocomplete-active");
+            }
+        }
+        function closeAllLists(elmnt) {
+            /*close all autocomplete lists in the document,
+            except the one passed as an argument:*/
+            var x = document.getElementsByClassName("autocomplete-items");
+            for (var i = 0; i < x.length; i++) {
+                if (elmnt != x[i] && elmnt != inp) {
+                    x[i].parentNode.removeChild(x[i]);
+                }
+            }
+        }
+        /*execute a function when someone clicks in the document:*/
+        document.addEventListener("click", function (e) {
+            closeAllLists(e.target);
+        });
+    }
+
+    /*An array containing all the country names in the world:*/
+    var tags = [];
+    /* append all tags to the tags array:*/
+    {% for tag in all_tags %}
+    tags.push("{{ tag.name }}");
+    {% endfor %}
+
+    /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
+    autocomplete(document.getElementById("addtag"), tags);
 </script>
 
 {% endblock %}

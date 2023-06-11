@@ -120,10 +120,7 @@ def pool_problems(pool_hashed_id): # ok
             problem.is_public = problem.moderated = False
             db.session.commit()
 
-        """if request.form.get("switch_solution_access") is not None:
-            problem.show_solution = not problem.show_solution
-            db.session.commit()
-            return redirect(f"/archive/problem/{problem_id}")
+        """
         if request.form.get("add_tag") is not None:
             tag_name = request.form["tag_name"]
             tag = Tag.query.filter_by(name=tag_name).first()
@@ -243,7 +240,7 @@ def remove_problem_from_pool(): # ok
 
 @pool.route("/pool/<pool_hashed_id>/problem/<int:problem_id>", methods=["GET", "POST"])
 @login_required
-def problem(pool_hashed_id, problem_id): # reworked
+def problem(pool_hashed_id, problem_id):
     pool = Pool.query.filter_by(hashed_id = pool_hashed_id).first()
 
     if pool is None:
@@ -255,7 +252,7 @@ def problem(pool_hashed_id, problem_id): # reworked
         return redirect(user_checked)
 
     problem = Problem.query.filter_by(id = problem_id).first()
-    #print("pr", problem.id)
+
 
     if problem is None:
         flash("Задача не найдена", "danger")
@@ -268,18 +265,44 @@ def problem(pool_hashed_id, problem_id): # reworked
             solution = request.form.get("solution")
             
             # TODO add problem states checking
+            if not problem.is_public:
+                problem.name = name
+                problem.statement = statement
+                problem.solution = solution
+            
+            problem.show_solution = request.form.get("show_solution") == "on"
 
-            problem.name = name
-            problem.statement = statement
-            problem.solution = solution
+            form = request.form.to_dict()
+            print(form)
+
+            for (key, value) in form.items():
+                if key[:4] == "tag ":
+                    print(key, value)
+                    tag = Tag.query.filter_by(name=value).first()
+                    print(1)
+                    if tag is None:
+                        tag = Tag(name=value)
+                        db.session.add(tag)
+                        db.session.commit()
+                    if Problem_Tag.query.filter_by(problem=problem, tag=tag).first() is None:
+                        problem_tag = Problem_Tag(problem=problem, tag=tag)
+                        db.session.add(problem_tag)
+                        db.session.commit()
+            
+            for tag in problem.get_tags():
+                if form.get(f"tag {tag.name}", None) is None:
+                    db.session.delete(Problem_Tag.query.filter_by(problem=problem, tag=tag).first())
+                    db.session.commit()
 
             for attachment in problem.attachments:
                 preview_name = request.form.get("attachment_name " + str(attachment.id))
-                if preview_name is None:
-                    problem.delete_attachment(attachment)
-                    continue
+                if not problem.is_public:
+                    if preview_name is None:
+                        problem.delete_attachment(attachment)
+                        continue
                 
-                attachment.preview_name = preview_name
+                if not problem.is_public:
+                    attachment.preview_name = preview_name
                 show = request.form.get("lock_attachment " + str(attachment.id))
                 if show is None:
                     attachment.locked = False
@@ -291,20 +314,21 @@ def problem(pool_hashed_id, problem_id): # reworked
 
             print(request.files.getlist("attachments"))
 
-            directory = "app/database/attachments/problems"
-            filenames = safe_image_upload(request, "attachments", directory, 5*1024*1024)
-            
-            for filename in filenames:
-                if filename is None:
-                    continue
-                attachment = ProblemAttachment(db_folder=directory, db_filename=filename, preview_name="Рисунок", problem_id=problem.id)
-                db.session.add(attachment)
+            if not problem.is_public:
+                directory = "app/database/attachments/problems"
+                filenames = safe_image_upload(request, "attachments", directory, 5*1024*1024)
+                
+                for filename in filenames:
+                    if filename is None:
+                        continue
+                    attachment = ProblemAttachment(db_folder=directory, db_filename=filename, preview_name="Рисунок", problem_id=problem.id)
+                    db.session.add(attachment)
 
             db.session.commit()
 
             flash("Задача успешно сохранена", "success")    
             return redirect(f"/pool/{pool_hashed_id}/problem/{problem_id}")
-    return render_template("pool/pool_1problem.html", current_pool=pool, current_problem=problem, title=f"Редактор - {problem.name}")
+    return render_template("pool/pool_1problem.html", current_pool=pool, current_problem=problem, title=f"Редактор - {problem.name}", all_tags=sorted(Tag.query.all(), key=lambda x: x.name.lower()))
 
 
 @pool.route("/pool/create", methods=["POST", "GET"])
