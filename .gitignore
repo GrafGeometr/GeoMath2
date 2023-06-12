@@ -20,3 +20,4 @@ app/__pycache__
 __pycache__/email_secret_data.cpython-311.pyc
 __pycache__
 app/database/attachments/problems/
+app/database/profile_pics

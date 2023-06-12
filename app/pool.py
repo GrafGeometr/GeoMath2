@@ -107,7 +107,7 @@ def remove_problem_from_pool():
 
     db.session.delete(problem)
     db.session.commit()
-    return render_template("pool/pool_problemlist.html", current_pool=pool)
+    return render_template("pool/pool_problemlist.html", current_pool=pool, title=f"{pool.name} - задачи")
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -274,7 +274,25 @@ def show_problem_attachment(pool_hashed_id, problem_id, filename):
 @pool.route("/pool/<pool_hashed_id>/collections", methods=["GET", "POST"])
 @login_required
 def pool_collections(pool_hashed_id):
-    pass
+    pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
+
+    if pool is None:
+        flash("Пул с таким id не найден", "danger")
+        return redirect("/myprofile")
+
+    user_checked = check_user_in_pool(current_user, pool)
+    if user_checked is not None:
+        return redirect(user_checked)
+
+    if request.method == "POST":
+        if request.form.get("back_to_pool") is not None:
+            collection_id = request.form.get("collection_id")
+            collection = Collection.query.filter_by(id=collection_id).first()
+            collection.is_public = False
+            db.session.commit()
+    return render_template(
+        "pool/pool_collections.html", current_pool=pool, title=f"{pool.name} - подборки"
+    )
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -306,7 +324,28 @@ def new_collection(pool_hashed_id):
 @pool.route("/remove_collection_from_pool", methods=["POST"])
 @login_required
 def remove_collection_from_pool():
-    pass
+    data = request.get_json()
+    pool_hashed_id = data["pool"]
+    collection_id = data["collection"]
+    pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
+
+    if pool is None:
+        flash("Пул с таким id не найден", "danger")
+        return redirect("/myprofile")
+
+    user_checked = check_user_in_pool(current_user, pool)
+    if user_checked is not None:
+        return redirect(user_checked)
+
+    collection = Collection.query.filter_by(id=collection_id).first()
+
+    if collection is None:
+        flash("Подборка не найдена", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/collections")
+
+    db.session.delete(collection)
+    db.session.commit()
+    return render_template("pool/pool_collectionlist.html", current_pool=pool, title=f"{pool.name} - подборки")
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -316,7 +355,8 @@ def remove_collection_from_pool():
 @pool.route("/pool/<pool_hashed_id>/collection/<collection_hashed_id>", methods=["GET", "POST"])
 @login_required
 def collection(pool_hashed_id, collection_hashed_id):
-    pass
+    # some complecated stuff should be here
+    return "Work In Progress"
 
 
 

@@ -68,6 +68,7 @@ class Pool(db.Model):
     hashed_id = db.Column(db.String, unique=True, nullable=True)
     userpools = db.relationship("User_Pool", backref="pool")
     problems = db.relationship("Problem", backref="pool")
+    collections = db.relationship("Collection", backref="pool")
 
     # open_for_new_problems = db.Column(db.Boolean, default=False) 
 
@@ -104,7 +105,7 @@ class Pool(db.Model):
         return problem
     
     def new_collection(self):
-        collection = Problem_Collection(description="Описание")
+        collection = Collection(description="Описание", pool_id=self.id)
         db.session.add(collection)
         db.session.commit()
         collection.name = f"Подборка #{collection.id}"
@@ -188,6 +189,8 @@ class Collection(db.Model):
     description = db.Column(db.String)
     
     problem_collections = db.relationship("Problem_Collection", backref="collection")
+
+    pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
 
 class Problem_Collection(db.Model):
