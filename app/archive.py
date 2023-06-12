@@ -36,6 +36,16 @@ def publish(problem_id):
     if not current_user.get_pool_relation(problem.pool_id).role.isOwner():
         return redirect(f"/pool/{pool_hashed_id}/problems")
     
+    if not problem.name:
+        flash("Не указано название задачи", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/problem/{problem.id}")
+    if not problem.statement:
+        flash("Не указано условие задачи", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/problem/{problem.id}")
+    if not problem.solution:
+        flash("Не указано решение задачи", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/problem/{problem.id}")
+
     problem.is_public = True
 
     db.session.commit()

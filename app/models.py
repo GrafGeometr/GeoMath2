@@ -69,6 +69,8 @@ class Pool(db.Model):
     userpools = db.relationship("User_Pool", backref="pool")
     problems = db.relationship("Problem", backref="pool")
 
+    # open_for_new_problems = db.Column(db.Boolean, default=False) 
+
     def set_hashed_id(self):
         while True:
             hashed_id = generate_token(20)
@@ -101,6 +103,14 @@ class Pool(db.Model):
         db.session.commit()
         return problem
     
+    def new_collection(self):
+        collection = Problem_Collection(description="Описание")
+        db.session.add(collection)
+        db.session.commit()
+        collection.name = f"Подборка #{collection.id}"
+        db.session.commit()
+        return collection
+    
 class User_Pool(db.Model):
     __tablename__ = 'user_pool'
 
@@ -127,6 +137,8 @@ class Problem(db.Model):
     problem_tags = db.relationship("Problem_Tag", backref="problem")
 
     attachments = db.relationship("ProblemAttachment", backref="problem")
+
+    problem_collections = db.relationship("Problem_Collection", backref="problem")
 
     def get_tags(self):
         return sorted([problem_tag.tag for problem_tag in Problem_Tag.query.filter_by(problem_id = self.id).all()], key=lambda t:t.name.lower())
@@ -165,4 +177,22 @@ class ProblemAttachment(db.Model):
     db_filename = db.Column(db.String)
     preview_name = db.Column(db.String)
     locked = db.Column(db.Boolean, default=True)
+    problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
+
+
+class Collection(db.Model):
+    __tablename__ = 'collection'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String)
+    description = db.Column(db.String)
+    
+    problem_collections = db.relationship("Problem_Collection", backref="collection")
+
+
+class Problem_Collection(db.Model):
+    __tablename__ = 'problem_collection'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    collection_id = db.Column(db.Integer, db.ForeignKey("collection.id"))
     problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
