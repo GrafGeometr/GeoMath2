@@ -107,7 +107,65 @@ def remove_problem_from_pool():
 
     db.session.delete(problem)
     db.session.commit()
-    return render_template("pool/pool_problemlist.html", current_pool=pool, title=f"{pool.name} - задачи")
+    return render_template(
+        "pool/pool_problemlist.html", current_pool=pool, title=f"{pool.name} - задачи"
+    )
+
+
+# -----------------------------------------------------------------------------------------------------------------------------
+
+
+# add attachment to problem
+@pool.route(
+    "/pool/<pool_hashed_id>/problem/<int:problem_id>/upload_file", methods=["POST"]
+)
+@login_required
+def upload_file(pool_hashed_id, problem_id):
+    pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
+
+    if pool is None:
+        flash("Пул с таким id не найден", "danger")
+        return redirect("/myprofile")
+
+    user_checked = check_user_in_pool(current_user, pool)
+    if user_checked is not None:
+        return redirect(user_checked)
+
+    problem = Problem.query.filter_by(id=problem_id).first()
+    if problem is None:
+        flash("Задача не найдена", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/problems")
+
+    file = request.files.get("file")
+    if file is None:
+        flash("Файл не был загружен", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/problem/{problem_id}")
+    
+    if not problem.is_public:
+        directory = "app/database/attachments/problems"
+        filenames = safe_image_upload(
+            [file], directory, 5 * 1024 * 1024
+        )
+
+        filename = filenames[0]
+
+        if filename is None:
+            flash("Ошибка при загрузке", "danger")
+            return redirect(f"/pool/{pool_hashed_id}/problem/{problem_id}")
+        
+        attachment = ProblemAttachment(
+            db_folder=directory,
+            db_filename=filename,
+            preview_name="Рисунок",
+            problem_id=problem.id,
+        )
+        db.session.add(attachment)
+
+        db.session.commit()
+
+        return f"OK {attachment.id}"
+    
+    return redirect(f"/pool/{pool_hashed_id}/problem/{problem_id}")
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -192,25 +250,6 @@ def problem(pool_hashed_id, problem_id):
             db.session.commit()
 
             print(request.files.getlist("attachments"))
-
-            if not problem.is_public:
-                directory = "app/database/attachments/problems"
-                filenames = safe_image_upload(
-                    request, "attachments", directory, 5 * 1024 * 1024
-                )
-
-                for filename in filenames:
-                    if filename is None:
-                        continue
-                    attachment = ProblemAttachment(
-                        db_folder=directory,
-                        db_filename=filename,
-                        preview_name="Рисунок",
-                        problem_id=problem.id,
-                    )
-                    db.session.add(attachment)
-
-            db.session.commit()
 
             flash("Задача успешно сохранена", "success")
             return redirect(f"/pool/{pool_hashed_id}/problem/{problem_id}")
@@ -345,23 +384,27 @@ def remove_collection_from_pool():
 
     db.session.delete(collection)
     db.session.commit()
-    return render_template("pool/pool_collectionlist.html", current_pool=pool, title=f"{pool.name} - подборки")
+    return render_template(
+        "pool/pool_collectionlist.html",
+        current_pool=pool,
+        title=f"{pool.name} - подборки",
+    )
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
 
 
 # show and edit collection in pool
-@pool.route("/pool/<pool_hashed_id>/collection/<collection_hashed_id>", methods=["GET", "POST"])
+@pool.route(
+    "/pool/<pool_hashed_id>/collection/<collection_hashed_id>", methods=["GET", "POST"]
+)
 @login_required
 def collection(pool_hashed_id, collection_hashed_id):
     # some complecated stuff should be here
     return "Work In Progress"
 
 
-
 # maybe something else with collections
-
 
 
 # =============================================================================================================================

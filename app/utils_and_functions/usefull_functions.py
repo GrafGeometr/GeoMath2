@@ -32,8 +32,7 @@ def email_token_stuff(email_obj):
 # - If file is broken
 # - If file is too big (> maxsize in bytes)
 # returns None
-def safe_image_upload(request, input_field_name, directory, maxsize=2*1024*1024):
-    files = request.files.getlist(input_field_name)
+def safe_image_upload(files, directory, maxsize=2*1024*1024):
     result = []
     for file in files:
         try:

@@ -62,6 +62,54 @@
     {% block content %}{% endblock %}
     </div>
 </body>
+<script>
+    class Block {
+        constructor(name, params) {
+            this.name = name;
+            this.params = params;
+        }
+    }
+
+    function render_block(text, mode) { // mode is "show" or "edit-text" or "edit-blocks"
+        /*
+        commands:
+        - \header{...}
+        - \includes{...}
+        - \problem{...}{...}
+        - \geometry{...} - not now
+        - \block{...}
+        */
+        if (mode == "show") {
+            var result = [];
+            for (var i = 0; i < text.length; i++) {
+                if (text[i] == "\n") {
+                    // new paragraph?
+                }
+                if (text[i] == "\\") {
+                    if (i < text.length - 1) {
+                        if (text[i + 1] in "{}\\") {
+                            result[result.length - 1] += text[i + 1];
+                            i++;
+                            continue;
+                        }
+                    }
+                    // test if it's a command
+                    // header?
+                    
+                }
+                
+            }
+        }
+    }
+
+    /* get elements with class block-latex-class */
+    var elements = document.getElementsByClassName("block-latex-class");
+
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].innerHTML = render_block(elements[i].innerHTML);
+    }
+
+</script>
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({tex2jax: {inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true}, elements: document.getElementsByClassName("mathjax-class")});
 </script>

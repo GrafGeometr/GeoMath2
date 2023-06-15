@@ -124,7 +124,7 @@
         <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
             <div class="border-r-2 border-slate-300 grow">
                 <div class="flex flex-col gap-y-4 mr-4">
-                    <ul class="flex flex-col gap-y-2">
+                    <ul class="flex flex-col gap-y-2" id="files-list">
                         {% for attachment in current_problem.attachments %}
                         <li class="flex w-full gap-x-2">
                             <input type="text" name="attachment_name {{ attachment.id }}"
@@ -162,7 +162,6 @@
                             {% endif %}
                         </label>
                     </div>
-                    <ul class="uploaded-files-list flex flex-col gap-y-2"></ul>
                 </div>
             </div>
 
@@ -234,19 +233,47 @@
 
 <script>
     let fileInput = document.querySelector(".file-input");
-    let filesList = document.querySelector(".uploaded-files-list");
+    let filesList = document.getElementById("files-list");
     fileInput.addEventListener("change", function (event) {
         for (let i = 0; i < this.files.length; i++) {
-            filesList.appendChild(document.createElement("li"));
-            let child = filesList.lastChild;
-            let fileName = document.createElement("span");
-            let fileSize = document.createElement("span");
-            fileName.innerHTML = this.files[i].name;
-            fileName.classList.add("bg-blue-500", "text-white", "px-2", "py-1", "rounded-full");
-            fileSize.innerHTML = (this.files[i].size / 1024).toFixed(1) + " КБ";
-            child.appendChild(fileName);
-            child.appendChild(fileSize);
-            child.classList.add("text-base", "flex", "gap-x-2", "items-center");
+
+            const Data = new FormData();
+            Data.append("file", this.files[i]);
+            Data.append("name", this.files[i].name);
+            Data.append("type", this.files[i].type);
+            Data.append("size", this.files[i].size);
+
+            fetch(`${ window.location.href }/upload_file`, {
+                method: "POST",
+                body: Data
+            }).then((response) => {
+                if (response.status == 200) {
+                    return response.text();
+                } else {
+                    throw new Error("Bad file");
+                }
+            }).then(result => {
+                    if (result[0] == "O" && result[1] == "K") {
+                        var attachment_id = result.slice(3);
+
+                        filesList.innerHTML += `
+                        <li class="flex w-full gap-x-2">
+                            <input type="text" name="attachment_name ${ attachment_id }"
+                            value="Рисунок" placeholder="Как назвать картинку?"
+                            class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow">
+                            <button onclick="DeleteAttachment(this)"
+                            class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
+                            <label
+                                class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-red-200 rounded">
+                                <input type="checkbox" class="lock-attachment w-0 h-0"
+                                    name="lock_attachment ${ attachment_id }" checked>
+                                <img src="/static/images/pwd_hide.png" class="h-8">
+                            </label>
+                        </li>
+                        `
+                    }
+                }
+            );
         }
     })
 </script>
@@ -257,11 +284,9 @@
     }
     function ResetFileInput() {
         let fileInput = document.querySelector(".file-input");
-        let filesList = document.querySelector(".uploaded-files-list");
         fileInput.value = "";
         fileInput.type = "";
         fileInput.type = "file";
-        filesList.innerHTML = "";
     }
 </script>
 
