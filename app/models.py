@@ -69,8 +69,7 @@ class Pool(db.Model):
     userpools = db.relationship("User_Pool", backref="pool")
     problems = db.relationship("Problem", backref="pool")
     collections = db.relationship("Collection", backref="pool")
-
-    # open_for_new_problems = db.Column(db.Boolean, default=False) 
+    open_for_new_problems = db.Column(db.Boolean, default=False)
 
     def set_hashed_id(self):
         while True:
@@ -130,6 +129,7 @@ class Problem(db.Model):
     solution = db.Column(db.String)
 
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
+    new_pool_id = db.Column(db.Integer, nullable=True)
 
     is_public = db.Column(db.Boolean, default=False)
     moderated = db.Column(db.Boolean, default=False)

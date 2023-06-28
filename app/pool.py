@@ -400,7 +400,7 @@ def remove_collection_from_pool():
 )
 @login_required
 def collection(pool_hashed_id, collection_hashed_id):
-    # some complecated stuff should be here
+    # some complicated stuff should be here
     return "Work In Progress"
 
 
@@ -597,11 +597,102 @@ def pool_manager_general(pool_hashed_id):
             flash("Пул успешно удален", "success")
             return redirect("/myprofile")
 
+        if request.form.get("change_open") is not None:
+            pool.open_for_new_problems = not pool.open_for_new_problems
+            db.session.commit()
+            if pool.open_for_new_problems:
+                flash("Пул успешно открыт", "success")
+            else:
+                flash("Пул успешно закрыт", "success")
+
     return render_template(
         "pool/pool_management_general.html",
         current_pool=pool,
         title=f"{pool.name} - управление",
     )
+
+
+# -----------------------------------------------------------------------------------------------------------------------------
+
+# suggest a new problem for pool
+
+@pool.route("/pool/<pool_hashed_id>/give_problem", methods=["POST", "GET"])
+@login_required
+def give_problem(pool_hashed_id):
+    pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
+
+    if pool is None:
+        flash("Такого пула не существует", "danger")
+        return redirect("/myprofile")
+
+    user_checked = check_user_in_pool(current_user, pool)
+    if not pool.open_for_new_problems and user_checked is not None:
+        flash("Вы не имеете права подавать задачу в этот пул", "danger")
+        return redirect(user_checked)
+
+    if request.method == "POST":
+        problem_id = request.form.get("problem_id")
+        if problem_id is not None:
+            problem = Problem.query.filter_by(id=problem_id).first()
+            if problem.new_pool_id is not None and problem.new_pool_id != pool.id:
+                flash("Вы уже предложили эту задачу в другой пул", "danger")
+            else:
+                problem.new_pool_id = pool.id
+                db.session.commit()
+
+        return_problem_id = request.form.get("return_problem_id")
+        if return_problem_id is not None:
+            problem = Problem.query.filter_by(id=return_problem_id).first()
+            if problem.new_pool_id is None:
+                flash("Эту задачу неоткуда отзывать", "danger")
+            elif problem.new_pool_id != pool.id:
+                flash("Эта задача предложена в другой пул, отзовите ее на его странице!", "danger")
+            else:
+                problem.new_pool_id = None
+                db.session.commit()
+
+        tags = request.form.get("tags")
+        if tags is not None:
+            return redirect(
+                url_for("pool.give_problem", tags=tags, page=1, pool_hashed_id=pool_hashed_id)
+            )
+
+    tags = request.args.get("tags")
+    page = request.args.get("page")
+
+    if page is None:
+        page = 1
+    else:
+        page = int(page)
+
+    if tags is None or tags == "":
+        tags = []
+    else:
+        tags = list(map(lambda x: x.strip(), tags.split(";")))
+
+    tags = list(set(tags))
+    print(tags)
+    print(page)
+
+    problems_per_page = 10
+
+    problems = Problem.query.all()
+    problems = [problem for problem in problems if (problem.is_public
+                or check_user_in_pool(current_user, problem.pool) is None)
+                and (problem.new_pool_id is None or problem.new_pool_id == pool.id)]
+    problems = [(p, len([tag for tag in tags if tag in p.get_tag_names()]), len(tags)) for p in problems]
+    problems.sort(key=lambda p: p[1], reverse=True)
+
+    # print(problems)
+
+    num_of_pages = (len(problems) + problems_per_page - 1) // problems_per_page
+    problems = problems[(page - 1) * problems_per_page: page * problems_per_page]
+
+    pages_to_show = get_correct_page_slice(num_of_pages, 7, page)
+
+    return render_template("pool/give_problem.html", problems=problems, pages_to_show=pages_to_show,
+                           current_page=page, tags="; ".join(tags),
+                           all_tags=sorted(Tag.query.all(), key=lambda t: (t.name).lower()), pool=pool)
 
 
 # -----------------------------------------------------------------------------------------------------------------------------

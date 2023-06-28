@@ -18,7 +18,15 @@
             <input class="hover:cursor-pointer px-8 py-2 border border-solid border-slate-400 rounded-md text-lg text-stone-800 font-semibold bg-slate-100 hover:bg-slate-200 active:bg-slate-300" type="submit" value="Переименовать">
         </div>
     </form>
-    
+
+    <form action="/pool/{{ current_pool.hashed_id }}/management/general" method="POST">
+        <h2 class="text-lg text-stone-800 font-semibold">Открыть/закрыть пул</h2>
+        <div class="flex gap-x-4">
+            <input type="submit" name="change_open"
+                   value="{% if current_pool.open_for_new_problems %} Закрыть пул
+                   {% else %} Открыть пул {% endif %}">
+        </div>
+    </form>
 </section>
 <section>
     <h1 class="text-2xl text-stone-800 font-medium">Опасная зона</h1>

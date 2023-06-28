@@ -53,26 +53,6 @@ def publish(problem_id):
     return redirect(f"/pool/{pool_hashed_id}/problems")
 
 
-
-def get_correct_page_slice(num_of_pages, len_of_slice, index_of_current_page):
-    n = num_of_pages
-    k = len_of_slice
-    i = index_of_current_page
-    print(n, k, i)
-    # look how google search works to understand
-    # in a nutshell, it returns a slice with len = k, where i is the middle (except for when i is close to the borders)
-    # everything is 1-indexed
-    
-    if k >= n:
-        return [x for x in range(1, n+1)]
-    half = k // 2
-    if i <= half + 1:
-        return [x for x in range(1, k+1)]
-    elif n - (i-1) <= (k-half):
-        return [x for x in range(n-k+1, n+1)]
-    else:
-        return [x for x in range(i-half, i+(k-half))]
-
 @arch.route("/archive/<string:mode>", methods=["POST", "GET"])
 @login_required
 def archive_search(mode):
@@ -93,7 +73,7 @@ def archive_search(mode):
     if tags is None or tags == "":
         tags = []
     else:
-        tags = list(map(lambda x: x.strip() , tags.split(";")))
+        tags = list(map(lambda x: x.strip(), tags.split(";")))
 
 
     tags = list(set(tags))
@@ -117,14 +97,9 @@ def archive_search(mode):
 
     num_of_pages = (len(problems)+problems_per_page-1) // problems_per_page
     problems = problems[(page-1)*problems_per_page : page*problems_per_page]
-
-
     pages_to_show = get_correct_page_slice(num_of_pages, 7, page)
-    
 
     return render_template("archive/archive_search.html", mode=mode, problems=problems, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
-
-
 
 
 @arch.route("/archive/problem/<int:problem_id>")

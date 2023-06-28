@@ -1,0 +1,184 @@
+{% extends "pool/pool_header.html" %}
+{% block pool_body %}
+    <div class="mt-4">
+        <!-- search panel -->
+
+        <section class="flex">
+        <form autocomplete="off" class="flex w-full" action="/pool/{{ pool.hashed_id }}/give_problem" method="POST">
+            <div class="w-2/3 relative inline-block">
+                <input id="search_tags" type="text" placeholder="Введите теги" name="tags"
+                    class="w-full border-slate-400 border-2 rounded px-2" {% if tags %} value="{{ tags }}" {% endif %}>
+            </div>
+            <span class="text-slate-700 font-bold mx-4">|</span>
+            <input type="submit" value="Найти" class="hover:font-bold hover:cursor-pointer hover:text-green-600">
+        </form>
+        {% if pages_to_show %}
+            <ul class="flex text-lg text-center">
+                    <li>
+                        {% if current_page > pages_to_show[0] %}
+                        <a class="text-sky-500 px-4 hover:underline font-bold text-xl" href="{{ url_for('/pool/<pool_hashed_id>/give_problem', tags=tags, page=current_page-1, pool_hashed_id=pool.hashed_id) }}">&lt;</a>
+                        {% else %}
+                        <a class="invisible text-sky-500 px-4 hover:underline" href="{{ url_for('/pool/<pool_hashed_id>/give_problem', tags=tags, page=current_page-1, pool_hashed_id=pool.hashed_id) }}">&lt;</a>
+                        {% endif %}
+                    </li>
+                {% for x in pages_to_show %}
+                    {% if x == current_page %}
+                        <li class="w-8">
+                            <span class="font-bold text-stone-800 px-2">{{ x }}</span>
+                        </li>
+                    {% else %}
+                        <li class="w-8">
+                            <a class="text-sky-500 px-2 hover:underline" href="{{ url_for('/pool/<pool_hashed_id>/give_problem', tags=tags, page=x, pool_hashed_id=pool.hashed_id) }}">{{ x }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                <li>
+                    {% if current_page < pages_to_show[-1] %}
+                    <a class="text-sky-500 px-4 hover:underline font-bold text-xl" href="{{ url_for('/pool/<pool_hashed_id>/give_problem', tags=tags, page=current_page+1, pool_hashed_id=pool.hashed_id) }}">&gt;</a>
+                    {% else %}
+                    <a class="invisible text-sky-500 px-4 hover:underline" href="{{ url_for('/pool/<pool_hashed_id>/give_problem', tags=tags, page=current_page+1, pool_hashed_id=pool.hashed_id) }}">&gt;</a>
+                    {% endif %}
+                </li>
+            </ul>
+        {% endif %}
+        </section>
+
+        <!-- problems list -->
+
+        {% include "pool/problem_add_list.html" %}
+
+        <!-- select page from 0 to total pages -->
+        
+    </div>
+
+    <script>
+        function autocomplete(inp, arr) {
+            /*the autocomplete function takes two arguments,
+            the text field element and an array of possible autocompleted values:*/
+            var currentFocus;
+            /*execute a function when someone writes in the text field:*/
+            inp.addEventListener("input", function (e) {
+                var a, b, i, val = this.value;
+                /*close any already open lists of autocompleted values*/
+                closeAllLists();
+
+                /*multitag support*/
+                last_semicolon = val.lastIndexOf(";");
+                prefix = val.substring(0, last_semicolon+1);
+                suffix = val.substring(last_semicolon+1).trim();
+                /* comment if you want to process empty input */
+                if (!suffix) { return false; }
+
+                currentFocus = -1;
+                /*create a DIV element that will contain the items (values):*/
+                a = document.createElement("DIV");
+                a.setAttribute("id", this.id + "autocomplete-list");
+                a.classList.add("absolute", "z-50", "top-full", "inset-x-0", "overflow-y-auto", "h-60", "autocomplete-items");
+                /*append the DIV element as a child of the autocomplete container:*/
+                this.parentNode.appendChild(a);
+
+
+                
+
+                /*for each item in the array...*/
+                for (i = 0; i < arr.length; i++) {
+                    /*check if the item starts with the same letters as the text field value:*/
+                    if (arr[i].toUpperCase().includes(suffix.toUpperCase())) {
+                        /*create a DIV element for each matching element:*/
+                        b = document.createElement("DIV");
+                        b.classList.add("p-4", "cursor-pointer", "bg-white", "border-b-2", "border-gray-200", "hover:bg-gray-100");
+                        var idx = arr[i].toUpperCase().indexOf(suffix.toUpperCase());
+                        /*make the matching letters bold:*/
+                        b.innerHTML += arr[i].substr(0, idx);
+                        b.innerHTML += "<strong>" + arr[i].substr(idx, suffix.length) + "</strong>";
+                        b.innerHTML += arr[i].substr(idx + suffix.length);
+
+                        /*insert a input field that will hold the current array item's value:*/
+                        if (prefix !== "") {
+                            b.innerHTML += "<input type='hidden' value='" + prevent_injection(prefix) + " " + prevent_injection(arr[i]) + "'>";
+                        }
+                        else {
+                            b.innerHTML += "<input type='hidden' value='" + prevent_injection(arr[i]) + "'>";
+                        }
+                        /*execute a function when someone clicks on the item value (DIV element):*/
+                        b.addEventListener("click", function (e) {
+                            /*insert the value for the autocomplete text field:*/
+                            inp.value = this.getElementsByTagName("input")[0].value;
+                            /*close the list of autocompleted values,
+                            (or any other open lists of autocompleted values:*/
+                            closeAllLists();
+                        });
+                        a.appendChild(b);
+                    }
+                }
+            });
+            /*execute a function presses a key on the keyboard:*/
+            inp.addEventListener("keydown", function (e) {
+                var x = document.getElementById(this.id + "autocomplete-list");
+                if (x) x = x.getElementsByTagName("div");
+                if (e.keyCode == 40) {
+                    /*If the arrow DOWN key is pressed,
+                    increase the currentFocus variable:*/
+                    currentFocus++;
+                    /*and and make the current item more visible:*/
+                    addActive(x);
+                } else if (e.keyCode == 38) { //up
+                    /*If the arrow UP key is pressed,
+                    decrease the currentFocus variable:*/
+                    currentFocus--;
+                    /*and and make the current item more visible:*/
+                    addActive(x);
+                } else if (e.keyCode == 13) {
+                    /*If the ENTER key is pressed, prevent the form from being submitted,*/
+                    e.preventDefault();
+                    if (currentFocus > -1) {
+                        /*and simulate a click on the "active" item:*/
+                        if (x) x[currentFocus].click();
+                    }
+                }
+            });
+            function addActive(x) {
+                /*a function to classify an item as "active":*/
+                if (!x) return false;
+                /*start by removing the "active" class on all items:*/
+                removeActive(x);
+                if (currentFocus >= x.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (x.length - 1);
+                /*add class "autocomplete-active":*/
+                x[currentFocus].classList.add("!bg-sky-400", "autocomplete-active");
+            }
+            function removeActive(x) {
+                /*a function to remove the "active" class from all autocomplete items:*/
+                for (var i = 0; i < x.length; i++) {
+                    x[i].classList.remove("!bg-sky-400", "autocomplete-active");
+                }
+            }
+            function closeAllLists(elmnt) {
+                /*close all autocomplete lists in the document,
+                except the one passed as an argument:*/
+                var x = document.getElementsByClassName("autocomplete-items");
+                for (var i = 0; i < x.length; i++) {
+                    if (elmnt != x[i] && elmnt != inp) {
+                        x[i].parentNode.removeChild(x[i]);
+                    }
+                }
+            }
+            /*execute a function when someone clicks in the document:*/
+            document.addEventListener("click", function (e) {
+                closeAllLists(e.target);
+            });
+        }
+
+        /*An array containing all the country names in the world:*/
+        var tags = [];
+        /* append all tags to the tags array:*/
+        {% for tag in all_tags %}
+        tags.push("{{ tag.name }}");
+        {% endfor %}
+
+        /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
+        autocomplete(document.getElementById("search_tags"), tags);
+    </script>
+
+
+{% endblock %}
