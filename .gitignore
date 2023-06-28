@@ -21,3 +21,6 @@ __pycache__/email_secret_data.cpython-311.pyc
 __pycache__
 app/database/attachments/problems/
 app/database/profile_pics
+app/static/js/generator.js
+app/static/js/html-generator.js
+app/static/js/latex.component.js

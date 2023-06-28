@@ -50,7 +50,7 @@ def publish(problem_id):
 
     db.session.commit()
 
-    return redirect(f"/pool/{pool_hashed_id}/problems")
+    return redirect(f"/pool/{pool_hashed_id}/problem/{problem.id}")
 
 
 

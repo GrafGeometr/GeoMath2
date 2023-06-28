@@ -2,11 +2,6 @@
 {% block pool_body %}
 
 <script>
-    function RenderStatement() {
-        var input = prevent_injection(document.getElementById("statement_textarea").value);
-        document.getElementById("statement_latex_output").innerHTML = render_multiline_text(input);
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "statement_latex_output"]);
-    }
     function RenderSolution() {
         var input = prevent_injection(document.getElementById("solution_textarea").value);
         document.getElementById("solution_latex_output").innerHTML = render_multiline_text(input);
@@ -15,9 +10,21 @@
 </script>
 
 {% if current_user.get_pool_relation(current_pool.id).role.isOwner() %}
-<div class="flex justify-end">
+<div class="flex justify-between">
+    {% if current_problem.is_public %}
+    <div class="flex flex-row items-center mt-4">
+        <h3 class="text-red-400 font-bold text-xl">Вы не можете редактировать задачу, если она опубликована</h3>
+        <span class="text-slate-500 font-bold mx-4">|</span>
+        <form action="/pool/{{ current_pool.hashed_id }}/problems" method="post">
+            <input type="hidden" name="back_to_pool" value="{{ current_pool.hashed_id }}">
+            <input type="hidden" name="problem_id" value="{{ current_problem.id }}">
+            <input type="submit" value="Вернуть на доработку?"
+                class="hover:font-bold hover:cursor-pointer hover:text-blue-600">
+        </form>
+    </div>
+    {% endif %}
     {% if not current_problem.is_public %}
-    <form action="/archive/publish/{{current_problem.id}}" method="post">
+    <form action="/archive/publish/{{current_problem.id}}" method="post" class="w-full flex flex-row justify-end">
         <input type="submit"
             class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
             value="Опубликовать в архив">
@@ -62,18 +69,7 @@
             <input type="submit" value="Сохранить"
                 class="hover:cursor-pointer px-8 py-2 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700">
         </div>
-        {% if current_problem.is_public %}
-        <div class="flex flex-row items-center mt-4">
-            <h3 class="text-red-400 font-bold text-xl">Вы не можете редактировать задачу, если она опубликована</h3>
-            <span class="text-slate-500 font-bold mx-4">|</span>
-            <form action="/pool/{{ current_pool.hashed_id }}/problems" method="post">
-                <input type="hidden" name="back_to_pool" value="{{ current_pool.hashed_id }}">
-                <input type="hidden" name="problem_id" value="{{ current_problem.id }}">
-                <input type="submit" value="Вернуть на доработку?"
-                    class="hover:font-bold hover:cursor-pointer hover:text-blue-600">
-            </form>
-        </div>
-        {% endif %}
+        
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Название:</h2>
         <div class="flex w-full">
             <textarea rows="1" cols="50" name="name" class="text-lg w-full p-4 border-slate-200 border-2 rounded-lg" {%
@@ -83,13 +79,12 @@
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Условие:</h2>
         <div class="flex w-full">
             <textarea id="statement_textarea" rows="10" cols="50" name="statement" {% if current_problem.is_public %}
-                readonly {% endif %} class="text-lg w-1/2 p-4 border-slate-200 border-2 rounded-lg"
-                oninput="RenderStatement();">{{ current_problem.statement }}</textarea>
-            <div id="statement_latex_output"
-                class="mathjax-class text-lg ml-4 p-4 bg-white border-2 border-solid border-sky-400 rounded-lg w-1/2">
-            </div>
+                readonly {% endif %} class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.statement }}</textarea>
         </div>
 
+        <script>
+            makeLaTeXArea("statement_textarea");
+        </script>
 
         <div class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2 flex flex-row justify-between items-center">
             <span>Решение:</span>
@@ -100,13 +95,13 @@
                 <label
                     class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-green-200 rounded">
                     <input type="checkbox" name="show_solution" class="w-0 h-0" id="show_solution_checkbox" checked>
-                    <img src="/static/images/pwd_hide.png" class="h-8">
+                    <img src="/static/images/pwd_show.png" class="h-8">
                 </label>
                 {% else %}
                 <label
                     class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-red-200 rounded">
                     <input type="checkbox" name="show_solution" class="w-0 h-0" id="show_solution_checkbox">
-                    <img src="/static/images/pwd_show.png" class="h-8">
+                    <img src="/static/images/pwd_hide.png" class="h-8">
                 </label>
                 {% endif %}
             </span>
@@ -134,22 +129,6 @@
                                 <button onclick="DeleteAttachment(this)"
                                 class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
                             {% endif %}
-                            {% if attachment.locked %}
-                            <label
-                                class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-red-200 rounded">
-                                <input type="checkbox" class="lock-attachment w-0 h-0"
-                                    name="lock_attachment {{ attachment.id }}" checked>
-                                <img src="/static/images/pwd_hide.png" class="h-8">
-                            </label>
-                            {% else %}
-                            <label
-                                class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-green-200 rounded">
-                                <input type="checkbox" class="lock-attachment w-0 h-0"
-                                    name="lock_attachment {{ attachment.id }}">
-                                <img src="/static/images/pwd_show.png" class="h-8">
-                            </label>
-                            {% endif %}
-
                         </li>
                         {% endfor %}
                     </ul>
@@ -203,10 +182,6 @@
 
 
 </div>
-
-<script>
-    RenderStatement();
-</script>
 <script>
     RenderSolution();
 </script>
@@ -263,12 +238,6 @@
                             class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow">
                             <button onclick="DeleteAttachment(this)"
                             class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
-                            <label
-                                class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-red-200 rounded">
-                                <input type="checkbox" class="lock-attachment w-0 h-0"
-                                    name="lock_attachment ${ attachment_id }" checked>
-                                <img src="/static/images/pwd_hide.png" class="h-8">
-                            </label>
                         </li>
                         `
                     }
@@ -290,25 +259,6 @@
     }
 </script>
 
-<script>
-    let lockers = document.querySelectorAll(".lock-attachment");
-    for (i = 0; i < lockers.length; i++) {
-        let locker = lockers[i];
-        locker.addEventListener("change", function (event) {
-            if (this.checked) {
-                this.parentNode.querySelector('img').src = "/static/images/pwd_hide.png";
-                this.parentNode.classList.remove("bg-green-200");
-                this.parentNode.classList.add("bg-red-200");
-            }
-            else {
-                this.parentNode.querySelector('img').src = "/static/images/pwd_show.png";
-                this.parentNode.classList.remove("bg-red-200");
-                this.parentNode.classList.add("bg-green-200");
-            }
-        })
-
-    }
-</script>
 
 <script>
     let show_solution_checkbox = document.getElementById("show_solution_checkbox");

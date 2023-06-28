@@ -56,8 +56,8 @@ def create_app():
     from .email_verifying import emv as emv_blueprint
     app.register_blueprint(emv_blueprint)
 
-    from .mathjax import mathjax as mathjax_blueprint
-    app.register_blueprint(mathjax_blueprint)
+    from .latex import latex as latex_blueprint
+    app.register_blueprint(latex_blueprint)
 
     from .errorhandlers import err as err_blueprint
     app.register_blueprint(err_blueprint)

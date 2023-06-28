@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
@@ -7,50 +8,69 @@
     <link rel="stylesheet" type="text/css" href="/static/css/tailwind.css">
     <link rel="stylesheet" type="text/css" href="/static/css/general.css">
     <link rel="stylesheet" href="/static/css/style.css">
-<title>{{ title }}</title>
+
+    <link rel="stylesheet" href="/static/css/prism.css">
+    <script src="/static/js/prism.js"></script>
+    <script src="/static/js/latex_stuff.js"></script>
 
 
-<script src="https://cdn.jsdelivr.net/gh/akjpro/form-anticlear/base.js"></script>
-<script>
-    function render_multiline_text(text) {
-        var result = "";
-        var paragraphs = text.split("\n");
-        for (var i = 0; i < paragraphs.length; i++) {
-            result += "<p class='multiline_paragraph'>" + paragraphs[i] + "</p>";
+
+    <title>{{ title }}</title>
+
+
+    <script src="https://cdn.jsdelivr.net/gh/akjpro/form-anticlear/base.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/latex.js/dist/latex.js"></script>
+
+    <script>
+        function render_multiline_text(text) {
+            var result = "";
+            const paragraphs = text.split("\n");
+            for (var i = 0; i < paragraphs.length; i++) {
+                result += "<p class='multiline_paragraph'>" + paragraphs[i] + "</p>";
+            }
+            return result;
         }
-        return result;
-    }
-</script>
-<script>
-    function prevent_injection(s) {
-        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
-</script>
+    </script>
+    <script>
+        function prevent_injection(s) {
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+    </script>
+
+    
 
 </head>
+
 <body class="mx-32 bg-slate-50 mb-32 tex2jax_ignore">
     <header class="flex justify-between items-stretch">
         <div class="flex items-center py-4">
-            <a href="/feed"><img class = "mix-blend-multiply h-20" src="/static/images/logo.png" alt="logo"></a>
-            <span class = "text-center text-4xl p-4 text-stone-800 font-medium">GeoMath</span>
+            <a href="/feed"><img class="mix-blend-multiply h-20" src="/static/images/logo.png" alt="logo"></a>
+            <span class="text-center text-4xl p-4 text-stone-800 font-medium">GeoMath</span>
         </div>
         <div class="flex items-end gap-x-4 text-2xl pb-3">
             {% if current_user.is_authenticated %}
-            <a class="no-underline text-center font-medium text-stone-800 hover:text-sky-600" href="/profile/{{ current_user.name }}">{{ current_user.name }}</a>
+            <a class="no-underline text-center font-medium text-stone-800 hover:text-sky-600"
+                href="/profile/{{ current_user.name }}">{{ current_user.name }}</a>
             <a class="no-underline text-center font-medium text-stone-800 hover:text-red-600" href="/logout">Выйти</a>
-            </div>
-            {% else %}
-            <a class="no-underline text-center font-medium text-stone-800 hover:text-sky-600" href="/login">Войти</a>
-            <a class="no-underline text-center font-medium text-stone-800 hover:text-green-600" href="/register">Зарегистрироваться</a>
-            {% endif %}
+        </div>
+        {% else %}
+        <a class="no-underline text-center font-medium text-stone-800 hover:text-sky-600" href="/login">Войти</a>
+        <a class="no-underline text-center font-medium text-stone-800 hover:text-green-600"
+            href="/register">Зарегистрироваться</a>
+        {% endif %}
         </div>
     </header>
 
     <nav class="flex items-center bg-sky-400 rounded-md">
-        <a class="text-white hover:text-blue-100 no-underline text-center text-xl p-4 rounded-l-md" id="feed_nav" href="/feed">Лента</a>
-        <a class="text-white hover:text-blue-100 no-underline text-center text-xl p-4" id="contests_nav" href="/contests">Соревнования</a>
-        <a class="text-white hover:text-blue-100 no-underline text-center text-xl p-4" id="collections_nav" href="/collections">Подборки</a>
-        <a class="text-white hover:text-blue-100 no-underline text-center text-xl p-4" id="archive_nav" href="/archive/all">Архив</a>
+        <a class="text-white hover:text-blue-100 no-underline text-center text-xl p-4 rounded-l-md" id="feed_nav"
+            href="/feed">Лента</a>
+        <a class="text-white hover:text-blue-100 no-underline text-center text-xl p-4" id="contests_nav"
+            href="/contests">Соревнования</a>
+        <a class="text-white hover:text-blue-100 no-underline text-center text-xl p-4" id="collections_nav"
+            href="/collections">Подборки</a>
+        <a class="text-white hover:text-blue-100 no-underline text-center text-xl p-4" id="archive_nav"
+            href="/archive/all">Архив</a>
     </nav>
 
     <div class="hidden mathjax-class">
@@ -59,63 +79,18 @@
     </div>
 
     <div class="content">
-    {% block content %}{% endblock %}
+        {% block content %}{% endblock %}
     </div>
 </body>
-<script>
-    class Block {
-        constructor(name, params) {
-            this.name = name;
-            this.params = params;
-        }
-    }
 
-    function render_block(text, mode) { // mode is "show" or "edit-text" or "edit-blocks"
-        /*
-        commands:
-        - \header{...}
-        - \includes{...}
-        - \problem{...}{...}
-        - \geometry{...} - not now
-        - \block{...}
-        */
-        if (mode == "show") {
-            var result = [];
-            for (var i = 0; i < text.length; i++) {
-                if (text[i] == "\n") {
-                    // new paragraph?
-                }
-                if (text[i] == "\\") {
-                    if (i < text.length - 1) {
-                        if (text[i + 1] in "{}\\") {
-                            result[result.length - 1] += text[i + 1];
-                            i++;
-                            continue;
-                        }
-                    }
-                    // test if it's a command
-                    // header?
-                    
-                }
-                
-            }
-        }
-    }
 
-    /* get elements with class block-latex-class */
-    var elements = document.getElementsByClassName("block-latex-class");
 
-    for (var i = 0; i < elements.length; i++) {
-        elements[i].innerHTML = render_block(elements[i].innerHTML);
-    }
-
-</script>
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({tex2jax: {inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true}, elements: document.getElementsByClassName("mathjax-class")});
 </script>
-<script
-    type="text/javascript"
-    charset="utf-8"
+<script type="text/javascript" charset="utf-8"
     src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
+    </script>
+
+
 </html>

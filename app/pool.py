@@ -55,6 +55,7 @@ def pool_problems(pool_hashed_id):
             problem = Problem.query.filter_by(id=problem_id).first()
             problem.is_public = problem.moderated = False
             db.session.commit()
+            return redirect(f"/pool/{pool_hashed_id}/problem/{problem_id}")
     return render_template(
         "pool/pool_problems.html", current_pool=pool, title=f"{pool.name} - задачи"
     )
@@ -203,6 +204,7 @@ def problem(pool_hashed_id, problem_id):
                 problem.solution = solution
 
             problem.show_solution = request.form.get("show_solution") == "on"
+            db.session.commit()
 
             form = request.form.to_dict()
             print(form)
@@ -241,10 +243,10 @@ def problem(pool_hashed_id, problem_id):
                 if not problem.is_public:
                     attachment.preview_name = preview_name
                 show = request.form.get("lock_attachment " + str(attachment.id))
-                if show is None:
-                    attachment.locked = False
-                else:
+                if show == "on":
                     attachment.locked = True
+                else:
+                    attachment.locked = False
                 print(attachment.id, show)
 
             db.session.commit()
@@ -263,6 +265,46 @@ def problem(pool_hashed_id, problem_id):
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
+from datetime import datetime as dt
+
+@pool.route("/pool/<pool_hashed_id>/problem/<int:problem_id>/get_image/<image_name>", methods=["GET", "POST"])
+def get_image(pool_hashed_id, problem_id, image_name):
+    t = dt.now()
+    if not current_user.is_authenticated:
+        print("not authenticated")
+        return
+    pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
+    if pool is None:
+        print("pool none")
+        return
+    relation = current_user.get_pool_relation(pool.id)
+    if relation is None:
+        print("user not in pool")
+        return
+    if relation.role.isInvited():
+        print("user is invited")
+        return
+    problem = Problem.query.filter_by(id=problem_id).first()
+    if problem is None:
+        print("problem none")
+        return
+    print(list(map(lambda x: x.db_filename, problem.attachments)))
+    attachment = ProblemAttachment.query.filter_by(
+        problem_id=problem_id, preview_name=image_name
+    ).first()
+    if attachment is None:
+        print("attachment none")
+        return
+    filename = attachment.db_filename
+    try:
+        print(dt.now() - t)
+        return send_from_directory(
+            os.path.join(basedir, "database/attachments/problems"),
+            filename,
+            as_attachment=True,
+        )
+    except Exception as e:
+        print(e)
 
 
 # send problem attachment

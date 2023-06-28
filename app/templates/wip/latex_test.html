@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<script src="https://cdn.jsdelivr.net/npm/latex.js@0.10.1/dist/latex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/latex.js/dist/latex.js"></script>
+
+
+<div class="flex flex-row">
+	<textarea id="textarea" rows="10" cols="50" name="statement" class="w-1/2 p-4 border-slate-200 border-2 rounded-lg"></textarea>
+</div>
+
+<script>
+	makeLaTeXArea("textarea", () => {
+		var input = document.getElementById("textarea").value;
+		document.getElementById("latex_output").innerHTML = "";
+		document.getElementById("latex_output").appendChild(getRenderedIframe(input));
+	});
+</script>
+
+
+<script>
+	
+
+	try{ var text = document.getElementById('latex').innerText
+
+	document.body.appendChild(getRenderedIframe(text)); }
+	catch(e){ console.log(e) }
+
+
+
+</script>
+
+
+
+{% endblock %}

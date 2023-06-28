@@ -36,62 +36,11 @@
         </details>
 
         <div class="h-px w-full bg-neutral-300 my-2"></div>
-
-        <details>
-            <summary class="text-slate-500 font-bold">Вложения:</summary>
-            <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
-                <div class="border-r-2 border-slate-300 grow">
-                    <div class="flex flex-col gap-y-4 mr-4">
-                        <ul class="flex flex-col gap-y-2">
-                            {% for attachment in problem.attachments %}
-                            {% if not attachment.locked %}
-                            <li class="flex w-full gap-x-2">
-                                <input type="text" name="attachment_name {{ attachment.id }}"
-                                    value="{{ attachment.preview_name }}" placeholder="Как назвать картинку?"
-                                    class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow"
-                                    readonly>
-                            </li>
-                            {% endif %}
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="w-2/3 ml-4">
-                    <img id="display-attachment" class="hidden border-2 border-sky-400 padding-8 rounded-xl">
-                </div>
-            </div>
-        </details>
-
-        <div class="h-px w-full bg-neutral-300 my-2"></div>
     </div>
 </div>
 
 
 
-<script>
-    var inputs = document.querySelectorAll(".input-attachment-name");
-    var display = document.querySelector("#display-attachment");
-    display.onerror = () => {
-        this.classList.add("hidden");
-        this.onerror = null;
-    }
-    {% set it = namespace(value = 0) %}
-    {% for attachment in problem.attachments %}
-    {% if not attachment.locked %}
-    inputs[{{ it.value }}].addEventListener("focus", function (event) {
-        inputs.forEach((input) => {
-            input.classList.remove("border-black", "bg-slate-100");
-        })
-        this.classList.add("border-black", "bg-slate-100");
-        display.src = "{{ url_for('arch.show_problem_attachment', problem_id=problem.id, filename=attachment.db_filename) }}";
-        display.classList.remove("hidden");
-        display.classList.add("block");
-    })
-    {% set it.value = it.value + 1 %}
-    {% endif %}
-    {% endfor %}
-</script>
 
 
 {% endblock %}
