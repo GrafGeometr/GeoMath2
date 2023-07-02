@@ -4,17 +4,17 @@ from .model_imports import *
 arch = Blueprint('arch', __name__)
 
 
-@arch.route("/archive/problem/<problem_id>/<filename>")
-def show_problem_attachment(problem_id, filename):
-    print("TEST", problem_id, filename)
+@arch.route("/archive/problem/<problem_hashed_id>/<filename>")
+def show_problem_attachment(problem_hashed_id, filename):
+    print("TEST", problem_hashed_id, filename)
     if not current_user.is_authenticated:
         print("not authenticated")
         return
-    problem = Problem.query.filter_by(id = problem_id).first()
+    problem = Problem.query.filter_by(hashed_id = problem_hashed_id).first()
     if problem is None:
         print("problem none")
         return
-    attachment = ProblemAttachment.query.filter_by(problem_id = problem_id, db_filename = filename).first()
+    attachment = ProblemAttachment.query.filter_by(problem_id = problem.id, db_filename = filename).first()
     if attachment is None:
         print("attachment none")
         return
@@ -26,10 +26,10 @@ def show_problem_attachment(problem_id, filename):
     except Exception as e:
         print(e)
 
-@arch.route("/archive/publish/<int:problem_id>", methods=["POST"])
+@arch.route("/archive/publish/<problem_hashed_id>", methods=["POST"])
 @login_required
-def publish(problem_id):
-    problem = Problem.query.filter_by(id = problem_id).first()
+def publish(problem_hashed_id):
+    problem = Problem.query.filter_by(hashed_id = problem_hashed_id).first()
     if problem is None:
         return redirect(f"/myprofile")
     pool_hashed_id = problem.pool.hashed_id
@@ -38,19 +38,19 @@ def publish(problem_id):
     
     if not problem.name:
         flash("Не указано название задачи", "danger")
-        return redirect(f"/pool/{pool_hashed_id}/problem/{problem.id}")
+        return redirect(f"/pool/{pool_hashed_id}/problem/{problem.hashed_id}")
     if not problem.statement:
         flash("Не указано условие задачи", "danger")
-        return redirect(f"/pool/{pool_hashed_id}/problem/{problem.id}")
+        return redirect(f"/pool/{pool_hashed_id}/problem/{problem.hashed_id}")
     if not problem.solution:
         flash("Не указано решение задачи", "danger")
-        return redirect(f"/pool/{pool_hashed_id}/problem/{problem.id}")
+        return redirect(f"/pool/{pool_hashed_id}/problem/{problem.hashed_id}")
 
     problem.is_public = True
 
     db.session.commit()
 
-    return redirect(f"/pool/{pool_hashed_id}/problem/{problem.id}")
+    return redirect(f"/pool/{pool_hashed_id}/problem/{problem.hashed_id}")
 
 
 
@@ -127,10 +127,10 @@ def archive_search(mode):
 
 
 
-@arch.route("/archive/problem/<int:problem_id>")
+@arch.route("/archive/problem/<problem_hashed_id>")
 @login_required
-def my_arch(problem_id):
-    problem = Problem.query.filter_by(id = problem_id).first()
+def my_arch(problem_hashed_id):
+    problem = Problem.query.filter_by(hashed_id = problem_hashed_id).first()
     if problem is None:
         return redirect("/archive/all")
     return render_template("archive/archive_problem_template.html", problem=problem, all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))

@@ -63,14 +63,14 @@ def settings():
 @admin_required
 def moderation():
     if request.method == "POST":
-        if request.form.get("accept problem_id") is not None:
-            problem_id = request.form.get("accept problem_id")
-            problem = Problem.query.filter_by(id = problem_id).first()
+        if request.form.get("accept problem_hashed_id") is not None:
+            problem_hashed_id = request.form.get("accept problem_hashed_id")
+            problem = Problem.query.filter_by(hashed_id = problem_hashed_id).first()
             problem.moderated = True
             db.session.commit()
-        if request.form.get("reject problem_id") is not None:
-            problem_id = request.form.get("reject problem_id")
-            problem = Problem.query.filter_by(id = problem_id).first()
+        if request.form.get("reject problem_hashed_id") is not None:
+            problem_hashed_id = request.form.get("reject problem_hashed_id")
+            problem = Problem.query.filter_by(hashed_id = problem_hashed_id).first()
             # db.session.delete(arch)
             problem.is_public = False
             db.session.commit()

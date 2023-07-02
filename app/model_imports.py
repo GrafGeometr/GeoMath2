@@ -1,4 +1,4 @@
-from .models import User, AdminPassword, Email, Pool, User_Pool, Problem, Tag, Problem_Tag, ProblemAttachment, Collection
+from .models import User, AdminPassword, Email, Pool, User_Pool, Problem, Tag, Problem_Tag, Attachment, Sheet
 from .utils_and_functions.usefull_functions import email_token_stuff, email_validity_checker, safe_image_upload
 from .utils_and_functions.token_gen import generate_token
 from .utils_and_functions.send_letter import send_email

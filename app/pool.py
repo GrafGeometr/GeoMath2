@@ -51,11 +51,11 @@ def pool_problems(pool_hashed_id):
 
     if request.method == "POST":
         if request.form.get("back_to_pool") is not None:
-            problem_id = request.form.get("problem_id")
-            problem = Problem.query.filter_by(id=problem_id).first()
+            problem_hashed_id = request.form.get("problem_hashed_id")
+            problem = Problem.query.filter_by(hashed_id=problem_hashed_id).first()
             problem.is_public = problem.moderated = False
             db.session.commit()
-            return redirect(f"/pool/{pool_hashed_id}/problem/{problem_id}")
+            return redirect(f"/pool/{pool_hashed_id}/problem/{problem_hashed_id}")
     return render_template(
         "pool/pool_problems.html", current_pool=pool, title=f"{pool.name} - задачи"
     )
@@ -77,7 +77,7 @@ def new_problem(pool_hashed_id):
 
     problem = pool.new_problem()
 
-    return redirect(f"/pool/{pool_hashed_id}/problem/{problem.id}")
+    return redirect(f"/pool/{pool_hashed_id}/problem/{problem.hashed_id}")
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ def new_problem(pool_hashed_id):
 def remove_problem_from_pool():
     data = request.get_json()
     pool_hashed_id = data["pool"]
-    problem_id = data["problem"]
+    problem_hashed_id = data["problem"]
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
@@ -100,7 +100,7 @@ def remove_problem_from_pool():
     if user_checked is not None:
         return redirect(user_checked)
 
-    problem = Problem.query.filter_by(id=problem_id).first()
+    problem = Problem.query.filter_by(hashed_id=problem_hashed_id).first()
 
     if problem is None:
         flash("Задача не найдена", "danger")
@@ -118,10 +118,10 @@ def remove_problem_from_pool():
 
 # add attachment to problem
 @pool.route(
-    "/pool/<pool_hashed_id>/problem/<int:problem_id>/upload_file", methods=["POST"]
+    "/pool/<pool_hashed_id>/problem/<problem_hashed_id>/upload_file", methods=["POST"]
 )
 @login_required
-def upload_file(pool_hashed_id, problem_id):
+def upload_file_to_problem(pool_hashed_id, problem_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
@@ -132,7 +132,7 @@ def upload_file(pool_hashed_id, problem_id):
     if user_checked is not None:
         return redirect(user_checked)
 
-    problem = Problem.query.filter_by(id=problem_id).first()
+    problem = Problem.query.filter_by(hashed_id=problem_hashed_id).first()
     if problem is None:
         flash("Задача не найдена", "danger")
         return redirect(f"/pool/{pool_hashed_id}/problems")
@@ -140,7 +140,7 @@ def upload_file(pool_hashed_id, problem_id):
     file = request.files.get("file")
     if file is None:
         flash("Файл не был загружен", "danger")
-        return redirect(f"/pool/{pool_hashed_id}/problem/{problem_id}")
+        return redirect(f"/pool/{pool_hashed_id}/problem/{problem_hashed_id}")
     
     if not problem.is_public:
         directory = "app/database/attachments/problems"
@@ -152,30 +152,32 @@ def upload_file(pool_hashed_id, problem_id):
 
         if filename is None:
             flash("Ошибка при загрузке", "danger")
-            return redirect(f"/pool/{pool_hashed_id}/problem/{problem_id}")
+            return redirect(f"/pool/{pool_hashed_id}/problem/{problem_hashed_id}")
         
-        attachment = ProblemAttachment(
+        attachment = Attachment(
             db_folder=directory,
             db_filename=filename,
-            preview_name="Рисунок",
-            problem_id=problem.id,
+            short_name="Рисунок",
+            parent_type="Problem",
+            parent_id=problem.id,
+            other_data={}
         )
         db.session.add(attachment)
 
         db.session.commit()
 
-        return f"OK {attachment.id}"
+        return f"OK {attachment.db_filename}"
     
-    return redirect(f"/pool/{pool_hashed_id}/problem/{problem_id}")
+    return redirect(f"/pool/{pool_hashed_id}/problem/{problem_hashed_id}")
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
 
 
 # show and edit problem in pool
-@pool.route("/pool/<pool_hashed_id>/problem/<int:problem_id>", methods=["GET", "POST"])
+@pool.route("/pool/<pool_hashed_id>/problem/<problem_hashed_id>", methods=["GET", "POST"])
 @login_required
-def problem(pool_hashed_id, problem_id):
+def problem(pool_hashed_id, problem_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
@@ -186,7 +188,7 @@ def problem(pool_hashed_id, problem_id):
     if user_checked is not None:
         return redirect(user_checked)
 
-    problem = Problem.query.filter_by(id=problem_id).first()
+    problem = Problem.query.filter_by(hashed_id=problem_hashed_id).first()
 
     if problem is None:
         flash("Задача не найдена", "danger")
@@ -205,6 +207,7 @@ def problem(pool_hashed_id, problem_id):
 
             problem.show_solution = request.form.get("show_solution") == "on"
             db.session.commit()
+
 
             form = request.form.to_dict()
             print(form)
@@ -233,28 +236,29 @@ def problem(pool_hashed_id, problem_id):
                     )
                     db.session.commit()
 
-            for attachment in problem.attachments:
-                preview_name = request.form.get("attachment_name " + str(attachment.id))
+            for attachment in problem.get_attachments():
+                print(attachment.db_filename)
+                short_name = request.form.get("attachment_name " + str(attachment.db_filename))
                 if not problem.is_public:
-                    if preview_name is None:
-                        problem.delete_attachment(attachment)
+                    if short_name is None:
+                        attachment.remove()
                         continue
 
                 if not problem.is_public:
-                    attachment.preview_name = preview_name
-                show = request.form.get("lock_attachment " + str(attachment.id))
+                    attachment.short_name = short_name
+                show = request.form.get("secret_attachment " + str(attachment.db_filename))
                 if show == "on":
-                    attachment.locked = True
+                    attachment.other_data["is_secret"] = True
                 else:
-                    attachment.locked = False
+                    attachment.other_data["is_secret"] = False
                 print(attachment.id, show)
 
             db.session.commit()
 
-            print(request.files.getlist("attachments"))
+            print(problem.get_attachments())
 
             flash("Задача успешно сохранена", "success")
-            return redirect(f"/pool/{pool_hashed_id}/problem/{problem_id}")
+            return redirect(f"/pool/{pool_hashed_id}/problem/{problem_hashed_id}")
     return render_template(
         "pool/pool_1problem.html",
         current_pool=pool,
@@ -265,42 +269,73 @@ def problem(pool_hashed_id, problem_id):
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
-from datetime import datetime as dt
 
-@pool.route("/pool/<pool_hashed_id>/problem/<int:problem_id>/get_image/<image_name>", methods=["GET", "POST"])
-def get_image(pool_hashed_id, problem_id, image_name):
-    t = dt.now()
-    if not current_user.is_authenticated:
-        print("not authenticated")
-        return
-    pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
-    if pool is None:
-        print("pool none")
-        return
-    relation = current_user.get_pool_relation(pool.id)
-    if relation is None:
-        print("user not in pool")
-        return
-    if relation.role.isInvited():
-        print("user is invited")
-        return
-    problem = Problem.query.filter_by(id=problem_id).first()
+import json
+
+# get problem content
+@pool.route("/get_problem_content/<problem_hashed_id>", methods=["GET", "POST"])
+def get_problem_content(problem_hashed_id):
+    problem = Problem.query.filter_by(hashed_id=problem_hashed_id).first()
     if problem is None:
         print("problem none")
         return
-    print(list(map(lambda x: x.db_filename, problem.attachments)))
-    attachment = ProblemAttachment.query.filter_by(
-        problem_id=problem_id, preview_name=image_name
-    ).first()
+    
+    # if problem is archived
+    if problem.is_public and problem.moderated:
+        return json.dumps(
+            { 'name': problem.name
+            , 'statement': problem.statement
+            , 'solution': problem.solution if problem.show_solution else "Решение скрыто"
+            , 'files': [[file.preview_name, file.db_filename] for file in problem.get_attachments() if file.other_data.get("is_secret", False)]
+            , 'tags': [tag.name for tag in problem.get_tags()]
+            }
+        )
+
+    # if user is in problem pool
+    if problem.pool is None:
+        print("pool none")
+        return
+    relation = current_user.get_pool_relation(problem.pool_id)
+    if relation is None:
+        print("user not in pool")
+        return
+    return json.dumps(
+        { 'name': problem.name
+        , 'statement': problem.statement
+        , 'solution': problem.solution
+        , 'files': [[file.short_name, file.db_filename] for file in problem.get_attachments()]
+        , 'tags': [tag.name for tag in problem.get_tags()]
+        }
+    )
+
+
+# -----------------------------------------------------------------------------------------------------------------------------
+
+
+# get problem image
+@pool.route("/get_image/<db_filename>", methods=["GET", "POST"])
+def get_image(db_filename):
+    if not current_user.is_authenticated:
+        print("not authenticated")
+        return
+    attachment = Attachment.query.filter_by(db_filename=db_filename).first()
     if attachment is None:
         print("attachment none")
         return
-    filename = attachment.db_filename
+    parent = attachment.get_parent()
+    if parent is None:
+        print("parent none")
+        return
+    if parent.pool is not None:
+        relation = current_user.get_pool_relation(parent.pool_id)
+        if not parent.is_archived() and relation is None:
+            print("user not in pool")
+            return
     try:
-        print(dt.now() - t)
+        print(attachment.db_folder.split("app/")[1], db_filename)
         return send_from_directory(
-            os.path.join(basedir, "database/attachments/problems"),
-            filename,
+            os.path.join(basedir, attachment.db_folder.split("app/")[1]),
+            db_filename,
             as_attachment=True,
         )
     except Exception as e:
@@ -308,9 +343,9 @@ def get_image(pool_hashed_id, problem_id, image_name):
 
 
 # send problem attachment
-@pool.route("/pool/<pool_hashed_id>/problem/<problem_id>/<filename>")
-def show_problem_attachment(pool_hashed_id, problem_id, filename):
-    print(pool_hashed_id, problem_id, filename)
+@pool.route("/pool/<pool_hashed_id>/problem/<problem_hashed_id>/<filename>")
+def show_problem_attachment(pool_hashed_id, problem_hashed_id, filename):
+    print(pool_hashed_id, problem_hashed_id, filename)
     if not current_user.is_authenticated:
         print("not authenticated")
         return
@@ -325,12 +360,12 @@ def show_problem_attachment(pool_hashed_id, problem_id, filename):
     if relation.role.isInvited():
         print("user is invited")
         return
-    problem = Problem.query.filter_by(id=problem_id).first()
+    problem = Problem.query.filter_by(hashed_id=problem_hashed_id).first()
     if problem is None:
         print("problem none")
         return
-    attachment = ProblemAttachment.query.filter_by(
-        problem_id=problem_id, db_filename=filename
+    attachment = Attachment.query.filter_by(
+        parent_type="problem", parent_id=problem.id, db_filename=filename
     ).first()
     if attachment is None:
         print("attachment none")

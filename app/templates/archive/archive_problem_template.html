@@ -6,16 +6,20 @@
             <span class="text-2xl text-stone-800"> <a href="/archive/all" class="no-underline hover:underline">Архив</a>
             </span>
             <span class="text-2xl text-stone-800 mx-2"> / </span>
-            <span class="text-2xl text-stone-800 font-bold"> <a href="/archive/problem/{{ problem.id }}"
+            <span class="text-2xl text-stone-800 font-bold"> <a href="/archive/problem/{{ problem.hashed_id }}"
                     class="no-underline hover:underline">{{ problem.name }}</a> </span>
         </div>
 
         <div class="h-px w-full bg-neutral-300 my-2"></div>
 
         <span class="text-slate-500 font-bold">Условие:</span>
-        {% for paragraph in problem.statement.split("\n") %}
-        <p class="mathjax-class m-0 text-base">{{ paragraph }}</p>
-        {% endfor %}
+        <div id="statement-render-area">
+        </div>
+        <script>
+            const div = document.getElementById("statement-render-area");
+            var toRender = {{ problem.statement|tojson }};
+            div.appendChild(getRenderedIframe(toRender));
+        </script>
 
         <div class="h-px w-full bg-neutral-300 my-2"></div>
 
@@ -27,9 +31,12 @@
         <details>
             <summary class="text-slate-500 font-bold">Решение:</summary>
             {% if problem.show_solution %}
-            {% for paragraph in problem.solution.split("\n") %}
-            <p class="mathjax-class m-0 text-base">{{ paragraph }}</p>
-            {% endfor %}
+            <div id="solution-render-area"></div>
+            <script>
+                const div = document.getElementById("solution-render-area");
+                var toRender = {{ problem.solution|tojson }};
+                div.innerHTML = getRenderedIframe(toRender);
+            </script>
             {% else %}
             <span class="text-red-500">Автор задачи скрыл решение</span>
             {% endif %}

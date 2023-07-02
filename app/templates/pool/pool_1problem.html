@@ -17,14 +17,14 @@
         <span class="text-slate-500 font-bold mx-4">|</span>
         <form action="/pool/{{ current_pool.hashed_id }}/problems" method="post">
             <input type="hidden" name="back_to_pool" value="{{ current_pool.hashed_id }}">
-            <input type="hidden" name="problem_id" value="{{ current_problem.id }}">
+            <input type="hidden" name="problem_hashed_id" value="{{ current_problem.hashed_id }}">
             <input type="submit" value="Вернуть на доработку?"
                 class="hover:font-bold hover:cursor-pointer hover:text-blue-600">
         </form>
     </div>
     {% endif %}
     {% if not current_problem.is_public %}
-    <form action="/archive/publish/{{current_problem.id}}" method="post" class="w-full flex flex-row justify-end">
+    <form action="/archive/publish/{{current_problem.hashed_id}}" method="post" class="w-full flex flex-row justify-end">
         <input type="submit"
             class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
             value="Опубликовать в архив">
@@ -43,7 +43,7 @@
 </div>
 {% endif %}
 <div class="flex flex-col">
-    <form autocomplete="off" action="/pool/{{ current_pool.hashed_id }}/problem/{{ current_problem.id }}" method="post"
+    <form autocomplete="off" action="/pool/{{ current_pool.hashed_id }}/problem/{{ current_problem.hashed_id }}" method="post"
         class="w-full mt-2 px-4" enctype="multipart/form-data">
         <input type="hidden" name="save_problem" value="239">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -120,10 +120,10 @@
             <div class="border-r-2 border-slate-300 grow">
                 <div class="flex flex-col gap-y-4 mr-4">
                     <ul class="flex flex-col gap-y-2" id="files-list">
-                        {% for attachment in current_problem.attachments %}
+                        {% for attachment in current_problem.get_attachments() %}
                         <li class="flex w-full gap-x-2">
-                            <input type="text" name="attachment_name {{ attachment.id }}"
-                                value="{{ attachment.preview_name }}" placeholder="Как назвать картинку?" {% if current_problem.is_public %} readonly {% endif %}
+                            <input type="text" name="attachment_name {{ attachment.db_filename }}" id="attachment-name-{{ attachment.db_filename }}"
+                                value="{{ attachment.short_name }}" placeholder="Как назвать картинку?" {% if current_problem.is_public %} readonly {% endif %}
                                 class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow">
                             {% if not current_problem.is_public %}
                                 <button onclick="DeleteAttachment(this)"
@@ -199,7 +199,7 @@
             input.classList.remove("border-black", "bg-slate-100");
         })
         this.classList.add("border-black", "bg-slate-100");
-        display.src = "{{ url_for('pool.show_problem_attachment', pool_hashed_id=current_pool.hashed_id, problem_id=current_problem.id, filename=attachment.db_filename) }}";
+        display.src = "{{ url_for('pool.show_problem_attachment', pool_hashed_id=current_pool.hashed_id, problem_hashed_id=current_problem.hashed_id, filename=attachment.db_filename) }}";
         display.classList.remove("hidden");
         display.classList.add("block");
     })
@@ -229,11 +229,11 @@
                 }
             }).then(result => {
                     if (result[0] == "O" && result[1] == "K") {
-                        var attachment_id = result.slice(3);
+                        var attachment_db_filename = result.slice(3);
 
                         filesList.innerHTML += `
                         <li class="flex w-full gap-x-2">
-                            <input type="text" name="attachment_name ${ attachment_id }"
+                            <input type="text" name="attachment_name ${ attachment_db_filename }" id="attachment-name-${ attachment_db_filename }"
                             value="Рисунок" placeholder="Как назвать картинку?"
                             class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow">
                             <button onclick="DeleteAttachment(this)"

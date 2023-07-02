@@ -6,7 +6,7 @@
         <div class="flex justify-between">
             <div>
                 <div class="flex flex-row">
-                <a href="/pool/{{ current_pool.hashed_id }}/problem/{{ problem.id }}" class="no-underline text-black text-xl hover:underline">{{ problem.name }}</a>
+                <a href="/pool/{{ current_pool.hashed_id }}/problem/{{ problem.hashed_id }}" class="no-underline text-black text-xl hover:underline">{{ problem.name }}</a>
                 {% if problem.is_public and not problem.moderated %}
                 <span class="text-slate-500 font-bold mx-4">|</span>
                 <span class="no-underline text-black text-xl">Задача уже на модерации</span>
@@ -17,7 +17,7 @@
                     <span class="no-underline text-black text-xl">Задача в архиве</span>
                     <form action="/pool/{{ current_pool.hashed_id }}/problems" method="post" class="my-4">
                         <input type="hidden" name="back_to_pool" value="{{ current_pool.hashed_id }}">
-                        <input type="hidden" name="problem_id" value="{{ problem.id }}">
+                        <input type="hidden" name="problem_hashed_id" value="{{ problem.hashed_id }}">
                         <input type="submit" value="Вернуть на доработку?"
                             class="hover:font-bold hover:cursor-pointer hover:text-blue-600">
                     </form>
@@ -25,7 +25,7 @@
                 {% endif %}
                 </div>
             </div>
-            <button class="border-0 bg-transparent cursor-pointer" onclick="remove_problem('{{ current_pool.hashed_id }}', '{{ problem.id }}')"><img class="w-6 border-0" src="/static/images/bin.png" alt="bin"></button>
+            <button class="border-0 bg-transparent cursor-pointer" onclick="remove_problem('{{ current_pool.hashed_id }}', '{{ problem.hashed_id }}')"><img class="w-6 border-0" src="/static/images/bin.png" alt="bin"></button>
         </div>
     </li>
     {% endfor %}

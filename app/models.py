@@ -68,14 +68,14 @@ class Pool(db.Model):
     hashed_id = db.Column(db.String, unique=True, nullable=True)
     userpools = db.relationship("User_Pool", backref="pool")
     problems = db.relationship("Problem", backref="pool")
-    collections = db.relationship("Collection", backref="pool")
+    sheets = db.relationship("Sheet", backref="pool")
 
     # open_for_new_problems = db.Column(db.Boolean, default=False) 
 
     def set_hashed_id(self):
         while True:
             hashed_id = generate_token(20)
-            if not Pool.query.filter_by(hashed_id = hashed_id).first():
+            if not Problem.query.filter_by(hashed_id = hashed_id).first():
                 self.hashed_id = hashed_id
                 break
         
@@ -98,19 +98,20 @@ class Pool(db.Model):
     
     def new_problem(self):
         problem = Problem(statement="Условие", solution="Решение", pool_id=self.id)
+        problem.set_hashed_id()
         db.session.add(problem)
         db.session.commit()
         problem.name = f"Задача #{problem.id}"
         db.session.commit()
         return problem
     
-    def new_collection(self):
-        collection = Collection(description="Описание", pool_id=self.id)
-        db.session.add(collection)
+    def new_sheet(self):
+        sheet = Sheet(description="Описание", pool_id=self.id)
+        db.session.add(sheet)
         db.session.commit()
-        collection.name = f"Подборка #{collection.id}"
+        sheet.name = f"Подборка #{sheet.id}"
         db.session.commit()
-        return collection
+        return sheet
     
 class User_Pool(db.Model):
     __tablename__ = 'user_pool'
@@ -125,6 +126,8 @@ class Problem(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
+    hashed_id = db.Column(db.String, unique=True, nullable=True)
+
     name = db.Column(db.String)
     statement = db.Column(db.String)
     solution = db.Column(db.String)
@@ -137,22 +140,27 @@ class Problem(db.Model):
 
     problem_tags = db.relationship("Problem_Tag", backref="problem")
 
-    attachments = db.relationship("ProblemAttachment", backref="problem")
 
-    problem_collections = db.relationship("Problem_Collection", backref="problem")
+    def set_hashed_id(self):
+        while True:
+            hashed_id = generate_token(20)
+            if not Pool.query.filter_by(hashed_id = hashed_id).first():
+                self.hashed_id = hashed_id
+                break
+        
+        self.hashed_id = hashed_id
 
     def get_tags(self):
         return sorted([problem_tag.tag for problem_tag in Problem_Tag.query.filter_by(problem_id = self.id).all()], key=lambda t:t.name.lower())
     def get_tag_names(self):
         return list(map(lambda t:t.name, self.get_tags()))
     
-    def delete_attachment(self, attachment):
-        try:
-            os.remove(os.path.join(attachment.db_folder, attachment.db_filename))
-        except:
-            pass
-        db.session.delete(attachment)
-        db.session.commit()
+    def get_attachments(self):
+        return Attachment.query.filter_by(parent_type = "Problem", parent_id = self.id).all()
+
+    
+    def is_archived(self):
+        return self.is_public and self.moderated
 
 
 class Tag(db.Model):
@@ -170,32 +178,46 @@ class Problem_Tag(db.Model):
     tag_id = db.Column(db.Integer, db.ForeignKey("tag.id"))
     problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
 
-class ProblemAttachment(db.Model):
-    __tablename__ = 'problem_attachment'
+class Attachment(db.Model):
+    __tablename__ = 'attachment'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
     db_folder = db.Column(db.String)
     db_filename = db.Column(db.String)
-    preview_name = db.Column(db.String)
-    locked = db.Column(db.Boolean, default=True)
-    problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
+
+    short_name = db.Column(db.String)
+
+    parent_type = db.Column(db.String) # 'Problem' | 'Sheet'
+    parent_id = db.Column(db.Integer)
+
+    other_data = db.Column(db.JSON, default={})
+
+    def get_parent(self):
+        if self.parent_type == "Problem":
+            return Problem.query.filter_by(id = self.parent_id).first()
+        elif self.parent_type == "Sheet":
+            return Sheet.query.filter_by(id = self.parent_id).first()
+    
+    def remove(self):
+        try:
+            os.remove(os.path.join(self.db_folder, self.db_filename))
+        except:
+            pass
+        db.session.delete(self)
+        db.session.commit()
 
 
-class Collection(db.Model):
-    __tablename__ = 'collection'
+class Sheet(db.Model):
+    __tablename__ = 'sheet'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
     description = db.Column(db.String)
-    
-    problem_collections = db.relationship("Problem_Collection", backref="collection")
+
+    is_public = db.Column(db.Boolean, default=False)
 
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
-
-class Problem_Collection(db.Model):
-    __tablename__ = 'problem_collection'
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    collection_id = db.Column(db.Integer, db.ForeignKey("collection.id"))
-    problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
+    def is_archived(self):
+        return self.is_public

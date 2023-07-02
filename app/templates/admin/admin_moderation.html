@@ -106,11 +106,11 @@
 
         <div class="flex gap-x-8">
             <form action="/admin/problem_moderation" method="POST">
-                <input type="hidden" name="accept problem_id" value="{{ problem.id }}">
+                <input type="hidden" name="accept problem_hashed_id" value="{{ problem.hashed_id }}">
                 <input type="submit" value="Опубликовать" class="hover:cursor-pointer px-8 py-2 rounded-md text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700">
             </form>
             <form action="/admin/problem_moderation" method="POST">
-                <input type="hidden" name="reject problem_id" value="{{ problem.id }}">
+                <input type="hidden" name="reject problem_hashed_id" value="{{ problem.hashed_id }}">
                 <input type="submit" value="Отклонить" class="hover:cursor-pointer px-8 py-2 rounded-md text-white font-semibold bg-red-500 hover:bg-red-600 active:bg-red-700">
             </form>
         </div>
