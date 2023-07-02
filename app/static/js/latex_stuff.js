@@ -54,7 +54,7 @@ function makeLaTeXArea(elementId) {
     element.style.zIndex = 1;
 
     element.style.color = "transparent";
-    
+
     element.classList.add("bg-transparent");
     element.style.caretColor = "black";
     element.style.overflow = "hidden";
@@ -197,18 +197,12 @@ const getGenerator = (inputElementId = null, editorType = 'problem') => {
             args['img'] = ['V', 'o?', 'k'];
             prototype['img'] = function (caption, name) {
                 // make request to current/url/get_image/name
-                console.log("name: ", name);
 
                 const result = document.createElement('div');
 
 
                 result.style = "text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;"
 
-                /*console.log("Loading image: ", name);
-                const img = document.createElement('img');
-                img.src = `${window.location.href}/get_image/${name}`;
-                img.width = "70%";
-                result.appendChild(img);*/
 
                 const imgFilename = attachmentDbFilenameByName(name);
 
@@ -238,7 +232,8 @@ const getGenerator = (inputElementId = null, editorType = 'problem') => {
                             if (requestsSet.has(href)) {
                                 requestsSet.delete(href);
                                 if (requestsSet.size == 0) {
-                                    toReRenderList.push(inputElementId)
+                                    console.log(inputElementId);
+                                    toReRenderList.push(inputElementId);
                                 }
                             }
                         }
@@ -269,14 +264,15 @@ const getGenerator = (inputElementId = null, editorType = 'problem') => {
                         if (requestsSet.has(href)) {
                             requestsSet.delete(href);
                             if (requestsSet.size == 0) {
-                                toReRenderList.push(inputElementId)
+                                console.log(inputElementId);
+                                toReRenderList.push(inputElementId);
                             }
                         }
                     });
 
                     return [document.createElement('p', "Loading problem...")];
                 }
-                return [renderProblem(5, problemList[problem_hashed_id], parts, "inplace")];
+                return [renderProblem(5, problemList[problem_hashed_id], parts, "inplace", inputElementId)];
             }
 
             return CustomMacros;
@@ -367,14 +363,9 @@ function manageAttachments() {
     imageNameList = [];
 
     const attNameFields = document.querySelectorAll('.input-attachment-name');
-
-    console.log(attNameFields);
-
     for (let i = 0; i < attNameFields.length; i++) {
         manageAttachment(attNameFields[i]);
     }
-
-    console.log(imageNameList);
 }
 
 function manageAttachment(element) {
@@ -397,7 +388,6 @@ function manageAttachment(element) {
 
 
 function attachmentDbFilenameByName(name) {
-    console.log(imageNameList);
     for (let i = 0; i < imageNameList.length; i++) {
         if (imageNameList[i][1] == name) {
             return imageNameList[i][0];
@@ -416,7 +406,7 @@ var problemList = {};
 
 
 
-function renderProblem(additional, json, args, mode = "inplace") {
+function renderProblem(additional, json, args, mode = "inplace", inputElementId = null) {
     if (mode == "inplace") {
         if (args.length == 0) args = ['statement'];
         var toRender = '';
@@ -426,12 +416,14 @@ function renderProblem(additional, json, args, mode = "inplace") {
         if (args.includes('solution')) toRender += `\n\n${json['solution']}`;
         if (args.includes('tags')) toRender += `\n\n${json['tags'].map(t => `\\textbf{ # ${t} }`).join('\n')}`;
 
+        var oldImageNameList = imageNameList;
         imageNameList = [];
         for (let i = 0; i < json['files'].length; i++) {
-            imageNameList.push([json['files'][i][0], json['files'][i][1]]);
+            imageNameList.push([json['files'][i][1], json['files'][i][0]]);
         }
-
-        return getRenderedIframe(toRender);
+        const result = getRenderedIframe(toRender, inputElementId, 'problem');
+        imageNameList = oldImageNameList;
+        return result;
     }
 }
 
