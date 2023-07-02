@@ -48,7 +48,7 @@ function makeLaTeXArea(elementId) {
     element.style.zIndex = 1;
 
     element.style.color = "transparent";
-    element.classList.add("bg-transparent");
+    element.classList.add("bg-transparent", "whitespace-normal");
     element.style.caretColor = "black";
 
 
