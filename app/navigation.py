@@ -21,10 +21,10 @@ def contests():
     return render_template("wip/contests.html", current_user=current_user, title="Соревнования")
 
 
-@nav.route("/collections")
+@nav.route("/sheets")
 @login_required
-def collections():
-    return render_template("wip/collections.html", current_user=current_user, title="Подборки")
+def sheets():
+    return render_template("wip/sheets.html", current_user=current_user, title="Подборки")
 
 
 @nav.route("/editor")

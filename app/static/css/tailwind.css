@@ -731,6 +731,10 @@ video {
   height: 0px;
 }
 
+.h-12 {
+  height: 3rem;
+}
+
 .h-16 {
   height: 4rem;
 }
@@ -914,10 +918,6 @@ video {
 
 .overflow-y-auto {
   overflow-y: auto;
-}
-
-.break-words {
-  overflow-wrap: break-word;
 }
 
 .rounded {

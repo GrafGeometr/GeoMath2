@@ -1,31 +1,27 @@
 {% extends "pool/pool_header.html" %}
 {% block pool_body %}
 
+
 {% if current_user.get_pool_relation(current_pool.id).role.isOwner() %}
 <div class="flex justify-between">
-    {% if current_problem.is_public %}
+    {% if current_sheet.is_public %}
     <div class="flex flex-row items-center mt-4">
-        <h3 class="text-red-400 font-bold text-xl">Вы не можете редактировать задачу, если она опубликована</h3>
+        <h3 class="text-red-400 font-bold text-xl">Вы не можете редактировать подборку, если она опубликована</h3>
         <span class="text-slate-500 font-bold mx-4">|</span>
-        <form action="/pool/{{ current_pool.hashed_id }}/problems" method="post">
+        <form action="/pool/{{ current_pool.hashed_id }}/sheets" method="post">
             <input type="hidden" name="back_to_pool" value="{{ current_pool.hashed_id }}">
-            <input type="hidden" name="problem_hashed_id" value="{{ current_problem.hashed_id }}">
+            <input type="hidden" name="sheet_id" value="{{ current_sheet.id }}">
             <input type="submit" value="Вернуть на доработку?"
                 class="hover:font-bold hover:cursor-pointer hover:text-blue-600">
         </form>
     </div>
     {% endif %}
-    {% if not current_problem.is_public %}
-    <form action="/archive/publish/{{current_problem.hashed_id}}" method="post" class="w-full flex flex-row justify-end">
+    {% if not current_sheet.is_public %}
+    <form action="/archive/publish/{{current_sheet.id}}" method="post" class="w-full flex flex-row justify-end">
         <input type="submit"
             class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
             value="Опубликовать в архив">
     </form>
-    {% elif current_problem.is_public and not current_problem.moderated %}
-    <span
-        class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">
-        На модерации
-    </span>
     {% else %}
     <span
         class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">
@@ -35,9 +31,9 @@
 </div>
 {% endif %}
 <div class="flex flex-col">
-    <form autocomplete="off" action="/pool/{{ current_pool.hashed_id }}/problem/{{ current_problem.hashed_id }}" method="post"
+    <form autocomplete="off" action="/pool/{{ current_pool.hashed_id }}/sheet/{{ current_sheet.id }}" method="post"
         class="w-full mt-2 px-4" enctype="multipart/form-data">
-        <input type="hidden" name="save_problem" value="239">
+        <input type="hidden" name="save_sheet" value="239">
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% for category, message in messages %}
         {% if category == "danger" %}
@@ -57,7 +53,7 @@
         {% endwith %}
 
         <div class="flex flex-row items-center mt-4">
-            <h1 class="mr-4 text-2xl font-bold">{{ current_problem.name }}</h1>
+            <h1 class="mr-4 text-2xl font-bold">{{ current_sheet.name }}</h1>
             <input type="submit" value="Сохранить"
                 class="hover:cursor-pointer px-8 py-2 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700">
         </div>
@@ -65,69 +61,41 @@
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Название:</h2>
         <div class="flex w-full">
             <textarea rows="1" cols="50" name="name" class="text-lg w-full p-4 border-slate-200 border-2 rounded-lg" {%
-                if current_problem.is_public %} readonly {% endif %}>{{ current_problem.name }}</textarea>
+                if current_sheet.is_public %} readonly {% endif %}>{{ current_sheet.name }}</textarea>
         </div>
 
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Условие:</h2>
+        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Текст:</h2>
         <div class="flex w-full items-start">
-            <textarea id="statement_textarea" cols="50" name="statement" {% if current_problem.is_public %}
-                readonly {% endif %} class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.statement }}</textarea>
+            <textarea id="text_textarea" cols="50" name="text" {% if current_sheet.is_public %}
+                readonly {% endif %} class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_sheet.text }}</textarea>
         </div>
 
         <script>
-            makeLaTeXArea("statement_textarea", "problem");
+            makeLaTeXArea("text_textarea", "sheet");
         </script>
 
-        <div class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2 flex flex-row justify-between items-center">
-            <span>Решение:</span>
-            <span class="flex flex-row justify-center items-center">
-                Показывать пользователям решение
-                <span class="text-slate-500 font-bold mx-4">|</span>
-                {% if current_problem.show_solution %}
-                <label
-                    class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-green-200 rounded">
-                    <input type="checkbox" name="show_solution" class="w-0 h-0" id="show_solution_checkbox" checked>
-                    <img src="/static/images/pwd_show.png" class="h-8">
-                </label>
-                {% else %}
-                <label
-                    class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-red-200 rounded">
-                    <input type="checkbox" name="show_solution" class="w-0 h-0" id="show_solution_checkbox">
-                    <img src="/static/images/pwd_hide.png" class="h-8">
-                </label>
-                {% endif %}
-            </span>
-        </div>
-        <div class="flex w-full items-start">
-            <textarea id="solution_textarea" cols="50" name="solution" {% if current_problem.is_public %}
-                readonly {% endif %} class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.solution }}</textarea>
-        </div>
-
-        <script>
-            makeLaTeXArea("solution_textarea", "problem");
-        </script>
 
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Вложения:</h2>
         <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
             <div class="border-r-2 border-slate-300 grow">
-                <div class="flex flex-col {% if current_problem.get_attachments() %} gap-y-4 {% endif %} mr-4">
-                    <ul class="flex flex-col gap-y-2" id="files-list">
-                        {% for attachment in current_problem.get_attachments() %}
+                <div class="flex flex-col {% if current_sheet.get_attachments() %} gap-y-4 {% endif %} mr-4">
+                    <ul class="flex flex-col gap-y-2 " id="files-list">
+                        {% for attachment in current_sheet.get_attachments() %}
                         <li class="flex w-full gap-x-2">
                             <input type="text" name="attachment_name {{ attachment.db_filename }}" id="attachment-name-{{ attachment.db_filename }}"
-                                value="{{ attachment.short_name }}" placeholder="Как назвать картинку?" {% if current_problem.is_public %} readonly {% endif %}
+                                value="{{ attachment.short_name }}" placeholder="Как назвать картинку?" {% if current_sheet.is_public %} readonly {% endif %}
                                 class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow">
-                            {% if not current_problem.is_public %}
+                            {% if not current_sheet.is_public %}
                                 <button onclick="DeleteAttachment(this)"
                                 class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
                             {% endif %}
                         </li>
                         {% endfor %}
                     </ul>
-                    <div class="border-2 border-blue-500 border-dashed px-8 py-4 rounded-xl flex justify-center {% if current_problem.is_public %} hidden {% endif %}">
+                    <div class="border-2 border-blue-500 border-dashed px-8 py-4 rounded-xl flex justify-center {% if current_sheet.is_public %} hidden {% endif %}">
                         <label class="label text-lg">
-                            <input type="file" class="file-input w-0 h-0" name="attachments" accept="image/*" multiple {% if current_problem.is_public %} readonly {% endif %}>
-                            {% if not current_problem.is_public %}
+                            <input type="file" class="file-input w-0 h-0" name="attachments" accept="image/*" multiple {% if current_sheet.is_public %} readonly {% endif %}>
+                            {% if not current_sheet.is_public %}
                             <span class="browse-files-text text-blue-500 font-semibold cursor-pointer inline-block"
                                 onclick="ResetFileInput()">Загрузить файлы</span>
                             {% endif %}
@@ -140,13 +108,12 @@
                 <img id="display-attachment" class="hidden border-2 border-sky-400 padding-8 rounded-xl">
             </div>
         </div>
-
         <div class="h-px w-full bg-neutral-300 my-2"></div>
 
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Теги:</h2>
         <div class="flex gap-x-8 items-start">
             <ul class="w-full" id="tas_list">
-                {% for tag in current_problem.get_tags() %}
+                {% for tag in current_sheet.get_tags() %}
                 <li class="flex">
                     <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
                     <span class="text-slate-500 font-bold mr-4">#</span>
@@ -169,11 +136,8 @@
             </div>
         </div>
     </form>
-
-
-
-
 </div>
+
 
 <script>
     function BindAttachmentClick() {
@@ -250,7 +214,6 @@
     BindAttachmentClick();
 </script>
 
-
 <script>
     function DeleteAttachment(element) {
         let filesList = element.parentElement.parentElement;
@@ -271,21 +234,6 @@
 </script>
 
 
-<script>
-    let show_solution_checkbox = document.getElementById("show_solution_checkbox");
-    show_solution_checkbox.addEventListener("change", function (event) {
-        if (this.checked) {
-            this.parentNode.querySelector('img').src = "/static/images/pwd_show.png";
-            this.parentNode.classList.remove("bg-red-200");
-            this.parentNode.classList.add("bg-green-200");
-        }
-        else {
-            this.parentNode.querySelector('img').src = "/static/images/pwd_hide.png";
-            this.parentNode.classList.remove("bg-green-200");
-            this.parentNode.classList.add("bg-red-200");
-        }
-    })
-</script>
 
 <script>
     function AddTag() {

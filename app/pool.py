@@ -221,19 +221,14 @@ def problem(pool_hashed_id, problem_hashed_id):
                         tag = Tag(name=value)
                         db.session.add(tag)
                         db.session.commit()
-                    if (
-                        Problem_Tag.query.filter_by(problem=problem, tag=tag).first()
-                        is None
-                    ):
-                        problem_tag = Problem_Tag(problem=problem, tag=tag)
-                        db.session.add(problem_tag)
+                    if (Tag_Relation.query.filter_by(parent_type="Problem", parent_id=problem.id, tag_id=tag.id).first() is None):
+                        tag_relation = Tag_Relation(parent_type="Problem", parent_id=problem.id, tag_id=tag.id)
+                        db.session.add(tag_relation)
                         db.session.commit()
 
             for tag in problem.get_tags():
                 if form.get(f"tag {tag.name}", None) is None:
-                    db.session.delete(
-                        Problem_Tag.query.filter_by(problem=problem, tag=tag).first()
-                    )
+                    db.session.delete(Tag_Relation.query.filter_by(parent_type="Problem", parent_id=problem.id, tag_id=tag.id).first())
                     db.session.commit()
 
             for attachment in problem.get_attachments():
@@ -275,6 +270,7 @@ import json
 # get problem content
 @pool.route("/get_problem_content/<problem_hashed_id>", methods=["GET", "POST"])
 def get_problem_content(problem_hashed_id):
+    print(problem_hashed_id)
     problem = Problem.query.filter_by(hashed_id=problem_hashed_id).first()
     if problem is None:
         print("problem none")
@@ -383,13 +379,13 @@ def show_problem_attachment(pool_hashed_id, problem_hashed_id, filename):
 # =============================================================================================================================
 
 
-# --> Pool collections
+# --> Pool sheets
 
 
-# list all collections in pool
-@pool.route("/pool/<pool_hashed_id>/collections", methods=["GET", "POST"])
+# list all sheets in pool
+@pool.route("/pool/<pool_hashed_id>/sheets", methods=["GET", "POST"])
 @login_required
-def pool_collections(pool_hashed_id):
+def pool_sheets(pool_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
@@ -402,22 +398,22 @@ def pool_collections(pool_hashed_id):
 
     if request.method == "POST":
         if request.form.get("back_to_pool") is not None:
-            collection_id = request.form.get("collection_id")
-            collection = Collection.query.filter_by(id=collection_id).first()
-            collection.is_public = False
+            sheet_id = request.form.get("sheet_id")
+            sheet = Sheet.query.filter_by(id=sheet_id).first()
+            sheet.is_public = False
             db.session.commit()
     return render_template(
-        "pool/pool_collections.html", current_pool=pool, title=f"{pool.name} - подборки"
+        "pool/pool_sheets.html", current_pool=pool, title=f"{pool.name} - подборки"
     )
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
 
 
-# create new collection in pool
-@pool.route("/pool/<pool_hashed_id>/new_collection", methods=["POST"])
+# create new sheet in pool
+@pool.route("/pool/<pool_hashed_id>/new_sheet", methods=["POST"])
 @login_required
-def new_collection(pool_hashed_id):
+def new_sheet(pool_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
@@ -428,21 +424,21 @@ def new_collection(pool_hashed_id):
     if user_checked is not None:
         return redirect(user_checked)
 
-    collection = pool.new_collection()
+    sheet = pool.new_sheet()
 
-    return redirect(f"/pool/{pool_hashed_id}/collection/{collection.id}")
+    return redirect(f"/pool/{pool_hashed_id}/sheet/{sheet.id}")
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
 
 
-# delete collection from pool
-@pool.route("/remove_collection_from_pool", methods=["POST"])
+# delete sheet from pool
+@pool.route("/remove_sheet_from_pool", methods=["POST"])
 @login_required
-def remove_collection_from_pool():
+def remove_sheet_from_pool():
     data = request.get_json()
     pool_hashed_id = data["pool"]
-    collection_id = data["collection"]
+    sheet_id = data["sheet"]
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
@@ -453,16 +449,16 @@ def remove_collection_from_pool():
     if user_checked is not None:
         return redirect(user_checked)
 
-    collection = Collection.query.filter_by(id=collection_id).first()
+    sheet = Sheet.query.filter_by(id=sheet_id).first()
 
-    if collection is None:
+    if sheet is None:
         flash("Подборка не найдена", "danger")
-        return redirect(f"/pool/{pool_hashed_id}/collections")
+        return redirect(f"/pool/{pool_hashed_id}/sheets")
 
-    db.session.delete(collection)
+    db.session.delete(sheet)
     db.session.commit()
     return render_template(
-        "pool/pool_collectionlist.html",
+        "pool/pool_sheetlist.html",
         current_pool=pool,
         title=f"{pool.name} - подборки",
     )
@@ -471,17 +467,147 @@ def remove_collection_from_pool():
 # -----------------------------------------------------------------------------------------------------------------------------
 
 
-# show and edit collection in pool
+# show and edit sheet in pool
+@pool.route("/pool/<pool_hashed_id>/sheet/<sheet_id>", methods=["GET", "POST"])
+@login_required
+def sheet(pool_hashed_id, sheet_id):
+    pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
+
+    if pool is None:
+        flash("Пул с таким id не найден", "danger")
+        return redirect("/myprofile")
+
+    user_checked = check_user_in_pool(current_user, pool)
+    if user_checked is not None:
+        return redirect(user_checked)
+
+    sheet = Sheet.query.filter_by(id=sheet_id).first()
+
+    if sheet is None:
+        flash("Подборка не найдена", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/sheets")
+
+    if request.method == "POST":
+        if request.form.get("save_sheet") is not None:
+            name = request.form.get("name")
+            text = request.form.get("text")
+
+            if not sheet.is_public:
+                sheet.name = name
+                sheet.text = text
+
+            db.session.commit()
+
+
+            form = request.form.to_dict()
+            print(form)
+
+            for key, value in form.items():
+                if key[:4] == "tag ":
+                    print(key, value)
+                    tag = Tag.query.filter_by(name=value).first()
+                    print(1)
+                    if tag is None:
+                        tag = Tag(name=value)
+                        db.session.add(tag)
+                        db.session.commit()
+                    if (Tag_Relation.query.filter_by(parent_type="Sheet", parent_id=sheet.id, tag_id=tag.id).first() is None):
+                        tag_relation = Tag_Relation(parent_type="Sheet", parent_id=sheet.id, tag_id=tag.id)
+                        db.session.add(tag_relation)
+                        db.session.commit()
+
+            for tag in sheet.get_tags():
+                if form.get(f"tag {tag.name}", None) is None:
+                    db.session.delete(Tag_Relation.query.filter_by(parent_type="Sheet", parent_id=sheet.id, tag_id=tag.id).first())
+                    db.session.commit()
+
+            for attachment in sheet.get_attachments():
+                print(attachment.db_filename)
+                short_name = request.form.get("attachment_name " + str(attachment.db_filename))
+                if not sheet.is_public:
+                    if short_name is None:
+                        attachment.remove()
+                        continue
+
+                if not sheet.is_public:
+                    attachment.short_name = short_name
+                show = request.form.get("secret_attachment " + str(attachment.db_filename))
+                if show == "on":
+                    attachment.other_data["is_secret"] = True
+                else:
+                    attachment.other_data["is_secret"] = False
+                print(attachment.id, show)
+
+            db.session.commit()
+
+            print(sheet.get_attachments())
+
+            flash("Подборка успешно сохранена", "success")
+            return redirect(f"/pool/{pool_hashed_id}/sheet/{sheet_id}")
+    return render_template(
+        "pool/pool_1sheet.html",
+        current_pool=pool,
+        current_sheet=sheet,
+        title=f"Редактор - {sheet.name}",
+        all_tags=sorted(Tag.query.all(), key=lambda x: x.name.lower()),
+    )
+
+
+# add attachment to sheet
 @pool.route(
-    "/pool/<pool_hashed_id>/collection/<collection_hashed_id>", methods=["GET", "POST"]
+    "/pool/<pool_hashed_id>/sheet/<sheet_id>/upload_file", methods=["POST"]
 )
 @login_required
-def collection(pool_hashed_id, collection_hashed_id):
-    # some complecated stuff should be here
-    return "Work In Progress"
+def upload_file_to_sheet(pool_hashed_id, sheet_id):
+    pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
+    if pool is None:
+        flash("Пул с таким id не найден", "danger")
+        return redirect("/myprofile")
 
-# maybe something else with collections
+    user_checked = check_user_in_pool(current_user, pool)
+    if user_checked is not None:
+        return redirect(user_checked)
+
+    sheet = Sheet.query.filter_by(id=sheet_id).first()
+    if sheet is None:
+        flash("Подборка не найдена", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/sheets")
+
+    file = request.files.get("file")
+    if file is None:
+        flash("Файл не был загружен", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/sheet/{sheet_id}")
+    
+    if not sheet.is_public:
+        directory = "app/database/attachments/problems"
+        filenames = safe_image_upload(
+            [file], directory, 5 * 1024 * 1024
+        )
+
+        filename = filenames[0]
+
+        if filename is None:
+            flash("Ошибка при загрузке", "danger")
+            return redirect(f"/pool/{pool_hashed_id}/sheet/{sheet_id}")
+        
+        attachment = Attachment(
+            db_folder=directory,
+            db_filename=filename,
+            short_name="Рисунок",
+            parent_type="Sheet",
+            parent_id=sheet.id,
+            other_data={}
+        )
+        db.session.add(attachment)
+
+        db.session.commit()
+
+        return f"OK {attachment.db_filename}"
+    
+    return redirect(f"/pool/{pool_hashed_id}/sheet/{sheet_id}")
+
+# maybe something else with sheets
 
 
 # =============================================================================================================================

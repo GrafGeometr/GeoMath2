@@ -106,7 +106,7 @@ class Pool(db.Model):
         return problem
     
     def new_sheet(self):
-        sheet = Sheet(description="Описание", pool_id=self.id)
+        sheet = Sheet(text="Описание", pool_id=self.id)
         db.session.add(sheet)
         db.session.commit()
         sheet.name = f"Подборка #{sheet.id}"
@@ -138,8 +138,6 @@ class Problem(db.Model):
     moderated = db.Column(db.Boolean, default=False)
     show_solution = db.Column(db.Boolean, default=False)
 
-    problem_tags = db.relationship("Problem_Tag", backref="problem")
-
 
     def set_hashed_id(self):
         while True:
@@ -151,7 +149,8 @@ class Problem(db.Model):
         self.hashed_id = hashed_id
 
     def get_tags(self):
-        return sorted([problem_tag.tag for problem_tag in Problem_Tag.query.filter_by(problem_id = self.id).all()], key=lambda t:t.name.lower())
+        return sorted([Tag.query.filter_by(id = problem_tag.tag_id).first() for problem_tag in Tag_Relation.query.filter_by(parent_type = "Problem", parent_id = self.id).all()], key=lambda t:t.name.lower())
+
     def get_tag_names(self):
         return list(map(lambda t:t.name, self.get_tags()))
     
@@ -168,15 +167,28 @@ class Tag(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, unique=True, nullable=True)
-    problem_tags = db.relationship("Problem_Tag", backref="tag")
 
 
-class Problem_Tag(db.Model):
-    __tablename__ = 'problem_tag'
+class Tag_Relation(db.Model):
+    __tablename__ = 'tag_relation'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    tag_id = db.Column(db.Integer, db.ForeignKey("tag.id"))
-    problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
+    tag_id = db.Column(db.Integer)
+
+    parent_type = db.Column(db.String) # 'Problem' | 'Sheet'
+    parent_id = db.Column(db.Integer)
+
+    other_data = db.Column(db.JSON, default={})
+
+    def get_parent(self):
+        if self.parent_type == "Problem":
+            return Problem.query.filter_by(id = self.parent_id).first()
+        elif self.parent_type == "Sheet":
+            return Sheet.query.filter_by(id = self.parent_id).first()
+        
+    def remove(self):
+        db.session.delete(self)
+        db.session.commit()
 
 class Attachment(db.Model):
     __tablename__ = 'attachment'
@@ -213,11 +225,19 @@ class Sheet(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
-    description = db.Column(db.String)
+    text = db.Column(db.String)
 
     is_public = db.Column(db.Boolean, default=False)
 
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
+
+    def get_tags(self):
+        return sorted([Tag.query.filter_by(id = sheet_tag.tag_id).first() for sheet_tag in Tag_Relation.query.filter_by(parent_type = "Sheet", parent_id = self.id).all()], key=lambda t:t.name.lower())
+    def get_tag_names(self):
+        return list(map(lambda t:t.name, self.get_tags()))
+    
+    def get_attachments(self):
+        return Attachment.query.filter_by(parent_type = "Sheet", parent_id = self.id).all()
 
     def is_archived(self):
         return self.is_public

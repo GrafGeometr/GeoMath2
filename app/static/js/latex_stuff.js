@@ -1,7 +1,7 @@
 // LaTeX highlighting
 
 function fitContent(input, border=2) {
-    input.style.height = "auto";
+    input.style.height = "3rem";
     let scHeight = input.scrollHeight;
     input.style.height = `${scHeight+border*2}px`;
 }
@@ -43,7 +43,8 @@ function check_tab(element, event) {
     }
 }
 
-function makeLaTeXArea(elementId) {
+function makeLaTeXArea(elementId, editorType="problem") {
+    console.log(editorType);
     const element = document.getElementById(elementId);
 
     // highlighting
@@ -66,7 +67,7 @@ function makeLaTeXArea(elementId) {
     highlightArea.id = `${elementId}-highlighting`;
     highlightArea.ariaHidden = "true";
 
-    highlightArea.classList.add("p-4", "border-slate-200", "border-2", "rounded-lg", "h-full");
+    highlightArea.classList.add("p-4", "border-slate-200", "border-2", "rounded-lg", "h-full", "bg-white");
 
     const codeArea = document.createElement("span");
     codeArea.id = `${elementId}-highlighting-content`;
@@ -90,7 +91,7 @@ function makeLaTeXArea(elementId) {
     // create output div
     const latexOutput = document.createElement("div");
     latexOutput.id = `${elementId}-latex-output`;
-    latexOutput.classList.add("text-lg", "ml-4", "p-4", "bg-white", "border-2", "border-solid", "border-sky-400", "rounded-lg", "w-1/2");
+    latexOutput.classList.add("text-lg", "ml-4", "p-4", "bg-white", "border-2", "border-solid", "border-slate-200", "rounded-lg", "w-1/2");
 
     element.parentElement.appendChild(latexOutput);
 
@@ -109,16 +110,13 @@ function makeLaTeXArea(elementId) {
 
         outputElement.innerHTML = "";
 
-        outputElement.appendChild(getRenderedIframe(input, elementId));
+        outputElement.appendChild(getRenderedIframe(input, elementId, editorType));
     }
 
     renderAreas[elementId] = render;
 
 
     element.addEventListener("input", event => {
-        element.style.height = "auto";
-        let scHeight = event.target.scrollHeight;
-        element.style.height = `${scHeight+4}px`;
         if (event.data && event.data.length === 1) {
             const brackets = [["(", ")"], ["[", "]"], ["{", "}"], ["$", "$"]];
             for (let i = 0; i < brackets.length; i++) {
@@ -171,7 +169,7 @@ function makeLaTeXArea(elementId) {
 
     setTimeout(render, 500);
 
-
+    fitContent(element, 2);
 }
 
 // LaTeX rendering
@@ -201,7 +199,7 @@ const getGenerator = (inputElementId = null, editorType = 'problem') => {
                 const result = document.createElement('div');
 
 
-                result.style = "text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;"
+                result.style = "text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem; row-gap: 0.5rem";
 
 
                 const imgFilename = attachmentDbFilenameByName(name);
@@ -212,10 +210,12 @@ const getGenerator = (inputElementId = null, editorType = 'problem') => {
                     const img = document.createElement('img');
                     img.src = cachedImage;
                     img.style.width = "70%";
+                    img.style.margin = "0.5rem 0";
                     result.appendChild(img);
                 } else {
-                    const img = document.createElement('p');
-                    img.innerHTML = "Loading image...";
+                    const img = document.createElement('span');
+                    img.innerHTML = "Ошибка при загрузке картинки, проверьте название";
+                    img.style.color = "red";
                     result.appendChild(img);
 
                     const href = `${window.location.origin}/get_image/${imgFilename}`;
@@ -245,34 +245,42 @@ const getGenerator = (inputElementId = null, editorType = 'problem') => {
 
                 return [result];
             }
-
+            
             args['includeproblem'] = ['V', 'k?', 'k'];
             prototype['includeproblem'] = function (parts, problem_hashed_id) {
-                if (!parts) parts = "";
-                parts = parts.split(/\s+/);
-                console.log("problem_hashed_id: ", problem_hashed_id);
-                console.log("parts: ", parts);
+                if (editorType == 'sheet') {
+                    if (!parts) parts = "";
+                    parts = parts.split(/\s+/);
+                    console.log("problem_hashed_id: ", problem_hashed_id);
+                    console.log("parts: ", parts);
 
-                if (!(problem_hashed_id in problemList)){
-                    const href = `${window.location.origin}/get_problem_content/${problem_hashed_id}`;
-                    requestsSet.add(href);
-                    fetch(`${href}`).then(response => {
-                        if (response.status == 200) return response.json();
-                        else throw new Error("Failed to fetch problem");
-                    }).then(json => {
-                        problemList[problem_hashed_id] = json;
-                        if (requestsSet.has(href)) {
-                            requestsSet.delete(href);
-                            if (requestsSet.size == 0) {
-                                console.log(inputElementId);
-                                toReRenderList.push(inputElementId);
+                    if (!(problem_hashed_id in problemList)){
+                        const href = `${window.location.origin}/get_problem_content/${problem_hashed_id}`;
+                        requestsSet.add(href);
+                        fetch(`${href}`).then(response => {
+                            if (response.status == 200) return response.json();
+                            else throw new Error("Failed to fetch problem");
+                        }).then(json => {
+                            problemList[problem_hashed_id] = json;
+                            if (requestsSet.has(href)) {
+                                requestsSet.delete(href);
+                                if (requestsSet.size == 0) {
+                                    console.log(inputElementId);
+                                    toReRenderList.push(inputElementId);
+                                }
                             }
-                        }
-                    });
+                        });
 
-                    return [document.createElement('p', "Loading problem...")];
+                        return [document.createElement('p', "Loading problem...")];
+                    }
+                    return [renderProblem(5, problemList[problem_hashed_id], parts, "inplace", inputElementId)];
                 }
-                return [renderProblem(5, problemList[problem_hashed_id], parts, "inplace", inputElementId)];
+                else {
+                    const element = document.createElement('p');
+                    element.innerHTML = "Упс! Задачу можно прикреплять только к подборке";
+                    element.style.color = "red";
+                    return [element];
+                }
             }
 
             return CustomMacros;
@@ -307,6 +315,8 @@ function getRenderedIframe(text, inputElementId = null, editorType = 'problem') 
     result.documentElement.style.marginRight = '5%';
     result.documentElement.style.marginLeft = '5%';
     result.documentElement.style.fontSize = '1.25rem';
+    result.documentElement.style.margin = '0';
+    result.documentElement.style.padding = '0';
 
     result.documentElement.children[1].children[0].classList.remove('body');
 
@@ -414,7 +424,8 @@ function renderProblem(additional, json, args, mode = "inplace", inputElementId 
         if (args.includes('name')) toRender += `\\textbf{ ${json['name']} } `;
         if (args.includes('statement')) toRender += json['statement'];
         if (args.includes('solution')) toRender += `\n\n${json['solution']}`;
-        if (args.includes('tags')) toRender += `\n\n${json['tags'].map(t => `\\textbf{ # ${t} }`).join('\n')}`;
+        if (args.includes('tags')) toRender += `\n\n${json['tags'].map(t => `\\textbf{ \\# ${t} }`).join('\n')}`;
+        console.log(toRender);
 
         var oldImageNameList = imageNameList;
         imageNameList = [];
