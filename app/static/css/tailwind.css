@@ -916,8 +916,8 @@ video {
   overflow-y: auto;
 }
 
-.whitespace-normal {
-  white-space: normal;
+.break-words {
+  overflow-wrap: break-word;
 }
 
 .rounded {

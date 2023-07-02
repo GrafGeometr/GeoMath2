@@ -48,8 +48,11 @@ function makeLaTeXArea(elementId) {
     element.style.zIndex = 1;
 
     element.style.color = "transparent";
-    element.classList.add("bg-transparent", "whitespace-normal");
+    element.classList.add("bg-transparent");
     element.style.caretColor = "black";
+    element.style.overflow = "hidden";
+    element.style.whiteSpace = "pre-wrap";
+    element.style.overflowWrap = "break-word";
 
 
     const highlightArea = document.createElement("pre");
@@ -102,6 +105,9 @@ function makeLaTeXArea(elementId) {
 
 
     element.addEventListener("input", event => {
+        element.style.height = "auto";
+        let scHeight = event.target.scrollHeight;
+        element.style.height = `${scHeight+4}px`;
         if (event.data && event.data.length === 1) {
             const brackets = [["(", ")"], ["[", "]"], ["{", "}"], ["$", "$"]];
             for (let i = 0; i < brackets.length; i++) {
@@ -123,7 +129,6 @@ function makeLaTeXArea(elementId) {
                     }
             }
         }
-
         let text = event.target.value;
 
         update(`${elementId}-highlighting-content`, text);
@@ -242,6 +247,7 @@ function getRenderedIframe(text) {
 
     iframe.classList.add("latex-iframe");
     iframe.style = "width: 100%; justify-content: flex-start; display: flex; align-items: flex-start;";
+    
 
     iframe.style.border = "0";
     iframe.scrolling = "no";
@@ -250,6 +256,7 @@ function getRenderedIframe(text) {
     result.documentElement.style = "";
     result.documentElement.style.marginRight = '5%';
     result.documentElement.style.marginLeft = '5%';
+    result.documentElement.style.fontSize = '1.25rem';
 
     result.documentElement.children[1].children[0].classList.remove('body');
 
