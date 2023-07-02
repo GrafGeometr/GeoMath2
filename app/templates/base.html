@@ -23,16 +23,6 @@
     <script src="https://cdn.jsdelivr.net/npm/latex.js/dist/latex.js"></script>
 
     <script>
-        function render_multiline_text(text) {
-            var result = "";
-            const paragraphs = text.split("\n");
-            for (var i = 0; i < paragraphs.length; i++) {
-                result += "<p class='multiline_paragraph'>" + paragraphs[i] + "</p>";
-            }
-            return result;
-        }
-    </script>
-    <script>
         function prevent_injection(s) {
             return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }

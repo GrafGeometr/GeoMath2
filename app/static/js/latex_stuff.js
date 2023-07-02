@@ -116,6 +116,9 @@ function makeLaTeXArea(elementId) {
 
 
     element.addEventListener("input", event => {
+        element.style.height = "auto";
+        let scHeight = event.target.scrollHeight;
+        element.style.height = `${scHeight+4}px`;
         if (event.data && event.data.length === 1) {
             const brackets = [["(", ")"], ["[", "]"], ["{", "}"], ["$", "$"]];
             for (let i = 0; i < brackets.length; i++) {
@@ -137,7 +140,6 @@ function makeLaTeXArea(elementId) {
                     }
             }
         }
-
         let text = event.target.value;
 
         update(`${elementId}-highlighting-content`, text);
@@ -299,6 +301,7 @@ function getRenderedIframe(text, inputElementId = null, editorType = 'problem') 
 
     iframe.classList.add("latex-iframe");
     iframe.style = "width: 100%; justify-content: flex-start; display: flex; align-items: flex-start;";
+    
 
     iframe.style.border = "0";
     iframe.scrolling = "no";
