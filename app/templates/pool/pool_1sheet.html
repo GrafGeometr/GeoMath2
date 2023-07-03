@@ -17,7 +17,7 @@
     </div>
     {% endif %}
     {% if not current_sheet.is_public %}
-    <form action="/archive/publish/{{current_sheet.id}}" method="post" class="w-full flex flex-row justify-end">
+    <form action="/archive/publish/problem/{{current_sheet.id}}" method="post" class="w-full flex flex-row justify-end">
         <input type="submit"
             class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
             value="Опубликовать в архив">

@@ -1,4 +1,4 @@
-<ul class="list-none p-0 mt-4">
+<ul class="list-none p-0 border-4 border-solid border-sky-400 rounded-lg mt-4">
     {% for problem in problems %}
 
     {% with textcolor='text-white' %}
@@ -22,8 +22,8 @@
     
 
 
-    <li class="border-2 border-solid border-slate-200 bg-white mb-4 p-4 flex flex-row gap-x-8 items-center rounded-lg hover:border-slate-600">
-        <a href="/archive/problem/{{ problem[0].hashed_id }}" class="no-underline text-black text-xl hover:underline">
+    <li class="border-b border-slate-200 bg-white p-4 flex flex-row first:rounded-t-lg last:rounded-b-lg hover:bg-slate-100">
+        <a href="/archive/problem/{{ problem[0].hashed_id }}" class="no-underline text-black text-xl hover:underline mr-4">
             <span class="text-black text-xl">{{ problem[0].name }}</span>
         </a>
         

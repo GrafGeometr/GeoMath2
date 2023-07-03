@@ -26,7 +26,7 @@ def show_problem_attachment(problem_hashed_id, filename):
     except Exception as e:
         print(e)
 
-@arch.route("/archive/publish/<problem_hashed_id>", methods=["POST"])
+@arch.route("/archive/publish/problem/<problem_hashed_id>", methods=["POST"])
 @login_required
 def publish(problem_hashed_id):
     problem = Problem.query.filter_by(hashed_id = problem_hashed_id).first()
@@ -73,7 +73,7 @@ def get_correct_page_slice(num_of_pages, len_of_slice, index_of_current_page):
     else:
         return [x for x in range(i-half, i+(k-half))]
 
-@arch.route("/archive/<string:mode>", methods=["POST", "GET"])
+@arch.route("/archive/problems/<string:mode>", methods=["POST", "GET"])
 @login_required
 def archive_search(mode):
     if request.method == "POST":
@@ -104,16 +104,15 @@ def archive_search(mode):
 
 
     problems = Problem.query.all()
-    problems = [(p, len([tag for tag in tags if tag in p.get_tag_names()]), len(tags)) for p in problems]
+    problems = [(p, len([tag for tag in tags if tag in p.get_tag_names()]), len(tags)) for p in problems if p.is_statement_available()]
     problems.sort(key = lambda p: p[1], reverse=True)
     
 
-    if mode == "all":
-        problems = [problem for problem in problems if problem[0].moderated]
-    # elif mode == "my":
-    #     problems = [problem for problem in problems if problem[0].user_id == current_user.id]
+    #if mode == "all":
+        #problems = [problem for problem in problems if problem[0].moderated]
+    if mode == "my":
+        problems = [problem for problem in problems if problem[0].is_my()]
 
-    print(problems)
 
     num_of_pages = (len(problems)+problems_per_page-1) // problems_per_page
     problems = problems[(page-1)*problems_per_page : page*problems_per_page]
@@ -132,7 +131,7 @@ def archive_search(mode):
 def my_arch(problem_hashed_id):
     problem = Problem.query.filter_by(hashed_id = problem_hashed_id).first()
     if problem is None:
-        return redirect("/archive/all")
+        return redirect("/archive/problems/all")
     return render_template(
         "archive/archive_problem_template.html",
         current_problem=problem,

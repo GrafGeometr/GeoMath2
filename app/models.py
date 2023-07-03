@@ -176,6 +176,12 @@ class Problem(db.Model):
         if (relation.role.isOwner() or relation.role.isParticipant()):
             return True
         return False
+
+    def is_my(self):
+        relation = current_user.get_pool_relation(self.pool_id)
+        if (relation.role.isOwner() or relation.role.isParticipant()):
+            return True
+        return False
     
     def get_nonsecret_attachments(self):
         result = []
