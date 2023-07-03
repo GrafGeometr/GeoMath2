@@ -631,6 +631,7 @@ def pool_contests(pool_hashed_id):
             contest.is_public = False
             db.session.commit()
             return redirect(f"/pool/{pool_hashed_id}/contest/{contest_id}")
+    print("OK")
     return render_template(
         "pool/pool_contests.html", current_pool=pool, title=f"{pool.name} - контесты"
     )
@@ -649,6 +650,7 @@ def new_contest(pool_hashed_id):
     if user_checked is not None:
         return redirect(user_checked)
 
+    
     contest = pool.new_contest()
 
     return redirect(f"/pool/{pool_hashed_id}/contest/{contest.id}")
@@ -678,15 +680,24 @@ def contest(pool_hashed_id, contest_id):
         if request.form.get("save_contest") is not None:
             name = request.form.get("name")
             description = request.form.get("description")
-            start_date = request.form.get("start_date")
-            end_date = request.form.get("end_date")
+            try:
+                start_date = datetime.datetime.strptime(request.form.get("start_date"), '%Y-%m-%dT%H:%M')
+            except:
+                start_date = None
+            try:
+                end_date = datetime.datetime.strptime(request.form.get("end_date"), '%Y-%m-%dT%H:%M')
+            except:
+                end_date = None
+            print(start_date.isoformat())
 
             if not contest.is_public:
                 contest.name = name
                 contest.description = description
-
-            contest.start_date = start_date
-            contest.end_date = end_date
+            
+            if start_date:
+                contest.start_date = start_date
+            if end_date:
+                contest.end_date = end_date
 
             db.session.commit()
 
@@ -731,12 +742,45 @@ def contest(pool_hashed_id, contest_id):
 
             flash("Контест успешно сохранён", "success")
             return redirect(f"/pool/{pool_hashed_id}/contest/{contest_id}")
+    print(contest.start_date.isoformat())
     return render_template(
         "pool/pool_1contest.html",
         current_pool=pool,
         current_contest=contest,
         title=f"Редактор - {contest.name}",
         all_tags=sorted(Tag.query.all(), key=lambda x: x.name.lower()),
+    )
+
+
+# delete contest from pool
+@pool.route("/remove_contest_from_pool", methods=["POST"])
+@login_required
+def remove_contest_from_pool():
+    data = request.get_json()
+    pool_hashed_id = data["pool"]
+    contest_id = data["contest"]
+    pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
+
+    if pool is None:
+        flash("Пул с таким id не найден", "danger")
+        return redirect("/myprofile")
+
+    user_checked = check_user_in_pool(current_user, pool)
+    if user_checked is not None:
+        return redirect(user_checked)
+
+    contest = Contest.query.filter_by(id=contest_id).first()
+
+    if contest is None:
+        flash("Контест не найден", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/contests")
+
+    db.session.delete(contest)
+    db.session.commit()
+    return render_template(
+        "pool/pool_contestlist.html",
+        current_pool=pool,
+        title=f"{pool.name} - контесты",
     )
 
 # =============================================================================================================================

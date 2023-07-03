@@ -1,6 +1,11 @@
 {% extends "pool/pool_header.html" %}
 {% block pool_body %}
 
+<style>
+    input::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+    }
+</style>
 
 {% if current_user.get_pool_relation(current_pool.id).role.isOwner() %}
 <div class="flex justify-between">
@@ -66,7 +71,7 @@
 
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Описание:</h2>
         <div class="flex w-full items-start">
-            <textarea id="description_textarea" cols="50" name="text" {% if current_contest.is_public %}
+            <textarea id="description_textarea" cols="50" name="description" {% if current_contest.is_public %}
                 readonly {% endif %} class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_contest.description }}</textarea>
         </div>
 
@@ -98,6 +103,18 @@
 
             <div class="w-2/3 ml-4">
                 <div id="display-problem" class="hidden border-2 border-sky-400 p-8 rounded-xl"></div>
+            </div>
+        </div>
+
+        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Настройки:</h2>
+        <div class="flex flex-col gap-y-4">
+            <div class="flex items-center gap-x-4">
+                <input type="datetime-local" name="start_date" class="w-80 px-4 py-2 border-slate-200 border-2 rounded-lg" value="{{ current_contest.start_date.isoformat() }}">
+                <span class="w-60">Время начала (МСК)</span>
+            </div>
+            <div class="flex items-center gap-x-4">
+                <input type="datetime-local" name="end_date" class="w-80 px-4 py-2 border-slate-200 border-2 rounded-lg" value="{{ current_contest.end_date.isoformat() }}">
+                <span class="w-60">Время окончания (МСК)</span>
             </div>
         </div>
 

@@ -69,6 +69,7 @@ class Pool(db.Model):
     userpools = db.relationship("User_Pool", backref="pool")
     problems = db.relationship("Problem", backref="pool")
     sheets = db.relationship("Sheet", backref="pool")
+    contests = db.relationship("Contest", backref="pool")
 
     # open_for_new_problems = db.Column(db.Boolean, default=False) 
 
@@ -106,7 +107,7 @@ class Pool(db.Model):
         return problem
     
     def new_sheet(self):
-        sheet = Sheet(text="Описание", pool_id=self.id)
+        sheet = Sheet(text="Текст", pool_id=self.id)
         db.session.add(sheet)
         db.session.commit()
         sheet.name = f"Подборка #{sheet.id}"
@@ -114,11 +115,16 @@ class Pool(db.Model):
         return sheet
     
     def new_contest(self):
-        contest = Contest(name="Название", pool_id=self.id)
+        contest = Contest(description="Описание", name="Название", pool_id=self.id)
         db.session.add(contest)
         db.session.commit()
+        tm = datetime.datetime.now()
+        tm = tm - datetime.timedelta(seconds=tm.second, microseconds=tm.microsecond)
         contest.name = f"Контест #{contest.id}"
+        contest.start_date = tm
+        contest.end_date = tm
         db.session.commit()
+        
         return contest
     
 class User_Pool(db.Model):
@@ -310,8 +316,8 @@ class Contest(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
     description = db.Column(db.String)
-    start_date = db.Column(db.DateTime)
-    end_date = db.Column(db.DateTime)
+    start_date = db.Column(db.DateTime, nullable=False)
+    end_date = db.Column(db.DateTime, nullable=False)
     is_public = db.Column(db.Boolean, default=False)
 
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
