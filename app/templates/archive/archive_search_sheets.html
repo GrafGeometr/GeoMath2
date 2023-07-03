@@ -4,7 +4,7 @@
         <!-- search panel -->
 
         <section class="flex">
-        <form autocomplete="off" class="flex w-full" action="/archive/problems/all" method="POST">
+        <form autocomplete="off" class="flex w-full" action="/archive/sheets/all" method="POST">
             <div class="w-2/3 relative inline-block">
                 <input id="search_tags" type="text" placeholder="Введите теги" name="tags"
                     class="w-full border-slate-400 border-2 rounded px-2" {% if tags %} value="{{ tags }}" {% endif %}>
@@ -16,9 +16,9 @@
             <ul class="flex text-lg text-center">
                     <li>
                         {% if current_page > pages_to_show[0] %}
-                        <a class="text-sky-500 px-4 hover:underline font-bold text-xl" href="{{ url_for('arch.archive_search', tags=tags, page=current_page-1, mode=mode) }}">&lt;</a>
+                        <a class="text-sky-500 px-4 hover:underline font-bold text-xl" href="{{ url_for('arch.archive_sheet_search', tags=tags, page=current_page-1, mode=mode) }}">&lt;</a>
                         {% else %}
-                        <a class="invisible text-sky-500 px-4 hover:underline" href="{{ url_for('arch.archive_search', tags=tags, page=current_page-1, mode=mode) }}">&lt;</a>
+                        <a class="invisible text-sky-500 px-4 hover:underline" href="{{ url_for('arch.archive_sheet_search', tags=tags, page=current_page-1, mode=mode) }}">&lt;</a>
                         {% endif %}
                     </li>
                 {% for x in pages_to_show %}
@@ -28,24 +28,24 @@
                         </li>
                     {% else %}
                         <li class="w-8">
-                            <a class="text-sky-500 px-2 hover:underline" href="{{ url_for('arch.archive_search', tags=tags, page=x, mode=mode) }}">{{ x }}</a>
+                            <a class="text-sky-500 px-2 hover:underline" href="{{ url_for('arch.archive_sheet_search', tags=tags, page=x, mode=mode) }}">{{ x }}</a>
                         </li>
                     {% endif %}
                 {% endfor %}
                 <li>
                     {% if current_page < pages_to_show[-1] %}
-                    <a class="text-sky-500 px-4 hover:underline font-bold text-xl" href="{{ url_for('arch.archive_search', tags=tags, page=current_page+1, mode=mode) }}">&gt;</a>
+                    <a class="text-sky-500 px-4 hover:underline font-bold text-xl" href="{{ url_for('arch.archive_sheet_search', tags=tags, page=current_page+1, mode=mode) }}">&gt;</a>
                     {% else %}
-                    <a class="invisible text-sky-500 px-4 hover:underline" href="{{ url_for('arch.archive_search', tags=tags, page=current_page+1, mode=mode) }}">&gt;</a>
+                    <a class="invisible text-sky-500 px-4 hover:underline" href="{{ url_for('arch.archive_sheet_search', tags=tags, page=current_page+1, mode=mode) }}">&gt;</a>
                     {% endif %}
                 </li>
             </ul>
         {% endif %}
         </section>
 
-        <!-- problems list -->
+        <!-- sheets list -->
 
-        {% include "archive/archive_problems_list.html" %}
+        {% include "archive/archive_sheets_list.html" %}
 
         <!-- select page from 0 to total pages -->
         

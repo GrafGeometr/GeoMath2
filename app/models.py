@@ -274,3 +274,24 @@ class Sheet(db.Model):
 
     def is_archived(self):
         return self.is_public
+    
+    def is_text_available(self):
+        if (self.is_public):
+            return True
+        relation = current_user.get_pool_relation(self.pool_id)
+        if (relation.role.isOwner() or relation.role.isParticipant()):
+            return True
+        return False
+
+    def is_my(self):
+        relation = current_user.get_pool_relation(self.pool_id)
+        if (relation.role.isOwner() or relation.role.isParticipant()):
+            return True
+        return False
+    
+    def get_nonsecret_attachments(self):
+        result = []
+        for attachment in self.get_attachments():
+            if self.is_text_available():
+                result.append(attachment)
+        return result

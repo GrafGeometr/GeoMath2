@@ -75,11 +75,11 @@ def get_correct_page_slice(num_of_pages, len_of_slice, index_of_current_page):
 
 @arch.route("/archive/problems/<string:mode>", methods=["POST", "GET"])
 @login_required
-def archive_search(mode):
+def archive_problem_search(mode):
     if request.method == "POST":
         tags = request.form.get("tags")
         if tags is not None:
-            return redirect(url_for("arch.archive_search", tags=tags, page=1, mode=mode))
+            return redirect(url_for("arch.archive_problem_search", tags=tags, page=1, mode=mode))
         
     
     tags = request.args.get("tags")
@@ -121,14 +121,64 @@ def archive_search(mode):
     pages_to_show = get_correct_page_slice(num_of_pages, 7, page)
     
 
-    return render_template("archive/archive_search.html", mode=mode, problems=problems, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
+    return render_template("archive/archive_search_problems.html", mode=mode, problems=problems, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
 
+@arch.route("/archive/sheets/<string:mode>", methods=["POST", "GET"])
+@login_required
+def archive_sheet_search(mode):
+    if request.method == "POST":
+        tags = request.form.get("tags")
+        if tags is not None:
+            return redirect(url_for("arch.archive_sheet_search", tags=tags, page=1, mode=mode))
+        
+    
+    tags = request.args.get("tags")
+    page = request.args.get("page")
+
+    if page is None:
+        page = 1
+    else:
+        page = int(page)
+    
+    if tags is None or tags == "":
+        tags = []
+    else:
+        tags = list(map(lambda x: x.strip() , tags.split(";")))
+
+
+    tags = list(set(tags))
+    print(tags)
+    print(page)
+
+    sheets_per_page = 10
+
+
+    sheets = Sheet.query.all()
+    sheets = [(s, len([tag for tag in tags if tag in s.get_tag_names()]), len(tags)) for s in sheets if s.is_text_available()]
+    sheets.sort(key = lambda s: s[1], reverse=True)
+    
+
+    #if mode == "all":
+        #problems = [problem for problem in problems if problem[0].moderated]
+    if mode == "my":
+        sheets = [sheet for sheet in sheets if sheet[0].is_my()]
+
+
+    num_of_pages = (len(sheets)+sheets_per_page-1) // sheets_per_page
+    sheets = sheets[(page-1)*sheets_per_page : page*sheets_per_page]
+
+
+    pages_to_show = get_correct_page_slice(num_of_pages, 7, page)
+    
+    print(sheets)
+
+    return render_template("archive/archive_search_sheets.html", mode=mode, sheets=sheets, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
 
 
 
 @arch.route("/archive/problem/<problem_hashed_id>")
 @login_required
-def my_arch(problem_hashed_id):
+def arch_problem(problem_hashed_id):
     problem = Problem.query.filter_by(hashed_id = problem_hashed_id).first()
     if problem is None:
         return redirect("/archive/problems/all")
@@ -136,4 +186,16 @@ def my_arch(problem_hashed_id):
         "archive/archive_problem_template.html",
         current_problem=problem,
         title=f"Архив - {problem.name}",
+    )
+
+@arch.route("/archive/sheet/<sheet_id>")
+@login_required
+def arch_sheet(sheet_id):
+    sheet = Sheet.query.filter_by(id = sheet_id).first()
+    if sheet is None:
+        return redirect("/archive/sheets/all")
+    return render_template(
+        "archive/archive_sheet_template.html",
+        current_sheet=sheet,
+        title=f"Архив - {sheet.name}",
     )
