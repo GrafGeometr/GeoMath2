@@ -247,18 +247,7 @@ def problem(pool_hashed_id, problem_hashed_id):
                 else:
                     attachment.other_data["is_secret"] = False
                 flag_modified(attachment, "other_data")
-            
-                print(attachment.other_data)
-                print(attachment.id, is_secret)
-                print("DEBUG", problem.get_attachments()[0].other_data)
-
-            print("DEBUG_FINAL", problem.get_attachments()[0].other_data)
             db.session.commit()
-            print("DEBUG_FINAL_2", problem.get_attachments()[0].other_data)
-
-            print(problem.get_attachments())
-            print(problem.get_attachments()[0].other_data)
-
             flash("Задача успешно сохранена", "success")
             return redirect(f"/pool/{pool_hashed_id}/problem/{problem_hashed_id}")
     return render_template(

@@ -14,7 +14,7 @@ def show_problem_attachment(problem_hashed_id, filename):
     if problem is None:
         print("problem none")
         return
-    attachment = ProblemAttachment.query.filter_by(problem_id = problem.id, db_filename = filename).first()
+    attachment = Attachment.query.filter_by(parent_type="Problem", parent_id = problem.id, db_filename = filename).first()
     if attachment is None:
         print("attachment none")
         return
@@ -135,8 +135,6 @@ def my_arch(problem_hashed_id):
         return redirect("/archive/all")
     return render_template(
         "archive/archive_problem_template.html",
-        current_pool=problem.pool,
         current_problem=problem,
         title=f"Архив - {problem.name}",
-        all_tags=sorted(Tag.query.all(), key=lambda x: x.name.lower()),
     )

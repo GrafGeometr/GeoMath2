@@ -160,6 +160,33 @@ class Problem(db.Model):
     
     def is_archived(self):
         return self.is_public and self.moderated
+    
+    def is_statement_available(self):
+        if (self.is_public):
+            return True
+        relation = current_user.get_pool_relation(self.pool_id)
+        if (relation.role.isOwner() or relation.role.isParticipant()):
+            return True
+        return False
+    
+    def is_solution_available(self):
+        if (self.is_public):
+            return True
+        relation = current_user.get_pool_relation(self.pool_id)
+        if (relation.role.isOwner() or relation.role.isParticipant()):
+            return True
+        return False
+    
+    def get_nonsecret_attachments(self):
+        result = []
+        for attachment in self.get_attachments():
+            if not attachment.other_data["is_secret"]:
+                if self.is_statement_available():
+                    result.append(attachment)
+            if attachment.other_data["is_secret"]:
+                if self.is_solution_available():
+                    result.append(attachment)
+        return result
 
 
 class Tag(db.Model):

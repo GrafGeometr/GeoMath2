@@ -140,7 +140,6 @@
             </div>
         </div>
 
-        <div class="h-px w-full bg-neutral-300 my-2"></div>
 
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Теги:</h2>
         <div class="flex gap-x-8 items-start">
@@ -299,21 +298,6 @@
 </script>
 
 
-<script>
-    let show_solution_checkbox = document.getElementById("show_solution_checkbox");
-    show_solution_checkbox.addEventListener("change", function (event) {
-        if (this.checked) {
-            this.parentNode.querySelector('img').src = "/static/images/pwd_show.png";
-            this.parentNode.classList.remove("bg-red-200");
-            this.parentNode.classList.add("bg-green-200");
-        }
-        else {
-            this.parentNode.querySelector('img').src = "/static/images/pwd_hide.png";
-            this.parentNode.classList.remove("bg-green-200");
-            this.parentNode.classList.add("bg-red-200");
-        }
-    })
-</script>
 
 <script>
     function AddTag() {

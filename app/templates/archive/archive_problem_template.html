@@ -4,207 +4,171 @@
 
 
 <div class="flex flex-col">
-    <div class="w-full mt-2 px-4">
-        <input type="hidden" name="save_problem" value="239">
-
-        <div class="flex flex-row items-center justify-between mt-4">
-            <div class="flex flex-row items-center relative">
-                <h1 class="mr-4 text-2xl font-bold">{{ current_problem.name }}</h1>
-                <span class="text-slate-500 font-bold text-xl ml-4">|</span>
-                <span class="text-slate-500 font-bold text-xl ml-4">#</span>
-                <span>
-                    <span class="text-slate-500 font-bold text-xl ml-4 peer hover:cursor-help"
-                        onclick="navigator.clipboard.writeText('{{ current_problem.hashed_id }}');">{{
-                        current_problem.hashed_id }}</span>
-                    <span
-                        class="absolute top-6 hidden peer-hover:flex border-2 p-2 rounded-md bg-white border-black flex-col z-50">
-                        Скопировать
-                        </span>
-                </span>
-            </div>
-            <button
-                class="border-0 bg-transparent cursor-pointer font-bold text-xl ml-4 hover:underline hover:font-bold hover:text-green-600"
-                onclick="changeDisplayMode();">Показать код</button>
+    <div class="flex flex-row justify-between mt-4">
+        <div class="flex flex-row items-center">
+            <span class="mr-4 text-2xl font-bold">{{ current_problem.name }}</span>
+            <span class="text-slate-500 font-bold text-xl">[</span>
+            <span id="copy_hash_span" class="mx-2 text-slate-500 hover:cursor-pointer hover:underline hover:text-slate-800">{{ current_problem.hashed_id }}</span>
+            <span class="text-slate-500 font-bold text-xl">]</span>
+            <span id="fading_flash" class="text-black opacity-0 ml-2">Скопировано</span>
         </div>
+        <span id="toggle_code_view"
+        class="hover:cursor-pointer w-60 px-12 py-2 rounded-xl text-lg text-center text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">
+        Показать код</span>
+    </div>
 
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Условие:</h2>
-        <div class="flex w-full items-start">
-            <textarea id="statement_textarea" cols="50" name="statement" readonly
-                class="w-1/2 p-4 border-slate-200 border-2 rounded-lg hidden">{{ current_problem.statement }}</textarea>
-        </div>
+    {% if current_problem.is_statement_available() %}
+    <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Условие:</h2>
+    <div class="flex w-full items-start">
+        <textarea id="statement_textarea" cols="50" name="statement" readonly class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.statement }}</textarea>
+    </div>
 
-        <script>
-            makeLaTeXArea("statement_textarea", "problem");
-        </script>
-
-
-        <details>
-            <summary class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Решение:
-                {% if current_problem.show_solution %}
-                <span class="text-green-600 font-bold">доступно</span>
-                {% else %}
-                <span class="text-red-500 font-bold">скрыто</span>
-                {% endif %}
-            </summary>
-            {% if current_problem.show_solution %}
-            <div class="flex w-full items-start">
-                <textarea id="solution_textarea" cols="50" name="solution"
-                    readonlyclass="w-1/2 p-4 border-slate-200 border-2 rounded-lg hidden">{{ current_problem.solution }}</textarea>
-            </div>
-
-            <script>
-                makeLaTeXArea("solution_textarea", "problem");
-            </script>
-            {% else %}
-            <span class="text-red-500">Автор задачи скрыл решение</span>
-            {% endif %}
-        </details>
-
-        {% set nonsecret_attachments = current_problem.get_attachments() | selectattr("other_data.is_secret", "equalto",
-        false) | list %}
+    <script>
+        makeLaTeXArea("statement_textarea", "problem");
+    </script>
+    {% endif %}
 
 
-        {% if nonsecret_attachments %}
+    {% if current_problem.is_solution_available() %}
+    <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Решение:</h2>
+    <div class="flex w-full items-start">
+        <textarea id="solution_textarea" cols="50" name="solution" readonly class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.solution }}</textarea>
+    </div>
 
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Вложения:</h2>
-        <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
-            <div class="border-r-2 border-slate-300 w-1/3">
-                <div class="flex flex-col {% if current_problem.get_attachments() %} gap-y-4 {% endif %} mr-4">
-                    <ul class="flex flex-col gap-y-2" id="files-list">
-                        {% for attachment in nonsecret_attachments %}
-                        <li class="flex w-full gap-x-2">
-                            <input type="text" name="attachment_name {{ attachment.db_filename }}"
-                                id="attachment-name-{{ attachment.db_filename }}" value="{{ attachment.short_name }}"
-                                placeholder="Как назвать картинку?" {% if current_problem.is_public %} readonly {% endif
-                                %}
-                                class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow">
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
+    <script>
+        makeLaTeXArea("solution_textarea", "problem");
+    </script>
+    {% endif %}
 
-            <div class="w-2/3 ml-4">
-                <img id="display-attachment" class="hidden border-2 border-sky-400 padding-8 rounded-xl">
-            </div>
-        </div>
-
-        {% endif %}
-
-        <div class="h-px w-full bg-neutral-300 my-2"></div>
-
-        <details>
-            <summary class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Теги:</summary>
-            <div class="flex gap-x-8 items-start">
-                <ul class="w-full" id="tas_list">
-                    {% for tag in current_problem.get_tags() %}
-                    <li class="flex">
-                        <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
-                        <span class="text-slate-500 font-bold mr-4">#</span>
-                        <div class="w-2/3"><span>{{ tag.name }}</span></div>
-                        <span class="text-slate-500 font-bold mx-4">|</span>
+    {% if current_problem.get_nonsecret_attachments()|length > 0 %}
+    <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Вложения:</h2>
+    <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
+        <div class="border-r-2 border-slate-300 w-1/3">
+            <div class="flex flex-col {% if current_problem.get_attachments() %} gap-y-4 {% endif %} mr-4">
+                <ul class="flex flex-col gap-y-2" id="files-list">
+                    {% for attachment in current_problem.get_nonsecret_attachments() %}
+                    <li class="flex w-full gap-x-2">
+                        <input type="text" name="attachment_name {{ attachment.db_filename }}" id="attachment-name-{{ attachment.db_filename }}"
+                            value="{{ attachment.short_name }}" placeholder="Как назвать картинку?" readonly
+                            class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
                     </li>
                     {% endfor %}
                 </ul>
             </div>
-        </details>
+        </div>
+
+        <div class="w-2/3 ml-4">
+            <img id="display-attachment" class="hidden border-2 border-sky-400 padding-8 rounded-xl">
+        </div>
     </div>
+    {% endif %}
+
+    {% if current_problem.get_tags()|length > 0 %}
+    <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Теги:</h2>
+    <div class="flex gap-x-8 items-start">
+        <ul class="w-full" id="tas_list">
+            {% for tag in current_problem.get_tags() %}
+            <li class="flex">
+                <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
+                <span class="text-slate-500 font-bold mr-4">#</span>
+                <div class="w-2/3"><span>{{ tag.name }}</span></div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
 </div>
 
 <script>
-    var displayMode = "fullscreen";
-
-    function changeDisplayMode() {
-        if (displayMode == "fullscreen") {
-            displayMode = "withcode";
-        } else {
-            displayMode = "fullscreen";
+    function BindAttachmentClick() {
+        var inputs = document.querySelectorAll(".input-attachment-name");
+        console.log(inputs);
+        var display = document.querySelector("#display-attachment");
+        display.onerror = () => {
+            console.log("error");
+            this.classList.add("hidden");
+            this.onerror = null;
         }
-        fixMode();
-        console.log(displayMode);
-    }
-
-    function fixMode() {
-
-        var statementInput = document.getElementById("statement_textarea");
-        var statementCode = document.getElementById("statement_textarea-highlighting");
-        var statementOutput = document.getElementById("statement_textarea-latex-output");
-
-        var solutionAvailable = document.getElementById("solution_textarea") !== null;
-
-
-        if (solutionAvailable) {
-            var solutionInput = document.getElementById("solution_textarea");
-            var solutionCode = document.getElementById("solution_textarea-highlighting");
-            var solutionOutput = document.getElementById("solution_textarea-latex-output");
-        }
-
-
-        if (displayMode == "fullscreen") {
-            if (!statementInput.classList.contains("hidden")) statementInput.classList.add("hidden");
-            if (!statementCode.classList.contains("hidden")) statementCode.classList.add("hidden");
-
-            if (statementOutput.classList.contains("w-1/2")) statementOutput.classList.remove("w-1/2");
-            if (!statementOutput.classList.contains("w-full")) statementOutput.classList.add("w-full");
-
-            //toReRenderList.push("statement_textarea");
-
-            if (solutionAvailable) {
-                if (!solutionInput.classList.contains("hidden")) solutionInput.classList.add("hidden");
-                if (!solutionCode.classList.contains("hidden")) solutionCode.classList.add("hidden");
-
-                if (solutionOutput.classList.contains("w-1/2")) solutionOutput.classList.remove("w-1/2");
-                if (!solutionOutput.classList.contains("w-full")) solutionOutput.classList.add("w-full");
-
-                //toReRenderList.push("solution_textarea");
-            }
-        } else {
-            if (statementInput.classList.contains("hidden")) statementInput.classList.remove("hidden");
-            if (statementCode.classList.contains("hidden")) statementCode.classList.remove("hidden");
-
-            if (statementOutput.classList.contains("w-full")) statementOutput.classList.remove("w-full");
-            if (!statementOutput.classList.contains("w-1/2")) statementOutput.classList.add("w-1/2");
-
-            //toReRenderList.push("statement_textarea");
-
-            //statementCode.style.position = "absolute";
-            //statementCode.style.top = statementInput.offsetTop;
-            //statementCode.style.left = statementInput.offsetLeft;
-            //statementCode.style.width = `${statementInput.offsetWidth}px`;
-            //statementCode.style.height = `${statementInput.offsetHeight}px`;
-
-            //update(`statement_textarea-highlighting-content`, statementInput.value);
-            //sync_scroll(statementInput, `statement_textarea-highlighting`);
-
-            //fitContent(statementInput, 2);
-
-            if (solutionAvailable) {
-                if (solutionInput.classList.contains("hidden")) solutionInput.classList.remove("hidden");
-                if (solutionCode.classList.contains("hidden")) solutionCode.classList.remove("hidden");
-
-                if (solutionOutput.classList.contains("w-full")) solutionOutput.classList.remove("w-full");
-                if (!solutionOutput.classList.contains("w-1/2")) solutionOutput.classList.add("w-1/2");
-
-                //toReRenderList.push("solution_textarea");
-
-                //solutionCode.style.position = "absolute";
-                //solutionCode.style.top = solutionInput.offsetTop;
-                //solutionCode.style.left = solutionInput.offsetLeft;
-                //solutionCode.style.width = `${solutionInput.offsetWidth}px`;
-                //solutionCode.style.height = `${solutionInput.offsetHeight}px`;
-
-                //update(`solution_textarea-highlighting-content`, solutionInput.value);
-                //sync_scroll(solutionInput, `solution_textarea-highlighting`);
-
-                //fitContent(solutionInput, 2);
-            }
+        
+        for (var i = 0; i < inputs.length; i++) {
+            inputs[i].addEventListener("focus", function (event) {
+                inputs.forEach((input) => {
+                    input.classList.remove("border-black", "bg-slate-100");
+                })
+                this.classList.add("border-black", "bg-slate-100");
+                var db_filename = this.id.split("attachment-name-")[1];
+                display.src = `/get_image/${ db_filename }`;
+                display.classList.remove("hidden");
+                display.classList.add("block");
+            })
         }
     }
-
-
-    fixMode();
 </script>
 
 
 
+<script>
+    const fade = (el, timeout=1000) => {
+        el.style.opacity = 1;
+        var timer = setTimeout(function() {
+            el.style.opacity = 0;
+        }, timeout)
+    };
+</script>
+
+<script>
+    var span = document.getElementById("copy_hash_span");
+    span.addEventListener("click", function () {
+        navigator.clipboard.writeText(span.innerText);
+        var flash = document.getElementById("fading_flash");
+        fade(flash, 1000);
+    })
+</script>
+
+<script>
+    function syncShowCode() {
+        var span = document.getElementById("toggle_code_view");
+        var textareas = document.getElementsByTagName("textarea");
+        var show_code = (span.innerText == "Скрыть код");
+        if (show_code) {
+            for (var i = 0; i < textareas.length; i++) {
+                var textarea = textareas[i];
+                var container = textarea.parentElement;
+                var pre = textarea.nextElementSibling;
+                var output = pre.nextElementSibling;
+                textarea.style.display = "";
+                pre.style.display = "";
+            }
+        }
+        else {
+            for (var i = 0; i < textareas.length; i++) {
+                var textarea = textareas[i];
+                var container = textarea.parentElement;
+                var pre = textarea.nextElementSibling;
+                var output = pre.nextElementSibling;
+                textarea.style.display = "none";
+                pre.style.display = "none";
+            }
+        }
+    }
+</script>
+
+<script>
+    var span = document.getElementById("toggle_code_view");
+    span.addEventListener("click", function () {
+        var show_code = (span.innerText == "Показать код");
+        if (show_code) {
+            span.innerText = "Скрыть код";
+        }
+        else {
+            span.innerText = "Показать код";
+        }
+        syncShowCode();
+    })
+</script>
+
+<script>
+    syncShowCode();
+    BindAttachmentClick();
+</script>
 {% endblock %}
