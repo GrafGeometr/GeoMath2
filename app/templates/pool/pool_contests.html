@@ -1,0 +1,36 @@
+{% extends "pool/pool_header.html" %}
+{% block pool_body %}
+<script>
+    var element = document.getElementById("contests_href");
+    element.classList.remove("text-stone-800");
+    element.classList.add("text-blue-600");
+</script>
+
+    
+</style>
+<form action="/pool/{{ current_pool.hashed_id }}/new_contest" method="post" style="margin-bottom: 10px;">
+<input type="submit" class="hover:cursor-pointer px-16 py-4 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700" value="Новый контест">
+</form>
+
+
+<script>
+    function remove_contest(pool, contest) {
+        var data = {'pool' : pool, 'contest' : contest};
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/remove_contest_from_pool', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    document.getElementById("pool_contestlist").innerHTML = this.responseText;
+                    MathJax.Hub.Queue(["Typeset",MathJax.Hub,"pool_contestlist"]);
+                }
+            }
+        xhr.send(JSON.stringify(data));
+    }
+</script>
+
+<div id="pool_contestlist">
+{% include "pool/pool_contestlist.html" %}
+</div>
+
+{% endblock %}

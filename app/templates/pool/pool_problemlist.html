@@ -7,11 +7,7 @@
             <div>
                 <div class="flex flex-row">
                 <a href="/pool/{{ current_pool.hashed_id }}/problem/{{ problem.hashed_id }}" class="no-underline text-black text-xl hover:underline">{{ problem.name }}</a>
-                {% if problem.is_public and not problem.moderated %}
-                <span class="text-slate-500 font-bold mx-4 text-xl">|</span>
-                <span class="no-underline text-black text-xl">Задача уже на модерации</span>
-
-                {% elif problem.is_public and problem.moderated %}
+                {% if problem.is_public %}
                 <span class="text-slate-500 font-bold mx-4 text-xl">|</span>
                 <span class="no-underline text-black text-xl">Задача в архиве</span>
                 {% endif %}

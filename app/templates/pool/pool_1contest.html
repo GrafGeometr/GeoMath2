@@ -4,20 +4,20 @@
 
 {% if current_user.get_pool_relation(current_pool.id).role.isOwner() %}
 <div class="flex justify-between">
-    {% if current_sheet.is_public %}
+    {% if current_contest.is_public %}
     <div class="flex flex-row items-center mt-4">
-        <h3 class="text-red-400 font-bold text-xl">Вы не можете редактировать подборку, если она опубликована</h3>
+        <h3 class="text-red-400 font-bold text-xl">Вы не можете редактировать контест, если он опубликован</h3>
         <span class="text-slate-500 font-bold mx-4 text-xl">|</span>
-        <form action="/pool/{{ current_pool.hashed_id }}/sheets" method="post">
+        <form action="/pool/{{ current_pool.hashed_id }}/contests" method="post">
             <input type="hidden" name="back_to_pool" value="{{ current_pool.hashed_id }}">
-            <input type="hidden" name="sheet_id" value="{{ current_sheet.id }}">
+            <input type="hidden" name="contest_id" value="{{ current_contest.id }}">
             <input type="submit" value="Вернуть на доработку?"
                 class="hover:font-bold hover:cursor-pointer hover:text-blue-600 text-xl">
         </form>
     </div>
     {% endif %}
-    {% if not current_sheet.is_public %}
-    <form action="/archive/publish/sheet/{{current_sheet.id}}" method="post" class="w-full flex flex-row justify-end">
+    {% if not current_contest.is_public %}
+    <form action="/archive/publish/contest/{{current_contest.id}}" method="post" class="w-full flex flex-row justify-end">
         <input type="submit"
             class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
             value="Опубликовать в архив">
@@ -31,9 +31,9 @@
 </div>
 {% endif %}
 <div class="flex flex-col">
-    <form autocomplete="off" action="/pool/{{ current_pool.hashed_id }}/sheet/{{ current_sheet.id }}" method="post"
+    <form autocomplete="off" action="/pool/{{ current_pool.hashed_id }}/contest/{{ current_contest.id }}" method="post"
         class="w-full mt-2 px-4" enctype="multipart/form-data">
-        <input type="hidden" name="save_sheet" value="239">
+        <input type="hidden" name="save_contest" value="239">
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% for category, message in messages %}
         {% if category == "danger" %}
@@ -53,7 +53,7 @@
         {% endwith %}
 
         <div class="flex flex-row items-center mt-4">
-            <h1 class="mr-4 text-2xl font-bold">{{ current_sheet.name }}</h1>
+            <h1 class="mr-4 text-2xl font-bold">{{ current_contest.name }}</h1>
             <input type="submit" value="Сохранить"
                 class="hover:cursor-pointer px-8 py-2 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700">
         </div>
@@ -61,58 +61,50 @@
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Название:</h2>
         <div class="flex w-full">
             <textarea rows="1" cols="50" name="name" class="text-lg w-full p-4 border-slate-200 border-2 rounded-lg" {%
-                if current_sheet.is_public %} readonly {% endif %}>{{ current_sheet.name }}</textarea>
+                if current_contest.is_public %} readonly {% endif %}>{{ current_contest.name }}</textarea>
         </div>
 
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Текст:</h2>
+        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Описание:</h2>
         <div class="flex w-full items-start">
-            <textarea id="text_textarea" cols="50" name="text" {% if current_sheet.is_public %}
-                readonly {% endif %} class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_sheet.text }}</textarea>
+            <textarea id="description_textarea" cols="50" name="text" {% if current_contest.is_public %}
+                readonly {% endif %} class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_contest.description }}</textarea>
         </div>
 
         <script>
-            makeLaTeXArea("text_textarea", "sheet");
+            makeLaTeXArea("description_textarea", "contest");
         </script>
 
-
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Вложения:</h2>
+        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Задачи:</h2>
         <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
             <div class="border-r-2 border-slate-300 w-1/3">
-                <div class="flex flex-col {% if current_sheet.get_attachments() %} gap-y-4 {% endif %} mr-4">
-                    <ul class="flex flex-col gap-y-2 " id="files-list">
-                        {% for attachment in current_sheet.get_attachments() %}
+                <div class="flex flex-col {% if current_contest.get_problems() %} gap-y-4 {% endif %} mr-4">
+                    <ul class="flex flex-col gap-y-2 " id="problems-list">
+                        {% for problem in current_contest.get_problems() %}
                         <li class="flex w-full gap-x-2">
-                            <input type="text" name="attachment_name {{ attachment.db_filename }}" id="attachment-name-{{ attachment.db_filename }}"
-                                value="{{ attachment.short_name }}" placeholder="Как назвать картинку?" {% if current_sheet.is_public %} readonly {% endif %}
-                                class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
-                            {% if not current_sheet.is_public %}
-                                <button onclick="DeleteAttachment(this)"
+                            <input type="text" name="problem_hash"
+                                value="{{ problem.hashed_id }}" placeholder="Хеш задачи" {% if current_contest.is_public %} readonly {% endif %}
+                                class="input-problem-hash text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+                            {% if not current_contest.is_public %}
+                                <button onclick="DeleteProblem(this)"
                                 class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
                             {% endif %}
                         </li>
                         {% endfor %}
                     </ul>
-                    <div class="border-2 border-blue-500 border-dashed px-8 py-4 rounded-xl flex justify-center {% if current_sheet.is_public %} hidden {% endif %}">
-                        <label class="label text-lg">
-                            <input type="file" class="file-input w-0 h-0" name="attachments" accept="image/*" multiple {% if current_sheet.is_public %} readonly {% endif %}>
-                            {% if not current_sheet.is_public %}
-                            <span class="browse-files-text text-blue-500 font-semibold cursor-pointer inline-block"
-                                onclick="ResetFileInput()">Загрузить файлы</span>
-                            {% endif %}
-                        </label>
-                    </div>
+                    <button onclick="event.preventDefault(); AddProblem(event)"
+                    class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-green-500">Добавить</button>
                 </div>
             </div>
 
             <div class="w-2/3 ml-4">
-                <img id="display-attachment" class="hidden border-2 border-sky-400 padding-8 rounded-xl">
+                <div id="display-problem" class="hidden border-2 border-sky-400 p-8 rounded-xl"></div>
             </div>
         </div>
 
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Теги:</h2>
         <div class="flex gap-x-8 items-start">
             <ul class="w-full" id="tas_list">
-                {% for tag in current_sheet.get_tags() %}
+                {% for tag in current_contest.get_tags() %}
                 <li class="flex">
                     <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
                     <span class="text-slate-500 font-bold mr-4">#</span>
@@ -139,10 +131,11 @@
 
 
 <script>
-    function BindAttachmentClick() {
-        var inputs = document.querySelectorAll(".input-attachment-name");
+    function BindProblemClick() {
+        var inputs = document.querySelectorAll(".input-problem-hash");
         console.log(inputs);
-        var display = document.querySelector("#display-attachment");
+        var display = document.querySelector("#display-problem");
+        console.log("display", display);
         display.onerror = () => {
             console.log("error");
             this.classList.add("hidden");
@@ -155,80 +148,58 @@
                     input.classList.remove("border-black", "bg-slate-100");
                 })
                 this.classList.add("border-black", "bg-slate-100");
-                var db_filename = this.id.split("attachment-name-")[1];
-                display.src = `/get_image/${ db_filename }`;
-                display.classList.remove("hidden");
-                display.classList.add("block");
+                var problem_hashed_id = this.value;
+                const href = `${window.location.origin}/get_problem_content/${problem_hashed_id}`
+                fetch(`${href}`).then(response => {
+                    if (response.status == 200) return response.json();
+                    else {
+                        display.classList.remove("block");
+                        display.classList.add("hidden");
+                        throw new Error("Failed to fetch problem");
+                    }
+                }).then(json => {
+                    display.innerHTML = "";
+                    var iframe = renderProblem("", json, ['name', 'statement', 'solution', 'tags'], "inplace", "display-problem");
+                    display.appendChild(iframe);
+                    console.log(iframe);
+                    display.classList.remove("hidden");
+                    display.classList.add("block");
+                });
             })
         }
     }
 </script>
 
+
 <script>
-    let fileInput = document.querySelector(".file-input");
-    let filesList = document.getElementById("files-list");
-    fileInput.addEventListener("change", function (event) {
-        for (let i = 0; i < this.files.length; i++) {
-
-            const Data = new FormData();
-            Data.append("file", this.files[i]);
-            Data.append("name", this.files[i].name);
-            Data.append("type", this.files[i].type);
-            Data.append("size", this.files[i].size);
-
-            fetch(`${ window.location.href }/upload_file`, {
-                method: "POST",
-                body: Data
-            }).then((response) => {
-                if (response.status == 200) {
-                    return response.text();
-                } else {
-                    throw new Error("Bad file");
-                }
-            }).then(result => {
-                    if (result[0] == "O" && result[1] == "K") {
-                        var attachment_db_filename = result.slice(3);
-                        filesList.innerHTML += `
-                        <li class="flex w-full gap-x-2">
-                            <input type="text" name="attachment_name ${ attachment_db_filename }" id="attachment-name-${ attachment_db_filename }"
-                            value="Рисунок" placeholder="Как назвать картинку?"
-                            class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
-                            <button onclick="DeleteAttachment(this)"
-                            class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
-                        </li>
-                        `
-                        BindAttachmentClick();
-                        filesList.parentNode.classList.add("gap-y-4");
-                    }
-                }
-            );
-        }
-    })
+    BindProblemClick();
 </script>
 
 
 
-
 <script>
-    BindAttachmentClick();
-</script>
-
-<script>
-    function DeleteAttachment(element) {
-        let filesList = element.parentElement.parentElement;
-        if (filesList.children.length == 1) {
-            filesList.parentNode.classList.remove("gap-y-4");
+    function DeleteProblem(element) {
+        let problemsList = element.parentElement.parentElement;
+        if (problemsList.children.length == 1) {
+            problemsList.parentNode.classList.remove("gap-y-4");
         }
         element.parentElement.remove();
     }
-    function ResetFileInput() {
-        let fileInput = document.querySelector(".file-input");
-        fileInput.value = "";
-        fileInput.type = "";
-        fileInput.type = "file";
-
-        let filesList = element.parentElement.parentElement;
-        filesList.parentNode.classList.remove("gap-y-4");
+    function AddProblem(event) {
+        let problemInput = document.querySelector(".problem-input");
+        let problemList = event.target.previousElementSibling;
+        problemList.parentNode.classList.remove("gap-y-4");
+        var child = document.createElement("li");
+        child.classList.add("flex", "w-full", "gap-x-2");
+        child.innerHTML = `
+        <input type="text" name="problem_hash" value="" placeholder="Хеш задачи" {% if current_contest.is_public %} readonly {% endif %}
+        class="input-problem-hash text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+        <button onclick="DeleteProblem(this)"
+        class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
+        `
+        problemList.appendChild(child);
+        problemList.parentNode.classList.add("gap-y-4");
+        BindProblemClick();
     }
 </script>
 

@@ -398,6 +398,7 @@ def pool_sheets(pool_hashed_id):
             sheet = Sheet.query.filter_by(id=sheet_id).first()
             sheet.is_public = False
             db.session.commit()
+            return redirect(f"/pool/{pool_hashed_id}/sheet/{sheet_id}")
     return render_template(
         "pool/pool_sheets.html", current_pool=pool, title=f"{pool.name} - подборки"
     )
@@ -607,6 +608,139 @@ def upload_file_to_sheet(pool_hashed_id, sheet_id):
 
 
 # =============================================================================================================================
+
+# --> Contests
+# list all contests in pool
+@pool.route("/pool/<pool_hashed_id>/contests", methods=["GET", "POST"])
+@login_required
+def pool_contests(pool_hashed_id):
+    pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
+
+    if pool is None:
+        flash("Пул с таким id не найден", "danger")
+        return redirect("/myprofile")
+
+    user_checked = check_user_in_pool(current_user, pool)
+    if user_checked is not None:
+        return redirect(user_checked)
+
+    if request.method == "POST":
+        if request.form.get("back_to_pool") is not None:
+            contest_id = request.form.get("contest_id")
+            contest = Contest.query.filter_by(id=contest_id).first()
+            contest.is_public = False
+            db.session.commit()
+            return redirect(f"/pool/{pool_hashed_id}/contest/{contest_id}")
+    return render_template(
+        "pool/pool_contests.html", current_pool=pool, title=f"{pool.name} - контесты"
+    )
+
+# create new contest in pool
+@pool.route("/pool/<pool_hashed_id>/new_contest", methods=["POST"])
+@login_required
+def new_contest(pool_hashed_id):
+    pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
+
+    if pool is None:
+        flash("Пул с таким id не найден", "danger")
+        return redirect("/myprofile")
+
+    user_checked = check_user_in_pool(current_user, pool)
+    if user_checked is not None:
+        return redirect(user_checked)
+
+    contest = pool.new_contest()
+
+    return redirect(f"/pool/{pool_hashed_id}/contest/{contest.id}")
+
+
+# show and edit contest in pool
+@pool.route("/pool/<pool_hashed_id>/contest/<contest_id>", methods=["GET", "POST"])
+@login_required
+def contest(pool_hashed_id, contest_id):
+    pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
+
+    if pool is None:
+        flash("Пул с таким id не найден", "danger")
+        return redirect("/myprofile")
+
+    user_checked = check_user_in_pool(current_user, pool)
+    if user_checked is not None:
+        return redirect(user_checked)
+
+    contest = Contest.query.filter_by(id=contest_id).first()
+
+    if contest is None:
+        flash("Контест не найден", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/contests")
+
+    if request.method == "POST":
+        if request.form.get("save_contest") is not None:
+            name = request.form.get("name")
+            description = request.form.get("description")
+            start_date = request.form.get("start_date")
+            end_date = request.form.get("end_date")
+
+            if not contest.is_public:
+                contest.name = name
+                contest.description = description
+
+            contest.start_date = start_date
+            contest.end_date = end_date
+
+            db.session.commit()
+
+
+            form = request.form.to_dict()
+            print(form)
+
+            for key, value in form.items():
+                if len(key) >= 4 and key[:4] == "tag ":
+                    print(key, value)
+                    tag = Tag.query.filter_by(name=value).first()
+                    print(1)
+                    if tag is None:
+                        tag = Tag(name=value)
+                        db.session.add(tag)
+                        db.session.commit()
+                    if (Tag_Relation.query.filter_by(parent_type="Contest", parent_id=contest.id, tag_id=tag.id).first() is None):
+                        tag_relation = Tag_Relation(parent_type="Contest", parent_id=contest.id, tag_id=tag.id)
+                        db.session.add(tag_relation)
+                        db.session.commit()
+            for tag in contest.get_tags():
+                if form.get(f"tag {tag.name}", None) is None:
+                    db.session.delete(Tag_Relation.query.filter_by(parent_type="Contest", parent_id=contest.id, tag_id=tag.id).first())
+                    db.session.commit()
+
+            hashes = request.form.getlist("problem_hash")
+            problems = [Problem.query.filter_by(hashed_id=hashed_id).first() for hashed_id in hashes]
+            for problem in problems:
+                if problem is None:
+                    continue
+                if Contest_Problem.query.filter_by(contest_id=contest.id, problem_id=problem.id).first() is None:
+                    db.session.add(Contest_Problem(contest_id=contest.id, problem_id=problem.id))
+                    db.session.commit()
+            for problem in contest.get_problems():
+                if problem.hashed_id not in hashes:
+                    db.session.delete(Contest_Problem.query.filter_by(contest_id=contest.id, problem_id=problem.id).first())
+                    db.session.commit()
+
+
+
+            db.session.commit()
+
+            flash("Контест успешно сохранён", "success")
+            return redirect(f"/pool/{pool_hashed_id}/contest/{contest_id}")
+    return render_template(
+        "pool/pool_1contest.html",
+        current_pool=pool,
+        current_contest=contest,
+        title=f"Редактор - {contest.name}",
+        all_tags=sorted(Tag.query.all(), key=lambda x: x.name.lower()),
+    )
+
+# =============================================================================================================================
+
 
 
 # --> Pool invitations

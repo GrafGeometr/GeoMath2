@@ -28,7 +28,7 @@ def show_problem_attachment(problem_hashed_id, filename):
 
 @arch.route("/archive/publish/problem/<problem_hashed_id>", methods=["POST"])
 @login_required
-def publish(problem_hashed_id):
+def publish_problem(problem_hashed_id):
     problem = Problem.query.filter_by(hashed_id = problem_hashed_id).first()
     if problem is None:
         return redirect(f"/myprofile")
@@ -51,6 +51,29 @@ def publish(problem_hashed_id):
     db.session.commit()
 
     return redirect(f"/pool/{pool_hashed_id}/problem/{problem.hashed_id}")
+
+@arch.route("/archive/publish/sheet/<sheet_id>", methods=["POST"])
+@login_required
+def publish_sheet(sheet_id):
+    sheet = Sheet.query.filter_by(id = sheet_id).first()
+    if sheet is None:
+        return redirect(f"/myprofile")
+    pool_hashed_id = sheet.pool.hashed_id
+    if not current_user.get_pool_relation(sheet.pool_id).role.isOwner():
+        return redirect(f"/pool/{pool_hashed_id}/problems")
+    
+    if not sheet.name:
+        flash("Не указано название подборки", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/sheet/{sheet.id}")
+    if not sheet.text:
+        flash("Не указан текст подборки", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/sheet/{sheet.id}")
+
+    sheet.is_public = True
+
+    db.session.commit()
+
+    return redirect(f"/pool/{pool_hashed_id}/sheet/{sheet.id}")
 
 
 

@@ -21,11 +21,6 @@
             class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
             value="Опубликовать в архив">
     </form>
-    {% elif current_problem.is_public and not current_problem.moderated %}
-    <span
-        class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">
-        На модерации
-    </span>
     {% else %}
     <span
         class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">
@@ -97,7 +92,7 @@
                         <li class="flex w-full gap-x-2">
                             <input type="text" name="attachment_name {{ attachment.db_filename }}" id="attachment-name-{{ attachment.db_filename }}"
                                 value="{{ attachment.short_name }}" placeholder="Как назвать картинку?" {% if current_problem.is_public %} readonly {% endif %}
-                                class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow">
+                                class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
                             
                             <label class="relative flex items-center">
                             {% if attachment.other_data["is_secret"] %}
@@ -245,7 +240,7 @@
                         <li class="flex w-full gap-x-2">
                             <input type="text" name="attachment_name ${ attachment_db_filename }" id="attachment-name-${ attachment_db_filename }"
                             value="Рисунок" placeholder="Как назвать картинку?"
-                            class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow">
+                            class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
 
                             <label class="relative flex items-center">
                                 <input type="checkbox" name="attachment_is_secret ${ attachment_db_filename }" id="attachment-is-secret-${ attachment_db_filename }" checked

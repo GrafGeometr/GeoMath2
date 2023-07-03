@@ -422,6 +422,7 @@ function renderProblem(additional, json, args, mode = "inplace", inputElementId 
         if (args.includes('statement')) toRender += json['statement'];
         if (args.includes('solution')) toRender += `\n\n${json['solution']}`;
         if (args.includes('tags')) toRender += `\n\n${json['tags'].map(t => `\\footnotesize{\\textit{ \\# ${t} }}`).join('\n')}`;
+        toRender = toRender.replace('#', '\\#');
         console.log(toRender);
 
         var oldImageNameList = imageNameList;

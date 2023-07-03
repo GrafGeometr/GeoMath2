@@ -7,16 +7,8 @@
                 <a href="/pool/{{ current_pool.hashed_id }}/sheet/{{ sheet.id }}" class="no-underline text-black text-xl hover:underline">{{ sheet.name }}</a>
 
                 {% if sheet.is_public %}
-                <span class="text-slate-500 font-bold mx-4">|</span>
-                <div class="flex flex-col">
-                    <span class="no-underline text-black text-xl">Подборка в архиве</span>
-                    <form action="/pool/{{ current_pool.hashed_id }}/sheets" method="post" class="my-4">
-                        <input type="hidden" name="back_to_pool" value="{{ current_pool.hashed_id }}">
-                        <input type="hidden" name="sheet_id" value="{{ sheet.id }}">
-                        <input type="submit" value="Вернуть на доработку?"
-                            class="hover:font-bold hover:cursor-pointer hover:text-blue-600">
-                    </form>
-                </div>
+                <span class="text-slate-500 font-bold mx-4 text-xl">|</span>
+                <span class="no-underline text-black text-xl">Подборка в архиве</span>
                 {% endif %}
                 </div>
             </div>
