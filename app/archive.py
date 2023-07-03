@@ -133,4 +133,10 @@ def my_arch(problem_hashed_id):
     problem = Problem.query.filter_by(hashed_id = problem_hashed_id).first()
     if problem is None:
         return redirect("/archive/all")
-    return render_template("archive/archive_problem_template.html", problem=problem, all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
+    return render_template(
+        "archive/archive_problem_template.html",
+        current_pool=problem.pool,
+        current_problem=problem,
+        title=f"Архив - {problem.name}",
+        all_tags=sorted(Tag.query.all(), key=lambda x: x.name.lower()),
+    )

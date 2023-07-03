@@ -69,6 +69,10 @@ function makeLaTeXArea(elementId, editorType="problem") {
 
     highlightArea.classList.add("p-4", "border-slate-200", "border-2", "rounded-lg", "h-full", "bg-white");
 
+    if (element.classList.contains("hidden")) {
+        highlightArea.classList.add("hidden");
+    }
+
     const codeArea = document.createElement("span");
     codeArea.id = `${elementId}-highlighting-content`;
     codeArea.classList.add("language-latex");
@@ -94,11 +98,6 @@ function makeLaTeXArea(elementId, editorType="problem") {
     latexOutput.classList.add("text-lg", "ml-4", "p-4", "bg-white", "border-2", "border-solid", "border-slate-200", "rounded-lg", "w-1/2");
 
     element.parentElement.appendChild(latexOutput);
-
-    // place to store images and iframes
-    const imgContainer = document.createElement("div");
-    imgContainer.id = `${elementId}-img-container`;
-
 
 
     const render = () => {
@@ -246,11 +245,12 @@ const getGenerator = (inputElementId = null, editorType = 'problem') => {
                 return [result];
             }
             
-            args['includeproblem'] = ['V', 'k?', 'k'];
-            prototype['includeproblem'] = function (parts, problem_hashed_id) {
+            args['includeproblem'] = ['V', 'k?', 'k', 'k?'];
+            prototype['includeproblem'] = function (parts, problem_hashed_id, comment) {
                 if (editorType == 'sheet') {
                     if (!parts) parts = "";
                     parts = parts.split(/\s+/);
+                    parts = parts.map(p => p.trim()).filter(p => p.length > 0);
                     console.log("problem_hashed_id: ", problem_hashed_id);
                     console.log("parts: ", parts);
 
@@ -273,7 +273,7 @@ const getGenerator = (inputElementId = null, editorType = 'problem') => {
 
                         return [document.createElement('p', "Loading problem...")];
                     }
-                    return [renderProblem(5, problemList[problem_hashed_id], parts, "inplace", inputElementId)];
+                    return [renderProblem(comment, problemList[problem_hashed_id], parts, "inplace", inputElementId)];
                 }
                 else {
                     const element = document.createElement('p');
@@ -412,10 +412,6 @@ var problemList = {};
 // problem_hashed_id -> {'name': ..., 'statement': ..., 'solution': ..., 'files': [['file_short_name', 'file_db_filename']], 'tags': [...]}
 
 
-
-
-
-
 function renderProblem(additional, json, args, mode = "inplace", inputElementId = null) {
     if (mode == "inplace") {
         if (args.length == 0) args = ['statement'];
@@ -424,7 +420,7 @@ function renderProblem(additional, json, args, mode = "inplace", inputElementId 
         if (args.includes('name')) toRender += `\\textbf{ ${json['name']} } `;
         if (args.includes('statement')) toRender += json['statement'];
         if (args.includes('solution')) toRender += `\n\n${json['solution']}`;
-        if (args.includes('tags')) toRender += `\n\n${json['tags'].map(t => `\\textbf{ \\# ${t} }`).join('\n')}`;
+        if (args.includes('tags')) toRender += `\n\n${json['tags'].map(t => `\\footnotesize{\\textit{ \\# ${t} }}`).join('\n')}`;
         console.log(toRender);
 
         var oldImageNameList = imageNameList;

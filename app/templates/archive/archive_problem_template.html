@@ -1,52 +1,209 @@
 {% extends "wip/archive.html" %}
 {% block archive_content %}
-<div class="w-full my-4 text-lg">
-    <div class="w-full border-4 border-solid border-sky-400 bg-white flex flex-col p-4 rounded-lg">
-        <div class="flex">
-            <span class="text-2xl text-stone-800"> <a href="/archive/all" class="no-underline hover:underline">Архив</a>
-            </span>
-            <span class="text-2xl text-stone-800 mx-2"> / </span>
-            <span class="text-2xl text-stone-800 font-bold"> <a href="/archive/problem/{{ problem.hashed_id }}"
-                    class="no-underline hover:underline">{{ problem.name }}</a> </span>
+
+
+
+<div class="flex flex-col">
+    <div class="w-full mt-2 px-4">
+        <input type="hidden" name="save_problem" value="239">
+
+        <div class="flex flex-row items-center justify-between mt-4">
+            <div class="flex flex-row items-center relative">
+                <h1 class="mr-4 text-2xl font-bold">{{ current_problem.name }}</h1>
+                <span class="text-slate-500 font-bold text-xl ml-4">|</span>
+                <span class="text-slate-500 font-bold text-xl ml-4">#</span>
+                <span>
+                    <span class="text-slate-500 font-bold text-xl ml-4 peer hover:cursor-help"
+                        onclick="navigator.clipboard.writeText('{{ current_problem.hashed_id }}');">{{
+                        current_problem.hashed_id }}</span>
+                    <span
+                        class="absolute top-6 hidden peer-hover:flex border-2 p-2 rounded-md bg-white border-black flex-col z-50">
+                        Скопировать
+                        </span>
+                </span>
+            </div>
+            <button
+                class="border-0 bg-transparent cursor-pointer font-bold text-xl ml-4 hover:underline hover:font-bold hover:text-green-600"
+                onclick="changeDisplayMode();">Показать код</button>
         </div>
 
-        <div class="h-px w-full bg-neutral-300 my-2"></div>
-
-        <span class="text-slate-500 font-bold">Условие:</span>
-        <div id="statement-render-area">
+        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Условие:</h2>
+        <div class="flex w-full items-start">
+            <textarea id="statement_textarea" cols="50" name="statement" readonly
+                class="w-1/2 p-4 border-slate-200 border-2 rounded-lg hidden">{{ current_problem.statement }}</textarea>
         </div>
+
         <script>
-            const div = document.getElementById("statement-render-area");
-            var toRender = {{ problem.statement|tojson }};
-            div.appendChild(getRenderedIframe(toRender));
+            makeLaTeXArea("statement_textarea", "problem");
         </script>
 
-        <div class="h-px w-full bg-neutral-300 my-2"></div>
 
-        {% if problem.show_solution %}
-        <span class="text-green-600 font-bold">доступно</span>
-        {% else %}
-        <span class="text-red-500 font-bold">скрыто</span>
-        {% endif %}
         <details>
-            <summary class="text-slate-500 font-bold">Решение:</summary>
-            {% if problem.show_solution %}
-            <div id="solution-render-area"></div>
+            <summary class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Решение:
+                {% if current_problem.show_solution %}
+                <span class="text-green-600 font-bold">доступно</span>
+                {% else %}
+                <span class="text-red-500 font-bold">скрыто</span>
+                {% endif %}
+            </summary>
+            {% if current_problem.show_solution %}
+            <div class="flex w-full items-start">
+                <textarea id="solution_textarea" cols="50" name="solution"
+                    readonlyclass="w-1/2 p-4 border-slate-200 border-2 rounded-lg hidden">{{ current_problem.solution }}</textarea>
+            </div>
+
             <script>
-                const div = document.getElementById("solution-render-area");
-                var toRender = {{ problem.solution|tojson }};
-                div.innerHTML = getRenderedIframe(toRender);
+                makeLaTeXArea("solution_textarea", "problem");
             </script>
             {% else %}
             <span class="text-red-500">Автор задачи скрыл решение</span>
             {% endif %}
         </details>
 
+        {% set nonsecret_attachments = current_problem.get_attachments() | selectattr("other_data.is_secret", "equalto",
+        false) | list %}
+
+
+        {% if nonsecret_attachments %}
+
+        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Вложения:</h2>
+        <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
+            <div class="border-r-2 border-slate-300 w-1/3">
+                <div class="flex flex-col {% if current_problem.get_attachments() %} gap-y-4 {% endif %} mr-4">
+                    <ul class="flex flex-col gap-y-2" id="files-list">
+                        {% for attachment in nonsecret_attachments %}
+                        <li class="flex w-full gap-x-2">
+                            <input type="text" name="attachment_name {{ attachment.db_filename }}"
+                                id="attachment-name-{{ attachment.db_filename }}" value="{{ attachment.short_name }}"
+                                placeholder="Как назвать картинку?" {% if current_problem.is_public %} readonly {% endif
+                                %}
+                                class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow">
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="w-2/3 ml-4">
+                <img id="display-attachment" class="hidden border-2 border-sky-400 padding-8 rounded-xl">
+            </div>
+        </div>
+
+        {% endif %}
+
         <div class="h-px w-full bg-neutral-300 my-2"></div>
+
+        <details>
+            <summary class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Теги:</summary>
+            <div class="flex gap-x-8 items-start">
+                <ul class="w-full" id="tas_list">
+                    {% for tag in current_problem.get_tags() %}
+                    <li class="flex">
+                        <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
+                        <span class="text-slate-500 font-bold mr-4">#</span>
+                        <div class="w-2/3"><span>{{ tag.name }}</span></div>
+                        <span class="text-slate-500 font-bold mx-4">|</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </details>
     </div>
 </div>
 
+<script>
+    var displayMode = "fullscreen";
 
+    function changeDisplayMode() {
+        if (displayMode == "fullscreen") {
+            displayMode = "withcode";
+        } else {
+            displayMode = "fullscreen";
+        }
+        fixMode();
+        console.log(displayMode);
+    }
+
+    function fixMode() {
+
+        var statementInput = document.getElementById("statement_textarea");
+        var statementCode = document.getElementById("statement_textarea-highlighting");
+        var statementOutput = document.getElementById("statement_textarea-latex-output");
+
+        var solutionAvailable = document.getElementById("solution_textarea") !== null;
+
+
+        if (solutionAvailable) {
+            var solutionInput = document.getElementById("solution_textarea");
+            var solutionCode = document.getElementById("solution_textarea-highlighting");
+            var solutionOutput = document.getElementById("solution_textarea-latex-output");
+        }
+
+
+        if (displayMode == "fullscreen") {
+            if (!statementInput.classList.contains("hidden")) statementInput.classList.add("hidden");
+            if (!statementCode.classList.contains("hidden")) statementCode.classList.add("hidden");
+
+            if (statementOutput.classList.contains("w-1/2")) statementOutput.classList.remove("w-1/2");
+            if (!statementOutput.classList.contains("w-full")) statementOutput.classList.add("w-full");
+
+            //toReRenderList.push("statement_textarea");
+
+            if (solutionAvailable) {
+                if (!solutionInput.classList.contains("hidden")) solutionInput.classList.add("hidden");
+                if (!solutionCode.classList.contains("hidden")) solutionCode.classList.add("hidden");
+
+                if (solutionOutput.classList.contains("w-1/2")) solutionOutput.classList.remove("w-1/2");
+                if (!solutionOutput.classList.contains("w-full")) solutionOutput.classList.add("w-full");
+
+                //toReRenderList.push("solution_textarea");
+            }
+        } else {
+            if (statementInput.classList.contains("hidden")) statementInput.classList.remove("hidden");
+            if (statementCode.classList.contains("hidden")) statementCode.classList.remove("hidden");
+
+            if (statementOutput.classList.contains("w-full")) statementOutput.classList.remove("w-full");
+            if (!statementOutput.classList.contains("w-1/2")) statementOutput.classList.add("w-1/2");
+
+            //toReRenderList.push("statement_textarea");
+
+            //statementCode.style.position = "absolute";
+            //statementCode.style.top = statementInput.offsetTop;
+            //statementCode.style.left = statementInput.offsetLeft;
+            //statementCode.style.width = `${statementInput.offsetWidth}px`;
+            //statementCode.style.height = `${statementInput.offsetHeight}px`;
+
+            //update(`statement_textarea-highlighting-content`, statementInput.value);
+            //sync_scroll(statementInput, `statement_textarea-highlighting`);
+
+            //fitContent(statementInput, 2);
+
+            if (solutionAvailable) {
+                if (solutionInput.classList.contains("hidden")) solutionInput.classList.remove("hidden");
+                if (solutionCode.classList.contains("hidden")) solutionCode.classList.remove("hidden");
+
+                if (solutionOutput.classList.contains("w-full")) solutionOutput.classList.remove("w-full");
+                if (!solutionOutput.classList.contains("w-1/2")) solutionOutput.classList.add("w-1/2");
+
+                //toReRenderList.push("solution_textarea");
+
+                //solutionCode.style.position = "absolute";
+                //solutionCode.style.top = solutionInput.offsetTop;
+                //solutionCode.style.left = solutionInput.offsetLeft;
+                //solutionCode.style.width = `${solutionInput.offsetWidth}px`;
+                //solutionCode.style.height = `${solutionInput.offsetHeight}px`;
+
+                //update(`solution_textarea-highlighting-content`, solutionInput.value);
+                //sync_scroll(solutionInput, `solution_textarea-highlighting`);
+
+                //fitContent(solutionInput, 2);
+            }
+        }
+    }
+
+
+    fixMode();
+</script>
 
 
 
