@@ -6,12 +6,12 @@
     {% if current_problem.is_public %}
     <div class="flex flex-row items-center mt-4">
         <h3 class="text-red-400 font-bold text-xl">Вы не можете редактировать задачу, если она опубликована</h3>
-        <span class="text-slate-500 font-bold mx-4">|</span>
+        <span class="text-slate-500 font-bold mx-4 text-xl">|</span>
         <form action="/pool/{{ current_pool.hashed_id }}/problems" method="post">
             <input type="hidden" name="back_to_pool" value="{{ current_pool.hashed_id }}">
             <input type="hidden" name="problem_hashed_id" value="{{ current_problem.hashed_id }}">
             <input type="submit" value="Вернуть на доработку?"
-                class="hover:font-bold hover:cursor-pointer hover:text-blue-600">
+                class="hover:font-bold hover:cursor-pointer hover:text-blue-600 text-xl">
         </form>
     </div>
     {% endif %}
@@ -78,26 +78,7 @@
             makeLaTeXArea("statement_textarea", "problem");
         </script>
 
-        <div class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2 flex flex-row justify-between items-center">
-            <span>Решение:</span>
-            <span class="flex flex-row justify-center items-center">
-                Показывать пользователям решение
-                <span class="text-slate-500 font-bold mx-4">|</span>
-                {% if current_problem.show_solution %}
-                <label
-                    class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-green-200 rounded">
-                    <input type="checkbox" name="show_solution" class="w-0 h-0" id="show_solution_checkbox" checked>
-                    <img src="/static/images/pwd_show.png" class="h-8">
-                </label>
-                {% else %}
-                <label
-                    class="flex justify-center items-center hover:cursor-pointer p-2 border-slate-200 border bg-red-200 rounded">
-                    <input type="checkbox" name="show_solution" class="w-0 h-0" id="show_solution_checkbox">
-                    <img src="/static/images/pwd_hide.png" class="h-8">
-                </label>
-                {% endif %}
-            </span>
-        </div>
+        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Решение:</h2>
         <div class="flex w-full items-start">
             <textarea id="solution_textarea" cols="50" name="solution" {% if current_problem.is_public %}
                 readonly {% endif %} class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.solution }}</textarea>
@@ -109,7 +90,7 @@
 
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Вложения:</h2>
         <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
-            <div class="border-r-2 border-slate-300 grow">
+            <div class="border-r-2 border-slate-300 w-1/3">
                 <div class="flex flex-col {% if current_problem.get_attachments() %} gap-y-4 {% endif %} mr-4">
                     <ul class="flex flex-col gap-y-2" id="files-list">
                         {% for attachment in current_problem.get_attachments() %}
@@ -117,6 +98,24 @@
                             <input type="text" name="attachment_name {{ attachment.db_filename }}" id="attachment-name-{{ attachment.db_filename }}"
                                 value="{{ attachment.short_name }}" placeholder="Как назвать картинку?" {% if current_problem.is_public %} readonly {% endif %}
                                 class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow">
+                            
+                            <label class="relative flex items-center">
+                            {% if attachment.other_data["is_secret"] %}
+                                <input type="checkbox" name="attachment_is_secret {{ attachment.db_filename }}" id="attachment-is-secret-{{ attachment.db_filename }}" checked
+                                class="checkbox-attachment-secret hidden">
+                            <span class="text-red-400 peer hover:cursor-help w-32 text-center">Секретное</span>
+                            {% else %}
+                            <input type="checkbox" name="attachment_is_secret {{ attachment.db_filename }}" id="attachment-is-secret-{{ attachment.db_filename }}"
+                                class="checkbox-attachment-secret hidden">
+                            <span class="text-green-500 peer hover:cursor-help w-32 text-center">Публичное</span>
+                            {% endif %}
+                            <div class="absolute top-12 hidden peer-hover:flex p-4 border-2 rounded-md bg-white border-black flex-col z-50">
+                                <span class="whitespace-nowrap"><span class="text-green-500">Публичное</span> вложение доступно всем пользователям</span>
+                                <span class="whitespace-nowrap"><span class="text-red-400">Секретное</span> вложение доступно пользователям, имеющим доступ к решению</span>
+                            </div>
+                            </label>
+                            
+                            
                             {% if not current_problem.is_public %}
                                 <button onclick="DeleteAttachment(this)"
                                 class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
@@ -198,6 +197,24 @@
                 display.classList.add("block");
             })
         }
+
+        var checkboxes = document.querySelectorAll(".checkbox-attachment-secret");
+        for (var i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].addEventListener("change", function (event) {
+                if (this.checked) {
+                    var span = this.nextElementSibling;
+                    span.classList.remove("text-green-500");
+                    span.classList.add("text-red-400");
+                    span.innerHTML = "Секретное";
+                }
+                else {
+                    var span = this.nextElementSibling;
+                    span.classList.remove("text-red-400");
+                    span.classList.add("text-green-500");
+                    span.innerHTML = "Публичное";
+                }
+            })
+        }
     }
 </script>
 
@@ -230,6 +247,17 @@
                             <input type="text" name="attachment_name ${ attachment_db_filename }" id="attachment-name-${ attachment_db_filename }"
                             value="Рисунок" placeholder="Как назвать картинку?"
                             class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow">
+
+                            <label class="relative flex items-center">
+                                <input type="checkbox" name="attachment_is_secret ${ attachment_db_filename }" id="attachment-is-secret-${ attachment_db_filename }" checked
+                                class="checkbox-attachment-secret hidden">
+                                <span class="text-red-400 peer hover:cursor-help w-32 text-center">Секретное</span>
+                                <div class="absolute top-12 hidden peer-hover:flex p-4 border-2 rounded-md bg-white border-black flex-col z-50">
+                                    <span class="whitespace-nowrap"><span class="text-green-500">Публичное</span> вложение доступно всем пользователям</span>
+                                    <span class="whitespace-nowrap"><span class="text-red-400">Секретное</span> вложение доступно пользователям, имеющим доступ к решению</span>
+                                </div>
+                            </label>
+
                             <button onclick="DeleteAttachment(this)"
                             class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
                         </li>
