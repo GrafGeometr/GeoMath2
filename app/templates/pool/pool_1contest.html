@@ -262,7 +262,7 @@
     const start_date = new Date('{{ current_contest.start_date }}');
     const end_date = new Date('{{ current_contest.end_date }}');
     var moscowUTC = 3;
-    var timer = setInterval(function() {
+    function f() {
         now = current_time(moscowUTC);
         console.log(now);
         let is_started = (now >= start_date);
@@ -296,8 +296,9 @@
             let hms = diff_in_hms(now, start_date);
             timer_span_clock.innerHTML = `${hms["hours"]}:${hms["minutes"]}:${hms["seconds"]}`;
         }
-
-    }, 800)
+    }
+    f();
+    var timer = setInterval(f, 1000);
 </script>
 
 <script>

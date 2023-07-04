@@ -1,4 +1,208 @@
 {% extends "contest/contest_header.html" %}
 {% block contest_body %}
-Body
+<script>
+    var element = document.getElementById("mainpage_href");
+    element.classList.remove("text-stone-800");
+    element.classList.add("text-blue-600");
+</script>
+
+<div class="w-1/2 p-4 border-slate-200 border-2 rounded-lg bg-white mt-4 mb-2 text-lg">
+    <div id="contest-state-div" class="flex gap-x-2 items-center"><span class="font-bold">Состояние:</span><span id="contest-state-span"></span></div>
+    <div id="timer-div" class="flex gap-x-2 items-center"><span class="font-bold" id="timer-span-text"></span><span id='timer-span-clock'></span></div>
+
+    <br>
+    {% with cu = current_contest.get_active_cu() %}
+    {% if cu %}
+    <div class="flex gap-x-2 items-center"><span class="font-bold">Вы участвуете!</span></div>
+    <div class="flex gap-x-2 items-center"><span class="font-bold">Тип участия:</span>
+        {% if cu.virtual %}
+        <span>Виртуальное</span>
+        {% else %}
+        <span>Реальное</span>
+        {% endif %}
+    </div>
+    <form action="/contest/{{ current_contest.id }}" method="post" class="mt-4">
+        <input type="hidden" name="stop" value="239">
+        <input type="submit"
+        class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-600" value="Завершить участие">
+    </form>
+    {% endif %}
+
+    {% if (not current_contest.get_active_cu()) %}
+    <div class="w-full flex flex-row gap-x-2">
+        <div class="w-1/2 flex flex-col gap-y-2">
+            {% if (not current_contest.is_ended()) %}
+            <form action="/contest/{{ current_contest.id }}" method="post" class="mt-4">
+                <input type="hidden" name="register_default" value="239">
+                <input type="submit" id="register-btn"
+                class="w-full text-lg bg-green-500 hover:bg-green-600 hover:cursor-pointer px-4 py-2 rounded-lg text-white" value="Участвовать">
+            </form>
+            {% endif %}
+            <button onclick="show_virtual();" id="show-virtual-btn"
+            class="w-full text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-green-600">Участвовать виртуально</button>
+        </div>
+
+        <div class="h-full w-px bg-slate-200"></div>
+
+        <div id="input-timer" class="w-1/2 flex flex-col gap-y-2 invisible">
+            <div class="flex items-center gap-x-4">
+                <input type="datetime-local" id="start_date" name="start_date" class="text-lg w-80 px-4 py-2 border-slate-200 border-2 rounded-lg" value="">
+                <span class="w-60">Время начала (МСК)</span>
+            </div>
+            <div class="flex items-center gap-x-4">
+                <input type="datetime-local" id="end_date" name="end_date" class="text-lg w-80 px-4 py-2 border-slate-200 border-2 rounded-lg" value="">
+                <span class="w-60">Время окончания (МСК)</span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+</div>
+
+<h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Описание:</h2>
+<div class="flex w-full items-start">
+    <textarea id="description_textarea" cols="50" name="description"
+        readonly class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_contest.description }}</textarea>
+</div>
+
+<script>
+    makeLaTeXArea("description_textarea", "contest");
+    var textarea = document.getElementById("description_textarea");
+    var container = textarea.parentElement;
+    var pre = textarea.nextElementSibling;
+    var output = pre.nextElementSibling;
+    textarea.style.display = "none";
+    pre.style.display = "none";
+</script>
+
+<script>
+    function paint_btn(elem, color) {
+        if (color == "gray") {
+            elem.classList.remove("bg-green-500", "hover:bg-green-600", "text-white");
+            elem.classList.add("border-slate-200", "border", "bg-slate-50", "hover:bg-slate-100", "text-green-600");
+        }
+        else if (color == "green") {
+            elem.classList.remove("border-slate-200", "border", "bg-slate-50", "hover:bg-slate-100", "text-green-600");
+            elem.classList.add("bg-green-500", "hover:bg-green-600", "text-white");
+        }
+    }
+</script>
+
+<script>
+    var start_date_input = document.getElementById("start_date");
+    var end_date_input = document.getElementById("end_date");
+    var flag = (start_date_input.value != "") && (end_date_input.value != "");
+    var btn_reg = document.getElementById("register-btn");
+    var btn_virt = document.getElementById("show-virtual-btn");
+    start_date_input.addEventListener("change", function() {
+        flag = (start_date_input.value != "") && (end_date_input.value != "");
+        if (flag) {
+            paint_btn(btn_virt, "green");
+            paint_btn(btn_reg, "gray");
+        }
+        else {
+            paint_btn(btn_virt, "gray");
+            paint_btn(btn_reg, "green");
+        }
+    })
+    end_date_input.addEventListener("change", function() {
+        flag = (start_date_input.value != "") && (end_date_input.value != "");
+        if (flag) {
+            paint_btn(btn_virt, "green");
+            paint_btn(btn_reg, "gray");
+        }
+        else {
+            paint_btn(btn_virt, "gray");
+            paint_btn(btn_reg, "green");
+        }
+    })
+</script>
+
+<script>
+    function show_virtual() {
+        var start_date_input = document.getElementById("start_date");
+        var end_date_input = document.getElementById("end_date");
+        if (!flag) {
+            var elem = document.getElementById("input-timer");
+            elem.classList.toggle("invisible");
+        }
+        else {
+            var start_date = new Date(start_date_input.value);
+            var end_date = new Date(end_date_input.value);
+            if (start_date > end_date) {
+                return;
+            }
+            const XHR = new XMLHttpRequest();
+            const FD = new FormData();
+
+            XHR.addEventListener("readystatechange", function() {
+                if (this.readyState == 4) {
+                    if (this.status == 200) {
+                        window.location.href = this.responseText;
+                    }
+                }
+            })
+
+            FD.append("register_virtual", "239");
+            FD.append("start_date", start_date_input.value);
+            FD.append("end_date", end_date_input.value);
+            XHR.open("POST", "/contest/{{ current_contest.id }}");
+            XHR.send(FD);
+        }
+    }
+</script>
+
+<script>
+    
+</script>
+
+<script>
+    {% with cu = current_contest.get_active_cu() %}
+    {% if cu %}
+        const start_date = new Date('{{ cu.start_date }}');
+        const end_date = new Date('{{ cu.end_date }}');
+    {% else %}
+        const start_date = new Date('{{ current_contest.start_date }}');
+        const end_date = new Date('{{ current_contest.end_date }}');
+    {% endif %}
+    {% endwith %}
+    var moscowUTC = 3;
+    function f() {
+        now = current_time(moscowUTC);
+        console.log(now);
+        let is_started = (now >= start_date);
+        let is_ended = (now >= end_date);
+        if (is_ended) {
+            document.getElementById("contest-state-span").innerHTML = "Завершён";
+            var timer_div = document.getElementById("timer-div");
+            timer_div.classList.remove("block");
+            timer_div.classList.add("hidden");
+            clearInterval();
+        }
+        else if (is_started) {
+            document.getElementById("contest-state-span").innerHTML = "Идёт...";
+            var timer_div = document.getElementById("timer-div");
+            var timer_span_text = document.getElementById("timer-span-text");
+            var timer_span_clock = document.getElementById("timer-span-clock");
+            timer_div.classList.remove("hidden");
+            timer_div.classList.add("block");
+            timer_span_text.innerHTML = "До завершения:";
+            let hms = diff_in_hms(now, end_date);
+            timer_span_clock.innerHTML = `${hms["hours"]}:${hms["minutes"]}:${hms["seconds"]}`;
+        }
+        else {
+            document.getElementById("contest-state-span").innerHTML = "Не начался";
+            var timer_div = document.getElementById("timer-div");
+            timer_div.classList.remove("hidden");
+            timer_div.classList.add("block");
+            var timer_span_text = document.getElementById("timer-span-text");
+            var timer_span_clock = document.getElementById("timer-span-clock");
+            timer_span_text.innerHTML = "До начала:";
+            let hms = diff_in_hms(now, start_date);
+            timer_span_clock.innerHTML = `${hms["hours"]}:${hms["minutes"]}:${hms["seconds"]}`;
+        }
+    }
+    f();
+    var timer = setInterval(f, 1000);
+</script>
 {% endblock %}

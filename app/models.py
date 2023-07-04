@@ -1,6 +1,7 @@
 from .imports import *
 from .sqlalchemy_custom_types import *
 from .utils_and_functions.token_gen import generate_token
+from .utils_and_functions.current_time import current_time
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
@@ -9,7 +10,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String, unique=True, nullable=True)
     password = db.Column(db.String, nullable=True)
     admin = db.Column(db.Boolean, default=False)
-    created_date = db.Column(db.DateTime, default=datetime.datetime.now)
+    created_date = db.Column(db.DateTime, default=current_time)
     profile_pic = db.Column(db.String(), nullable=True)
     emails = db.relationship("Email", backref="user")
 
@@ -55,7 +56,7 @@ class Email(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=True)
-    created_date = db.Column(db.DateTime, default=datetime.datetime.now)
+    created_date = db.Column(db.DateTime, default=current_time)
     verified = db.Column(db.Boolean, default=False)
     token = db.Column(db.String, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
@@ -98,7 +99,7 @@ class Pool(db.Model):
         return Problem.query.filter_by(pool_id = self.id).all()
     
     def new_problem(self):
-        problem = Problem(statement="Условие", solution="Решение", pool_id=self.id)
+        problem = Problem(statement="", solution="", pool_id=self.id)
         problem.set_hashed_id()
         db.session.add(problem)
         db.session.commit()
@@ -107,7 +108,7 @@ class Pool(db.Model):
         return problem
     
     def new_sheet(self):
-        sheet = Sheet(text="Текст", pool_id=self.id)
+        sheet = Sheet(text="", pool_id=self.id)
         db.session.add(sheet)
         db.session.commit()
         sheet.name = f"Подборка #{sheet.id}"
@@ -115,11 +116,10 @@ class Pool(db.Model):
         return sheet
     
     def new_contest(self):
-        contest = Contest(description="Описание", name="Название", pool_id=self.id)
+        contest = Contest(description="", name="Название", pool_id=self.id)
         db.session.add(contest)
         db.session.commit()
-        tm = datetime.datetime.now()
-        tm = tm - datetime.timedelta(seconds=tm.second, microseconds=tm.microsecond)
+        tm = current_time()
         contest.name = f"Контест #{contest.id}"
         contest.start_date = tm
         contest.end_date = tm
@@ -191,22 +191,22 @@ class Problem(db.Model):
         if (self.is_public or self.is_my()):
             if len(contest_users) == 0:
                 return True
-            return all([cu.is_started for cu in contest_users])
+            return all([cu.is_started() for cu in contest_users])
         else:
             if len(contest_users) == 0:
                 return False
-            return all([cu.is_started for cu in contest_users])
+            return all([cu.is_started() for cu in contest_users])
     
     def is_solution_available(self):
         contest_users = self.get_cu_participated()
         if (self.is_public or self.is_my()):
             if len(contest_users) == 0:
                 return True
-            return all([cu.is_ended for cu in contest_users])
+            return all([cu.is_ended() for cu in contest_users])
         else:
             if len(contest_users) == 0:
                 return False
-            return all([cu.is_ended for cu in contest_users])
+            return all([cu.is_ended() for cu in contest_users])
 
     def is_my(self):
         relation = current_user.get_pool_relation(self.pool_id)
@@ -370,9 +370,59 @@ class Contest(db.Model):
 
     def get_active_cu(self):
         for cu in Contest_User.query.filter_by(user_id = current_user.id, contest_id = self.id).all():
-            if (cu.is_started()) and (not cu.is_ended()):
+            if (not cu.is_ended()):
                 return cu
         return None
+    
+    def is_started(self):
+        return self.start_date <= current_time()
+    
+    def is_ended(self):
+        return self.end_date <= current_time()
+    
+    def register(self, virtual=False, virtual_start=None, virtual_end=None):
+        if (not self.is_public):
+            return
+        cu = self.get_active_cu()
+        if cu:
+            return
+        if (not virtual):
+            if (not self.is_started()):
+                cu = Contest_User(contest_id=self.id, user_id=current_user.id, start_date=self.start_date, end_date=self.end_date, virtual=False) 
+            elif (not self.is_ended()):
+                cu = Contest_User(contest_id=self.id, user_id=current_user.id, start_date=current_time(), end_date=self.end_date, virtual=False)
+            else:
+                return
+            db.session.add(cu)
+            db.session.commit()
+            for p in self.get_problems():
+                cus = Contest_User_Solution(contest_user_id=cu.id, problem_id=p.id)
+                cus.set_hashed_id()
+                db.session.add(cus)
+            db.session.commit()
+            return
+        else:
+            if (virtual_start is None) or (virtual_end is None) or (virtual_start > virtual_end):
+                return
+            cu = Contest_User(contest_id=self.id, user_id=current_user.id, start_date=virtual_start, end_date=virtual_end, virtual=True)
+            db.session.add(cu)
+            db.session.commit()
+            for p in self.get_problems():
+                cus = Contest_User_Solution(contest_user_id=cu.id, problem_id=p.id)
+                cus.set_hashed_id()
+                db.session.add(cus)
+            db.session.commit()
+            return
+    def stop(self):
+        if (not self.is_public):
+            return
+        cu = self.get_active_cu()
+        if (not cu):
+            return
+        cu.end_manually()
+        db.session.commit()
+        return
+
 
 class Contest_Problem(db.Model):
     __tablename__ = 'contest_problem'
@@ -393,13 +443,21 @@ class Contest_User(db.Model):
     virtual = db.Column(db.Boolean, default=False)
 
     def is_started(self):
-        return self.start_date <= datetime.datetime.now()
+        return self.start_date <= current_time()
     
     def is_ended(self):
-        return self.end_date <= datetime.datetime.now()
+        return self.end_date <= current_time()
     
     def end_manually(self):
-        self.end_date = datetime.datetime.now()
+        if self.is_ended():
+            return
+        if self.is_started():
+            self.end_date = current_time()
+            return
+        for cus in self.contest_user_solutions:
+            db.session.delete(cus)
+        db.session.delete(self)
+        db.session.commit()
 
 class Contest_User_Solution(db.Model):
     __tablename__ = 'contest_user_solution'
@@ -408,7 +466,7 @@ class Contest_User_Solution(db.Model):
     hashed_id = db.Column(db.String, unique=True)
     contest_user_id = db.Column(db.Integer, db.ForeignKey("contest_user.id"))
     problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
-    score = db.Column(db.Integer)
+    score = db.Column(db.Integer, default=0)
 
     def set_hashed_id(self):
         while True:

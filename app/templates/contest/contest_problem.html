@@ -1,0 +1,29 @@
+{% extends "contest/contest_header.html" %}
+{% block contest_body %}
+<script>
+    var elems = document.querySelectorAll("a[id*='problem_href-']");
+    for (var i = 0; i < elems.length; i++) {
+        elems[i].classList.remove("border-black");
+        elems[i].classList.add("border-slate-400");
+    }
+    console.log(elems);
+    var element = document.getElementById("problem_href-{{current_problem.hashed_id}}");
+    element.classList.remove("border-slate-400");
+    element.classList.add("border-black");
+</script>
+
+<h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Условие:</h2>
+<div class="flex w-full items-start">
+    <textarea id="statement_textarea" cols="50" name="statement"
+        readonly class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.statement }}</textarea>
+</div>
+<script>
+    makeLaTeXArea("statement_textarea", "contest");
+    var textarea = document.getElementById("statement_textarea");
+    var container = textarea.parentElement;
+    var pre = textarea.nextElementSibling;
+    var output = pre.nextElementSibling;
+    textarea.style.display = "none";
+    pre.style.display = "none";
+</script>
+{% endblock %}

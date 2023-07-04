@@ -64,3 +64,5 @@ def safe_image_upload(files, directory, maxsize=2*1024*1024):
         except:
             result.append(None)
     return result
+
+

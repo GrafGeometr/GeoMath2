@@ -31,7 +31,7 @@
         
     <script>
         function diff_in_hms(date_start, date_end) {
-            var seconds = Math.floor(Math.abs((date_end.getTime() - date_start.getTime())) / 1000);
+            var seconds = Math.ceil(Math.abs((date_end.getTime() - date_start.getTime())) / 1000);
             var hours = Math.floor(seconds / 3600);
             var minutes = Math.floor((seconds - hours * 3600) / 60);
             var seconds = seconds - hours * 3600 - minutes * 60;
