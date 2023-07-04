@@ -183,7 +183,7 @@ class Problem(db.Model):
     def get_cu_participated(self):
         result = []
         for c in self.get_all_contests():
-            result.extend(Contest_User.query.filter_by(user_id = self.id, contest_id = c.id).all())
+            result.extend(Contest_User.query.filter_by(user_id = current_user.id, contest_id = c.id).all())
         return result
 
     def is_statement_available(self):
@@ -335,8 +335,8 @@ class Contest(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
     description = db.Column(db.String)
-    start_date = db.Column(db.DateTime, nullable=False)
-    end_date = db.Column(db.DateTime, nullable=False)
+    start_date = db.Column(db.DateTime)
+    end_date = db.Column(db.DateTime)
     is_public = db.Column(db.Boolean, default=False)
     contest_problems = db.relationship("Contest_Problem", backref="contest")
 
@@ -368,6 +368,11 @@ class Contest(db.Model):
     def get_nonsecret_problems(self):
         return [p for p in self.get_problems() if p.is_statement_available()]
 
+    def get_active_cu(self):
+        for cu in Contest_User.query.filter_by(user_id = current_user.id, contest_id = self.id).all():
+            if (cu.is_started()) and (not cu.is_ended()):
+                return cu
+        return None
 
 class Contest_Problem(db.Model):
     __tablename__ = 'contest_problem'

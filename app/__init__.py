@@ -59,6 +59,9 @@ def create_app():
     from .latex import latex as latex_blueprint
     app.register_blueprint(latex_blueprint)
 
+    from .contest import contest as contest_blueprint
+    app.register_blueprint(contest_blueprint)
+
     from .errorhandlers import err as err_blueprint
     app.register_blueprint(err_blueprint)
 
