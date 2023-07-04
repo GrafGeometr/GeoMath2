@@ -152,6 +152,8 @@ class Problem(db.Model):
     moderated = db.Column(db.Boolean, default=False)
     show_solution = db.Column(db.Boolean, default=False)
 
+    contest_problems = db.relationship("Contest_Problem", backref="problem")
+
 
     def set_hashed_id(self):
         while True:
@@ -175,21 +177,36 @@ class Problem(db.Model):
     def is_archived(self):
         return self.is_public and self.moderated
     
+    def get_all_contests(self):
+        return [cp.contest for cp in self.contest_problems]
+    
+    def get_cu_participated(self):
+        result = []
+        for c in self.get_all_contests():
+            result.extend(Contest_User.query.filter_by(user_id = self.id, contest_id = c.id).all())
+        return result
+
     def is_statement_available(self):
-        if (self.is_public):
-            return True
-        relation = current_user.get_pool_relation(self.pool_id)
-        if (relation.role.isOwner() or relation.role.isParticipant()):
-            return True
-        return False
+        contest_users = self.get_cu_participated()
+        if (self.is_public or self.is_my()):
+            if len(contest_users) == 0:
+                return True
+            return all([cu.is_started for cu in contest_users])
+        else:
+            if len(contest_users) == 0:
+                return False
+            return all([cu.is_started for cu in contest_users])
     
     def is_solution_available(self):
-        if (self.is_public):
-            return True
-        relation = current_user.get_pool_relation(self.pool_id)
-        if (relation.role.isOwner() or relation.role.isParticipant()):
-            return True
-        return False
+        contest_users = self.get_cu_participated()
+        if (self.is_public or self.is_my()):
+            if len(contest_users) == 0:
+                return True
+            return all([cu.is_ended for cu in contest_users])
+        else:
+            if len(contest_users) == 0:
+                return False
+            return all([cu.is_ended for cu in contest_users])
 
     def is_my(self):
         relation = current_user.get_pool_relation(self.pool_id)
@@ -321,6 +338,7 @@ class Contest(db.Model):
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime, nullable=False)
     is_public = db.Column(db.Boolean, default=False)
+    contest_problems = db.relationship("Contest_Problem", backref="contest")
 
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
@@ -333,13 +351,7 @@ class Contest(db.Model):
         return self.is_public
     
     def is_description_available(self):
-        if (self.is_public):
-            return True
-        relation = current_user.get_pool_relation(self.pool_id)
-        if (relation.role.isOwner() or relation.role.isParticipant()):
-            return True
-        return False
-
+        return (self.is_public or self.is_my())
 
     def is_my(self):
         relation = current_user.get_pool_relation(self.pool_id)
@@ -352,6 +364,9 @@ class Contest(db.Model):
         for cp in Contest_Problem.query.filter_by(contest_id = self.id).all():
             result.append(Problem.query.filter_by(id = cp.problem_id).first())
         return result
+    
+    def get_nonsecret_problems(self):
+        return [p for p in self.get_problems() if p.is_statement_available()]
 
 
 class Contest_Problem(db.Model):
