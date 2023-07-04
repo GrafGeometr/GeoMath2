@@ -16,7 +16,8 @@
     </div>
     {% endif %}
     {% if not current_problem.is_public %}
-    <form action="/archive/publish/problem/{{current_problem.hashed_id}}" method="post" class="w-full flex flex-row justify-end">
+    <form action="/archive/publish/problem/{{current_problem.hashed_id}}" method="post"
+        class="w-full flex flex-row justify-end">
         <input type="submit"
             class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
             value="Опубликовать в архив">
@@ -30,33 +31,38 @@
 </div>
 {% endif %}
 <div class="flex flex-col">
-    <form autocomplete="off" action="/pool/{{ current_pool.hashed_id }}/problem/{{ current_problem.hashed_id }}" method="post"
-        class="w-full mt-2 px-4" enctype="multipart/form-data">
+    <form autocomplete="off" action="/pool/{{ current_pool.hashed_id }}/problem/{{ current_problem.hashed_id }}"
+        method="post" class="w-full mt-2 px-4" enctype="multipart/form-data">
         <input type="hidden" name="save_problem" value="239">
-        
-        <div class="flex flex-row items-center mt-4 w-1/2">
-            <h1 class="text-2xl font-bold">{{ current_problem.name }}</h1>
+
+        <div class="flex flex-row items-start mt-4 w-full">
+            <div class="flex flex-row items-center">
+                <span class="mr-4 text-2xl font-bold">{{ current_problem.name }}</span>
+                <span class="text-slate-500 text-xl">[</span>
+                <span id="copy_hash_span"
+                    class="mx-2 text-slate-500 hover:cursor-pointer hover:underline hover:text-slate-800">{{
+                    current_problem.hashed_id }}</span>
+                <span class="text-slate-500 text-xl">]</span>
+                <span id="fading_flash" class="text-black opacity-0 ml-2">Скопировано</span>
+            </div>
             <input type="submit" value="Сохранить"
                 class="hover:cursor-pointer px-8 py-2 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700 ml-8 mr-4">
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% for category, message in messages %}
             {% if category == "danger" %}
-            <div id="flash-message"
-                class="text-stone-800 text-semibold rounded text-lg text-center">
+            <div id="flash-message" class="text-stone-800 text-semibold rounded text-lg text-center">
                 {{ message }}</div>
             {% elif category == "warning" %}
-            <div id="flash-message"
-                class="text-stone-800 text-semibold rounded text-lg text-center">
+            <div id="flash-message" class="text-stone-800 text-semibold rounded text-lg text-center">
                 {{ message }}</div>
             {% elif category == "success" %}
-            <div id="flash-message"
-                class="text-stone-800 text-semibold rounded text-lg text-center">
+            <div id="flash-message" class="text-stone-800 text-semibold rounded text-lg text-center">
                 {{ message }}</div>
             {% endif %}
             {% endfor %}
             {% endwith %}
         </div>
-        
+
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Название:</h2>
         <div class="flex w-full">
             <textarea rows="1" cols="50" name="name" class="text-lg w-full p-4 border-slate-200 border-2 rounded-lg" {%
@@ -65,8 +71,9 @@
 
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Условие:</h2>
         <div class="flex w-full items-start">
-            <textarea id="statement_textarea" cols="50" name="statement" {% if current_problem.is_public %}
-                readonly {% endif %} class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.statement }}</textarea>
+            <textarea id="statement_textarea" cols="50" name="statement" {% if current_problem.is_public %} readonly {%
+                endif %}
+                class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.statement }}</textarea>
         </div>
 
         <script>
@@ -75,8 +82,9 @@
 
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Решение:</h2>
         <div class="flex w-full items-start">
-            <textarea id="solution_textarea" cols="50" name="solution" {% if current_problem.is_public %}
-                readonly {% endif %} class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.solution }}</textarea>
+            <textarea id="solution_textarea" cols="50" name="solution" {% if current_problem.is_public %} readonly {%
+                endif %}
+                class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.solution }}</textarea>
         </div>
 
         <script>
@@ -90,37 +98,46 @@
                     <ul class="flex flex-col gap-y-2" id="files-list">
                         {% for attachment in current_problem.get_attachments() %}
                         <li class="flex w-full gap-x-2">
-                            <input type="text" name="attachment_name {{ attachment.db_filename }}" id="attachment-name-{{ attachment.db_filename }}"
-                                value="{{ attachment.short_name }}" placeholder="Как назвать картинку?" {% if current_problem.is_public %} readonly {% endif %}
+                            <input type="text" name="attachment_name {{ attachment.db_filename }}"
+                                id="attachment-name-{{ attachment.db_filename }}" value="{{ attachment.short_name }}"
+                                placeholder="Как назвать картинку?" {% if current_problem.is_public %} readonly {% endif
+                                %}
                                 class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
-                            
+
                             <label class="relative flex items-center">
-                            {% if attachment.other_data["is_secret"] %}
-                                <input type="checkbox" name="attachment_is_secret {{ attachment.db_filename }}" id="attachment-is-secret-{{ attachment.db_filename }}" checked
-                                class="checkbox-attachment-secret hidden">
-                            <span class="text-red-400 peer hover:cursor-help w-32 text-center">Секретное</span>
-                            {% else %}
-                            <input type="checkbox" name="attachment_is_secret {{ attachment.db_filename }}" id="attachment-is-secret-{{ attachment.db_filename }}"
-                                class="checkbox-attachment-secret hidden">
-                            <span class="text-green-500 peer hover:cursor-help w-32 text-center">Публичное</span>
-                            {% endif %}
-                            <div class="absolute top-12 hidden peer-hover:flex p-4 border-2 rounded-md bg-white border-black flex-col z-50">
-                                <span class="whitespace-nowrap"><span class="text-green-500">Публичное</span> вложение доступно всем пользователям</span>
-                                <span class="whitespace-nowrap"><span class="text-red-400">Секретное</span> вложение доступно пользователям, имеющим доступ к решению</span>
-                            </div>
+                                {% if attachment.other_data["is_secret"] %}
+                                <input type="checkbox" name="attachment_is_secret {{ attachment.db_filename }}"
+                                    id="attachment-is-secret-{{ attachment.db_filename }}" checked
+                                    class="checkbox-attachment-secret hidden">
+                                <span class="text-red-400 peer hover:cursor-help w-32 text-center">Секретное</span>
+                                {% else %}
+                                <input type="checkbox" name="attachment_is_secret {{ attachment.db_filename }}"
+                                    id="attachment-is-secret-{{ attachment.db_filename }}"
+                                    class="checkbox-attachment-secret hidden">
+                                <span class="text-green-500 peer hover:cursor-help w-32 text-center">Публичное</span>
+                                {% endif %}
+                                <div
+                                    class="absolute top-12 hidden peer-hover:flex p-4 border-2 rounded-md bg-white border-black flex-col z-50">
+                                    <span class="whitespace-nowrap"><span class="text-green-500">Публичное</span>
+                                        вложение доступно всем пользователям</span>
+                                    <span class="whitespace-nowrap"><span class="text-red-400">Секретное</span> вложение
+                                        доступно пользователям, имеющим доступ к решению</span>
+                                </div>
                             </label>
-                            
-                            
+
+
                             {% if not current_problem.is_public %}
-                                <button onclick="DeleteAttachment(this)"
+                            <button onclick="DeleteAttachment(this)"
                                 class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
                             {% endif %}
                         </li>
                         {% endfor %}
                     </ul>
-                    <div class="border-2 border-blue-500 border-dashed px-8 py-4 rounded-xl flex justify-center {% if current_problem.is_public %} hidden {% endif %}">
+                    <div
+                        class="border-2 border-blue-500 border-dashed px-8 py-4 rounded-xl flex justify-center {% if current_problem.is_public %} hidden {% endif %}">
                         <label class="label text-lg">
-                            <input type="file" class="file-input w-0 h-0" name="attachments" accept="image/*" multiple {% if current_problem.is_public %} readonly {% endif %}>
+                            <input type="file" class="file-input w-0 h-0" name="attachments" accept="image/*" multiple
+                                {% if current_problem.is_public %} readonly {% endif %}>
                             {% if not current_problem.is_public %}
                             <span class="browse-files-text text-blue-500 font-semibold cursor-pointer inline-block"
                                 onclick="ResetFileInput()">Загрузить файлы</span>
@@ -169,6 +186,15 @@
 </div>
 
 <script>
+    var span = document.getElementById("copy_hash_span");
+    span.addEventListener("click", function () {
+        navigator.clipboard.writeText(this.innerText);
+        var flash = document.getElementById("fading_flash");
+        fade(flash, 1000);
+    })
+</script>
+
+<script>
     function BindAttachmentClick() {
         var inputs = document.querySelectorAll(".input-attachment-name");
         console.log(inputs);
@@ -178,7 +204,7 @@
             this.classList.add("hidden");
             this.onerror = null;
         }
-        
+
         for (var i = 0; i < inputs.length; i++) {
             inputs[i].addEventListener("focus", function (event) {
                 inputs.forEach((input) => {
@@ -186,7 +212,7 @@
                 })
                 this.classList.add("border-black", "bg-slate-100");
                 var db_filename = this.id.split("attachment-name-")[1];
-                display.src = `/get_image/${ db_filename }`;
+                display.src = `/get_image/${db_filename}`;
                 display.classList.remove("hidden");
                 display.classList.add("block");
             })
@@ -224,7 +250,7 @@
             Data.append("type", this.files[i].type);
             Data.append("size", this.files[i].size);
 
-            fetch(`${ window.location.href }/upload_file`, {
+            fetch(`${window.location.href}/upload_file`, {
                 method: "POST",
                 body: Data
             }).then((response) => {
@@ -234,16 +260,16 @@
                     throw new Error("Bad file");
                 }
             }).then(result => {
-                    if (result[0] == "O" && result[1] == "K") {
-                        var attachment_db_filename = result.slice(3);
-                        filesList.innerHTML += `
+                if (result[0] == "O" && result[1] == "K") {
+                    var attachment_db_filename = result.slice(3);
+                    filesList.innerHTML += `
                         <li class="flex w-full gap-x-2">
-                            <input type="text" name="attachment_name ${ attachment_db_filename }" id="attachment-name-${ attachment_db_filename }"
+                            <input type="text" name="attachment_name ${attachment_db_filename}" id="attachment-name-${attachment_db_filename}"
                             value="Рисунок" placeholder="Как назвать картинку?"
                             class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
 
                             <label class="relative flex items-center">
-                                <input type="checkbox" name="attachment_is_secret ${ attachment_db_filename }" id="attachment-is-secret-${ attachment_db_filename }" checked
+                                <input type="checkbox" name="attachment_is_secret ${attachment_db_filename}" id="attachment-is-secret-${attachment_db_filename}" checked
                                 class="checkbox-attachment-secret hidden">
                                 <span class="text-red-400 peer hover:cursor-help w-32 text-center">Секретное</span>
                                 <div class="absolute top-12 hidden peer-hover:flex p-4 border-2 rounded-md bg-white border-black flex-col z-50">
@@ -256,10 +282,10 @@
                             class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
                         </li>
                         `
-                        BindAttachmentClick();
-                        filesList.parentNode.classList.add("gap-y-4");
-                    }
+                    BindAttachmentClick();
+                    filesList.parentNode.classList.add("gap-y-4");
                 }
+            }
             );
         }
     })

@@ -2,19 +2,51 @@
     {% for problem in current_pool.problems %}
 
 
-    <li class="border-b border-slate-200 bg-white p-4 flex flex-col first:rounded-t-lg last:rounded-b-lg hover:bg-slate-100">
+    <li
+        class="w-full justify-between border-b border-slate-200 bg-white p-4 flex flex-row first:rounded-t-lg last:rounded-b-lg hover:bg-slate-100">
         <div class="flex justify-between">
-            <div>
-                <div class="flex flex-row">
-                <a href="/pool/{{ current_pool.hashed_id }}/problem/{{ problem.hashed_id }}" class="no-underline text-black text-xl hover:underline">{{ problem.name }}</a>
-                {% if problem.is_public %}
-                <span class="text-slate-500 font-bold mx-4 text-xl">|</span>
-                <span class="no-underline text-black text-xl">Задача в архиве</span>
-                {% endif %}
+            <div class="flex flex-row">
+                <div class="flex flex-row items-center">
+                    <a href="/pool/{{ current_pool.hashed_id }}/problem/{{ problem.hashed_id }}"
+                        class="no-underline mr-4 text-2xl font-bold hover:underline">{{ problem.name }}</a>
+                    <span class="text-slate-500 text-xl">[</span>
+                    <span id="copy_hash_span-{{ problem.id }}"
+                        class="mx-2 text-slate-500 hover:cursor-pointer hover:underline hover:text-slate-800">{{
+                        problem.hashed_id }}</span>
+                    <span class="text-slate-500 text-xl">]</span>
+                    <span id="fading_flash-{{ problem.id }}" class="text-black opacity-0 ml-2">Скопировано</span>
                 </div>
             </div>
-            <button class="border-0 bg-transparent cursor-pointer" onclick="remove_problem('{{ current_pool.hashed_id }}', '{{ problem.hashed_id }}')"><img class="w-6 border-0" src="/static/images/bin.png" alt="bin"></button>
+            {% if problem.is_public %}
+            <span class="text-slate-500 font-bold mx-4 text-xl">|</span>
+            <span class="no-underline text-black text-xl">Задача в архиве</span>
+            {% endif %}
         </div>
+        <button class="border-0 bg-transparent cursor-pointer"
+            onclick="remove_problem('{{ current_pool.hashed_id }}', '{{ problem.hashed_id }}')"><img
+                class="w-6 border-0" src="/static/images/bin.png" alt="bin"></button>
     </li>
     {% endfor %}
 </ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const spans = document.querySelectorAll('span[id^="copy_hash_span-"]');
+        console.log(spans);
+
+        for (let span of spans) {
+            span.addEventListener("click", function () {
+                navigator.clipboard.writeText(this.innerText);
+                var flash = document.getElementById(`fading_flash-${span.id.split("copy_hash_span-")[1]}`);
+                fade(flash, 1000);
+            })
+        }
+    });
+
+    /*var span = document.getElementById("copy_hash_span");
+    span.addEventListener("click", function () {
+        navigator.clipboard.writeText(this.innerText);
+        var flash = document.getElementById("fading_flash");
+        fade(flash, 1000);
+    })*/
+</script>
