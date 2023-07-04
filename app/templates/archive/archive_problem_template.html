@@ -7,9 +7,9 @@
     <div class="flex flex-row justify-between mt-4">
         <div class="flex flex-row items-center">
             <span class="mr-4 text-2xl font-bold">{{ current_problem.name }}</span>
-            <span class="text-slate-500 font-bold text-xl">[</span>
-            <span id="copy_hash_span" class="mx-2 text-slate-500 hover:cursor-pointer hover:underline hover:text-slate-800 font-bold">{{ current_problem.hashed_id }}</span>
-            <span class="text-slate-500 font-bold text-xl">]</span>
+            <span class="text-slate-500 text-xl">[</span>
+            <span id="copy_hash_span" class="mx-2 text-slate-500 hover:cursor-pointer hover:underline hover:text-slate-800">{{ current_problem.hashed_id }}</span>
+            <span class="text-slate-500 text-xl">]</span>
             <span id="fading_flash" class="text-black opacity-0 ml-2">Скопировано</span>
         </div>
         <span id="toggle_code_view"
@@ -107,14 +107,7 @@
 
 
 
-<script>
-    const fade = (el, timeout=1000) => {
-        el.style.opacity = 1;
-        var timer = setTimeout(function() {
-            el.style.opacity = 0;
-        }, timeout)
-    };
-</script>
+
 
 <script>
     var span = document.getElementById("copy_hash_span");

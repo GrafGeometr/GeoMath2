@@ -679,6 +679,10 @@ video {
   margin-left: 1rem;
 }
 
+.ml-8 {
+  margin-left: 2rem;
+}
+
 .mr-2 {
   margin-right: 0.5rem;
 }
@@ -817,6 +821,10 @@ video {
 
 .w-8 {
   width: 2rem;
+}
+
+.w-80 {
+  width: 20rem;
 }
 
 .w-full {
@@ -1236,10 +1244,6 @@ video {
 
 .text-center {
   text-align: center;
-}
-
-.align-middle {
-  vertical-align: middle;
 }
 
 .text-2xl {

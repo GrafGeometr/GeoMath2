@@ -28,7 +28,36 @@
         }
     </script>
 
-    
+        
+    <script>
+        function diff_in_hms(date_start, date_end) {
+            var seconds = Math.floor(Math.abs((date_end.getTime() - date_start.getTime())) / 1000);
+            var hours = Math.floor(seconds / 3600);
+            var minutes = Math.floor((seconds - hours * 3600) / 60);
+            var seconds = seconds - hours * 3600 - minutes * 60;
+            if (hours < 10) hours = "0" + hours;
+            if (minutes < 10) minutes = "0" + minutes;
+            if (seconds < 10) seconds = "0" + seconds;
+            return {
+                "hours": hours,
+                "minutes": minutes,
+                "seconds": seconds
+            }
+        }
+
+        function current_time(timezone=3) {
+            let now = new Date();
+            let res = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + timezone * 3600*1000);
+            return res;
+        }
+
+        function fade(el, timeout=1000) {
+            el.style.opacity = 1;
+            var timer = setTimeout(function() {
+                el.style.opacity = 0;
+            }, timeout)
+        }
+    </script>
 
 </head>
 
@@ -81,6 +110,7 @@
 <script type="text/javascript" charset="utf-8"
     src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
     </script>
+
 
 
 </html>

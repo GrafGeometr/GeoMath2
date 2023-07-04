@@ -60,7 +60,7 @@ def publish_sheet(sheet_id):
         return redirect(f"/myprofile")
     pool_hashed_id = sheet.pool.hashed_id
     if not current_user.get_pool_relation(sheet.pool_id).role.isOwner():
-        return redirect(f"/pool/{pool_hashed_id}/problems")
+        return redirect(f"/pool/{pool_hashed_id}/sheets")
     
     if not sheet.name:
         flash("Не указано название подборки", "danger")
@@ -74,6 +74,34 @@ def publish_sheet(sheet_id):
     db.session.commit()
 
     return redirect(f"/pool/{pool_hashed_id}/sheet/{sheet.id}")
+
+@arch.route("/archive/publish/contest/<contest_id>", methods=["POST"])
+@login_required
+def publish_contest(contest_id):
+    contest = Contest.query.filter_by(id = contest_id).first()
+    if contest is None:
+        return redirect(f"/myprofile")
+    pool_hashed_id = contest.pool.hashed_id
+    if not current_user.get_pool_relation(contest.pool_id).role.isOwner():
+        return redirect(f"/pool/{pool_hashed_id}/contests")
+    
+    if not contest.name:
+        flash("Не указано название контеста", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/contest/{contest.id}")
+    
+    if not contest.description:
+        flash("Не указано описание контеста", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/contest/{contest.id}")
+    
+    if contest.start_date > contest.end_date:
+        flash("Контест должен начаться раньше, чем закончиться", "danger")
+        return redirect(f"/pool/{pool_hashed_id}/contest/{contest.id}")
+    
+    contest.is_public = True
+
+    db.session.commit()
+
+    return redirect(f"/pool/{pool_hashed_id}/contest/{contest.id}")
 
 
 
