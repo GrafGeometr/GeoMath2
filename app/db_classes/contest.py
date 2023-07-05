@@ -2,6 +2,7 @@ from app.imports import *
 from app.sqlalchemy_custom_types import *
 
 class Contest(db.Model):
+    # --> INITIALIZE
     __tablename__ = "contest"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -10,11 +11,14 @@ class Contest(db.Model):
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
     is_public = db.Column(db.Boolean, default=False)
+
+    # --> RELATIONS
     contest_problems = db.relationship("Contest_Problem", backref="contest")
     contest_judges = db.relationship("Contest_Judge", backref="contest")
-
+    contest_users = db.relationship("Contest_User", backref="contest")
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
+    # --> FUNCTIONS
     def get_tags(self):
         from app.dbc import Tag, Tag_Relation
         return sorted(

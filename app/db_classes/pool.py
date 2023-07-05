@@ -2,18 +2,20 @@ from app.imports import *
 from app.sqlalchemy_custom_types import *
 
 class Pool(db.Model):
+    # --> INITIALIZE
     __tablename__ = "pool"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=True)
     hashed_id = db.Column(db.String, unique=True, nullable=True)
-    userpools = db.relationship("User_Pool", backref="pool")
+
+    # --> RELATIONS
+    user_pools = db.relationship("User_Pool", backref="pool")
     problems = db.relationship("Problem", backref="pool")
     sheets = db.relationship("Sheet", backref="pool")
     contests = db.relationship("Contest", backref="pool")
 
-    # open_for_new_problems = db.Column(db.Boolean, default=False)
-
+    # --> FUNCTIONS
     def set_hashed_id(self):
         from app.dbc import Problem
         while True:

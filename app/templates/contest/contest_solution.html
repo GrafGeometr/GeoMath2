@@ -14,7 +14,7 @@
 
 <h1 class="text-2xl ml-4">
     <span>Баллы:</span>
-    {% with score=current_solution.score, max_score=current_solution.contest_problem().max_score %}
+    {% with score=current_solution.score, max_score=current_solution.contest_problem.max_score %}
         {% if score is not none %}
             {% if score >= 0.9*max_score %}
                 {% set bgcolor = 'text-green-500' %}
@@ -29,7 +29,7 @@
             {% endif %}
             <span class="{{bgcolor}}">{{ current_solution.score }}</span>
             <span>/</span>
-            <span>{{ current_solution.contest_problem().max_score }}</span>
+            <span>{{ current_solution.contest_problem.max_score }}</span>
         
         {% else %}
             <span class="text-slate-500">на проверке</span>

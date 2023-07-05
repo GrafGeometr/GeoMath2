@@ -2,26 +2,22 @@ from app.imports import *
 from app.sqlalchemy_custom_types import *
 
 class Problem(db.Model):
+    # --> INITIALIZE
     __tablename__ = "problem"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-
     hashed_id = db.Column(db.String, unique=True, nullable=True)
-
     name = db.Column(db.String)
     statement = db.Column(db.String)
     solution = db.Column(db.String)
-
-    pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
-
     is_public = db.Column(db.Boolean, default=False)
-    moderated = db.Column(db.Boolean, default=False)
     show_solution = db.Column(db.Boolean, default=False)
 
+    # --> RELATIONS
+    pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
     contest_problems = db.relationship("Contest_Problem", backref="problem")
-    contest_user_solutions = db.relationship("Contest_User_Solution", backref="problem")
 
-
+    # --> FUNCTIONS
     def set_hashed_id(self):
         from app.dbc import Pool
         while True:

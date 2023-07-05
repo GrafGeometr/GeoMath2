@@ -2,16 +2,20 @@ from app.imports import *
 from app.sqlalchemy_custom_types import *
 
 class Contest_User_Solution(db.Model):
+    # --> INITIALIZE
     __tablename__ = "contest_user_solution"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     hashed_id = db.Column(db.String, unique=True)
-    contest_user_id = db.Column(db.Integer, db.ForeignKey("contest_user.id"))
-    problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
     score = db.Column(db.Integer, nullable=True)
+    content = db.Column(db.String)
+    judge_comment = db.Column(db.String)
 
-    content = db.Column(db.Text)
-
+    # --> RELATIONS
+    contest_user_id = db.Column(db.Integer, db.ForeignKey("contest_user.id"))
+    contest_problem_id = db.Column(db.Integer, db.ForeignKey("contest_problem.id"))
+    
+    # --> FUNCTIONS
     def set_hashed_id(self):
         from app.dbc import Pool
         while True:
@@ -21,10 +25,6 @@ class Contest_User_Solution(db.Model):
                 break
 
         self.hashed_id = hashed_id
-
-    def contest_problem(self):
-        from app.dbc import Contest_Problem
-        return Contest_Problem.query.filter_by(contest_id=self.contest_user.contest_id, problem_id=self.problem_id).first()
 
 
     def get_attachments(self):

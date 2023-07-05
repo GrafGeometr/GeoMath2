@@ -2,16 +2,18 @@ from app.imports import *
 from app.sqlalchemy_custom_types import *
 
 class Sheet(db.Model):
+    # --> INITIALIZE
     __tablename__ = "sheet"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
     text = db.Column(db.String)
-
     is_public = db.Column(db.Boolean, default=False)
 
+    # --> RELATIONS
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
+    # --> FUNCTIONS
     def get_tags(self):
         from app.dbc import Tag, Tag_Relation
         return sorted(

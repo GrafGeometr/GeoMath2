@@ -2,6 +2,7 @@ from app.imports import *
 from app.sqlalchemy_custom_types import *
 
 class User(UserMixin, db.Model):
+    # --> INITIALIZE
     __tablename__ = "user"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -10,13 +11,14 @@ class User(UserMixin, db.Model):
     admin = db.Column(db.Boolean, default=False)
     created_date = db.Column(db.DateTime, default=current_time)
     profile_pic = db.Column(db.String(), nullable=True)
-    emails = db.relationship("Email", backref="user")
 
-    userpools = db.relationship("User_Pool", backref="user")
+    # --> RELATIONS
+    emails = db.relationship("Email", backref="user")
+    user_pools = db.relationship("User_Pool", backref="user")
     contest_judges = db.relationship("Contest_Judge", backref="user")
     contest_users = db.relationship("Contest_User", backref="user")
 
-
+    # --> FUNCTIONS
     def set_password(self, password):
         self.password = generate_password_hash(password)
 
