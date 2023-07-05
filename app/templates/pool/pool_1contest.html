@@ -5,6 +5,11 @@
     input::-webkit-calendar-picker-indicator {
         cursor: pointer;
     }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+    }
 </style>
 
 {% if current_user.get_pool_relation(current_pool.id).role.isOwner() %}
@@ -92,14 +97,20 @@
             <div class="border-r-2 border-slate-300 w-1/3">
                 <div class="flex flex-col {% if current_contest.get_problems() %} gap-y-4 {% endif %} mr-4">
                     <ul class="flex flex-col gap-y-2 " id="problems-list">
-                        {% for problem in current_contest.get_problems() %}
+                        {% for cp in current_contest.contest_problems %}
+                        {% with problem = cp.problem %}
                         <li class="flex w-full gap-x-2">
                             <input type="text" name="problem_hash"
                                 value="{{ problem.hashed_id }}" placeholder="Хеш задачи" {% if current_contest.is_public %} readonly {% endif %}
                                 class="input-problem-hash text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+                            <input type="number" name="max_score"
+                                value="{{ cp.max_score }}" placeholder="Балл" {% if current_contest.is_public %} readonly {% endif %}
+                                min="1" max="999"
+                                class="input-max-score text-lg text-slate-800 border-slate-200 border rounded-lg px-2 py-2">
                                 <button onclick="DeleteProblem(this)"
                                 class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-600">Удалить</button>
                         </li>
+                        {% endwith %}
                         {% endfor %}
                     </ul>
                     <button onclick="event.preventDefault(); AddProblem(event)"
@@ -237,8 +248,14 @@
         child.innerHTML = `
         <input type="text" name="problem_hash" value="" placeholder="Хеш задачи" {% if current_contest.is_public %} readonly {% endif %}
         class="input-problem-hash text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+
+        <input type="number" name="max_score"
+        value="7" placeholder="Балл" {% if current_contest.is_public %} readonly {% endif %}
+        min="1" max="999"
+        class="input-max-score text-lg text-slate-800 border-slate-200 border rounded-lg px-2 py-2">
+
         <button onclick="DeleteProblem(this)"
-        class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
+        class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-600">Удалить</button>
         `
         problemList.appendChild(child);
         problemList.parentNode.classList.add("gap-y-4");

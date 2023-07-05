@@ -1,0 +1,55 @@
+{% extends "contest/contest_header.html" %}
+{% block contest_body %}
+<h1 class="text-xl flex justify-center items-center gap-x-2"><span>Решение пользователя</span>
+    <a href="/profile/{{ current_solution.contest_user.user.name }}"
+    class="no-underline hover:underline hover:text-blue-600 font-bold">{{ current_solution.contest_user.user.name }}</a>
+    <span>задачи</span>
+    <span class="text-slate-500">[</span>
+    <a href="/archive/problem/{{ current_solution.problem.hashed_id }}"
+    class="text-slate-500 hover:cursor-pointer hover:underline hover:text-slate-800 text-lg">{{ current_solution.problem.hashed_id }}</a>
+    <span class="text-slate-500">]</span>
+</h1>
+
+<div class="h-px w-full bg-neutral-300 my-2"></div>
+
+<h1 class="text-2xl ml-4">
+    <span>Баллы:</span>
+    {% with score=current_solution.score, max_score=current_solution.contest_problem().max_score %}
+        {% if score is not none %}
+            {% if score >= 0.9*max_score %}
+                {% set bgcolor = 'text-green-500' %}
+            {% elif score >= 0.70*max_score %}
+                {% set bgcolor = 'text-lime-500' %}
+            {% elif score >= 0.5*max_score %}
+                {% set bgcolor = 'text-yellow-500' %}
+            {% elif score >= 0.25*max_score %}
+                {% set bgcolor = 'text-orange-500' %}
+            {% else %}
+                {% set bgcolor = 'text-red-500' %}
+            {% endif %}
+            <span class="{{bgcolor}}">{{ current_solution.score }}</span>
+            <span>/</span>
+            <span>{{ current_solution.contest_problem().max_score }}</span>
+        
+        {% else %}
+            <span class="text-slate-500">на проверке</span>
+        {% endif %}
+    {% endwith %}
+</h1>
+
+<div class="w-1/2 p-4 border-slate-200 border-2 rounded-lg bg-white text-lg mt-2">
+    <div class="flex gap-x-2 items-center"><span class="font-bold">Тип участия:</span>
+        {% if current_solution.contest_user.virtual %}
+        <span>Виртуальное</span>
+        {% else %}
+        <span>Реальное</span>
+        {% endif %}
+    </div>
+    <div class="flex gap-x-2 items-center"><span class="font-bold">Старт (МСК):</span>
+        <span>{{ current_solution.contest_user.start_date.strftime("%d.%m.%Y %H:%M") }}</span>
+    </div>
+    <div class="flex gap-x-2 items-center"><span class="font-bold">Финиш (МСК):</span>
+        <span>{{ current_solution.contest_user.end_date.strftime("%d.%m.%Y %H:%M") }}</span>
+    </div>
+</div>
+{% endblock %}

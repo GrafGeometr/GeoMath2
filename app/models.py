@@ -16,6 +16,7 @@ class User(UserMixin, db.Model):
 
     userpools = db.relationship("User_Pool", backref="user")
     contest_judges = db.relationship("Contest_Judge", backref="user")
+    contest_users = db.relationship("Contest_User", backref="user")
 
     
     def set_password(self, password):
@@ -154,6 +155,7 @@ class Problem(db.Model):
     show_solution = db.Column(db.Boolean, default=False)
 
     contest_problems = db.relationship("Contest_Problem", backref="problem")
+    contest_user_solutions = db.relationship("Contest_User_Solution", backref="problem")
 
 
     def set_hashed_id(self):
@@ -456,6 +458,7 @@ class Contest_Problem(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     contest_id = db.Column(db.Integer, db.ForeignKey("contest.id"))
     problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
+    max_score = db.Column(db.Integer, default=7)
 
 class Contest_User(db.Model):
     __tablename__ = 'contest_user'
@@ -492,7 +495,7 @@ class Contest_User_Solution(db.Model):
     hashed_id = db.Column(db.String, unique=True)
     contest_user_id = db.Column(db.Integer, db.ForeignKey("contest_user.id"))
     problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
-    score = db.Column(db.Integer, default=0)
+    score = db.Column(db.Integer, nullable=True)
 
     def set_hashed_id(self):
         while True:
@@ -502,3 +505,6 @@ class Contest_User_Solution(db.Model):
                 break
         
         self.hashed_id = hashed_id
+
+    def contest_problem(self):
+        return Contest_Problem.query.filter_by(contest_id=self.contest_user.contest_id, problem_id=self.problem_id).first()

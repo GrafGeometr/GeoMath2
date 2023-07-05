@@ -48,3 +48,14 @@ def contest_problem(contest_id, problem_hashed_id):
     idx = problems.index(problem) + 1
 
     return render_template("contest/contest_problem.html", current_contest=contest, current_problem=problem, title=f"{contest.name} - №{idx}")
+
+@contest.route("/contest/<contest_id>/solution/<solution_hashed_id>", methods=["GET", "POST"])
+@login_required
+def contest_solution(contest_id, solution_hashed_id):
+    contest = Contest.query.filter_by(id=contest_id).first()
+    if contest is None:
+        return redirect("/myprofile")
+    solution = Contest_User_Solution.query.filter_by(hashed_id=solution_hashed_id).first()
+    if solution is None:
+        return redirect(f"/contest/{contest_id}")
+    return render_template("contest/contest_solution.html", current_contest=contest, current_solution=solution, title=f"{solution.contest_user.user.name} - решение")
