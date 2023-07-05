@@ -16,6 +16,7 @@ class Contest(db.Model):
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
     def get_tags(self):
+        from app.dbc import Tag, Tag_Relation
         return sorted(
             [
                 Tag.query.filter_by(id=sheet_tag.tag_id).first()
@@ -44,6 +45,7 @@ class Contest(db.Model):
         return False
 
     def get_problems(self):
+        from app.dbc import Problem, Contest_Problem
         result = []
         for cp in Contest_Problem.query.filter_by(contest_id=self.id).all():
             result.append(Problem.query.filter_by(id=cp.problem_id).first())
@@ -56,6 +58,7 @@ class Contest(db.Model):
         return [p for p in self.get_problems() if p.is_statement_available()]
 
     def get_active_cu(self):
+        from app.dbc import Contest_User
         for cu in Contest_User.query.filter_by(
             user_id=current_user.id, contest_id=self.id
         ).all():
@@ -70,6 +73,7 @@ class Contest(db.Model):
         return self.end_date <= current_time()
 
     def register(self, virtual=False, virtual_start=None, virtual_end=None):
+        from app.dbc import Contest_User, Contest_User_Solution
         if not self.is_public:
             return
         cu = self.get_active_cu()

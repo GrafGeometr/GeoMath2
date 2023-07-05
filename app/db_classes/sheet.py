@@ -13,6 +13,7 @@ class Sheet(db.Model):
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
     def get_tags(self):
+        from app.dbc import Tag, Tag_Relation
         return sorted(
             [
                 Tag.query.filter_by(id=sheet_tag.tag_id).first()
@@ -27,6 +28,7 @@ class Sheet(db.Model):
         return list(map(lambda t: t.name, self.get_tags()))
 
     def get_attachments(self):
+        from app.dbc import Attachment
         return Attachment.query.filter_by(parent_type="Sheet", parent_id=self.id).all()
 
     def is_archived(self):

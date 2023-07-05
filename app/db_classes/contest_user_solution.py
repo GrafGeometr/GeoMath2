@@ -13,6 +13,7 @@ class Contest_User_Solution(db.Model):
     content = db.Column(db.Text)
 
     def set_hashed_id(self):
+        from app.dbc import Pool
         while True:
             hashed_id = generate_token(20)
             if not Pool.query.filter_by(hashed_id=hashed_id).first():
@@ -22,8 +23,10 @@ class Contest_User_Solution(db.Model):
         self.hashed_id = hashed_id
 
     def contest_problem(self):
+        from app.dbc import Contest_Problem
         return Contest_Problem.query.filter_by(contest_id=self.contest_user.contest_id, problem_id=self.problem_id).first()
 
 
     def get_attachments(self):
+        from app.dbc import Attachment
         return Attachment.query.filter_by(parent_type="Contest_User_Solution", parent_id=self.id).all()

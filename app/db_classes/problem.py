@@ -23,6 +23,7 @@ class Problem(db.Model):
 
 
     def set_hashed_id(self):
+        from app.dbc import Pool
         while True:
             hashed_id = generate_token(20)
             if not Pool.query.filter_by(hashed_id=hashed_id).first():
@@ -32,6 +33,7 @@ class Problem(db.Model):
         self.hashed_id = hashed_id
 
     def get_tags(self):
+        from app.dbc import Tag, Tag_Relation
         return sorted(
             [
                 Tag.query.filter_by(id=problem_tag.tag_id).first()
@@ -46,6 +48,7 @@ class Problem(db.Model):
         return list(map(lambda t: t.name, self.get_tags()))
 
     def get_attachments(self):
+        from app.dbc import Attachment
         return Attachment.query.filter_by(
             parent_type="Problem", parent_id=self.id
         ).all()
@@ -58,6 +61,7 @@ class Problem(db.Model):
         return [cp.contest for cp in self.contest_problems]
 
     def get_cu_participated(self):
+        from app.dbc import Contest_User
         result = []
         for c in self.get_all_contests():
             result.extend(
@@ -68,6 +72,7 @@ class Problem(db.Model):
         return result
 
     def is_judge(self):
+        from app.dbc import Contest_Judge
         contests = self.get_all_contests()
         judge = any(
             [

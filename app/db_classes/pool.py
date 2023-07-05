@@ -15,6 +15,7 @@ class Pool(db.Model):
     # open_for_new_problems = db.Column(db.Boolean, default=False)
 
     def set_hashed_id(self):
+        from app.dbc import Problem
         while True:
             hashed_id = generate_token(20)
             if not Problem.query.filter_by(hashed_id=hashed_id).first():
@@ -24,6 +25,7 @@ class Pool(db.Model):
         self.hashed_id = hashed_id
 
     def get_users(self):
+        from app.dbc import User_Pool
         userpools = User_Pool.query.filter_by(pool_id=self.id).all()
         userpools.sort(
             key=lambda up: (0, up.user.name)
@@ -44,9 +46,11 @@ class Pool(db.Model):
         return len([user for user in self.get_users() if user.role.isInvited()])
 
     def get_problems(self):
+        from app.dbc import Problem
         return Problem.query.filter_by(pool_id=self.id).all()
 
     def new_problem(self):
+        from app.dbc import Problem
         problem = Problem(statement="", solution="", pool_id=self.id)
         problem.set_hashed_id()
         db.session.add(problem)
@@ -56,6 +60,7 @@ class Pool(db.Model):
         return problem
 
     def new_sheet(self):
+        from app.dbc import Sheet
         sheet = Sheet(text="", pool_id=self.id)
         db.session.add(sheet)
         db.session.commit()
@@ -64,6 +69,7 @@ class Pool(db.Model):
         return sheet
 
     def new_contest(self):
+        from app.dbc import Contest
         contest = Contest(description="", name="Название", pool_id=self.id)
         db.session.add(contest)
         db.session.commit()

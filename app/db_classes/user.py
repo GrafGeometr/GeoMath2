@@ -27,9 +27,11 @@ class User(UserMixin, db.Model):
         return len([email for email in self.emails if email.verified])
 
     def get_pools(self):
+        from app.dbc import User_Pool
         return User_Pool.query.filter_by(user_id=self.id).all()
 
     def create_new_pool(self, name):
+        from app.dbc import Pool, User_Pool
         pool = Pool(name=name)
         pool.set_hashed_id()
         db.session.add(pool)
@@ -42,5 +44,6 @@ class User(UserMixin, db.Model):
         return pool.hashed_id
 
     def get_pool_relation(self, pool_id):
+        from app.dbc import User_Pool
         relation = User_Pool.query.filter_by(user_id=self.id, pool_id=pool_id).first()
         return relation
