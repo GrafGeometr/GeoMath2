@@ -186,7 +186,14 @@ class Problem(db.Model):
             result.extend(Contest_User.query.filter_by(user_id = current_user.id, contest_id = c.id).all())
         return result
 
+    def is_judge(self):
+        contests = self.get_all_contests()
+        judge = any([Contest_Judge.query.filter_by(user_id=current_user.id, contest_id = c.id).first() for c in contests])
+        return judge
+
     def is_statement_available(self):
+        if (self.is_judge()):
+            return True
         contest_users = self.get_cu_participated()
         if (self.is_public or self.is_my()):
             if len(contest_users) == 0:
@@ -198,6 +205,8 @@ class Problem(db.Model):
             return all([cu.is_started() for cu in contest_users])
     
     def is_solution_available(self):
+        if (self.is_judge()):
+            return True
         contest_users = self.get_cu_participated()
         if (self.is_public or self.is_my()):
             if len(contest_users) == 0:
@@ -210,6 +219,8 @@ class Problem(db.Model):
 
     def is_my(self):
         relation = current_user.get_pool_relation(self.pool_id)
+        if relation is None:
+            return False
         if (relation.role.isOwner() or relation.role.isParticipant()):
             return True
         return False
@@ -318,6 +329,8 @@ class Sheet(db.Model):
 
     def is_my(self):
         relation = current_user.get_pool_relation(self.pool_id)
+        if relation is None:
+            return False
         if (relation.role.isOwner() or relation.role.isParticipant()):
             return True
         return False
@@ -355,6 +368,8 @@ class Contest(db.Model):
 
     def is_my(self):
         relation = current_user.get_pool_relation(self.pool_id)
+        if relation is None:
+            return False
         if (relation.role.isOwner() or relation.role.isParticipant()):
             return True
         return False
@@ -423,6 +438,12 @@ class Contest(db.Model):
         db.session.commit()
         return
 
+class Contest_Judge(db.Model):
+    __tablename__ = 'contest_judge'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    contest_id = db.Column(db.Integer, db.ForeignKey("contest.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
 class Contest_Problem(db.Model):
     __tablename__ = 'contest_problem'
