@@ -49,3 +49,13 @@ class User(UserMixin, db.Model):
         from app.dbc import User_Pool
         relation = User_Pool.query.filter_by(user_id=self.id, pool_id=pool_id).first()
         return relation
+    
+    def is_pool_access(self, pool_id):
+        from app.dbc import User_Pool
+        relation = User_Pool.query.filter_by(user_id=self.id, pool_id=pool_id).first()
+        return (relation is not None) and (not relation.role.isInvited())
+    
+    def is_judge(self, contest):
+        from app.dbc import Contest_Judge
+        return (Contest_Judge.query.filter_by(user_id=self.id, contest_id=contest.id).first() is not None)
+        

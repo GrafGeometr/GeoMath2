@@ -75,7 +75,7 @@ class Pool(db.Model):
         contest = Contest(description="", name="Название", pool_id=self.id)
         db.session.add(contest)
         db.session.commit()
-        tm = current_time()
+        tm = current_time("minutes")
         contest.name = f"Контест #{contest.id}"
         contest.start_date = tm
         contest.end_date = tm

@@ -725,50 +725,11 @@ def contest(pool_hashed_id, contest_id):
 
             hashes = request.form.getlist("problem_hash")
             scores = request.form.getlist("max_score")
-            problems = [Problem.query.filter_by(hashed_id=hashed_id).first() for hashed_id in hashes]
-            for i in range(len(problems)):
-                problem = problems[i]
-                if problem is None:
-                    continue
-                try:
-                    sc = int(scores[i])
-                    if (sc <= 0):
-                        sc = None
-                except:
-                    sc = None
-                cp = Contest_Problem.query.filter_by(contest_id=contest.id, problem_id=problem.id).first()
-                if cp is None:
-                    if sc is None:
-                        db.session.add(Contest_Problem(contest_id=contest.id, problem_id=problem.id))
-                    else:
-                        db.session.add(Contest_Problem(contest_id=contest.id, problem_id=problem.id, max_score=sc))
-                    db.session.commit()
-                else:
-                    if sc is not None:
-                        cp.max_score = sc
-                    db.session.commit()
-                
-            for problem in contest.get_problems():
-                if problem.hashed_id not in hashes:
-                    db.session.delete(Contest_Problem.query.filter_by(contest_id=contest.id, problem_id=problem.id).first())
-                    db.session.commit()
+            contest.act_update_problems(hashes, scores)
 
             judge_names = request.form.getlist("judge_name")
-            judges = [User.query.filter_by(name=name).first() for name in judge_names]
-            for judge in judges:
-                if judge is None:
-                    continue
-                if Contest_Judge.query.filter_by(contest_id=contest.id, user_id=judge.id).first() is None:
-                    db.session.add(Contest_Judge(contest_id=contest.id, user_id=judge.id))
-                    db.session.commit()
-            for judge in contest.get_judges():
-                if judge.name not in judge_names:
-                    db.session.delete(Contest_Judge.query.filter_by(contest_id=contest.id, user_id=judge.id).first())
-                    db.session.commit()
-
-
-
-            db.session.commit()
+            contest.act_update_judges(judge_names)
+            
 
             flash("Контест успешно сохранён", "success")
             return redirect(f"/pool/{pool_hashed_id}/contest/{contest_id}")

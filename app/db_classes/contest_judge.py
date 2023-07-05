@@ -12,3 +12,9 @@ class Contest_Judge(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
     # --> FUNCTIONS
+    def add(self):
+        db.session.add(self)
+        db.session.commit()
+    def remove(self):
+        db.session.delete(self)
+        db.session.commit()

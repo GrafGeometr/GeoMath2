@@ -107,12 +107,11 @@ class Problem(db.Model):
             return all([cu.is_ended() for cu in contest_users])
 
     def is_my(self):
-        relation = current_user.get_pool_relation(self.pool_id)
-        if relation is None:
-            return False
-        if relation.role.isOwner() or relation.role.isParticipant():
-            return True
-        return False
+        return current_user.is_pool_access(self.pool_id)
+    
+    def is_in_contest(self, contest):
+        from app.dbc import Contest_Problem
+        return (Contest_Problem.query.filter_by(problem_id=self.id, contest_id=contest.id).first() is not None)
 
     def get_nonsecret_attachments(self):
         result = []

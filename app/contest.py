@@ -13,7 +13,7 @@ def contest_mainpage(contest_id):
         return redirect(f"/myprofile")
     if request.method == "POST":
         if request.form.get("register_default") is not None:
-            contest.register(virtual=False)
+            contest.act_register(virtual=False)
             return redirect(f"/contest/{contest_id}")
         if request.form.get("register_virtual") is not None:
             try:
@@ -24,10 +24,10 @@ def contest_mainpage(contest_id):
                 end_date = datetime.datetime.strptime(request.form.get("end_date"), '%Y-%m-%dT%H:%M')
             except:
                 end_date = None
-            contest.register(virtual=True, virtual_start=start_date, virtual_end=end_date)
+            contest.act_register(virtual=True, virtual_start=start_date, virtual_end=end_date)
             return f"/contest/{contest_id}"
         if request.form.get("stop") is not None:
-            contest.stop()
+            contest.act_stop()
             return redirect(f"/contest/{contest_id}")
     return render_template("contest/contest_mainpage.html", current_contest=contest, title=f"Контест - {contest.name}")
 

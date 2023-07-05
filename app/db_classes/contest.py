@@ -19,6 +19,22 @@ class Contest(db.Model):
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
     # --> FUNCTIONS
+    def is_archived(self):
+        return self.is_public
+
+    def is_description_available(self):
+        return self.is_public or self.is_my()
+
+    def is_my(self):
+        return current_user.is_pool_access(self.pool_id)
+    
+    def is_started(self):
+        return self.start_date <= current_time()
+    
+    def is_ended(self):
+        return self.end_date <= current_time()
+    
+    
     def get_tags(self):
         from app.dbc import Tag, Tag_Relation
         return sorted(
@@ -33,20 +49,6 @@ class Contest(db.Model):
 
     def get_tag_names(self):
         return list(map(lambda t: t.name, self.get_tags()))
-
-    def is_archived(self):
-        return self.is_public
-
-    def is_description_available(self):
-        return self.is_public or self.is_my()
-
-    def is_my(self):
-        relation = current_user.get_pool_relation(self.pool_id)
-        if relation is None:
-            return False
-        if relation.role.isOwner() or relation.role.isParticipant():
-            return True
-        return False
 
     def get_problems(self):
         from app.dbc import Problem, Contest_Problem
@@ -69,16 +71,16 @@ class Contest(db.Model):
             if not cu.is_ended():
                 return cu
         return None
+    
 
-    def is_started(self):
-        return self.start_date <= current_time()
 
-    def is_ended(self):
-        return self.end_date <= current_time()
+    
 
-    def register(self, virtual=False, virtual_start=None, virtual_end=None):
+    
+
+    def act_register(self, virtual=False, virtual_start=None, virtual_end=None):
         from app.dbc import Contest_User, Contest_User_Solution
-        if not self.is_public:
+        if not self.is_archived():
             return
         cu = self.get_active_cu()
         if cu:
@@ -126,15 +128,15 @@ class Contest(db.Model):
             )
             db.session.add(cu)
             db.session.commit()
-            for p in self.get_problems():
-                cus = Contest_User_Solution(contest_user_id=cu.id, problem_id=p.id)
+            for cp in self.contest_problems:
+                cus = Contest_User_Solution(contest_user_id=cu.id, contest_problem_id=cp.id)
                 cus.set_hashed_id()
                 db.session.add(cus)
             db.session.commit()
             return
 
-    def stop(self):
-        if not self.is_public:
+    def act_stop(self):
+        if not self.is_archived():
             return
         cu = self.get_active_cu()
         if not cu:
@@ -142,3 +144,97 @@ class Contest(db.Model):
         cu.end_manually()
         db.session.commit()
         return
+    
+    def act_add_judge(self, user):
+        from app.dbc import Contest_Judge
+        if user is None:
+            return
+        if not self.is_my():
+            return
+        if user.is_judge(self):
+            return
+        cj = Contest_Judge(contest_id=self.id, user_id=user.id)
+        cj.add()
+
+    def act_add_judge_by_name(self, name):
+        from app.dbc import User
+        self.act_add_judge(User.query.filter_by(name=name).first())
+
+    def act_remove_judge(self, user):
+        from app.dbc import Contest_Judge
+        if user is None:
+            return
+        if not self.is_my():
+            return
+        if not user.is_judge(self):
+            return
+        cj = Contest_Judge.query.filter_by(contest_id=self.id, user_id=user.id).first()
+        cj.remove()
+
+    def act_remove_judge_by_name(self, name):
+        from app.dbc import User
+        self.act_remove_judge(User.query.filter_by(name=name).first())
+
+    def act_update_judges(self, names):
+        for judge in [cj.user for cj in self.contest_judges]:
+            self.act_remove_judge(judge)
+        for name in names:
+            self.act_add_judge_by_name(name)
+
+    def act_remove_problem(self, problem):
+        from app.dbc import Contest_Problem
+        if problem is None:
+            return
+        if not self.is_my():
+            return
+        if not problem.is_in_contest(self):
+            return
+        cp = Contest_Problem.query.filter_by(contest_id=self.id, problem_id=problem.id).first()
+        cp.remove()
+
+    def act_add_problem(self, problem, max_score=7):
+        from app.dbc import Contest_Problem
+        if problem is None:
+            return
+        if not self.is_my():
+            return
+        if problem.is_in_contest(self):
+            return
+        cp = Contest_Problem(contest_id=self.id, problem_id=problem.id)
+        cp.add()
+        cp.act_set_max_score(max_score)
+
+    def act_add_problem_by_hashed_id(self, hashed_id, max_score=7):
+        from app.dbc import Problem
+        problem = Problem.query.filter_by(hashed_id=hashed_id).first()
+        self.act_add_problem(problem, max_score)
+
+    def act_update_problem_score(self, problem, score):
+        from app.dbc import Contest_Problem
+        if problem is None:
+            return
+        if not self.is_my():
+            return
+        if not problem.is_in_contest(self):
+            return
+        cp = Contest_Problem.query.filter_by(contest_id=self.id, problem_id=problem.id).first()
+        cp.act_set_max_score(score)
+
+    def act_update_problem_score_by_hashed_id(self, hashed_id, score):
+        from app.dbc import Problem
+        problem = Problem.query.filter_by(hashed_id=hashed_id).first()
+        self.act_update_problem_score(problem, score)
+
+
+    def act_update_problems(self, hashes, scores):
+        print(hashes, scores)
+        if len(hashes) != len(scores):
+            return
+        for i in range(len(hashes)):
+            self.act_add_problem_by_hashed_id(hashes[i], scores[i])
+        for i in range(len(hashes)):
+            self.act_update_problem_score_by_hashed_id(hashes[i], scores[i])
+        for cp in self.contest_problems:
+            if cp.problem.hashed_id not in hashes:
+                cp.remove()
+        

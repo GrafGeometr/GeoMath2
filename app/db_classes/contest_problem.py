@@ -14,4 +14,28 @@ class Contest_Problem(db.Model):
     contest_user_solutions = db.relationship("Contest_User_Solution", backref="contest_problem")
 
     # --> FUNCTIONS
+    def add(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def remove(self):
+        for cus in self.contest_user_solutions:
+            db.session.delete(cus)
+        db.session.delete(self)
+        db.session.commit()
+
+    def act_set_max_score(self, score):
+        try:
+            score = int(score)
+            if (score <= 0):
+                score = None
+        except:
+            score = None
+        if score is None:
+            if self.max_score is None:
+                self.max_score = 7
+        else:
+            self.max_score = score
+        db.session.commit()
+
     
