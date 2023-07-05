@@ -47,4 +47,21 @@ def contest_problem(contest_id, problem_hashed_id):
         return redirect(f"/myprofile")
     idx = problems.index(problem) + 1
 
-    return render_template("contest/contest_problem.html", current_contest=contest, current_problem=problem, title=f"{contest.name} - №{idx}")
+    contest_user = Contest_User.query.filter_by(
+        contest_id=contest_id,
+        user_id=current_user.id
+    ).first()
+
+    if contest_user is None:
+        return redirect(f"/contest/{contest_id}")
+    
+    contest_user_solution = Contest_User_Solution.query.filter_by(
+        contest_user_id=contest_user.id,
+        problem_id=problem.id
+    ).first()
+
+    if contest_user_solution is None:
+        return redirect(f"/contest/{contest_id}")
+    
+
+    return render_template("contest/contest_problem.html", current_contest=contest, current_problem=problem, current_solution=contest_user_solution, title=f"{contest.name} - №{idx}")

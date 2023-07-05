@@ -11,19 +11,103 @@
     element.classList.remove("border-slate-400");
     element.classList.add("border-black");
 </script>
-
-<h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Условие:</h2>
-<div class="flex w-full items-start">
-    <textarea id="statement_textarea" cols="50" name="statement"
-        readonly class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.statement }}</textarea>
+<div class="flex flex-col">
+    <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Условие:</h2>
+    <div class="flex w-full items-start">
+        <textarea id="statement_textarea" cols="50" name="statement" readonly
+            class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.statement }}</textarea>
+    </div>
+    <div>
+        {% for attachment in current_problem.get_attachments() %}
+        {% if not attachment.other_data["is_secret"] %}
+        <input type="text" name="attachment_name {{ attachment.db_filename }}"
+            id="attachment-name-{{ attachment.db_filename }}" value="{{ attachment.short_name }}"
+            placeholder="Как назвать картинку?" {% if current_problem.is_public %} readonly {% endif %}
+            class="hidden input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+        {% endif %}
+        {% endfor %}
+    </div>
+    <script>
+        makeLaTeXArea("statement_textarea", "contest");
+        var textarea = document.getElementById("statement_textarea");
+        var container = textarea.parentElement;
+        var pre = textarea.nextElementSibling;
+        var output = pre.nextElementSibling;
+        textarea.style.display = "none";
+        pre.style.display = "none";
+        var latexOutput = document.getElementById("statement_textarea-latex-output");
+        latexOutput.classList.remove("w-1/2");
+        latexOutput.classList.add("w-2/3");
+    </script>
 </div>
-<script>
-    makeLaTeXArea("statement_textarea", "contest");
-    var textarea = document.getElementById("statement_textarea");
-    var container = textarea.parentElement;
-    var pre = textarea.nextElementSibling;
-    var output = pre.nextElementSibling;
-    textarea.style.display = "none";
-    pre.style.display = "none";
-</script>
+
+<div class="flex flex-col">
+    <form autocomplete="off" action="/contest/{{ current_contest.id }}/problem/{{ current_problem.hashed_id }}" method="post"
+        class="w-full mt-2 px-4" enctype="multipart/form-data">
+        <input type="hidden" name="save_solution" value="239">
+        
+        <div class="flex flex-row items-center mt-4 w-1/2">
+            <input type="submit" value="Сохранить"
+                class="hover:cursor-pointer px-8 py-2 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700 ml-8 mr-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+            {% if category == "danger" %}
+            <div id="flash-message"
+                class="text-stone-800 text-semibold rounded text-lg text-center">
+                {{ message }}</div>
+            {% elif category == "warning" %}
+            <div id="flash-message"
+                class="text-stone-800 text-semibold rounded text-lg text-center">
+                {{ message }}</div>
+            {% elif category == "success" %}
+            <div id="flash-message"
+                class="text-stone-800 text-semibold rounded text-lg text-center">
+                {{ message }}</div>
+            {% endif %}
+            {% endfor %}
+            {% endwith %}
+        </div>
+
+        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Текст:</h2>
+        <div class="flex w-full items-start">
+            <textarea id="text_textarea" cols="50" name="text" class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_solution.content }}</textarea>
+        </div>
+
+        <script>
+            makeLaTeXArea("text_textarea", "sheet");
+        </script>
+
+
+        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Вложения:</h2>
+        <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
+            <div class="border-r-2 border-slate-300 w-1/3">
+                <div class="flex flex-col {% if current_solution.get_attachments() %} gap-y-4 {% endif %} mr-4">
+                    <ul class="flex flex-col gap-y-2 " id="files-list">
+                        {% for attachment in current_solution.get_attachments() %}
+                        <li class="flex w-full gap-x-2">
+                            <input type="text" name="attachment_name {{ attachment.db_filename }}" id="attachment-name-{{ attachment.db_filename }}"
+                                value="{{ attachment.short_name }}" placeholder="Как назвать картинку?"
+                                class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+                                <button onclick="DeleteAttachment(this)"
+                                class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="border-2 border-blue-500 border-dashed px-8 py-4 rounded-xl flex justify-center">
+                        <label class="label text-lg">
+                            <input type="file" class="file-input w-0 h-0" name="attachments" accept="image/*" multiple>
+                            <span class="browse-files-text text-blue-500 font-semibold cursor-pointer inline-block"
+                                onclick="ResetFileInput()">Загрузить файлы</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-2/3 ml-4">
+                <img id="display-attachment" class="hidden border-2 border-sky-400 padding-8 rounded-xl">
+            </div>
+        </div>
+    </form>
+</div>
+
 {% endblock %}
