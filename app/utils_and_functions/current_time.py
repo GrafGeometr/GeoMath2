@@ -1,4 +1,4 @@
-from app.imports import *
+import datetime, pytz
 
 def current_time():
     t = datetime.datetime.now(pytz.timezone('Europe/Moscow')) # current Moscow time

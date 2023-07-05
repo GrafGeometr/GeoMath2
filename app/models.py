@@ -1,7 +1,6 @@
 from .imports import *
 from .sqlalchemy_custom_types import *
-from .utils_and_functions.token_gen import generate_token
-from .utils_and_functions.current_time import current_time
+
 
 
 class User(UserMixin, db.Model):

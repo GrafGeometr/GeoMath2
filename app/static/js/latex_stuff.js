@@ -101,6 +101,7 @@ function makeLaTeXArea(elementId, editorType="problem") {
     element.parentElement.classList.add("gap-x-4");
 
 
+
     const render = () => {
         manageAttachments();
 
