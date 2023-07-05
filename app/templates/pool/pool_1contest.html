@@ -5,13 +5,18 @@
     input::-webkit-calendar-picker-indicator {
         cursor: pointer;
     }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+    }
 </style>
 
 {% if current_user.get_pool_relation(current_pool.id).role.isOwner() %}
 <div class="flex justify-between">
     {% if current_contest.is_public %}
     <div class="flex flex-row items-center mt-4">
-        <h3 class="text-red-400 font-bold text-xl">Вы не можете редактировать контест, если он опубликован</h3>
+        <h3 class="text-red-600 font-bold text-xl">Вы не можете редактировать контест, если он опубликован</h3>
         <span class="text-slate-500 font-bold mx-4 text-xl">|</span>
         <form action="/pool/{{ current_pool.hashed_id }}/contests" method="post">
             <input type="hidden" name="back_to_pool" value="{{ current_pool.hashed_id }}">
@@ -92,18 +97,24 @@
             <div class="border-r-2 border-slate-300 w-1/3">
                 <div class="flex flex-col {% if current_contest.get_problems() %} gap-y-4 {% endif %} mr-4">
                     <ul class="flex flex-col gap-y-2 " id="problems-list">
-                        {% for problem in current_contest.get_problems() %}
+                        {% for cp in current_contest.contest_problems %}
+                        {% with problem = cp.problem %}
                         <li class="flex w-full gap-x-2">
                             <input type="text" name="problem_hash"
                                 value="{{ problem.hashed_id }}" placeholder="Хеш задачи" {% if current_contest.is_public %} readonly {% endif %}
                                 class="input-problem-hash text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+                            <input type="number" name="max_score"
+                                value="{{ cp.max_score }}" placeholder="Балл" {% if current_contest.is_public %} readonly {% endif %}
+                                min="1" max="999"
+                                class="input-max-score text-lg text-slate-800 border-slate-200 border rounded-lg px-2 py-2">
                                 <button onclick="DeleteProblem(this)"
-                                class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
+                                class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-600">Удалить</button>
                         </li>
+                        {% endwith %}
                         {% endfor %}
                     </ul>
                     <button onclick="event.preventDefault(); AddProblem(event)"
-                    class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-green-500">Добавить</button>
+                    class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-green-600">Добавить</button>
                 </div>
             </div>
 
@@ -113,14 +124,35 @@
         </div>
 
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Настройки:</h2>
-        <div class="flex flex-col gap-y-4">
-            <div class="flex items-center gap-x-4">
-                <input type="datetime-local" name="start_date" class="w-80 px-4 py-2 border-slate-200 border-2 rounded-lg" value="{{ current_contest.start_date.isoformat() }}">
-                <span class="w-60">Время начала (МСК)</span>
-            </div>
-            <div class="flex items-center gap-x-4">
-                <input type="datetime-local" name="end_date" class="w-80 px-4 py-2 border-slate-200 border-2 rounded-lg" value="{{ current_contest.end_date.isoformat() }}">
-                <span class="w-60">Время окончания (МСК)</span>
+        <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
+            <div class="flex flex-col gap-y-4">
+                <div class="flex items-center gap-x-4">
+                    <input type="datetime-local" name="start_date" class="w-80 px-4 py-2 border-slate-200 border-2 rounded-lg" value="{{ current_contest.start_date.isoformat() }}">
+                    <span class="w-60">Время начала (МСК)</span>
+                </div>
+                <div class="flex items-center gap-x-4">
+                    <input type="datetime-local" name="end_date" class="w-80 px-4 py-2 border-slate-200 border-2 rounded-lg" value="{{ current_contest.end_date.isoformat() }}">
+                    <span class="w-60">Время окончания (МСК)</span>
+                </div>
+                
+                <div class="flex flex-col gap-y-4">
+                    <h3 class="text-black text-lg font-bold">Члены жюри:</h3>
+                    <div class="flex flex-col {% if current_contest.get_judges() %} gap-y-4 {% endif %} mr-4">
+                        <ul class="flex flex-col gap-y-2 " id="problems-list">
+                            {% for judge in current_contest.get_judges() %}
+                            <li class="flex w-full gap-x-2">
+                                <input type="text" name="judge_name"
+                                    value="{{ judge.name }}" placeholder="Имя пользователя"
+                                    class="input-judge-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+                                    <button onclick="DeleteJudge(this)"
+                                    class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-600">Удалить</button>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <button onclick="event.preventDefault(); AddJudge(event)"
+                        class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-green-600">Добавить</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -209,7 +241,6 @@
         element.parentElement.remove();
     }
     function AddProblem(event) {
-        let problemInput = document.querySelector(".problem-input");
         let problemList = event.target.previousElementSibling;
         problemList.parentNode.classList.remove("gap-y-4");
         var child = document.createElement("li");
@@ -217,8 +248,14 @@
         child.innerHTML = `
         <input type="text" name="problem_hash" value="" placeholder="Хеш задачи" {% if current_contest.is_public %} readonly {% endif %}
         class="input-problem-hash text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+
+        <input type="number" name="max_score"
+        value="7" placeholder="Балл" {% if current_contest.is_public %} readonly {% endif %}
+        min="1" max="999"
+        class="input-max-score text-lg text-slate-800 border-slate-200 border rounded-lg px-2 py-2">
+
         <button onclick="DeleteProblem(this)"
-        class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
+        class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-600">Удалить</button>
         `
         problemList.appendChild(child);
         problemList.parentNode.classList.add("gap-y-4");
@@ -226,6 +263,30 @@
     }
 </script>
 
+<script>
+    function DeleteJudge(element) {
+        let judgeList = element.parentElement.parentElement;
+        if (judgeList.children.length == 1) {
+            judgeList.parentNode.classList.remove("gap-y-4");
+        }
+        element.parentElement.remove();
+    }
+    function AddJudge(event) {
+        let judgeList = event.target.previousElementSibling;
+        judgeList.parentNode.classList.remove("gap-y-4");
+        var child = document.createElement("li");
+        child.classList.add("flex", "w-full", "gap-x-2");
+        child.innerHTML = `
+        <input type="text" name="judge_name"
+        value="" placeholder="Имя пользователя"
+        class="input-judge-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+        <button onclick="DeleteJudge(this)"
+        class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-600">Удалить</button>
+        `
+        judgeList.appendChild(child);
+        judgeList.parentNode.classList.add("gap-y-4");
+    }
+</script>
 
 
 <script>

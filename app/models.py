@@ -16,6 +16,9 @@ class User(UserMixin, db.Model):
     emails = db.relationship("Email", backref="user")
 
     userpools = db.relationship("User_Pool", backref="user")
+    contest_judges = db.relationship("Contest_Judge", backref="user")
+    contest_users = db.relationship("Contest_User", backref="user")
+
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -168,6 +171,8 @@ class Problem(db.Model):
     show_solution = db.Column(db.Boolean, default=False)
 
     contest_problems = db.relationship("Contest_Problem", backref="problem")
+    contest_user_solutions = db.relationship("Contest_User_Solution", backref="problem")
+
 
     def set_hashed_id(self):
         while True:
@@ -196,6 +201,7 @@ class Problem(db.Model):
         return Attachment.query.filter_by(
             parent_type="Problem", parent_id=self.id
         ).all()
+
 
     def is_archived(self):
         return self.is_public and self.moderated
@@ -397,6 +403,7 @@ class Contest(db.Model):
     end_date = db.Column(db.DateTime)
     is_public = db.Column(db.Boolean, default=False)
     contest_problems = db.relationship("Contest_Problem", backref="contest")
+    contest_judges = db.relationship("Contest_Judge", backref="contest")
 
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
@@ -434,6 +441,9 @@ class Contest(db.Model):
             result.append(Problem.query.filter_by(id=cp.problem_id).first())
         return result
 
+    def get_judges(self):
+        return [cj.user for cj in self.contest_judges]
+    
     def get_nonsecret_problems(self):
         return [p for p in self.get_problems() if p.is_statement_available()]
 
@@ -532,6 +542,7 @@ class Contest_Problem(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     contest_id = db.Column(db.Integer, db.ForeignKey("contest.id"))
     problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
+    max_score = db.Column(db.Integer, default=7)
 
 
 class Contest_User(db.Model):
@@ -572,7 +583,7 @@ class Contest_User_Solution(db.Model):
     hashed_id = db.Column(db.String, unique=True)
     contest_user_id = db.Column(db.Integer, db.ForeignKey("contest_user.id"))
     problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
-    score = db.Column(db.Integer, default=0)
+    score = db.Column(db.Integer, nullable=True)
 
     content = db.Column(db.Text)
 
@@ -584,6 +595,10 @@ class Contest_User_Solution(db.Model):
                 break
 
         self.hashed_id = hashed_id
-    
+
+    def contest_problem(self):
+        return Contest_Problem.query.filter_by(contest_id=self.contest_user.contest_id, problem_id=self.problem_id).first()
+
+
     def get_attachments(self):
         return Attachment.query.filter_by(parent_type="Contest_User_Solution", parent_id=self.id).all()
