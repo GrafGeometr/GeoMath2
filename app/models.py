@@ -15,6 +15,7 @@ class User(UserMixin, db.Model):
     emails = db.relationship("Email", backref="user")
 
     userpools = db.relationship("User_Pool", backref="user")
+    contest_judges = db.relationship("Contest_Judge", backref="user")
 
     
     def set_password(self, password):
@@ -352,6 +353,7 @@ class Contest(db.Model):
     end_date = db.Column(db.DateTime)
     is_public = db.Column(db.Boolean, default=False)
     contest_problems = db.relationship("Contest_Problem", backref="contest")
+    contest_judges = db.relationship("Contest_Judge", backref="contest")
 
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
@@ -379,6 +381,9 @@ class Contest(db.Model):
         for cp in Contest_Problem.query.filter_by(contest_id = self.id).all():
             result.append(Problem.query.filter_by(id = cp.problem_id).first())
         return result
+
+    def get_judges(self):
+        return [cj.user for cj in self.contest_judges]
     
     def get_nonsecret_problems(self):
         return [p for p in self.get_problems() if p.is_statement_available()]

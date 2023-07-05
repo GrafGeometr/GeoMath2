@@ -736,6 +736,19 @@ def contest(pool_hashed_id, contest_id):
                     db.session.delete(Contest_Problem.query.filter_by(contest_id=contest.id, problem_id=problem.id).first())
                     db.session.commit()
 
+            judge_names = request.form.getlist("judge_name")
+            judges = [User.query.filter_by(name=name).first() for name in judge_names]
+            for judge in judges:
+                if judge is None:
+                    continue
+                if Contest_Judge.query.filter_by(contest_id=contest.id, user_id=judge.id).first() is None:
+                    db.session.add(Contest_Judge(contest_id=contest.id, user_id=judge.id))
+                    db.session.commit()
+            for judge in contest.get_judges():
+                if judge.name not in judge_names:
+                    db.session.delete(Contest_Judge.query.filter_by(contest_id=contest.id, user_id=judge.id).first())
+                    db.session.commit()
+
 
 
             db.session.commit()

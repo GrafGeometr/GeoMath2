@@ -6,7 +6,7 @@
 <div class="flex justify-between">
     {% if current_sheet.is_public %}
     <div class="flex flex-row items-center mt-4">
-        <h3 class="text-red-400 font-bold text-xl">Вы не можете редактировать подборку, если она опубликована</h3>
+        <h3 class="text-red-600 font-bold text-xl">Вы не можете редактировать подборку, если она опубликована</h3>
         <span class="text-slate-500 font-bold mx-4 text-xl">|</span>
         <form action="/pool/{{ current_pool.hashed_id }}/sheets" method="post">
             <input type="hidden" name="back_to_pool" value="{{ current_pool.hashed_id }}">
