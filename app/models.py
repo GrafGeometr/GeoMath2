@@ -3,8 +3,9 @@ from .sqlalchemy_custom_types import *
 from .utils_and_functions.token_gen import generate_token
 from .utils_and_functions.current_time import current_time
 
+
 class User(UserMixin, db.Model):
-    __tablename__ = 'user'
+    __tablename__ = "user"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, unique=True, nullable=True)
@@ -16,19 +17,18 @@ class User(UserMixin, db.Model):
 
     userpools = db.relationship("User_Pool", backref="user")
 
-    
     def set_password(self, password):
         self.password = generate_password_hash(password)
-    
+
     def check_password(self, password):
         return check_password_hash(self.password, password)
-    
+
     def get_verified_emails_count(self):
         return len([email for email in self.emails if email.verified])
-    
+
     def get_pools(self):
-        return User_Pool.query.filter_by(user_id = self.id).all()
-    
+        return User_Pool.query.filter_by(user_id=self.id).all()
+
     def create_new_pool(self, name):
         pool = Pool(name=name)
         pool.set_hashed_id()
@@ -40,19 +40,23 @@ class User(UserMixin, db.Model):
         db.session.commit()
 
         return pool.hashed_id
-    
+
     def get_pool_relation(self, pool_id):
-        relation = User_Pool.query.filter_by(user_id = self.id, pool_id = pool_id).first()
+        relation = User_Pool.query.filter_by(user_id=self.id, pool_id=pool_id).first()
         return relation
 
+
 class AdminPassword(db.Model):
-    __tablename__ = 'admin_password'
+    __tablename__ = "admin_password"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    password = db.Column(db.String, nullable=True, default=generate_password_hash("qwerty"))
+    password = db.Column(
+        db.String, nullable=True, default=generate_password_hash("qwerty")
+    )
+
 
 class Email(db.Model):
-    __tablename__ = 'email'
+    __tablename__ = "email"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=True)
@@ -61,8 +65,9 @@ class Email(db.Model):
     token = db.Column(db.String, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
+
 class Pool(db.Model):
-    __tablename__ = 'pool'
+    __tablename__ = "pool"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=True)
@@ -72,32 +77,40 @@ class Pool(db.Model):
     sheets = db.relationship("Sheet", backref="pool")
     contests = db.relationship("Contest", backref="pool")
 
-    # open_for_new_problems = db.Column(db.Boolean, default=False) 
+    # open_for_new_problems = db.Column(db.Boolean, default=False)
 
     def set_hashed_id(self):
         while True:
             hashed_id = generate_token(20)
-            if not Problem.query.filter_by(hashed_id = hashed_id).first():
+            if not Problem.query.filter_by(hashed_id=hashed_id).first():
                 self.hashed_id = hashed_id
                 break
-        
+
         self.hashed_id = hashed_id
 
     def get_users(self):
-        userpools = User_Pool.query.filter_by(pool_id = self.id).all()
-        userpools.sort(key = lambda up: (0, up.user.name) if up.role.isOwner() else (1, up.user.name) if up.role.isParticipant() else (2, up.user.name))
+        userpools = User_Pool.query.filter_by(pool_id=self.id).all()
+        userpools.sort(
+            key=lambda up: (0, up.user.name)
+            if up.role.isOwner()
+            else (1, up.user.name)
+            if up.role.isParticipant()
+            else (2, up.user.name)
+        )
         return userpools
-    
+
     def count_owners(self):
         return len([user for user in self.get_users() if user.role.isOwner()])
+
     def count_participants(self):
         return len([user for user in self.get_users() if user.role.isParticipant()])
+
     def count_invited(self):
         return len([user for user in self.get_users() if user.role.isInvited()])
-    
+
     def get_problems(self):
-        return Problem.query.filter_by(pool_id = self.id).all()
-    
+        return Problem.query.filter_by(pool_id=self.id).all()
+
     def new_problem(self):
         problem = Problem(statement="", solution="", pool_id=self.id)
         problem.set_hashed_id()
@@ -106,7 +119,7 @@ class Pool(db.Model):
         problem.name = f"Задача #{problem.id}"
         db.session.commit()
         return problem
-    
+
     def new_sheet(self):
         sheet = Sheet(text="", pool_id=self.id)
         db.session.add(sheet)
@@ -114,7 +127,7 @@ class Pool(db.Model):
         sheet.name = f"Подборка #{sheet.id}"
         db.session.commit()
         return sheet
-    
+
     def new_contest(self):
         contest = Contest(description="", name="Название", pool_id=self.id)
         db.session.add(contest)
@@ -124,19 +137,21 @@ class Pool(db.Model):
         contest.start_date = tm
         contest.end_date = tm
         db.session.commit()
-        
+
         return contest
-    
+
+
 class User_Pool(db.Model):
-    __tablename__ = 'user_pool'
+    __tablename__ = "user_pool"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
     role = db.Column(RoleType)
 
+
 class Problem(db.Model):
-    __tablename__ = 'problem'
+    __tablename__ = "problem"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
@@ -154,48 +169,67 @@ class Problem(db.Model):
 
     contest_problems = db.relationship("Contest_Problem", backref="problem")
 
-
     def set_hashed_id(self):
         while True:
             hashed_id = generate_token(20)
-            if not Pool.query.filter_by(hashed_id = hashed_id).first():
+            if not Pool.query.filter_by(hashed_id=hashed_id).first():
                 self.hashed_id = hashed_id
                 break
-        
+
         self.hashed_id = hashed_id
 
     def get_tags(self):
-        return sorted([Tag.query.filter_by(id = problem_tag.tag_id).first() for problem_tag in Tag_Relation.query.filter_by(parent_type = "Problem", parent_id = self.id).all()], key=lambda t:t.name.lower())
+        return sorted(
+            [
+                Tag.query.filter_by(id=problem_tag.tag_id).first()
+                for problem_tag in Tag_Relation.query.filter_by(
+                    parent_type="Problem", parent_id=self.id
+                ).all()
+            ],
+            key=lambda t: t.name.lower(),
+        )
 
     def get_tag_names(self):
-        return list(map(lambda t:t.name, self.get_tags()))
-    
-    def get_attachments(self):
-        return Attachment.query.filter_by(parent_type = "Problem", parent_id = self.id).all()
+        return list(map(lambda t: t.name, self.get_tags()))
 
-    
+    def get_attachments(self):
+        return Attachment.query.filter_by(
+            parent_type="Problem", parent_id=self.id
+        ).all()
+
     def is_archived(self):
         return self.is_public and self.moderated
-    
+
     def get_all_contests(self):
         return [cp.contest for cp in self.contest_problems]
-    
+
     def get_cu_participated(self):
         result = []
         for c in self.get_all_contests():
-            result.extend(Contest_User.query.filter_by(user_id = current_user.id, contest_id = c.id).all())
+            result.extend(
+                Contest_User.query.filter_by(
+                    user_id=current_user.id, contest_id=c.id
+                ).all()
+            )
         return result
 
     def is_judge(self):
         contests = self.get_all_contests()
-        judge = any([Contest_Judge.query.filter_by(user_id=current_user.id, contest_id = c.id).first() for c in contests])
+        judge = any(
+            [
+                Contest_Judge.query.filter_by(
+                    user_id=current_user.id, contest_id=c.id
+                ).first()
+                for c in contests
+            ]
+        )
         return judge
 
     def is_statement_available(self):
-        if (self.is_judge()):
+        if self.is_judge():
             return True
         contest_users = self.get_cu_participated()
-        if (self.is_public or self.is_my()):
+        if self.is_public or self.is_my():
             if len(contest_users) == 0:
                 return True
             return all([cu.is_started() for cu in contest_users])
@@ -203,12 +237,12 @@ class Problem(db.Model):
             if len(contest_users) == 0:
                 return False
             return all([cu.is_started() for cu in contest_users])
-    
+
     def is_solution_available(self):
-        if (self.is_judge()):
+        if self.is_judge():
             return True
         contest_users = self.get_cu_participated()
-        if (self.is_public or self.is_my()):
+        if self.is_public or self.is_my():
             if len(contest_users) == 0:
                 return True
             return all([cu.is_ended() for cu in contest_users])
@@ -221,10 +255,10 @@ class Problem(db.Model):
         relation = current_user.get_pool_relation(self.pool_id)
         if relation is None:
             return False
-        if (relation.role.isOwner() or relation.role.isParticipant()):
+        if relation.role.isOwner() or relation.role.isParticipant():
             return True
         return False
-    
+
     def get_nonsecret_attachments(self):
         result = []
         for attachment in self.get_attachments():
@@ -238,35 +272,36 @@ class Problem(db.Model):
 
 
 class Tag(db.Model):
-    __tablename__ = 'tag'
+    __tablename__ = "tag"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, unique=True, nullable=True)
 
 
 class Tag_Relation(db.Model):
-    __tablename__ = 'tag_relation'
+    __tablename__ = "tag_relation"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tag_id = db.Column(db.Integer)
 
-    parent_type = db.Column(db.String) # 'Problem' | 'Sheet'
+    parent_type = db.Column(db.String)  # 'Problem' | 'Sheet'
     parent_id = db.Column(db.Integer)
 
     other_data = db.Column(db.JSON, default={})
 
     def get_parent(self):
         if self.parent_type == "Problem":
-            return Problem.query.filter_by(id = self.parent_id).first()
+            return Problem.query.filter_by(id=self.parent_id).first()
         elif self.parent_type == "Sheet":
-            return Sheet.query.filter_by(id = self.parent_id).first()
-        
+            return Sheet.query.filter_by(id=self.parent_id).first()
+
     def remove(self):
         db.session.delete(self)
         db.session.commit()
 
+
 class Attachment(db.Model):
-    __tablename__ = 'attachment'
+    __tablename__ = "attachment"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
@@ -275,19 +310,19 @@ class Attachment(db.Model):
 
     short_name = db.Column(db.String)
 
-    parent_type = db.Column(db.String) # 'Problem' | 'Sheet' | 'Contest_User_Solution'
+    parent_type = db.Column(db.String)  # 'Problem' | 'Sheet' | 'Contest_User_Solution'
     parent_id = db.Column(db.Integer)
 
     other_data = db.Column(db.JSON, default={})
 
     def get_parent(self):
         if self.parent_type == "Problem":
-            return Problem.query.filter_by(id = self.parent_id).first()
+            return Problem.query.filter_by(id=self.parent_id).first()
         elif self.parent_type == "Sheet":
-            return Sheet.query.filter_by(id = self.parent_id).first()
+            return Sheet.query.filter_by(id=self.parent_id).first()
         elif self.parent_type == "Contest_User_Solution":
-            return Contest_User_Solution.query.filter_by(id = self.parent_id).first()
-    
+            return Contest_User_Solution.query.filter_by(id=self.parent_id).first()
+
     def remove(self):
         try:
             os.remove(os.path.join(self.db_folder, self.db_filename))
@@ -298,7 +333,7 @@ class Attachment(db.Model):
 
 
 class Sheet(db.Model):
-    __tablename__ = 'sheet'
+    __tablename__ = "sheet"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
@@ -309,21 +344,30 @@ class Sheet(db.Model):
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
     def get_tags(self):
-        return sorted([Tag.query.filter_by(id = sheet_tag.tag_id).first() for sheet_tag in Tag_Relation.query.filter_by(parent_type = "Sheet", parent_id = self.id).all()], key=lambda t:t.name.lower())
+        return sorted(
+            [
+                Tag.query.filter_by(id=sheet_tag.tag_id).first()
+                for sheet_tag in Tag_Relation.query.filter_by(
+                    parent_type="Sheet", parent_id=self.id
+                ).all()
+            ],
+            key=lambda t: t.name.lower(),
+        )
+
     def get_tag_names(self):
-        return list(map(lambda t:t.name, self.get_tags()))
-    
+        return list(map(lambda t: t.name, self.get_tags()))
+
     def get_attachments(self):
-        return Attachment.query.filter_by(parent_type = "Sheet", parent_id = self.id).all()
+        return Attachment.query.filter_by(parent_type="Sheet", parent_id=self.id).all()
 
     def is_archived(self):
         return self.is_public
-    
+
     def is_text_available(self):
-        if (self.is_public):
+        if self.is_public:
             return True
         relation = current_user.get_pool_relation(self.pool_id)
-        if (relation.role.isOwner() or relation.role.isParticipant()):
+        if relation.role.isOwner() or relation.role.isParticipant():
             return True
         return False
 
@@ -331,10 +375,10 @@ class Sheet(db.Model):
         relation = current_user.get_pool_relation(self.pool_id)
         if relation is None:
             return False
-        if (relation.role.isOwner() or relation.role.isParticipant()):
+        if relation.role.isOwner() or relation.role.isParticipant():
             return True
         return False
-    
+
     def get_nonsecret_attachments(self):
         result = []
         for attachment in self.get_attachments():
@@ -342,8 +386,9 @@ class Sheet(db.Model):
                 result.append(attachment)
         return result
 
+
 class Contest(db.Model):
-    __tablename__ = 'contest'
+    __tablename__ = "contest"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
@@ -356,56 +401,79 @@ class Contest(db.Model):
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
     def get_tags(self):
-        return sorted([Tag.query.filter_by(id = sheet_tag.tag_id).first() for sheet_tag in Tag_Relation.query.filter_by(parent_type = "Contest", parent_id = self.id).all()], key=lambda t:t.name.lower())
+        return sorted(
+            [
+                Tag.query.filter_by(id=sheet_tag.tag_id).first()
+                for sheet_tag in Tag_Relation.query.filter_by(
+                    parent_type="Contest", parent_id=self.id
+                ).all()
+            ],
+            key=lambda t: t.name.lower(),
+        )
+
     def get_tag_names(self):
-        return list(map(lambda t:t.name, self.get_tags()))
+        return list(map(lambda t: t.name, self.get_tags()))
 
     def is_archived(self):
         return self.is_public
-    
+
     def is_description_available(self):
-        return (self.is_public or self.is_my())
+        return self.is_public or self.is_my()
 
     def is_my(self):
         relation = current_user.get_pool_relation(self.pool_id)
         if relation is None:
             return False
-        if (relation.role.isOwner() or relation.role.isParticipant()):
+        if relation.role.isOwner() or relation.role.isParticipant():
             return True
         return False
-    
+
     def get_problems(self):
         result = []
-        for cp in Contest_Problem.query.filter_by(contest_id = self.id).all():
-            result.append(Problem.query.filter_by(id = cp.problem_id).first())
+        for cp in Contest_Problem.query.filter_by(contest_id=self.id).all():
+            result.append(Problem.query.filter_by(id=cp.problem_id).first())
         return result
-    
+
     def get_nonsecret_problems(self):
         return [p for p in self.get_problems() if p.is_statement_available()]
 
     def get_active_cu(self):
-        for cu in Contest_User.query.filter_by(user_id = current_user.id, contest_id = self.id).all():
-            if (not cu.is_ended()):
+        for cu in Contest_User.query.filter_by(
+            user_id=current_user.id, contest_id=self.id
+        ).all():
+            if not cu.is_ended():
                 return cu
         return None
-    
+
     def is_started(self):
         return self.start_date <= current_time()
-    
+
     def is_ended(self):
         return self.end_date <= current_time()
-    
+
     def register(self, virtual=False, virtual_start=None, virtual_end=None):
-        if (not self.is_public):
+        if not self.is_public:
             return
         cu = self.get_active_cu()
         if cu:
             return
-        if (not virtual):
-            if (not self.is_started()):
-                cu = Contest_User(contest_id=self.id, user_id=current_user.id, start_date=self.start_date, end_date=self.end_date, virtual=False) 
-            elif (not self.is_ended()):
-                cu = Contest_User(contest_id=self.id, user_id=current_user.id, start_date=current_time(), end_date=self.end_date, virtual=False)
+        if not virtual:
+            if not self.is_started():
+                cu = Contest_User(
+                    contest_id=self.id,
+                    user_id=current_user.id,
+                    start_date=self.start_date,
+                    end_date=self.end_date,
+                    virtual=False,
+                )
+            elif not self.is_ended():
+                cu = Contest_User(
+                    contest_id=self.id,
+                    user_id=current_user.id,
+                    start_date=current_time(),
+                    end_date=self.end_date,
+                    virtual=False,
+                )
             else:
                 return
             db.session.add(cu)
@@ -417,9 +485,19 @@ class Contest(db.Model):
             db.session.commit()
             return
         else:
-            if (virtual_start is None) or (virtual_end is None) or (virtual_start > virtual_end):
+            if (
+                (virtual_start is None)
+                or (virtual_end is None)
+                or (virtual_start > virtual_end)
+            ):
                 return
-            cu = Contest_User(contest_id=self.id, user_id=current_user.id, start_date=virtual_start, end_date=virtual_end, virtual=True)
+            cu = Contest_User(
+                contest_id=self.id,
+                user_id=current_user.id,
+                start_date=virtual_start,
+                end_date=virtual_end,
+                virtual=True,
+            )
             db.session.add(cu)
             db.session.commit()
             for p in self.get_problems():
@@ -428,47 +506,53 @@ class Contest(db.Model):
                 db.session.add(cus)
             db.session.commit()
             return
+
     def stop(self):
-        if (not self.is_public):
+        if not self.is_public:
             return
         cu = self.get_active_cu()
-        if (not cu):
+        if not cu:
             return
         cu.end_manually()
         db.session.commit()
         return
 
+
 class Contest_Judge(db.Model):
-    __tablename__ = 'contest_judge'
+    __tablename__ = "contest_judge"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     contest_id = db.Column(db.Integer, db.ForeignKey("contest.id"))
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
+
 class Contest_Problem(db.Model):
-    __tablename__ = 'contest_problem'
+    __tablename__ = "contest_problem"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     contest_id = db.Column(db.Integer, db.ForeignKey("contest.id"))
     problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
 
+
 class Contest_User(db.Model):
-    __tablename__ = 'contest_user'
+    __tablename__ = "contest_user"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     contest_id = db.Column(db.Integer, db.ForeignKey("contest.id"))
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    contest_user_solutions = db.relationship("Contest_User_Solution", backref="contest_user")
+    contest_user_solutions = db.relationship(
+        "Contest_User_Solution", backref="contest_user"
+    )
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
     virtual = db.Column(db.Boolean, default=False)
 
     def is_started(self):
         return self.start_date <= current_time()
-    
+
     def is_ended(self):
         return self.end_date <= current_time()
-    
+
     def end_manually(self):
         if self.is_ended():
             return
@@ -480,8 +564,9 @@ class Contest_User(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+
 class Contest_User_Solution(db.Model):
-    __tablename__ = 'contest_user_solution'
+    __tablename__ = "contest_user_solution"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     hashed_id = db.Column(db.String, unique=True)
@@ -489,11 +574,16 @@ class Contest_User_Solution(db.Model):
     problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
     score = db.Column(db.Integer, default=0)
 
+    content = db.Column(db.Text)
+
     def set_hashed_id(self):
         while True:
             hashed_id = generate_token(20)
-            if not Pool.query.filter_by(hashed_id = hashed_id).first():
+            if not Pool.query.filter_by(hashed_id=hashed_id).first():
                 self.hashed_id = hashed_id
                 break
-        
+
         self.hashed_id = hashed_id
+    
+    def get_attachments(self):
+        return Attachment.query.filter_by(parent_type="Contest_User_Solution", parent_id=self.id).all()
