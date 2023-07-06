@@ -743,6 +743,9 @@ def contest(pool_hashed_id, contest_id):
 
             judge_names = request.form.getlist("judge_name")
             contest.act_update_judges(judge_names)
+
+            is_rating_public = request.form.get("is_rating_public")
+            contest.act_toggle_rating(is_rating_public)
             
 
             flash("Контест успешно сохранён", "success")

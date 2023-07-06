@@ -134,6 +134,22 @@
                     <input type="datetime-local" name="end_date" class="w-80 px-4 py-2 border-slate-200 border-2 rounded-lg" value="{{ current_contest.end_date.isoformat() }}">
                     <span class="w-60">Время окончания (МСК)</span>
                 </div>
+                <label>
+                    <input type="checkbox" name="is_rating_public" {% if current_contest.is_rating_public() %} checked {% endif %}
+                    class="hidden" id="is-rating-public">
+                    <span class="text-lg">
+                        <span class="font-bold">Рейтинг:</span>
+                        {% if current_contest.is_rating_public() %}
+                        <span class="text-green-600 cursor-pointer hover:underline" id="is-rating-public-span">
+                            виден всем пользователям
+                        </span>
+                        {% else %}
+                        <span class="text-slate-500 cursor-pointer hover:underline" id="is-rating-public-span">
+                            виден только жюри контеста
+                        </span>
+                        {% endif %}
+                    </span>
+                </label>
                 
                 <div class="flex flex-col gap-y-4">
                     <h3 class="text-black text-lg font-bold">Члены жюри:</h3>
@@ -183,6 +199,23 @@
         </div>
     </form>
 </div>
+
+<script>
+    var checkbox = document.getElementById("is-rating-public");
+    checkbox.addEventListener("change", function (event) {
+        var span = document.getElementById("is-rating-public-span");
+        if (this.checked) {
+            span.classList.remove("text-slate-500");
+            span.classList.add("text-green-600");
+            span.innerHTML = "виден всем пользователям";
+        }
+        else {
+            span.classList.remove("text-green-600");
+            span.classList.add("text-slate-500");
+            span.innerHTML = "виден только жюри контеста";
+        }
+    });
+</script>
 
 
 <script>

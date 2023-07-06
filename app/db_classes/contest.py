@@ -12,6 +12,7 @@ class Contest(db.Model):
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
     is_public = db.Column(db.Boolean, default=False)
+    rating = db.Column(db.String, default="public")
 
     # --> RELATIONS
     contest_problems = db.relationship("Contest_Problem", backref="contest")
@@ -20,6 +21,10 @@ class Contest(db.Model):
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
     # --> FUNCTIONS
+    def is_rating_public(self):
+        return self.rating == "public"
+    def is_rating_private(self):
+        return self.rating == "private"
     def is_archived(self):
         return self.is_public
 
@@ -38,6 +43,9 @@ class Contest(db.Model):
 
     def is_ended(self):
         return self.end_date <= current_time()
+    
+    def is_rating_available(self, user=current_user):
+        return (user.is_judge(self) or self.is_rating_public())
     
     def is_problem_submitted(self, problem):
         from app.dbc import Contest_Problem, Contest_User_Solution
@@ -270,6 +278,29 @@ class Contest(db.Model):
         for cp in self.contest_problems:
             if cp.problem.hashed_id not in hashes:
                 cp.remove()
+
+    def act_set_rating_public(self):
+        if not self.is_my():
+            return
+        self.rating = "public"
+        db.session.commit()
+        return self
+    
+    def act_set_rating_private(self):
+        if not self.is_my():
+            return
+        self.rating = "private"
+        db.session.commit()
+        return self
+    
+    def act_toggle_rating(self, mode):
+        print("mode", mode)
+        if mode is None:
+            self.act_set_rating_private()
+        else:
+            self.act_set_rating_public()
+        return
+
     @staticmethod
     def get_by_id(id):
         return Contest.query.filter_by(id=id).first()
