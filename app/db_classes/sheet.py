@@ -17,6 +17,7 @@ class Sheet(db.Model):
     def add(self):
         db.session.add(self)
         db.session.commit()
+        return self
 
     def remove(self):
         db.session.delete(self)
@@ -65,3 +66,32 @@ class Sheet(db.Model):
     @staticmethod
     def get_by_id(id):
         return Sheet.query.filter_by(id=id).first()
+    
+    def act_set_name(self, name):
+        self.name = name
+        db.session.commit()
+        return self
+    
+    def act_set_text(self, text):
+        self.text = text
+        db.session.commit()
+        return self
+    
+    def act_set_is_public(self, is_public):
+        self.is_public = is_public
+        db.session.commit()
+        return self
+    
+    def act_make_public(self):
+        self.is_public = True
+        db.session.commit()
+        return self
+    
+    def act_make_nonpublic(self):
+        self.is_public = False
+        db.session.commit()
+        return self
+    
+    def save(self):
+        db.session.commit()
+        return self

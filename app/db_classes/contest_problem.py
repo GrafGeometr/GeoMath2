@@ -17,6 +17,7 @@ class Contest_Problem(db.Model):
     def add(self):
         db.session.add(self)
         db.session.commit()
+        return self
 
     def remove(self):
         for cus in self.contest_user_solutions:
@@ -37,16 +38,15 @@ class Contest_Problem(db.Model):
         else:
             self.max_score = score
         db.session.commit()
+        return self
     
     def is_accessible(self, user=current_user):
-        return self.is_valid() and self.problem.is_statement_available(user)
+        return self.is_valid() and self.problem is not None and self.problem.is_statement_available(user)
 
     def is_valid(self):
-        if self.problem.is_archived():
-            return True
-        if self.problem.pool.id == self.contest.pool.id:
-            return True
-        return False
+        if self.problem is None or self.contest is None or self.problem.pool is None or self.contest.pool is None:
+            return False
+        return self.problem.is_archived() or self.problem.pool.id == self.contest.pool.id
 
     def get_active_contest_user_solution(self, user=current_user):
         if user is None:
@@ -63,7 +63,7 @@ class Contest_Problem(db.Model):
 
     @staticmethod
     def get_by_contest_and_problem(contest, problem):
-        if contest is None or problem is None:
+        if contest is None or problem is None or contest.id is None or problem.id is None:
             return None
         return Contest_Problem.query.filter_by(problem_id=problem.id, contest_id=contest.id).first()
     
@@ -72,5 +72,9 @@ class Contest_Problem(db.Model):
         if contest is None:
             return []
         return Contest_Problem.query.filter_by(contest_id=contest.id).all()
+
+    def save(self):
+        db.session.commit()
+        return self
 
     

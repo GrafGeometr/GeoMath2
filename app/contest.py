@@ -45,7 +45,7 @@ def contest_problem(contest_id, problem_hashed_id):
             return redirect(f"/contest/{contest_id}/problem/{problem_hashed_id}")
         if request.form.get("save_solution") is not None:
             content = request.form.get("content")
-            cus.act_update_content(content)
+            cus.act_set_content(content)
 
             for attachment in cus.get_attachments():
                 short_name = request.form.get("attachment_name " + str(attachment.db_filename))

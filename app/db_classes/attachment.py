@@ -18,25 +18,51 @@ class Attachment(db.Model):
     # --> FUNCTIONS
     @staticmethod
     def get_by_id(id):
+        if id is None:
+            return None
         return Attachment.query.filter_by(id=id).first()
     
     @staticmethod
     def get_by_db_filename(db_filename):
+        if db_filename is None:
+            return None
         return Attachment.query.filter_by(db_filename=db_filename).first()
+
+
+    @staticmethod
+    def get_all_by_parent(parent):
+        from app.dbc import Problem, Sheet, Contest_User_Solution
+        par_class = {
+            Problem: 'Problem',
+            Sheet: 'Sheet',
+            Contest_User_Solution: 'Contest_User_Solution',
+        }.get(type(parent), None)
+        if par_class is None:
+            return None
+        return Attachment.query.filter_by(parent_type=par_class, parent_id=parent.id).all()
 
 
     def get_parent(self):
         from app.dbc import Problem, Sheet, Contest_User_Solution
-        if self.parent_type == "Problem":  
-            return Problem.query.filter_by(id=self.parent_id).first()
-        elif self.parent_type == "Sheet":
-            return Sheet.query.filter_by(id=self.parent_id).first()
-        elif self.parent_type == "Contest_User_Solution":
-            return Contest_User_Solution.query.filter_by(id=self.parent_id).first()
+
+        par_class =  {
+            "Problem": Problem,
+            "Sheet": Sheet,
+            "Contest_User_Solution": Contest_User_Solution,
+        }.get(self.parent_type, None)
+        if par_class is None:
+            return None
+        return par_class.get_by_id(self.parent_id)
+
+
+    def is_secret(self):
+        return self.other_data["is_secret"]
+
 
     def add(self):
         db.session.add(self)
         db.session.commit()
+        return self
 
     def remove(self):
         try:
@@ -45,3 +71,7 @@ class Attachment(db.Model):
             pass
         db.session.delete(self)
         db.session.commit()
+    
+    def save(self):
+        db.session.commit()
+        return self
