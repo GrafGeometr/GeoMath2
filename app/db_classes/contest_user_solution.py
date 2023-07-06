@@ -25,6 +25,9 @@ class Contest_User_Solution(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    def is_available(self, user=current_user):
+        return (self.contest_user.user.id == user.id) or (user.is_judge(self.contest_user.contest))
+
     def act_set_hashed_id(self):
         while True:
             hashed_id = generate_token(20)
@@ -34,6 +37,16 @@ class Contest_User_Solution(db.Model):
 
         self.hashed_id = hashed_id
         db.session.commit()
+
+    def act_update_content(self, content):
+        if content != "":
+            self.content = content
+            db.session.commit()
+    
+    def act_update_judge_comment(self, judge_comment):
+        if judge_comment != "":
+            self.judge_comment = judge_comment
+            db.session.commit()
 
     @staticmethod
     def get_by_id(id):

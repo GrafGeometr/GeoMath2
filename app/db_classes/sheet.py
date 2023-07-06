@@ -37,12 +37,7 @@ class Sheet(db.Model):
         return self.is_public
 
     def is_text_available(self):
-        if self.is_public:
-            return True
-        relation = current_user.get_pool_relation(self.pool_id)
-        if relation.role.isOwner() or relation.role.isParticipant():
-            return True
-        return False
+        return self.is_archived() or self.is_my()
 
     def is_my(self):
         relation = current_user.get_pool_relation(self.pool_id)

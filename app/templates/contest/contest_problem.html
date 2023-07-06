@@ -13,14 +13,17 @@
 </script>
 
 <div class="flex flex-col">
-    {% if current_cp is not none %}
+    
+    {% if current_cus is not none %}
         <form autocomplete="off" action="/contest/{{ current_cp.contest.id }}/problem/{{ current_cp.problem.hashed_id }}" method="post"
             class="w-full mt-2 px-4" enctype="multipart/form-data">
-            <input type="hidden" name="save_sheet" value="239">
-            
+            <input type="hidden" name="save_solution" value="239">
+            <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Максимальный балл: <span class="text-black">{{ current_cp.max_score }}</span></h2>
             <div class="flex flex-row items-center mt-4 w-1/2">
+                
+
                 <input type="submit" value="Сохранить"
-                    class="hover:cursor-pointer px-8 py-2 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700 ml-8 mr-4">
+                    class="hover:cursor-pointer px-8 py-2 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700 mr-4">
                 {% with messages = get_flashed_messages(with_categories=true) %}
                 {% for category, message in messages %}
                 {% if category == "danger" %}
@@ -42,39 +45,35 @@
 
             <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Запишите ваше решение:</h2>
             <div class="flex w-full items-start">
-                <textarea id="content_textarea" cols="50" name="text" {% if current_sheet.is_public %}
-                    readonly {% endif %} class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_sheet.text }}</textarea>
+                <textarea id="content_textarea" cols="50" name="content"
+                class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{% if current_cus.content is not none %}{{ current_cus.content }}{% endif %}</textarea>
             </div>
 
             <script>
-                makeLaTeXArea("text_textarea", "sheet");
+                makeLaTeXArea("content_textarea", "problem");
             </script>
 
 
-            <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Вложения:</h2>
+            <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Прикрепите картинки:</h2>
             <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
                 <div class="border-r-2 border-slate-300 w-1/3">
-                    <div class="flex flex-col {% if current_sheet.get_attachments() %} gap-y-4 {% endif %} mr-4">
+                    <div class="flex flex-col {% if current_cus.get_attachments() %} gap-y-4 {% endif %} mr-4">
                         <ul class="flex flex-col gap-y-2 " id="files-list">
-                            {% for attachment in current_sheet.get_attachments() %}
+                            {% for attachment in current_cus.get_attachments() %}
                             <li class="flex w-full gap-x-2">
                                 <input type="text" name="attachment_name {{ attachment.db_filename }}" id="attachment-name-{{ attachment.db_filename }}"
-                                    value="{{ attachment.short_name }}" placeholder="Как назвать картинку?" {% if current_sheet.is_public %} readonly {% endif %}
+                                    value="{{ attachment.short_name }}" placeholder="Как назвать картинку?"
                                     class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
-                                {% if not current_sheet.is_public %}
                                     <button onclick="DeleteAttachment(this)"
                                     class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
-                                {% endif %}
                             </li>
                             {% endfor %}
                         </ul>
-                        <div class="border-2 border-blue-500 border-dashed px-8 py-4 rounded-xl flex justify-center {% if current_sheet.is_public %} hidden {% endif %}">
+                        <div class="border-2 border-blue-500 border-dashed px-8 py-4 rounded-xl flex justify-center">
                             <label class="label text-lg">
-                                <input type="file" class="file-input w-0 h-0" name="attachments" accept="image/*" multiple {% if current_sheet.is_public %} readonly {% endif %}>
-                                {% if not current_sheet.is_public %}
+                                <input type="file" class="file-input w-0 h-0" name="attachments" accept="image/*" multiple>
                                 <span class="browse-files-text text-blue-500 font-semibold cursor-pointer inline-block"
                                     onclick="ResetFileInput()">Загрузить файлы</span>
-                                {% endif %}
                             </label>
                         </div>
                     </div>
@@ -82,32 +81,6 @@
 
                 <div class="w-2/3 ml-4">
                     <img id="display-attachment" class="hidden border-2 border-sky-400 padding-8 rounded-xl">
-                </div>
-            </div>
-
-            <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Теги:</h2>
-            <div class="flex gap-x-8 items-start">
-                <ul class="w-full" id="tas_list">
-                    {% for tag in current_sheet.get_tags() %}
-                    <li class="flex">
-                        <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
-                        <span class="text-slate-500 font-bold mr-4">#</span>
-                        <div class="w-2/3"><span>{{ tag.name }}</span></div>
-                        <span class="text-slate-500 font-bold mx-4">|</span>
-                        <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-red-600"
-                            onclick="DeleteTag(this)">Удалить тег</button>
-                    </li>
-                    {% endfor %}
-                </ul>
-                <div class="flex w-full">
-                    <span class="text-slate-500 font-bold mr-4">#</span>
-                    <div class="w-2/3 relative inline-block">
-                        <input id="addtag" type="text" placeholder="Введите тег" name="tag_name"
-                            class="w-full border-slate-400 border-2 rounded px-2">
-                    </div>
-                    <span class="text-slate-700 font-bold mx-4">|</span>
-                    <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-green-600"
-                        onclick="AddTag()">Добавить тег</button>
                 </div>
             </div>
         </form>
@@ -209,37 +182,6 @@
     }
 </script>
 
-
-
-<script>
-    function AddTag() {
-
-        let tag = document.getElementById("addtag");
-        let tag_name = prevent_injection(tag.value);
-        tag.value = "";
-
-        let tags_list = document.getElementById("tas_list");
-
-        tags_list.appendChild(document.createElement("li"));
-        let child = tags_list.lastChild;
-
-        child.classList = "flex";
-
-
-        child.innerHTML = `<input type="hidden" name="tag ${tag_name}" value="${tag_name}">
-        <span class="text-slate-500 font-bold mr-4">#</span>
-        <div class="w-2/3"><span>${tag_name}</span></div>
-        <span class="text-slate-500 font-bold mx-4">|</span>
-        <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-red-600" onclick="DeleteTag(this)">Удалить тег</button>`
-
-    }
-</script>
-
-<script>
-    function DeleteTag(element) {
-        element.parentElement.remove();
-    }
-</script>
 
 <script>
     var flash_message = document.getElementById("flash-message");

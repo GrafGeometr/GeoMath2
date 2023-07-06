@@ -34,6 +34,19 @@ class Contest(db.Model):
 
     def is_ended(self): # +
         return self.end_date <= current_time()
+    
+    def is_problem_submitted(self, problem):
+        from app.dbc import Contest_Problem, Contest_User_Solution
+        if problem is None:
+            return False
+        cu = self.get_active_cu()
+        if cu is None:
+            return False
+        cp = Contest_Problem.get_by_contest_and_problem(self, problem)
+        if cp is None:
+            return False
+        cus = Contest_User_Solution.get_by_contest_problem_and_contest_user(cp, cu)
+        return (cus is not None) and (cus.content is not None)
 
     def get_tags(self): # +
         from app.dbc import Tag, Tag_Relation

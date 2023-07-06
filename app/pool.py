@@ -306,32 +306,52 @@ def get_problem_content(problem_hashed_id):
 
 # get problem image
 @pool.route("/get_image/<db_filename>", methods=["GET", "POST"])
+@login_required
 def get_image(db_filename):
-    if not current_user.is_authenticated:
-        print("not authenticated")
-        return
     attachment = Attachment.query.filter_by(db_filename=db_filename).first()
     if attachment is None:
         print("attachment none")
         return
-    parent = attachment.get_parent()
-    if parent is None:
+    par = attachment.get_parent()
+    if par is None:
         print("parent none")
         return
-    if parent.pool is not None:
-        relation = current_user.get_pool_relation(parent.pool_id)
-        if not parent.is_archived() and relation is None:
-            print("user not in pool")
-            return
+    pt = attachment.parent_type
     try:
-        print(attachment.db_folder.split("app/")[1], db_filename)
-        return send_from_directory(
-            os.path.join(basedir, attachment.db_folder.split("app/")[1]),
-            db_filename,
-            as_attachment=True,
-        )
+        if pt == "Problem":
+            flag = None
+            if not attachment.other_data["is_secret"]:
+                flag = par.is_statement_available()
+            else:
+                flag = par.is_solution_available()
+            if (flag):
+                return send_from_directory(
+                    os.path.join(basedir, attachment.db_folder.split("app/")[1]),
+                    db_filename,
+                    as_attachment=True,
+                )
+            
+        if pt == "Sheet":
+            flag = par.is_text_available()
+            if (flag):
+                return send_from_directory(
+                    os.path.join(basedir, attachment.db_folder.split("app/")[1]),
+                    db_filename,
+                    as_attachment=True,
+                )
+            
+        if pt == "Contest_User_Solution":
+            flag = par.is_available()
+            if (flag):
+                return send_from_directory(
+                    os.path.join(basedir, attachment.db_folder.split("app/")[1]),
+                    db_filename,
+                    as_attachment=True,
+                )
+    
     except Exception as e:
         print(e)
+        return
 
 
 # send problem attachment
