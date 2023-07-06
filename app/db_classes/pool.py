@@ -54,9 +54,7 @@ class Pool(db.Model):
     def new_problem(self):
         from app.dbc import Problem
         problem = Problem(statement="", solution="", pool_id=self.id)
-        problem.set_hashed_id()
-        db.session.add(problem)
-        db.session.commit()
+        problem.add()
         problem.name = f"Задача #{problem.id}"
         db.session.commit()
         return problem
@@ -64,8 +62,7 @@ class Pool(db.Model):
     def new_sheet(self):
         from app.dbc import Sheet
         sheet = Sheet(text="", pool_id=self.id)
-        db.session.add(sheet)
-        db.session.commit()
+        sheet.add()
         sheet.name = f"Подборка #{sheet.id}"
         db.session.commit()
         return sheet

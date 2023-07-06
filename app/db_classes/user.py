@@ -58,4 +58,12 @@ class User(UserMixin, db.Model):
     def is_judge(self, contest):
         from app.dbc import Contest_Judge
         return (Contest_Judge.query.filter_by(user_id=self.id, contest_id=contest.id).first() is not None)
+    
+    @staticmethod
+    def get_by_id(id):
+        return User.query.filter_by(id=id).first()
+    
+    @staticmethod
+    def get_by_name(name):
+        return User.query.filter_by(name=name).first()
         

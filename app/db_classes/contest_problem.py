@@ -66,5 +66,11 @@ class Contest_Problem(db.Model):
         if contest is None or problem is None:
             return None
         return Contest_Problem.query.filter_by(problem_id=problem.id, contest_id=contest.id).first()
+    
+    @staticmethod
+    def get_all_by_contest(contest):
+        if contest is None:
+            return []
+        return Contest_Problem.query.filter_by(contest_id=contest.id).all()
 
     
