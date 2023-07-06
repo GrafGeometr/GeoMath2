@@ -67,7 +67,6 @@ class Contest(db.Model):
         from app.dbc import Contest_User
         for cu in Contest_User.query.filter_by(
             user_id=user.id, contest_id=self.id
-            user_id=user.id, contest_id=self.id
         ).all():
             if not cu.is_ended():
                 return cu
