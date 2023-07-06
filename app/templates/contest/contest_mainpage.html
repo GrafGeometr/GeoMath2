@@ -11,7 +11,7 @@
     <div id="timer-div" class="flex gap-x-2 items-center"><span class="font-bold" id="timer-span-text"></span><span id='timer-span-clock'></span></div>
 
     <br>
-    {% with cu = current_contest.get_active_cu() %}
+    {% with cu = current_contest.get_active_cu(current_user) %}
     {% if cu %}
     <div class="flex gap-x-2 items-center"><span class="font-bold">Вы участвуете!</span></div>
     <div class="flex gap-x-2 items-center"><span class="font-bold">Тип участия:</span>
@@ -28,7 +28,7 @@
     </form>
     {% endif %}
 
-    {% if (not current_contest.get_active_cu()) %}
+    {% if (not current_contest.get_active_cu(current_user)) %}
     <div class="w-full flex flex-row gap-x-2">
         <div class="w-1/2 flex flex-col gap-y-2">
             {% if (not current_contest.is_ended()) %}
@@ -157,7 +157,7 @@
 </script>
 
 <script>
-    {% with cu = current_contest.get_active_cu() %}
+    {% with cu = current_contest.get_active_cu(current_user) %}
     {% if cu %}
         const start_date = new Date('{{ cu.start_date }}');
         const end_date = new Date('{{ cu.end_date }}');

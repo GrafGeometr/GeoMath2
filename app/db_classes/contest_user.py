@@ -22,13 +22,27 @@ class Contest_User(db.Model):
     def is_ended(self):
         return self.end_date <= current_time()
 
-    def end_manually(self):
-        if self.is_ended():
-            return
-        if self.is_started():
-            self.end_date = current_time()
-            return
+
+    def add(self):
+        from app.dbc import Contest_User_Solution
+        db.session.add(self)
+        db.session.commit()
+        for cp in self.contest.contest_problems:
+            cus = Contest_User_Solution(contest_user_id=self.id, contest_problem_id=cp.id)
+            cus.add()
+
+
+    def remove(self):
         for cus in self.contest_user_solutions:
             db.session.delete(cus)
         db.session.delete(self)
         db.session.commit()
+
+    def act_stop(self):
+        if self.is_ended():
+            pass
+        elif self.is_started():
+            self.end_date = current_time()
+            db.session.commit()
+        else:
+            self.remove()

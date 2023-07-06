@@ -63,10 +63,10 @@ class Contest(db.Model):
     def get_nonsecret_problems(self):
         return [p for p in self.get_problems() if p.is_statement_available()]
 
-    def get_active_cu(self):
+    def get_active_cu(self, user):
         from app.dbc import Contest_User
         for cu in Contest_User.query.filter_by(
-            user_id=current_user.id, contest_id=self.id
+            user_id=user.id, contest_id=self.id
         ).all():
             if not cu.is_ended():
                 return cu
@@ -104,8 +104,7 @@ class Contest(db.Model):
                 )
             else:
                 return
-            db.session.add(cu)
-            db.session.commit()
+            cu.add()
             for p in self.get_problems():
                 cus = Contest_User_Solution(contest_user_id=cu.id, problem_id=p.id)
                 cus.set_hashed_id()
@@ -135,15 +134,14 @@ class Contest(db.Model):
             db.session.commit()
             return
 
-    def act_stop(self):
+    def act_stop_for_user(self, user):
         if not self.is_archived():
             return
-        cu = self.get_active_cu()
+        cu = self.get_active_cu(user)
+        print(cu)
         if not cu:
             return
-        cu.end_manually()
-        db.session.commit()
-        return
+        cu.act_stop()
     
     def act_add_judge(self, user):
         from app.dbc import Contest_Judge
