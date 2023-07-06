@@ -528,12 +528,6 @@ def sheet(pool_hashed_id, sheet_id):
 
                 if not sheet.is_public:
                     attachment.short_name = short_name
-                show = request.form.get("secret_attachment " + str(attachment.db_filename))
-                if show == "on":
-                    attachment.other_data["is_secret"] = True
-                else:
-                    attachment.other_data["is_secret"] = False
-                print(attachment.id, show)
 
             db.session.commit()
 

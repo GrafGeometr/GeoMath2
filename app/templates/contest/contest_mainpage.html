@@ -33,7 +33,7 @@
         <div class="w-1/2 flex flex-col gap-y-2">
             {% if (not current_contest.is_ended()) %}
             <form action="/contest/{{ current_contest.id }}" method="post" class="mt-4">
-                <input type="hidden" name="register_default" value="239">
+                <input type="hidden" name="register" value="real">
                 <input type="submit" id="register-btn"
                 class="w-full text-lg bg-green-500 hover:bg-green-600 hover:cursor-pointer px-4 py-2 rounded-lg text-white" value="Участвовать">
             </form>
@@ -143,7 +143,7 @@
                 }
             })
 
-            FD.append("register_virtual", "239");
+            FD.append("register", "virtual");
             FD.append("start_date", start_date_input.value);
             FD.append("end_date", end_date_input.value);
             XHR.open("POST", "/contest/{{ current_contest.id }}");

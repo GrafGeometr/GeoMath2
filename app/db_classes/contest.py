@@ -34,7 +34,12 @@ class Contest(db.Model):
     def is_ended(self):
         return self.end_date <= current_time()
     
-    
+    @staticmethod
+    def get_by_id(id):
+        if id is None:
+            return None
+        return Contest.query.filter_by(id=id).first()
+
     def get_tags(self):
         from app.dbc import Tag, Tag_Relation
         return sorted(
@@ -74,7 +79,9 @@ class Contest(db.Model):
     
     def get_idx_by_contest_problem(self, contest_problem):
         cproblems = [cp for cp in self.contest_problems if cp.is_accessible()]
-        return cproblems.index(contest_problem)
+        if contest_problem not in cproblems:
+            return None
+        return cproblems.index(contest_problem) + 1
     
     def act_register(self, user=current_user, mode="real", start_date=None, end_date=None):
         # регистрация user на контест, если виртуально - то с указанием начала и завершения
@@ -105,11 +112,6 @@ class Contest(db.Model):
             else:
                 return
             cu.add()
-            for p in self.get_problems():
-                cus = Contest_User_Solution(contest_user_id=cu.id, problem_id=p.id)
-                cus.set_hashed_id()
-                db.session.add(cus)
-            db.session.commit()
             return
         else:
             try:
@@ -133,13 +135,7 @@ class Contest(db.Model):
                 end_date=end,
                 virtual=True,
             )
-            db.session.add(cu)
-            db.session.commit()
-            for cp in self.contest_problems:
-                cus = Contest_User_Solution(contest_user_id=cu.id, contest_problem_id=cp.id)
-                cus.set_hashed_id()
-                db.session.add(cus)
-            db.session.commit()
+            cu.add()
             return
 
     def act_stop(self, user=current_user):

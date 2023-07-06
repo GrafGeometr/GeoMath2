@@ -18,15 +18,30 @@ class Problem(db.Model):
     contest_problems = db.relationship("Contest_Problem", backref="problem")
 
     # --> FUNCTIONS
-    def set_hashed_id(self):
-        from app.dbc import Pool
+    def add(self):
+        db.session.add(self)
+        db.session.commit()
+        self.act_set_hashed_id()
+
+    def remove(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def act_set_hashed_id(self):
         while True:
             hashed_id = generate_token(20)
-            if not Pool.query.filter_by(hashed_id=hashed_id).first():
+            if not Problem.query.filter_by(hashed_id=hashed_id).first():
                 self.hashed_id = hashed_id
                 break
 
         self.hashed_id = hashed_id
+        db.session.commit()
+
+    @staticmethod
+    def get_by_hashed_id(hashed_id):
+        if hashed_id is None:
+            return None
+        return Problem.query.filter_by(hashed_id=hashed_id).first()
 
     def get_tags(self):
         from app.dbc import Tag, Tag_Relation

@@ -7,107 +7,246 @@
         elems[i].classList.add("border-slate-400");
     }
     console.log(elems);
-    var element = document.getElementById("problem_href-{{current_problem.hashed_id}}");
+    var element = document.getElementById("problem_href-{{current_cp.problem.hashed_id}}");
     element.classList.remove("border-slate-400");
     element.classList.add("border-black");
 </script>
-<div class="flex flex-col">
-    <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Условие:</h2>
-    <div class="flex w-full items-start">
-        <textarea id="statement_textarea" cols="50" name="statement" readonly
-            class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.statement }}</textarea>
-    </div>
-    <div>
-        {% for attachment in current_problem.get_attachments() %}
-        {% if not attachment.other_data["is_secret"] %}
-        <input type="text" name="attachment_name {{ attachment.db_filename }}"
-            id="attachment-name-{{ attachment.db_filename }}" value="{{ attachment.short_name }}"
-            placeholder="Как назвать картинку?" {% if current_problem.is_public %} readonly {% endif %}
-            class="hidden input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
-        {% endif %}
-        {% endfor %}
-    </div>
-    <script>
-        makeLaTeXArea("statement_textarea", "contest");
-        var textarea = document.getElementById("statement_textarea");
-        var container = textarea.parentElement;
-        var pre = textarea.nextElementSibling;
-        var output = pre.nextElementSibling;
-        textarea.style.display = "none";
-        pre.style.display = "none";
-        var latexOutput = document.getElementById("statement_textarea-latex-output");
-        latexOutput.classList.remove("w-1/2");
-        latexOutput.classList.add("w-2/3");
-    </script>
-</div>
 
 <div class="flex flex-col">
-    <form autocomplete="off" action="/contest/{{ current_contest.id }}/problem/{{ current_problem.hashed_id }}" method="post"
-        class="w-full mt-2 px-4" enctype="multipart/form-data">
-        <input type="hidden" name="save_solution" value="239">
-        
-        <div class="flex flex-row items-center mt-4 w-1/2">
-            <input type="submit" value="Сохранить"
-                class="hover:cursor-pointer px-8 py-2 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700 ml-8 mr-4">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% for category, message in messages %}
-            {% if category == "danger" %}
-            <div id="flash-message"
-                class="text-stone-800 text-semibold rounded text-lg text-center">
-                {{ message }}</div>
-            {% elif category == "warning" %}
-            <div id="flash-message"
-                class="text-stone-800 text-semibold rounded text-lg text-center">
-                {{ message }}</div>
-            {% elif category == "success" %}
-            <div id="flash-message"
-                class="text-stone-800 text-semibold rounded text-lg text-center">
-                {{ message }}</div>
-            {% endif %}
-            {% endfor %}
-            {% endwith %}
-        </div>
+    {% if current_cp is not none %}
+        <form autocomplete="off" action="/contest/{{ current_cp.contest.id }}/problem/{{ current_cp.problem.hashed_id }}" method="post"
+            class="w-full mt-2 px-4" enctype="multipart/form-data">
+            <input type="hidden" name="save_sheet" value="239">
+            
+            <div class="flex flex-row items-center mt-4 w-1/2">
+                <input type="submit" value="Сохранить"
+                    class="hover:cursor-pointer px-8 py-2 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700 ml-8 mr-4">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                {% if category == "danger" %}
+                <div id="flash-message"
+                    class="text-stone-800 text-semibold rounded text-lg text-center">
+                    {{ message }}</div>
+                {% elif category == "warning" %}
+                <div id="flash-message"
+                    class="text-stone-800 text-semibold rounded text-lg text-center">
+                    {{ message }}</div>
+                {% elif category == "success" %}
+                <div id="flash-message"
+                    class="text-stone-800 text-semibold rounded text-lg text-center">
+                    {{ message }}</div>
+                {% endif %}
+                {% endfor %}
+                {% endwith %}
+            </div>
 
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Текст:</h2>
-        <div class="flex w-full items-start">
-            <textarea id="text_textarea" cols="50" name="text" class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_solution.content }}</textarea>
-        </div>
+            <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Запишите ваше решение:</h2>
+            <div class="flex w-full items-start">
+                <textarea id="content_textarea" cols="50" name="text" {% if current_sheet.is_public %}
+                    readonly {% endif %} class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_sheet.text }}</textarea>
+            </div>
 
-        <script>
-            makeLaTeXArea("text_textarea", "sheet");
-        </script>
+            <script>
+                makeLaTeXArea("text_textarea", "sheet");
+            </script>
 
 
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Вложения:</h2>
-        <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
-            <div class="border-r-2 border-slate-300 w-1/3">
-                <div class="flex flex-col {% if current_solution.get_attachments() %} gap-y-4 {% endif %} mr-4">
-                    <ul class="flex flex-col gap-y-2 " id="files-list">
-                        {% for attachment in current_solution.get_attachments() %}
-                        <li class="flex w-full gap-x-2">
-                            <input type="text" name="attachment_name {{ attachment.db_filename }}" id="attachment-name-{{ attachment.db_filename }}"
-                                value="{{ attachment.short_name }}" placeholder="Как назвать картинку?"
-                                class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
-                                <button onclick="DeleteAttachment(this)"
-                                class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    <div class="border-2 border-blue-500 border-dashed px-8 py-4 rounded-xl flex justify-center">
-                        <label class="label text-lg">
-                            <input type="file" class="file-input w-0 h-0" name="attachments" accept="image/*" multiple>
-                            <span class="browse-files-text text-blue-500 font-semibold cursor-pointer inline-block"
-                                onclick="ResetFileInput()">Загрузить файлы</span>
-                        </label>
+            <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Вложения:</h2>
+            <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
+                <div class="border-r-2 border-slate-300 w-1/3">
+                    <div class="flex flex-col {% if current_sheet.get_attachments() %} gap-y-4 {% endif %} mr-4">
+                        <ul class="flex flex-col gap-y-2 " id="files-list">
+                            {% for attachment in current_sheet.get_attachments() %}
+                            <li class="flex w-full gap-x-2">
+                                <input type="text" name="attachment_name {{ attachment.db_filename }}" id="attachment-name-{{ attachment.db_filename }}"
+                                    value="{{ attachment.short_name }}" placeholder="Как назвать картинку?" {% if current_sheet.is_public %} readonly {% endif %}
+                                    class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+                                {% if not current_sheet.is_public %}
+                                    <button onclick="DeleteAttachment(this)"
+                                    class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="border-2 border-blue-500 border-dashed px-8 py-4 rounded-xl flex justify-center {% if current_sheet.is_public %} hidden {% endif %}">
+                            <label class="label text-lg">
+                                <input type="file" class="file-input w-0 h-0" name="attachments" accept="image/*" multiple {% if current_sheet.is_public %} readonly {% endif %}>
+                                {% if not current_sheet.is_public %}
+                                <span class="browse-files-text text-blue-500 font-semibold cursor-pointer inline-block"
+                                    onclick="ResetFileInput()">Загрузить файлы</span>
+                                {% endif %}
+                            </label>
+                        </div>
                     </div>
+                </div>
+
+                <div class="w-2/3 ml-4">
+                    <img id="display-attachment" class="hidden border-2 border-sky-400 padding-8 rounded-xl">
                 </div>
             </div>
 
-            <div class="w-2/3 ml-4">
-                <img id="display-attachment" class="hidden border-2 border-sky-400 padding-8 rounded-xl">
+            <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Теги:</h2>
+            <div class="flex gap-x-8 items-start">
+                <ul class="w-full" id="tas_list">
+                    {% for tag in current_sheet.get_tags() %}
+                    <li class="flex">
+                        <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
+                        <span class="text-slate-500 font-bold mr-4">#</span>
+                        <div class="w-2/3"><span>{{ tag.name }}</span></div>
+                        <span class="text-slate-500 font-bold mx-4">|</span>
+                        <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-red-600"
+                            onclick="DeleteTag(this)">Удалить тег</button>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <div class="flex w-full">
+                    <span class="text-slate-500 font-bold mr-4">#</span>
+                    <div class="w-2/3 relative inline-block">
+                        <input id="addtag" type="text" placeholder="Введите тег" name="tag_name"
+                            class="w-full border-slate-400 border-2 rounded px-2">
+                    </div>
+                    <span class="text-slate-700 font-bold mx-4">|</span>
+                    <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-green-600"
+                        onclick="AddTag()">Добавить тег</button>
+                </div>
             </div>
-        </div>
-    </form>
+        </form>
+    {% endif %}
 </div>
+
+
+<script>
+    function BindAttachmentClick() {
+        var inputs = document.querySelectorAll(".input-attachment-name");
+        console.log(inputs);
+        var display = document.querySelector("#display-attachment");
+        display.onerror = () => {
+            console.log("error");
+            this.classList.add("hidden");
+            this.onerror = null;
+        }
+        
+        for (var i = 0; i < inputs.length; i++) {
+            inputs[i].addEventListener("focus", function (event) {
+                inputs.forEach((input) => {
+                    input.classList.remove("border-black", "bg-slate-100");
+                })
+                this.classList.add("border-black", "bg-slate-100");
+                var db_filename = this.id.split("attachment-name-")[1];
+                display.src = `/get_image/${ db_filename }`;
+                display.classList.remove("hidden");
+                display.classList.add("block");
+            })
+        }
+    }
+</script>
+
+<script>
+    let fileInput = document.querySelector(".file-input");
+    let filesList = document.getElementById("files-list");
+    fileInput.addEventListener("change", function (event) {
+        for (let i = 0; i < this.files.length; i++) {
+
+            const Data = new FormData();
+            Data.append("file", this.files[i]);
+            Data.append("name", this.files[i].name);
+            Data.append("type", this.files[i].type);
+            Data.append("size", this.files[i].size);
+
+            fetch(`${ window.location.href }/upload_file`, {
+                method: "POST",
+                body: Data
+            }).then((response) => {
+                if (response.status == 200) {
+                    return response.text();
+                } else {
+                    throw new Error("Bad file");
+                }
+            }).then(result => {
+                    if (result[0] == "O" && result[1] == "K") {
+                        var attachment_db_filename = result.slice(3);
+                        filesList.innerHTML += `
+                        <li class="flex w-full gap-x-2">
+                            <input type="text" name="attachment_name ${ attachment_db_filename }" id="attachment-name-${ attachment_db_filename }"
+                            value="Рисунок" placeholder="Как назвать картинку?"
+                            class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+                            <button onclick="DeleteAttachment(this)"
+                            class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
+                        </li>
+                        `
+                        BindAttachmentClick();
+                        filesList.parentNode.classList.add("gap-y-4");
+                    }
+                }
+            );
+        }
+    })
+</script>
+
+
+
+
+<script>
+    BindAttachmentClick();
+</script>
+
+<script>
+    function DeleteAttachment(element) {
+        let filesList = element.parentElement.parentElement;
+        if (filesList.children.length == 1) {
+            filesList.parentNode.classList.remove("gap-y-4");
+        }
+        element.parentElement.remove();
+    }
+    function ResetFileInput() {
+        let fileInput = document.querySelector(".file-input");
+        fileInput.value = "";
+        fileInput.type = "";
+        fileInput.type = "file";
+
+        let filesList = element.parentElement.parentElement;
+        filesList.parentNode.classList.remove("gap-y-4");
+    }
+</script>
+
+
+
+<script>
+    function AddTag() {
+
+        let tag = document.getElementById("addtag");
+        let tag_name = prevent_injection(tag.value);
+        tag.value = "";
+
+        let tags_list = document.getElementById("tas_list");
+
+        tags_list.appendChild(document.createElement("li"));
+        let child = tags_list.lastChild;
+
+        child.classList = "flex";
+
+
+        child.innerHTML = `<input type="hidden" name="tag ${tag_name}" value="${tag_name}">
+        <span class="text-slate-500 font-bold mr-4">#</span>
+        <div class="w-2/3"><span>${tag_name}</span></div>
+        <span class="text-slate-500 font-bold mx-4">|</span>
+        <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-red-600" onclick="DeleteTag(this)">Удалить тег</button>`
+
+    }
+</script>
+
+<script>
+    function DeleteTag(element) {
+        element.parentElement.remove();
+    }
+</script>
+
+<script>
+    var flash_message = document.getElementById("flash-message");
+    if (flash_message) {
+        fade(flash_message, 3000);
+    }
+</script>
+
 
 {% endblock %}
