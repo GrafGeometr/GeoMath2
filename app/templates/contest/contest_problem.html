@@ -13,12 +13,32 @@
 </script>
 
 <div class="flex flex-col">
-    
+    <div class="flex justify-center">
+        <div class="flex flex-col border-2 border-slate-200 p-4 rounded-xl bg-white w-1/2">
+            <h2 class="text-slate-500 font-bold text-xl">Максимальный балл: <span class="text-black">{{ current_cp.max_score }}</span></h2>
+            <div class="h-px w-full bg-neutral-300 my-2"></div>
+            <div class="flex w-full items-start">
+                <textarea id="statement_textarea" cols="50" name="statement"
+                class="w-1/2 p-4">{{ current_cp.problem.statement }}</textarea>
+            </div>
+            <script>
+                makeLaTeXArea("statement_textarea", "problem");
+                var textarea = document.getElementById("statement_textarea");
+                var container = textarea.parentElement;
+                var pre = textarea.nextElementSibling;
+                var output = pre.nextElementSibling;
+                textarea.style.display = "none";
+                pre.style.display = "none";
+                output.classList.remove("w-1/2", "border-2", "border-solid", "rounded-lg");
+                output.classList.add("w-full");
+            </script>
+        </div>
+    </div>
     {% if current_cus is not none %}
         <form autocomplete="off" action="/contest/{{ current_cp.contest.id }}/problem/{{ current_cp.problem.hashed_id }}" method="post"
             class="w-full mt-2 px-4" enctype="multipart/form-data">
             <input type="hidden" name="save_solution" value="239">
-            <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Максимальный балл: <span class="text-black">{{ current_cp.max_score }}</span></h2>
+            
             <div class="flex flex-row items-center mt-4 w-1/2">
                 
 
