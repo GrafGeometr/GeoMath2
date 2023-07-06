@@ -82,3 +82,11 @@ class Pool(db.Model):
         db.session.commit()
 
         return contest
+    
+    @staticmethod
+    def get_by_id(id):
+        return Pool.query.filter_by(id=id).first()
+    
+    @staticmethod
+    def get_by_hashed_id(hashed_id):
+        return Pool.query.filter_by(hashed_id=hashed_id).first()

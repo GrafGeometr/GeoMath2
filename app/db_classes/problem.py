@@ -122,3 +122,11 @@ class Problem(db.Model):
                 if self.is_solution_available():
                     result.append(attachment)
         return result
+
+    @staticmethod
+    def get_by_id(id):
+        return Problem.query.filter_by(id=id).first()
+    
+    @staticmethod
+    def get_by_hashed_id(hashed_id):
+        return Problem.query.filter_by(hashed_id=hashed_id).first()
