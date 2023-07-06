@@ -213,12 +213,16 @@
                         throw new Error("Failed to fetch problem");
                     }
                 }).then(json => {
-                    display.innerHTML = "";
-                    var iframe = renderProblem("", json, ['name', 'statement', 'solution', 'tags'], "inplace", "display-problem");
-                    display.appendChild(iframe);
-                    console.log(iframe);
-                    display.classList.remove("hidden");
-                    display.classList.add("block");
+                    function render() {
+                        display.innerHTML = "";
+                        var iframe = renderProblem("", json, ['name', 'statement', 'solution', 'tags'], "inplace", "display-problem");
+                        display.appendChild(iframe);
+                        console.log(iframe);
+                        display.classList.remove("hidden");
+                        display.classList.add("block");
+                    }
+                    renderAreas['display-problem'] = render;
+                    render();
                 });
             })
         }
