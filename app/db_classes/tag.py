@@ -18,3 +18,12 @@ class Tag(db.Model):
     @staticmethod
     def get_by_name(name):
         return Tag.query.filter_by(name=name).first()
+    
+    def act_set_name(self, name):
+        self.name = name
+        db.session.commit()
+        return self
+
+    def save(self):
+        db.session.commit()
+        return self

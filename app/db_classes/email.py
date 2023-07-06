@@ -18,4 +18,10 @@ class Email(db.Model):
 
     @staticmethod
     def get_by_id(id):
+        if id is None:
+            return None
         return Email.query.filter_by(id=id).first()
+
+    def save(self):
+        db.session.commit()
+        return self

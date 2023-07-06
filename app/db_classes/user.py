@@ -34,14 +34,9 @@ class User(UserMixin, db.Model):
 
     def create_new_pool(self, name):
         from app.dbc import Pool, User_Pool
-        pool = Pool(name=name)
-        pool.set_hashed_id()
-        db.session.add(pool)
-        db.session.commit()
+        pool = Pool(name=name).add()
 
-        relation = User_Pool(user_id=self.id, pool_id=pool.id, role=Owner)
-        db.session.add(relation)
-        db.session.commit()
+        relation = User_Pool(user_id=self.id, pool_id=pool.id, role=Owner).add()
 
         return pool.hashed_id
 
@@ -66,4 +61,8 @@ class User(UserMixin, db.Model):
     @staticmethod
     def get_by_name(name):
         return User.query.filter_by(name=name).first()
+
+    def save(self):
+        db.session.commit()
+        return self
         

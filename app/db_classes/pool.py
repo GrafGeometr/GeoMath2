@@ -1,6 +1,7 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
+
 class Pool(db.Model):
     # --> INITIALIZE
     __tablename__ = "pool"
@@ -16,19 +17,20 @@ class Pool(db.Model):
     contests = db.relationship("Contest", backref="pool")
 
     # --> FUNCTIONS
-    def set_hashed_id(self):
-        from app.dbc import Problem
+    def act_set_hashed_id(self):
         while True:
             hashed_id = generate_token(20)
-            if not Problem.query.filter_by(hashed_id=hashed_id).first():
+            if not Pool.get_by_hashed_id(hashed_id):
                 self.hashed_id = hashed_id
                 break
 
         self.hashed_id = hashed_id
+        return self.save()
 
     def get_users(self):
         from app.dbc import User_Pool
-        userpools = User_Pool.query.filter_by(pool_id=self.id).all()
+
+        userpools = User_Pool.get_all_by_pool(self)
         userpools.sort(
             key=lambda up: (0, up.user.name)
             if up.role.isOwner()
@@ -49,41 +51,46 @@ class Pool(db.Model):
 
     def get_problems(self):
         from app.dbc import Problem
-        return Problem.query.filter_by(pool_id=self.id).all()
+
+        return Problem.get_all_by_pool(self)
 
     def new_problem(self):
         from app.dbc import Problem
-        problem = Problem(statement="", solution="", pool_id=self.id)
-        problem.add()
-        problem.name = f"Задача #{problem.id}"
-        db.session.commit()
-        return problem
+
+        problem = Problem(statement="", solution="", pool_id=self.id).add()
+        return problem.act_set_name(f"Задача #{problem.id}")
+        
 
     def new_sheet(self):
         from app.dbc import Sheet
-        sheet = Sheet(text="", pool_id=self.id)
-        sheet.add()
-        sheet.name = f"Подборка #{sheet.id}"
-        db.session.commit()
-        return sheet
+
+        sheet = Sheet(text="", pool_id=self.id).add()
+        return sheet.act_set_name( f"Подборка #{sheet.id}").save()
 
     def new_contest(self):
         from app.dbc import Contest
-        contest = Contest(description="", name="Название", pool_id=self.id)
-        db.session.add(contest)
-        db.session.commit()
-        tm = current_time("minutes")
-        contest.name = f"Контест #{contest.id}"
-        contest.start_date = tm
-        contest.end_date = tm
-        db.session.commit()
 
-        return contest
-    
+        contest = Contest(description="", name="Название", pool_id=self.id).add()
+        tm = current_time("minutes")
+        return contest.act_set_name(f"Контест #{contest.id}").act_set_date(tm, tm)
+        
+
     @staticmethod
     def get_by_id(id):
+        if id is None:
+            return None
         return Pool.query.filter_by(id=id).first()
-    
+
     @staticmethod
     def get_by_hashed_id(hashed_id):
+        if hashed_id is None:
+            return None
         return Pool.query.filter_by(hashed_id=hashed_id).first()
+
+    def add(self):
+        db.session.add(self.act_set_hashed_id())
+        return self.save()
+
+    def save(self):
+        db.session.commit()
+        return self

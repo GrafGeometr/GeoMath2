@@ -11,7 +11,6 @@ class Problem(db.Model):
     statement = db.Column(db.String)
     solution = db.Column(db.String)
     is_public = db.Column(db.Boolean, default=False)
-    show_solution = db.Column(db.Boolean, default=False)
 
     # --> RELATIONS
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
@@ -20,8 +19,8 @@ class Problem(db.Model):
     # --> FUNCTIONS
     def add(self):
         db.session.add(self)
-        db.session.commit()
         self.act_set_hashed_id()
+        return self
 
     def remove(self):
         db.session.delete(self)
@@ -35,7 +34,31 @@ class Problem(db.Model):
                 break
 
         self.hashed_id = hashed_id
-        db.session.commit()
+        return self.save()
+    
+    def act_set_name(self, name):
+        self.name = name
+        return self.save()
+    
+    def act_set_statement(self, statement):
+        self.statement = statement
+        return self.save()
+    
+    def act_set_solution(self, solution):
+        self.solution = solution
+        return self.save()
+    
+    def act_set_is_public(self, is_public):
+        self.is_public = is_public
+        return self.save()
+    
+    def act_make_public(self):
+        self.is_public = True
+        return self.save()
+    
+    def act_make_nonpublic(self):
+        self.is_public = False
+        return self.save()
 
     @staticmethod
     def get_by_hashed_id(hashed_id):
@@ -47,52 +70,34 @@ class Problem(db.Model):
         from app.dbc import Tag, Tag_Relation
         return sorted(
             [
-                Tag.query.filter_by(id=problem_tag.tag_id).first()
-                for problem_tag in Tag_Relation.query.filter_by(
-                    parent_type="Problem", parent_id=self.id
-                ).all()
+                Tag.get_by_id(problem_tag.tag_id)
+                for problem_tag in Tag_Relation.get_all_by_parent(self) if problem_tag is not None
             ],
             key=lambda t: t.name.lower(),
         )
 
     def get_tag_names(self):
-        return list(map(lambda t: t.name, self.get_tags()))
+        return list(map(lambda t: t.name.lower(), self.get_tags()))
 
     def get_attachments(self):
         from app.dbc import Attachment
-        return Attachment.query.filter_by(
-            parent_type="Problem", parent_id=self.id
-        ).all()
+        return Attachment.get_all_by_parent(self)
 
     def is_archived(self):
-        return self.is_public and self.moderated
+        return self.is_public
 
     def get_all_contests(self):
         return [cp.contest for cp in self.contest_problems]
 
-    def get_cu_participated(self):
+    def get_cu_participated(self, user=current_user):
         from app.dbc import Contest_User
         result = []
         for c in self.get_all_contests():
             result.extend(
-                Contest_User.query.filter_by(
-                    user_id=current_user.id, contest_id=c.id
-                ).all()
+                Contest_User.get_all_by_contest_and_user(c, current_user)
             )
         return result
-
-    def is_judge(self, user=current_user):
-        from app.dbc import Contest_Judge
-        contests = self.get_all_contests()
-        judge = any(
-            [
-                Contest_Judge.query.filter_by(
-                    user_id=user.id, contest_id=c.id
-                ).first()
-                for c in contests
-            ]
-        )
-        return judge
+    
 
     def is_statement_available(self, user=current_user):
         from app.dbc import Contest_User_Solution
@@ -135,23 +140,37 @@ class Problem(db.Model):
     
     def is_in_contest(self, contest):
         from app.dbc import Contest_Problem
-        return (Contest_Problem.query.filter_by(problem_id=self.id, contest_id=contest.id).first() is not None)
+        return Contest_Problem.get_by_contest_and_problem(contest, self) is not None
 
     def get_nonsecret_attachments(self):
         result = []
         for attachment in self.get_attachments():
-            if not attachment.other_data["is_secret"]:
+            if not attachment.is_secret():
                 if self.is_statement_available():
                     result.append(attachment)
-            if attachment.other_data["is_secret"]:
+            if attachment.is_secret():
                 if self.is_solution_available():
                     result.append(attachment)
         return result
 
     @staticmethod
     def get_by_id(id):
+        if id is None:
+            return None
         return Problem.query.filter_by(id=id).first()
     
     @staticmethod
     def get_by_hashed_id(hashed_id):
+        if hashed_id is None:
+            return None
         return Problem.query.filter_by(hashed_id=hashed_id).first()
+    
+    @staticmethod
+    def get_all_by_pool(pool):
+        if pool is None:
+            return []
+        return Problem.query.filter_by(pool_id=pool.id).all()
+
+    def save(self):
+        db.session.commit()
+        return self

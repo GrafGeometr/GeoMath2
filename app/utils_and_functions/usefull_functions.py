@@ -66,3 +66,8 @@ def safe_image_upload(files, directory, maxsize=2*1024*1024):
     return result
 
 
+def dt_from_str(dt_str):
+    try:
+        return datetime.datetime.strptime(dt_str, "%Y-%m-%dT%H:%M")
+    except:
+        return None

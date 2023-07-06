@@ -739,10 +739,10 @@ def contest(pool_hashed_id, contest_id):
 
             hashes = request.form.getlist("problem_hash")
             scores = request.form.getlist("max_score")
-            contest.act_update_problems(hashes, scores)
+            contest.act_set_problems(hashes, scores)
 
             judge_names = request.form.getlist("judge_name")
-            contest.act_update_judges(judge_names)
+            contest.act_set_judges(judge_names)
             
 
             flash("Контест успешно сохранён", "success")

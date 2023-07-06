@@ -22,8 +22,8 @@ class Contest_User(db.Model):
         db.session.add(self)
         db.session.commit()
         for cp in self.contest.contest_problems:
-            cus = Contest_User_Solution(contest_user_id=self.id, contest_problem_id=cp.id)
-            cus.add()
+            Contest_User_Solution(contest_user_id=self.id, contest_problem_id=cp.id).add()
+        return self
 
     def remove(self):
         for cus in self.contest_user_solutions:
@@ -52,16 +52,24 @@ class Contest_User(db.Model):
     
     @staticmethod
     def get_by_id(id):
+        if id is None:
+            return None
         return Contest_User.query.filter_by(id=id).first()
+
+
+    @staticmethod
+    def get_all_by_contest_and_user(contest, user):
+        if contest is None or user is None or contest.id is None or user.id is None:
+            return None
+        return Contest_User.query.filter_by(contest_id=contest.id, user_id=user.id).all()
 
     @staticmethod
     def get_active_by_contest_and_user(contest, user):
-        if contest is None or user is None:
-            return None
-        for cu in Contest_User.query.filter_by(
-            contest_id=contest.id, user_id=user.id
-        ).all():
+        for cu in Contest_User.get_all_by_contest_and_user(contest, user):
             if cu.is_active():
                 return cu
         return None
     
+    def save(self):
+        db.session.commit()
+        return self
