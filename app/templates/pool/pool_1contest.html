@@ -138,14 +138,14 @@
                     <input type="checkbox" name="is_rating_public" {% if current_contest.is_rating_public() %} checked {% endif %}
                     class="hidden" id="is-rating-public">
                     <span class="text-lg">
-                        <span class="font-bold">Рейтинг:</span>
+                        <span class="font-bold">Результаты проверки:</span>
                         {% if current_contest.is_rating_public() %}
                         <span class="text-green-600 cursor-pointer hover:underline" id="is-rating-public-span">
-                            виден всем пользователям
+                            видны всем пользователям
                         </span>
                         {% else %}
                         <span class="text-slate-500 cursor-pointer hover:underline" id="is-rating-public-span">
-                            виден только жюри контеста
+                            видны только жюри контеста
                         </span>
                         {% endif %}
                     </span>
@@ -207,12 +207,12 @@
         if (this.checked) {
             span.classList.remove("text-slate-500");
             span.classList.add("text-green-600");
-            span.innerHTML = "виден всем пользователям";
+            span.innerHTML = "видны всем пользователям";
         }
         else {
             span.classList.remove("text-green-600");
             span.classList.add("text-slate-500");
-            span.innerHTML = "виден только жюри контеста";
+            span.innerHTML = "видны только жюри контеста";
         }
     });
 </script>
