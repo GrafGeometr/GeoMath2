@@ -34,6 +34,10 @@ class Attachment(db.Model):
         elif self.parent_type == "Contest_User_Solution":
             return Contest_User_Solution.query.filter_by(id=self.parent_id).first()
 
+    def add(self):
+        db.session.add(self)
+        db.session.commit()
+
     def remove(self):
         try:
             os.remove(os.path.join(self.db_folder, self.db_filename))
