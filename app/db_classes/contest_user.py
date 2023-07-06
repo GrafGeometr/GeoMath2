@@ -44,8 +44,10 @@ class Contest_User(db.Model):
     def get_active_by_contest_and_user(contest, user):
         if contest is None or user is None:
             return None
-        active_list =  [x for x in Contest_User.query.filter_by(contest_id=contest.id, user_id=user.id).all() if x.is_active()]
-        if len(active_list) != 1:
-            return None
-        return active_list[0]
+        for cu in Contest_User.query.filter_by(
+            contest_id=contest.id, user_id=user.id
+        ).all():
+            if cu.is_active():
+                return cu
+        return None
     
