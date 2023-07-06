@@ -15,3 +15,7 @@ class Email(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
     # --> FUNCTIONS
+
+    @staticmethod
+    def get_by_id(id):
+        return Email.query.filter_by(id=id).first()

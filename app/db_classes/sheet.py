@@ -58,3 +58,7 @@ class Sheet(db.Model):
             if self.is_text_available():
                 result.append(attachment)
         return result
+    
+    @staticmethod
+    def get_by_id(id):
+        return Sheet.query.filter_by(id=id).first()

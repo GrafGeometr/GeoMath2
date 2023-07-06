@@ -26,3 +26,17 @@ class Tag_Relation(db.Model):
     def remove(self):
         db.session.delete(self)
         db.session.commit()
+    
+    @staticmethod
+    def get_by_id(id):
+        return Tag_Relation.query.filter_by(id=id).first()
+    
+    @staticmethod
+    def get_all_by_parent(parent):
+        if parent is None:
+            return []
+        from app.dbc import Problem, Sheet, Contest
+        parent_type = {Problem: "Problem", Sheet: "Sheet", Contest: "Contest"}.get(type(parent), None)
+        if parent_type is None:
+            return []
+        return Tag_Relation.query.filter_by(parent_type=parent_type, parent_id=parent.id).all()

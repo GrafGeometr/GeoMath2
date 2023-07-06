@@ -35,6 +35,13 @@ class Contest_User_Solution(db.Model):
         self.hashed_id = hashed_id
         db.session.commit()
 
+    @staticmethod
+    def get_by_id(id):
+        return Contest_User_Solution.query.filter_by(id=id).first()
+    
+    @staticmethod
+    def get_by_hashed_id(hashed_id):
+        return Contest_User_Solution.query.filter_by(hashed_id=hashed_id).first()
 
     def get_attachments(self):
         from app.dbc import Attachment

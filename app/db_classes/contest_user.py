@@ -51,6 +51,10 @@ class Contest_User(db.Model):
             self.remove()
     
     @staticmethod
+    def get_by_id(id):
+        return Contest_User.query.filter_by(id=id).first()
+
+    @staticmethod
     def get_active_by_contest_and_user(contest, user):
         if contest is None or user is None:
             return None

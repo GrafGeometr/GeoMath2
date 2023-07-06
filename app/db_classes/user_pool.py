@@ -13,3 +13,12 @@ class User_Pool(db.Model):
     # --> RELATIONS
 
     # --> FUNCTIONS
+    @staticmethod
+    def get_by_id(id):
+        return User_Pool.query.filter_by(id=id).first()
+    
+    @staticmethod
+    def get_by_user_and_pool(user, pool):
+        if user is None or pool is None:
+            return None
+        return User_Pool.query.filter_by(user_id=user.id, pool_id=pool.id).first()
