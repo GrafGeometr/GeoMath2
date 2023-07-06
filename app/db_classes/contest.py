@@ -141,7 +141,7 @@ class Contest(db.Model):
                 end = datetime.datetime.strptime(end_date, "%Y-%m-%dT%H:%M")
             except:
                 end = None
-            if (start is None) or (end is None) or (start > end):
+            if (start is None) or (end is None) or (start > end) or (start < current_time()) or (start < self.start_date):
                 return
             cu = Contest_User(
                 contest_id=self.id,
