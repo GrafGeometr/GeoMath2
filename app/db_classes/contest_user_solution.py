@@ -30,3 +30,10 @@ class Contest_User_Solution(db.Model):
     def get_attachments(self):
         from app.dbc import Attachment
         return Attachment.query.filter_by(parent_type="Contest_User_Solution", parent_id=self.id).all()
+    
+    @staticmethod
+    def get_active_by_contest_problem_and_contest_user(contest_problem, contest_user):
+        if contest_problem is None or contest_user is None:
+            return None
+        return Contest_User_Solution.query.filter_by(contest_problem_id=contest_problem.id, contest_user_id=contest_user.id).first()
+    

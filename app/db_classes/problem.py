@@ -49,7 +49,6 @@ class Problem(db.Model):
             parent_type="Problem", parent_id=self.id
         ).all()
 
-
     def is_archived(self):
         return self.is_public and self.moderated
 
@@ -67,24 +66,24 @@ class Problem(db.Model):
             )
         return result
 
-    def is_judge(self):
+    def is_judge(self, user=current_user):
         from app.dbc import Contest_Judge
         contests = self.get_all_contests()
         judge = any(
             [
                 Contest_Judge.query.filter_by(
-                    user_id=current_user.id, contest_id=c.id
+                    user_id=user.id, contest_id=c.id
                 ).first()
                 for c in contests
             ]
         )
         return judge
 
-    def is_statement_available(self):
-        if self.is_judge():
+    def is_statement_available(self, user=current_user):
+        if self.is_judge(user):
             return True
         contest_users = self.get_cu_participated()
-        if self.is_public or self.is_my():
+        if self.is_public or self.is_my(user):
             if len(contest_users) == 0:
                 return True
             return all([cu.is_started() for cu in contest_users])
@@ -106,8 +105,8 @@ class Problem(db.Model):
                 return False
             return all([cu.is_ended() for cu in contest_users])
 
-    def is_my(self):
-        return current_user.is_pool_access(self.pool_id)
+    def is_my(self, user=current_user):
+        return user.is_pool_access(self.pool_id)
     
     def is_in_contest(self, contest):
         from app.dbc import Contest_Problem

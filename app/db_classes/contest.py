@@ -25,8 +25,8 @@ class Contest(db.Model):
     def is_description_available(self):
         return self.is_public or self.is_my()
 
-    def is_my(self):
-        return current_user.is_pool_access(self.pool_id)
+    def is_my(self, user=current_user):
+        return user.is_pool_access(self.pool_id)
     
     def is_started(self):
         return self.start_date <= current_time()
@@ -63,33 +63,33 @@ class Contest(db.Model):
     def get_nonsecret_problems(self):
         return [p for p in self.get_problems() if p.is_statement_available()]
 
-    def get_active_cu(self):
+    def get_active_cu(self, user=current_user):
         from app.dbc import Contest_User
         for cu in Contest_User.query.filter_by(
-            user_id=current_user.id, contest_id=self.id
+            user_id=user.id, contest_id=self.id
         ).all():
             if not cu.is_ended():
                 return cu
         return None
     
-
-
+    def get_idx_by_contest_problem(self, contest_problem):
+        cproblems = [cp for cp in self.contest_problems if cp.is_accessible()]
+        return cproblems.index(contest_problem)
     
-
-    
-
-    def act_register(self, virtual=False, virtual_start=None, virtual_end=None):
+    def act_register(self, user=current_user, mode="real", start_date=None, end_date=None):
+        # регистрация user на контест, если виртуально - то с указанием начала и завершения
+        # mode = "real" / "virtual", start=end='%Y-%m-%dT%H:%M' (строка в таком формате, надо преобразовать в datetime)
         from app.dbc import Contest_User, Contest_User_Solution
         if not self.is_archived():
             return
         cu = self.get_active_cu()
         if cu:
             return
-        if not virtual:
+        if mode == "real":
             if not self.is_started():
                 cu = Contest_User(
                     contest_id=self.id,
-                    user_id=current_user.id,
+                    user_id=user.id,
                     start_date=self.start_date,
                     end_date=self.end_date,
                     virtual=False,
@@ -97,7 +97,7 @@ class Contest(db.Model):
             elif not self.is_ended():
                 cu = Contest_User(
                     contest_id=self.id,
-                    user_id=current_user.id,
+                    user_id=user.id,
                     start_date=current_time(),
                     end_date=self.end_date,
                     virtual=False,
@@ -113,17 +113,25 @@ class Contest(db.Model):
             db.session.commit()
             return
         else:
+            try:
+                start = datetime.datetime.strptime(start_date, '%Y-%m-%dT%H:%M')
+            except:
+                start = None
+            try:
+                end = datetime.datetime.strptime(end_date, '%Y-%m-%dT%H:%M')
+            except:
+                end = None
             if (
-                (virtual_start is None)
-                or (virtual_end is None)
-                or (virtual_start > virtual_end)
+                (start is None)
+                or (end is None)
+                or (start > end)
             ):
                 return
             cu = Contest_User(
                 contest_id=self.id,
-                user_id=current_user.id,
-                start_date=virtual_start,
-                end_date=virtual_end,
+                user_id=user.id,
+                start_date=start,
+                end_date=end,
                 virtual=True,
             )
             db.session.add(cu)
@@ -135,7 +143,7 @@ class Contest(db.Model):
             db.session.commit()
             return
 
-    def act_stop(self):
+    def act_stop(self, user=current_user):
         if not self.is_archived():
             return
         cu = self.get_active_cu()

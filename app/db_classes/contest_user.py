@@ -21,6 +21,9 @@ class Contest_User(db.Model):
 
     def is_ended(self):
         return self.end_date <= current_time()
+    
+    def is_active(self):
+        return not self.is_ended()
 
     def end_manually(self):
         if self.is_ended():
@@ -32,3 +35,13 @@ class Contest_User(db.Model):
             db.session.delete(cus)
         db.session.delete(self)
         db.session.commit()
+    
+    @staticmethod
+    def get_active_by_contest_and_user(contest, user):
+        if contest is None or user is None:
+            return None
+        active_list =  [x for x in Contest_User.query.filter_by(contest_id=contest.id, user_id=user.id).all() if x.is_active()]
+        if len(active_list) != 1:
+            return None
+        return active_list[0]
+    

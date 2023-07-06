@@ -16,6 +16,15 @@ class Attachment(db.Model):
     # --> RELATIONS
 
     # --> FUNCTIONS
+    @staticmethod
+    def get_by_id(id):
+        return Attachment.query.filter_by(id=id).first()
+    
+    @staticmethod
+    def get_by_db_filename(db_filename):
+        return Attachment.query.filter_by(db_filename=db_filename).first()
+
+
     def get_parent(self):
         from app.dbc import Problem, Sheet, Contest_User_Solution
         if self.parent_type == "Problem":  

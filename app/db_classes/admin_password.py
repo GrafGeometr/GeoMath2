@@ -11,3 +11,7 @@ class Admin_Password(db.Model):
     # --> RELATIONS
 
     # --> FUNCTIONS
+
+    @staticmethod
+    def get_by_id(id):
+        return Admin_Password.query.filter_by(id=id).first()

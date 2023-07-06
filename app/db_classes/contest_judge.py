@@ -12,6 +12,14 @@ class Contest_Judge(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
     # --> FUNCTIONS
+    @staticmethod
+    def get_by_id(id):
+        return Contest_Judge.query.filter_by(id=id).first()
+    
+    @staticmethod
+    def get_by_contest_and_user(contest, user):
+        return Contest_Judge.query.filter_by(contest_id=contest.id, user_id=user.id).first()
+
     def add(self):
         db.session.add(self)
         db.session.commit()
