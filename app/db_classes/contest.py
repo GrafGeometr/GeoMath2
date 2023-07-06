@@ -123,11 +123,6 @@ class Contest(db.Model):
             else:
                 return
             cu.add()
-            for p in self.get_problems():
-                cus = Contest_User_Solution(contest_user_id=cu.id, problem_id=p.id)
-                cus.set_hashed_id()
-                db.session.add(cus)
-            db.session.commit()
             return
         else:
             try:
@@ -147,15 +142,7 @@ class Contest(db.Model):
                 end_date=end,
                 virtual=True,
             )
-            db.session.add(cu)
-            db.session.commit()
-            for cp in self.contest_problems:
-                cus = Contest_User_Solution(
-                    contest_user_id=cu.id, contest_problem_id=cp.id
-                )
-                cus.set_hashed_id()
-                db.session.add(cus)
-            db.session.commit()
+            cu.add()
             return
 
     def act_stop(self, user=current_user):
@@ -275,7 +262,6 @@ class Contest(db.Model):
         for cp in self.contest_problems:
             if cp.problem.hashed_id not in hashes:
                 cp.remove()
-
     @staticmethod
     def get_by_id(id):
         return Contest.query.filter_by(id=id).first()

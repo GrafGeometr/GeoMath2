@@ -20,21 +20,20 @@ class Contest_User_Solution(db.Model):
         db.session.add(self)
         db.session.commit()
         self.act_set_hashed_id()
-        db.session.commit()
 
     def remove(self):
         db.session.delete(self)
         db.session.commit()
 
     def act_set_hashed_id(self):
-        from app.dbc import Pool
         while True:
             hashed_id = generate_token(20)
-            if not Pool.query.filter_by(hashed_id=hashed_id).first():
+            if not Contest_User_Solution.query.filter_by(hashed_id=hashed_id).first():
                 self.hashed_id = hashed_id
                 break
 
         self.hashed_id = hashed_id
+        db.session.commit()
 
     @staticmethod
     def get_by_id(id):
@@ -49,7 +48,7 @@ class Contest_User_Solution(db.Model):
         return Attachment.query.filter_by(parent_type="Contest_User_Solution", parent_id=self.id).all()
     
     @staticmethod
-    def get_active_by_contest_problem_and_contest_user(contest_problem, contest_user):
+    def get_by_contest_problem_and_contest_user(contest_problem, contest_user):
         if contest_problem is None or contest_user is None:
             return None
         return Contest_User_Solution.query.filter_by(contest_problem_id=contest_problem.id, contest_user_id=contest_user.id).first()

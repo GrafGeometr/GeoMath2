@@ -38,7 +38,7 @@ class Contest_Problem(db.Model):
             self.max_score = score
         db.session.commit()
     
-    def is_accsessible(self, user=current_user):
+    def is_accessible(self, user=current_user):
         return self.is_valid() and self.problem.is_statement_available(user)
 
     def is_valid(self):
@@ -53,7 +53,7 @@ class Contest_Problem(db.Model):
             return None
         from app.dbc import Contest_User, Contest_User_Solution
         contest_user = Contest_User.get_active_by_contest_and_user(self.contest, user)
-        return Contest_User_Solution.get_active_by_contest_problem_and_contest_user(self, contest_user)
+        return Contest_User_Solution.get_by_contest_problem_and_contest_user(self, contest_user)
 
     @staticmethod
     def get_by_id(id):

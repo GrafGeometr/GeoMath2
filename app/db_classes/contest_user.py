@@ -16,6 +16,22 @@ class Contest_User(db.Model):
     contest_user_solutions = db.relationship("Contest_User_Solution", backref="contest_user")
     
     # --> FUNCTIONS
+
+    def add(self):
+        from app.dbc import Contest_User_Solution
+        db.session.add(self)
+        db.session.commit()
+        for cp in self.contest.contest_problems:
+            cus = Contest_User_Solution(contest_user_id=self.id, contest_problem_id=cp.id)
+            cus.add()
+
+    def remove(self):
+        for cus in self.contest_user_solutions:
+            db.session.delete(cus)
+        db.session.delete(self)
+        db.session.commit()
+
+
     def is_started(self):
         return self.start_date <= current_time()
 
@@ -25,16 +41,14 @@ class Contest_User(db.Model):
     def is_active(self):
         return not self.is_ended()
 
-    def end_manually(self):
+    def act_stop(self):
         if self.is_ended():
-            return
-        if self.is_started():
+            pass
+        elif self.is_started():
             self.end_date = current_time()
-            return
-        for cus in self.contest_user_solutions:
-            db.session.delete(cus)
-        db.session.delete(self)
-        db.session.commit()
+            db.session.commit()
+        else:
+            self.remove()
     
     @staticmethod
     def get_by_id(id):
