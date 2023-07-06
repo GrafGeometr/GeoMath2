@@ -16,7 +16,17 @@ class Contest_User_Solution(db.Model):
     contest_problem_id = db.Column(db.Integer, db.ForeignKey("contest_problem.id"))
     
     # --> FUNCTIONS
-    def set_hashed_id(self):
+    def add(self):
+        db.session.add(self)
+        db.session.commit()
+        self.act_set_hashed_id()
+        db.session.commit()
+
+    def remove(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def act_set_hashed_id(self):
         from app.dbc import Pool
         while True:
             hashed_id = generate_token(20)

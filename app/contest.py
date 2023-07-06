@@ -27,7 +27,7 @@ def contest_mainpage(contest_id):
             contest.act_register(virtual=True, virtual_start=start_date, virtual_end=end_date)
             return f"/contest/{contest_id}"
         if request.form.get("stop") is not None:
-            contest.act_stop()
+            contest.act_stop_for_user(current_user)
             return redirect(f"/contest/{contest_id}")
     return render_template("contest/contest_mainpage.html", current_contest=contest, title=f"Контест - {contest.name}")
 
