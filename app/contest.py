@@ -15,6 +15,8 @@ def contest_mainpage(contest_id):
             start_date = request.form.get("start_date")
             end_date = request.form.get("end_date")
             contest.act_register(mode=mode, start_date=start_date, end_date=end_date)
+            if mode == "virtual":
+                return f"/contest/{contest_id}"
         if request.form.get("stop") is not None:
             contest.act_stop()
         return redirect(f"/contest/{contest_id}")

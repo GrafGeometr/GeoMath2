@@ -95,30 +95,40 @@ class Problem(db.Model):
         return judge
 
     def is_statement_available(self, user=current_user):
-        if self.is_judge(user):
+        from app.dbc import Contest_User_Solution
+        all_cp = [cp for cp in self.contest_problems if cp.is_valid()]
+        if any([user.is_judge(cp.contest) for cp in all_cp]):
             return True
-        contest_users = self.get_cu_participated()
-        if self.is_public or self.is_my(user):
-            if len(contest_users) == 0:
+        
+        all_cus = []
+        for cp in all_cp:
+            all_cus.extend(Contest_User_Solution.query.filter_by(contest_problem_id=cp.id).all())
+        if self.is_archived() or self.is_my():
+            if len(all_cus) == 0:
                 return True
-            return all([cu.is_started() for cu in contest_users])
+            return all([cus.contest_user.is_started() for cus in all_cus])
         else:
-            if len(contest_users) == 0:
+            if len(all_cus) == 0:
                 return False
-            return all([cu.is_started() for cu in contest_users])
+            return all([cus.contest_user.is_started() for cus in all_cus])
 
-    def is_solution_available(self):
-        if self.is_judge():
+    def is_solution_available(self, user=current_user):
+        from app.dbc import Contest_User_Solution
+        all_cp = [cp for cp in self.contest_problems if cp.is_valid()]
+        if any([user.is_judge(cp.contest) for cp in all_cp]):
             return True
-        contest_users = self.get_cu_participated()
-        if self.is_public or self.is_my():
-            if len(contest_users) == 0:
+        
+        all_cus = []
+        for cp in all_cp:
+            all_cus.extend(Contest_User_Solution.query.filter_by(contest_problem_id=cp.id).all())
+        if self.is_archived() or self.is_my():
+            if len(all_cus) == 0:
                 return True
-            return all([cu.is_ended() for cu in contest_users])
+            return all([cus.contest_user.is_ended() for cus in all_cus])
         else:
-            if len(contest_users) == 0:
+            if len(all_cus) == 0:
                 return False
-            return all([cu.is_ended() for cu in contest_users])
+            return all([cus.contest_user.is_ended() for cus in all_cus])
 
     def is_my(self, user=current_user):
         return user.is_pool_access(self.pool_id)

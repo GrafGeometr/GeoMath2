@@ -73,7 +73,7 @@ class Contest(db.Model):
         return [cj.user for cj in self.contest_judges]
 
     def get_nonsecret_problems(self):
-        return [p for p in self.get_problems() if p.is_statement_available()]
+        return [cp.problem for cp in self.contest_problems if cp.is_accessible()]
 
     def get_active_cu(self, user=current_user):
         from app.dbc import Contest_User
@@ -92,6 +92,7 @@ class Contest(db.Model):
         return cproblems.index(contest_problem) + 1
     
     def act_register(self, user=current_user, mode="real", start_date=None, end_date=None):
+        print(mode, start_date, end_date)
         # регистрация user на контест, если виртуально - то с указанием начала и завершения
         # mode = "real" / "virtual", start=end='%Y-%m-%dT%H:%M' (строка в таком формате, надо преобразовать в datetime)
         from app.dbc import Contest_User, Contest_User_Solution
