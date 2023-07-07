@@ -313,6 +313,13 @@ def get_image(db_filename):
             else:
                 flag = par.is_solution_available()
             if (flag):
+                print("OK, sending", attachment.short_name)
+                img = send_from_directory(
+                    os.path.join(basedir, attachment.db_folder.split("app/")[1]),
+                    db_filename,
+                    as_attachment=True,
+                )
+                print(img)
                 return send_from_directory(
                     os.path.join(basedir, attachment.db_folder.split("app/")[1]),
                     db_filename,

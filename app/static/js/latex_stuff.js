@@ -208,12 +208,14 @@ const getGenerator = (inputElementId = null, editorType = 'problem') => {
                 const cachedImage = localStorage.getItem(imgFilename);
 
                 if (cachedImage) {
+                    console.log("cached", name);
                     const img = document.createElement('img');
                     img.src = cachedImage;
                     img.style.width = "70%";
                     img.style.margin = "0.5rem 0";
                     result.appendChild(img);
                 } else {
+                    console.log("not cached", name);
                     const img = document.createElement('span');
                     img.innerHTML = "Ошибка при загрузке картинки, проверьте название";
                     img.style.color = "red";
@@ -232,9 +234,9 @@ const getGenerator = (inputElementId = null, editorType = 'problem') => {
                             localStorage.setItem(imgFilename, imgData);
                             if (requestsSet.has(href)) {
                                 requestsSet.delete(href);
-                                if (requestsSet.size == 0) {
-                                    console.log(inputElementId);
+                                if (requestsSet.size >= 0) {
                                     toReRenderList.push(inputElementId);
+                                    checkReRender();
                                 }
                             }
                         }
@@ -264,9 +266,10 @@ const getGenerator = (inputElementId = null, editorType = 'problem') => {
                             problemList[problem_hashed_id] = json;
                             if (requestsSet.has(href)) {
                                 requestsSet.delete(href);
-                                if (requestsSet.size == 0) {
+                                if (requestsSet.size >= 0) {
                                     console.log(inputElementId);
                                     toReRenderList.push(inputElementId);
+                                    checkReRender();
                                 }
                             }
                         });
