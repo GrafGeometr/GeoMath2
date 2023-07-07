@@ -7,7 +7,8 @@ class Tag_Relation(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tag_id = db.Column(db.Integer)
-    parent_type = db.Column(db.String)  # 'Problem' | 'Sheet'
+    parent_type = db.Column(DbParentType)
+    # parent_type = db.Column(db.String)  # 'Problem' | 'Sheet'
     parent_id = db.Column(db.Integer)
     other_data = db.Column(db.JSON, default={})
 
@@ -15,13 +16,10 @@ class Tag_Relation(db.Model):
 
     # --> FUNCTIONS
     def get_parent(self):
-        from app.dbc import Problem, Sheet, Contest_User_Solution
-        if self.parent_type == "Problem":
-            return Problem.query.filter_by(id=self.parent_id).first()
-        elif self.parent_type == "Sheet":
-            return Sheet.query.filter_by(id=self.parent_id).first()
-        elif self.parent_type == "Contest_User_Solution":
-            return Contest_User_Solution.query.filter_by(id=self.parent_id).first()
+        par_type = self.parent_type.toType()
+        if par_type is None:
+            return None
+        return par_type.get_by_id(self.parent_id)
 
     def add(self):
         db.session.add(self)
@@ -40,12 +38,17 @@ class Tag_Relation(db.Model):
     def get_all_by_parent(parent):
         if parent is None:
             return []
-        from app.dbc import Problem, Sheet, Contest
-        parent_type = {Problem: "Problem", Sheet: "Sheet", Contest: "Contest"}.get(type(parent), None)
+        parent_type = DbParent.fromType(type(parent))
         if parent_type is None:
             return []
         return Tag_Relation.query.filter_by(parent_type=parent_type, parent_id=parent.id).all()
     
+    @staticmethod
+    def get_by_parent_and_tag(parent, tag):
+        if parent is None or tag is None:
+            return None
+        return Tag_Relation.query.filter_by(parent_type=DbParent.fromType(type(parent)), parent_id=parent.id, tag_id=tag.id).first()
+
     def save(self):
         db.session.commit()
         return self

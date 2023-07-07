@@ -19,6 +19,15 @@ class Tag(db.Model):
     def get_by_name(name):
         return Tag.query.filter_by(name=name).first()
     
+
+    @staticmethod
+    def get_all_by_obj(obj):
+        if obj is None:
+            return []
+        from app.dbc import Tag_Relation
+        return [tr.tag for tr in Tag_Relation.get_all_by_parent(obj)]
+
+
     def act_set_name(self, name):
         self.name = name
         db.session.commit()

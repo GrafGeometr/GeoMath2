@@ -157,7 +157,7 @@ def upload_file_to_problem(pool_hashed_id, problem_hashed_id):
             db_folder=directory,
             db_filename=filename,
             short_name="Рисунок",
-            parent_type="Problem",
+            parent_type=DbParent.fromType(type(problem)),
             parent_id=problem.id,
             other_data={"is_secret": True}
         )

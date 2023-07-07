@@ -9,7 +9,8 @@ class Attachment(db.Model):
     db_folder = db.Column(db.String)
     db_filename = db.Column(db.String)
     short_name = db.Column(db.String)
-    parent_type = db.Column(db.String)  # 'Problem' | 'Sheet' | 'Contest_User_Solution'
+    parent_type = db.Column(DbParentType)
+    # parent_type = db.Column(db.String)  # 'Problem' | 'Sheet' | 'Contest_User_Solution'
     parent_id = db.Column(db.Integer)
     other_data = db.Column(db.JSON, default={})
 
@@ -22,6 +23,7 @@ class Attachment(db.Model):
             return None
         return Attachment.query.filter_by(id=id).first()
     
+
     @staticmethod
     def get_by_db_filename(db_filename):
         if db_filename is None:
@@ -32,27 +34,18 @@ class Attachment(db.Model):
     @staticmethod
     def get_all_by_parent(parent):
         from app.dbc import Problem, Sheet, Contest_User_Solution
-        par_class = {
-            Problem: 'Problem',
-            Sheet: 'Sheet',
-            Contest_User_Solution: 'Contest_User_Solution',
-        }.get(type(parent), None)
+        par_class = DbParent.fromType(type(parent))
         if par_class is None:
             return None
         return Attachment.query.filter_by(parent_type=par_class, parent_id=parent.id).all()
 
 
     def get_parent(self):
-        from app.dbc import Problem, Sheet, Contest_User_Solution
+        par_type = self.parent_type.toType()
 
-        par_class =  {
-            "Problem": Problem,
-            "Sheet": Sheet,
-            "Contest_User_Solution": Contest_User_Solution,
-        }.get(self.parent_type, None)
-        if par_class is None:
+        if par_type is None:
             return None
-        return par_class.get_by_id(self.parent_id)
+        return par_type.get_by_id(self.parent_id)
 
 
     def is_secret(self):
@@ -64,6 +57,7 @@ class Attachment(db.Model):
         db.session.commit()
         return self
 
+
     def remove(self):
         try:
             os.remove(os.path.join(self.db_folder, self.db_filename))
@@ -72,6 +66,7 @@ class Attachment(db.Model):
         db.session.delete(self)
         db.session.commit()
     
+
     def save(self):
         db.session.commit()
         return self
