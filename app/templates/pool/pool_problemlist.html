@@ -1,37 +1,38 @@
 {% if current_pool.problems %}
-<ul class="list-none p-0 border-4 border-solid border-sky-400 rounded-lg">
+
+<table class="text-center border-separate" cellpadding="0" cellspacing="0">
+    <tr class="bg-neutral-200">
+        <th class="rounded-tl-lg border-l border-r border-b border-t border-black px-4 py-2">Название</th>
+        <th class="border-r border-b border-t  border-black px-4 py-2">Хеш</th>
+        <th class="border-r border-b border-t  border-black px-4 py-2">Тип доступа</th>
+        <th class="rounded-tr-lg border-r border-b border-t  border-black px-4 py-2"></th>
+    </tr>
     {% for problem in current_pool.problems %}
-
-
-    <li
-        class="w-full justify-between border-b border-slate-200 bg-white p-4 flex flex-row first:rounded-t-lg last:rounded-b-lg hover:bg-slate-100">
-        <div class="flex justify-between">
-            <div class="flex flex-row">
-                <div class="flex flex-row items-center">
-                    <a href="/pool/{{ current_pool.hashed_id }}/problem/{{ problem.hashed_id }}"
-                        class="no-underline mr-4 text-xl hover:underline">{{ problem.name }}</a>
-                    <span class="text-slate-500 text-xl">[</span>
-                    <span id="copy_hash_span-{{ problem.id }}"
-                        class="mx-2 text-slate-500 hover:cursor-pointer hover:underline hover:text-slate-800 hover:cursor-copy">{{
-                        problem.hashed_id }}</span>
-                    <span class="text-slate-500 text-xl">]</span>
-                    <span id="fading_flash-{{ problem.id }}"
-                    class="text-black opacity-0 fixed left-4 bottom-4 bg-white p-4 rounded-md border-2 border-sky-400">Скопировано</span>
-                </div>
-            </div>
-            {% if problem.is_public %}
-            <span class="text-slate-500 font-bold mx-4 text-xl">|</span>
-            <a href="/archive/problem/{{ problem.hashed_id }}" class="hover:underline">
-            <span class="no-underline text-black text-xl">Задача в архиве</span>
-            </a>
+    <tr class="group">
+        <td class="group-last:rounded-bl-lg border-l border-r border-b  border-black hover:underline">
+            <a href="/pool/{{ current_pool.hashed_id }}/problem/{{ problem.hashed_id }}"
+            class="block px-4 py-2">{{ problem.name }}</a>
+        </td>
+        <td class="border-r border-b border-black">
+            <span id="copy_hash_span-{{ problem.id }}"
+                class="mx-2 text-slate-500 px-4 py-2">{{
+                problem.hashed_id }}</span>
+        </td>
+        <td class="border-r border-b border-black">
+            {% if problem.is_archived() %}
+            <span class="block bg-green-200 px-4 py-2">В архиве</span>
+            {% else %}
+            <span class="block bg-slate-200 px-4 py-2">Скрытая</span>
             {% endif %}
-        </div>
-        <button class="border-0 bg-transparent cursor-pointer"
+        </td>
+        <td class="group-last:rounded-br-lg p-2 border-r border-b  border-black">
+            <button class="border-0 bg-transparent cursor-pointer block"
             onclick="remove_problem('{{ current_pool.hashed_id }}', '{{ problem.hashed_id }}')"><img
                 class="w-6 border-0" src="/static/images/bin.png" alt="bin"></button>
-    </li>
+        </td>
+    </tr>
     {% endfor %}
-</ul>
+</table>
 {% endif %}
 
 <script>

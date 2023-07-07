@@ -1,23 +1,39 @@
 {% if current_pool.contests %}
-<ul class="list-none p-0 border-4 border-solid border-sky-400 rounded-lg">
+<table class="text-center border-separate" cellpadding="0" cellspacing="0">
+    <tr class="bg-neutral-200">
+        <th class="rounded-tl-lg border-l border-r border-b border-t border-black px-4 py-2">Название</th>
+        <th class="border-r border-b border-t  border-black px-4 py-2">Тип доступа</th>
+        <th class="border-r border-b border-t  border-black px-4 py-2">Состояние</th>
+        <th class="rounded-tr-lg border-r border-b border-t  border-black px-4 py-2"></th>
+    </tr>
     {% for contest in current_pool.contests %}
-    <li class="border-b border-slate-200 bg-white p-4 flex flex-col first:rounded-t-lg last:rounded-b-lg hover:bg-slate-100">
-        <div class="flex justify-between">
-            <div>
-                <div class="flex flex-row">
-                <a href="/pool/{{ current_pool.hashed_id }}/contest/{{ contest.id }}" class="no-underline text-black text-xl hover:underline">{{ contest.name }}</a>
-
-                {% if contest.is_public %}
-                <span class="text-slate-500 font-bold mx-4 text-xl">|</span>
-                <a href="/contest/{{ contest.id }}" class="hover:underline">
-                    <span class="text-black text-xl">Контест в архиве</span>
-                </a>
-                {% endif %}
-                </div>
-            </div>
-            <button class="border-0 bg-transparent cursor-pointer" onclick="remove_contest('{{ current_pool.hashed_id }}', '{{ contest.id }}')"><img class="w-6 border-0" src="/static/images/bin.png" alt="bin"></button>
-        </div>
-    </li>
+    <tr class="group">
+        <td class="group-last:rounded-bl-lg border-l border-r border-b  border-black hover:underline">
+            <a href="/pool/{{ current_pool.hashed_id }}/contest/{{ contest.id }}"
+            class="block px-4 py-2">{{ contest.name }}</a>
+        </td>
+        <td class="border-r border-b border-black">
+            {% if contest.is_archived() %}
+            <span class="block bg-green-200 px-4 py-2">В архиве</span>
+            {% else %}
+            <span class="block bg-slate-200 px-4 py-2">Скрытая</span>
+            {% endif %}
+        </td>
+        <td class="border-r border-b border-black">
+            {% if contest.is_ended() %}
+            <span>Завершён</span>
+            {% elif contest.is_started() %}
+            <span>Идёт...</span>
+            {% else %}
+            <span>Не начался</span>
+            {% endif %}
+        </td>
+        <td class="group-last:rounded-br-lg p-2 border-r border-b  border-black">
+            <button class="border-0 bg-transparent cursor-pointer block"
+            onclick="remove_contest('{{ current_pool.hashed_id }}', '{{ contest.id }}')"><img
+                class="w-6 border-0" src="/static/images/bin.png" alt="bin"></button>
+        </td>
+    </tr>
     {% endfor %}
-</ul>
+</table>
 {% endif %}
