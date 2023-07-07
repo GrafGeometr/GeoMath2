@@ -1,0 +1,35 @@
+<ul class="list-none p-0 border-4 border-solid border-sky-400 rounded-lg mt-4">
+    {% for contest in contests %}
+
+    {% with textcolor='text-white' %}
+    {% if contest[1] >= 0.9*contest[2] %}
+        {% set bgcolor = 'text-green-500' %}
+    {% elif contest[1] >= 0.75*contest[2] %}
+        {% set bgcolor = 'text-lime-500' %}
+    {% elif contest[1] >= 0.5*contest[2] %}
+        {% set bgcolor = 'text-yellow-500' %}
+    {% elif contest[1] >= 0.25*contest[2] %}
+        {% set bgcolor = 'text-orange-500' %}
+    {% else %}
+        {% set bgcolor = 'text-red-500' %}
+    {% endif %}
+    {% with perc=0 %}
+    {% if contest[2] == 0 %}
+        {% set perc = 100 %}
+    {% else %}
+        {% set perc = (100*contest[1]/contest[2])|round|int %}
+    {% endif %}
+    
+
+
+    <li class="border-b border-slate-200 bg-white p-4 flex flex-row first:rounded-t-lg last:rounded-b-lg hover:bg-slate-100 items-center">
+        <a href="/contest/{{ contest[0].id }}" class="no-underline text-black text-xl hover:underline mr-4">
+            <span class="text-black text-xl">{{ contest[0].name }}</span>
+        </a>
+        
+        <span>Совпадение: <span class="text-bold {{bgcolor}}">{{ perc }}%</span></span>
+    </li>
+    {% endwith %}
+    {% endwith %}
+    {% endfor %}
+</ul>
