@@ -227,6 +227,56 @@ def archive_sheet_search(mode):
 
 
 
+@arch.route("/archive/contests/<string:mode>", methods=["POST", "GET"])
+@login_required
+def archive_contest_search(mode):
+    if request.method == "POST":
+        tags = request.form.get("tags")
+        if tags is not None:
+            return redirect(url_for("arch.archive_contest_search", tags=tags, page=1, mode=mode))
+        
+    
+    tags = request.args.get("tags")
+    page = request.args.get("page")
+
+    if page is None:
+        page = 1
+    else:
+        page = int(page)
+    
+    if tags is None or tags == "":
+        tags = []
+    else:
+        tags = list(map(lambda x: x.strip() , tags.split(";")))
+
+
+    tags = list(set(tags))
+    print(tags)
+    print(page)
+
+    contests_per_page = 10
+
+
+    contests = Contest.query.all()
+    contests = [(c, len([tag for tag in tags if tag in c.get_tag_names()]), len(tags)) for c in contests if c.is_description_available()]
+    contests.sort(key = lambda c: c[1], reverse=True)
+    
+
+    #if mode == "all":
+        #problems = [problem for problem in problems if problem[0].moderated]
+    if mode == "my":
+        contests = [contest for contest in contests if contest[0].is_my()]
+
+
+    num_of_pages = (len(contests)+contests_per_page-1) // contests_per_page
+    contests = contests[(page-1)*contests_per_page : page*contests_per_page]
+
+
+    pages_to_show = get_correct_page_slice(num_of_pages, 7, page)
+    
+
+    return render_template("archive/archive_search_contests.html", mode=mode, contests=contests, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
+
 @arch.route("/archive/problem/<problem_hashed_id>")
 @login_required
 def arch_problem(problem_hashed_id):

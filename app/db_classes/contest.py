@@ -60,6 +60,9 @@ class Contest(db.Model):
             return False
         cus = Contest_User_Solution.get_by_contest_problem_and_contest_user(cp, cu)
         return (cus is not None) and (cus.content is not None)
+    
+    def is_tags_available(self, user=current_user):
+        return self.is_description_available(user)
 
 
     def get_problems(self):

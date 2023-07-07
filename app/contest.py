@@ -7,7 +7,7 @@ contest = Blueprint('contest', __name__)
 @login_required
 def contest_mainpage(contest_id):
     contest = Contest.get_by_id(contest_id)
-    if (contest is None) or (not contest.is_archived()):
+    if (contest is None) or (not contest.is_description_available()):
         return redirect("/myprofile")
     if request.method == "POST":
         if request.form.get("register") is not None:
@@ -27,7 +27,7 @@ def contest_mainpage(contest_id):
 def contest_problem(contest_id, problem_hashed_id):
     contest = Contest.get_by_id(contest_id)
     problem = Problem.get_by_hashed_id(problem_hashed_id)
-    if (contest is None) or (not contest.is_archived()):
+    if (contest is None) or (not contest.is_description_available()):
         return redirect("/myprofile")
 
     cp = Contest_Problem.get_by_contest_and_problem(contest, problem)
@@ -70,7 +70,7 @@ def contest_problem(contest_id, problem_hashed_id):
 def upload_file_to_cus(contest_id, problem_hashed_id):
     contest = Contest.get_by_id(contest_id)
     problem = Problem.get_by_hashed_id(problem_hashed_id)
-    if (contest is None) or (not contest.is_archived()):
+    if (contest is None) or (not contest.is_description_available()):
         return redirect("/myprofile")
 
     cp = Contest_Problem.get_by_contest_and_problem(contest, problem)
@@ -116,7 +116,7 @@ def upload_file_to_cus(contest_id, problem_hashed_id):
 def contest_solution(contest_id, solution_hashed_id):
     contest = Contest.get_by_id(contest_id)
     solution = Contest_User_Solution.get_by_hashed_id(solution_hashed_id)
-    if (contest is None) or (not contest.is_archived()):
+    if (contest is None) or (not contest.is_description_available()):
         return redirect("/myprofile")
     if (solution is None) or (not solution.is_available()):
         return redirect(f"/contest/{contest_id}")
@@ -137,7 +137,7 @@ def contest_solution(contest_id, solution_hashed_id):
 @login_required
 def contest_rating(contest_id, mode, part):
     contest = Contest.get_by_id(contest_id)
-    if (contest is None) or (not contest.is_archived()):
+    if (contest is None) or (not contest.is_description_available()):
         return redirect("/myprofile")
     if mode not in ["all", "my"]:
         return redirect(f"/contest/{contest_id}")
