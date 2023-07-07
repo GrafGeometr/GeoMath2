@@ -41,7 +41,11 @@ def profile(username):
             return redirect(f"/profile/{user.name}")
         if request.form.get("update_profile_pic") is not None:
             directory = 'app/database/profile_pics'
-            filenames = safe_image_upload(request, 'profile_pic', directory, 5*1024*1024)
+            file = request.files.get("profile_pic")
+            if file is None:
+                flash("Файл не был загружен", "danger")
+                return redirect(f"/myprofile")
+            filenames = safe_image_upload([file], directory, 5*1024*1024)
             if filenames and filenames[0] is not None:
                 filename = filenames[0]
                 try:

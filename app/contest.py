@@ -32,10 +32,12 @@ def contest_problem(contest_id, problem_hashed_id):
 
     cp = Contest_Problem.get_by_contest_and_problem(contest, problem)
     if (cp is None) or (not cp.is_accessible()):
+        print("cp is none")
         return redirect(f"/contest/{contest_id}")
 
     idx = contest.get_idx_by_contest_problem(cp)
     if idx is None:
+        print("idx is none")
         return redirect(f"/contest/{contest_id}")
     
     cus = cp.get_active_contest_user_solution()
@@ -116,8 +118,32 @@ def contest_solution(contest_id, solution_hashed_id):
     solution = Contest_User_Solution.get_by_hashed_id(solution_hashed_id)
     if (contest is None) or (not contest.is_archived()):
         return redirect("/myprofile")
-    if solution is None:
+    if (solution is None) or (not solution.is_available()):
         return redirect(f"/contest/{contest_id}")
     if request.method == "POST":
+        if request.form.get("save_comment") is not None:
+            judge_comment = request.form.get("judge_comment")
+            solution.act_set_judge_comment(judge_comment)
+            score = request.form.get("score")
+            solution.act_set_score(score)
+
+            flash("Проверка успешно сохранена", "success")
         return redirect(f"/contest/{contest_id}/solution/{solution_hashed_id}")
-    return render_template("contest/contest_solution.html", current_contest=contest, current_solution=solution, title=f"{solution.contest_user.user.name} - решение")
+    return render_template("contest/contest_solution.html", current_contest=contest,
+                           current_solution=solution, title=f"{solution.contest_user.user.name} - решение",
+                           str_from_dt = str_from_dt)
+
+@contest.route("/contest/<contest_id>/rating/<string:mode>/<string:part>", methods=["GET"])
+@login_required
+def contest_rating(contest_id, mode, part):
+    contest = Contest.get_by_id(contest_id)
+    if (contest is None) or (not contest.is_archived()):
+        return redirect("/myprofile")
+    if mode not in ["all", "my"]:
+        return redirect(f"/contest/{contest_id}")
+    if part not in ["real", "virtual"]:
+        return redirect(f"/contest/{contest_id}")
+    all_cu = contest.get_cu_by_mode_and_part(mode, part)
+    table = contest.get_rating_table(all_cu)
+    return render_template("contest/contest_rating.html", current_contest=contest, title=f"{contest.name} - рейтинг",
+                           mode=mode, part=part, rating_table=table, str_from_dt = str_from_dt)

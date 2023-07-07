@@ -40,6 +40,17 @@ class Contest_User(db.Model):
     
     def is_active(self):
         return not self.is_ended()
+    
+    def is_any_cus_available(self, user=current_user):
+        return any([cus.is_available(user) for cus in self.contest_user_solutions])
+
+
+    def get_total_score(self):
+        total_score = 0
+        for cus in self.contest_user_solutions:
+            if (cus.score is not None):
+                total_score += cus.score
+        return total_score
 
     def act_stop(self):
         if self.is_ended():

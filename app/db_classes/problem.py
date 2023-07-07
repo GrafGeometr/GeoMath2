@@ -23,6 +23,10 @@ class Problem(db.Model):
         return self
 
     def remove(self):
+        for cp in self.contest_problems:
+            cp.remove()
+        for att in self.get_attachments():
+            att.remove()
         db.session.delete(self)
         db.session.commit()
 

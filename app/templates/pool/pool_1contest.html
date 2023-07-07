@@ -15,8 +15,10 @@
 {% if current_user.get_pool_relation(current_pool.id).role.isOwner() %}
 <div class="flex justify-between">
     {% if current_contest.is_public %}
-    <div class="flex flex-row items-center mt-4">
-        <h3 class="text-red-600 font-bold text-xl">Вы не можете редактировать контест, если он опубликован</h3>
+    <div class="flex flex-row items-center">
+        <a href="/contest/{{ current_contest.id }}" class="text-green-600 font-bold text-xl hover:underline">
+            <h3 class="">Контест опубликован</h3>
+        </a>
         <span class="text-slate-500 font-bold mx-4 text-xl">|</span>
         <form action="/pool/{{ current_pool.hashed_id }}/contests" method="post">
             <input type="hidden" name="back_to_pool" value="{{ current_pool.hashed_id }}">
@@ -39,6 +41,10 @@
     </span>
     {% endif %}
 </div>
+{% if current_contest.is_public %}
+<div class="h-px w-full bg-neutral-300 my-2"></div>
+{% endif %}
+
 {% endif %}
 <div class="flex flex-col">
     <form autocomplete="off" action="/pool/{{ current_pool.hashed_id }}/contest/{{ current_contest.id }}" method="post"
@@ -101,10 +107,10 @@
                         {% with problem = cp.problem %}
                         <li class="flex w-full gap-x-2">
                             <input type="text" name="problem_hash"
-                                value="{{ problem.hashed_id }}" placeholder="Хеш задачи" {% if current_contest.is_public %} readonly {% endif %}
+                                value="{{ problem.hashed_id }}" placeholder="Хеш задачи"
                                 class="input-problem-hash text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
                             <input type="number" name="max_score"
-                                value="{{ cp.max_score }}" placeholder="Балл" {% if current_contest.is_public %} readonly {% endif %}
+                                value="{{ cp.max_score }}" placeholder="Балл"
                                 min="1" max="999"
                                 class="input-max-score text-lg text-slate-800 border-slate-200 border rounded-lg px-2 py-2">
                                 <button onclick="DeleteProblem(this)"
@@ -134,6 +140,22 @@
                     <input type="datetime-local" name="end_date" class="w-80 px-4 py-2 border-slate-200 border-2 rounded-lg" value="{{ current_contest.end_date.isoformat() }}">
                     <span class="w-60">Время окончания (МСК)</span>
                 </div>
+                <label>
+                    <input type="checkbox" name="is_rating_public" {% if current_contest.is_rating_public() %} checked {% endif %}
+                    class="hidden" id="is-rating-public">
+                    <span class="text-lg">
+                        <span class="font-bold">Результаты проверки:</span>
+                        {% if current_contest.is_rating_public() %}
+                        <span class="text-green-600 cursor-pointer hover:underline" id="is-rating-public-span">
+                            видны всем пользователям
+                        </span>
+                        {% else %}
+                        <span class="text-slate-500 cursor-pointer hover:underline" id="is-rating-public-span">
+                            видны только жюри контеста
+                        </span>
+                        {% endif %}
+                    </span>
+                </label>
                 
                 <div class="flex flex-col gap-y-4">
                     <h3 class="text-black text-lg font-bold">Члены жюри:</h3>
@@ -183,6 +205,23 @@
         </div>
     </form>
 </div>
+
+<script>
+    var checkbox = document.getElementById("is-rating-public");
+    checkbox.addEventListener("change", function (event) {
+        var span = document.getElementById("is-rating-public-span");
+        if (this.checked) {
+            span.classList.remove("text-slate-500");
+            span.classList.add("text-green-600");
+            span.innerHTML = "видны всем пользователям";
+        }
+        else {
+            span.classList.remove("text-green-600");
+            span.classList.add("text-slate-500");
+            span.innerHTML = "видны только жюри контеста";
+        }
+    });
+</script>
 
 
 <script>
@@ -250,11 +289,11 @@
         var child = document.createElement("li");
         child.classList.add("flex", "w-full", "gap-x-2");
         child.innerHTML = `
-        <input type="text" name="problem_hash" value="" placeholder="Хеш задачи" {% if current_contest.is_public %} readonly {% endif %}
+        <input type="text" name="problem_hash" value="" placeholder="Хеш задачи"
         class="input-problem-hash text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
 
         <input type="number" name="max_score"
-        value="7" placeholder="Балл" {% if current_contest.is_public %} readonly {% endif %}
+        value="7" placeholder="Балл"
         min="1" max="999"
         class="input-max-score text-lg text-slate-800 border-slate-200 border rounded-lg px-2 py-2">
 

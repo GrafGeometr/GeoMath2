@@ -1,21 +1,37 @@
 {% extends "contest/contest_header.html" %}
 {% block contest_body %}
-<h1 class="text-xl flex justify-center items-center gap-x-2"><span>Решение пользователя</span>
-    <a href="/profile/{{ current_solution.contest_user.user.name }}"
-    class="no-underline hover:underline hover:text-blue-600 font-bold">{{ current_solution.contest_user.user.name }}</a>
-    <span>задачи</span>
+
+<style>
+    input::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+    }
+</style>
+
+<h1 class="text-xl flex justify-center items-center gap-x-2">
+    Задача <span class="font-bold">№{{ current_solution.contest_problem.contest.get_idx_by_contest_problem(current_solution.contest_problem) }}</span>
     <span class="text-slate-500">[</span>
-    <a href="/archive/problem/{{ current_solution.problem.hashed_id }}"
-    class="text-slate-500 hover:cursor-pointer hover:underline hover:text-slate-800 text-lg">{{ current_solution.problem.hashed_id }}</a>
+    <a href="/archive/problem/{{ current_solution.contest_problem.problem.hashed_id }}"
+    class="text-slate-500 hover:cursor-pointer hover:underline hover:text-slate-800 text-lg">{{ current_solution.contest_problem.problem.hashed_id }}</a>
     <span class="text-slate-500">]</span>
 </h1>
 
-<div class="h-px w-full bg-neutral-300 my-2"></div>
+<h1 class="text-xl flex justify-center items-center gap-x-2">
+    <span>Решение пользователя</span>
+    <a href="/profile/{{ current_solution.contest_user.user.name }}"
+    class="no-underline hover:underline hover:text-blue-600 font-bold">{{ current_solution.contest_user.user.name }}</a>
+</h1>
 
-<h1 class="text-2xl ml-4">
+
+
+<h1 class="text-2xl flex justify-center gap-x-2 mt-2">
     <span>Баллы:</span>
     {% with score=current_solution.score, max_score=current_solution.contest_problem.max_score %}
-        {% if score is not none %}
+        {% if (score is not none) and (current_solution.contest_problem.contest.is_rating_available()) %}
             {% if score >= 0.9*max_score %}
                 {% set bgcolor = 'text-green-500' %}
             {% elif score >= 0.70*max_score %}
@@ -37,19 +53,184 @@
     {% endwith %}
 </h1>
 
-<div class="w-1/2 p-4 border-slate-200 border-2 rounded-lg bg-white text-lg">
-    <div class="flex gap-x-2 items-center"><span class="font-bold">Тип участия:</span>
-        {% if current_solution.contest_user.virtual %}
-        <span>Виртуальное</span>
-        {% else %}
-        <span>Реальное</span>
+<div class="h-px w-full bg-neutral-300 my-2"></div>
+
+
+
+
+<div class="flex flex-col">
+    <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Решение участника:</h2>
+    <div class="flex w-full items-start">
+        <textarea id="solution_textarea" cols="50" name="solution" readonly class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">
+        {% if current_solution.content %}{{ current_solution.content }}{% endif %}
+        </textarea>
+    </div>
+
+    <script>
+        makeLaTeXArea("solution_textarea", "problem");
+    </script>
+
+    {% if current_solution.get_attachments() %}
+    <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Вложения:</h2>
+    <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
+        <div class="border-r-2 border-slate-300 w-1/3">
+            <div class="flex flex-col {% if current_solution.get_attachments() %} gap-y-4 {% endif %} mr-4">
+                <ul class="flex flex-col gap-y-2" id="files-list">
+                    {% for attachment in current_solution.get_attachments() %}
+                    <li class="flex w-full gap-x-2">
+                        <input type="text" name="attachment_name {{ attachment.db_filename }}" id="attachment-name-{{ attachment.db_filename }}"
+                            value="{{ attachment.short_name }}" placeholder="Как назвать картинку?" readonly
+                            class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="w-1/3 ml-4">
+            <img id="display-attachment" class="hidden border-2 border-sky-400 padding-8 rounded-xl">
+        </div>
+    </div>
+    {% endif %}
+
+    {% if current_contest.is_rating_available() %}
+    <form autocomplete="off" action="/contest/{{ current_solution.contest_problem.contest.id }}/solution/{{ current_solution.hashed_id }}" method="post"
+        class="w-full mt-2" enctype="multipart/form-data">
+        <input type="hidden" name="save_comment" value="239">
+        
+        {% if current_user.is_judge(current_solution.contest_problem.contest) %}
+        <div class="flex flex-row items-center mt-4 w-1/2">
+            
+            
+            <input type="submit" value="Сохранить результаты проверки"
+                class="hover:cursor-pointer px-8 py-2 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700 mr-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+            {% if category == "danger" %}
+            <div id="flash-message"
+                class="text-stone-800 text-semibold rounded text-lg text-center">
+                {{ message }}</div>
+            {% elif category == "warning" %}
+            <div id="flash-message"
+                class="text-stone-800 text-semibold rounded text-lg text-center">
+                {{ message }}</div>
+            {% elif category == "success" %}
+            <div id="flash-message"
+                class="text-stone-800 text-semibold rounded text-lg text-center">
+                {{ message }}</div>
+            {% endif %}
+            {% endfor %}
+            {% endwith %}
+        </div>
         {% endif %}
-    </div>
-    <div class="flex gap-x-2 items-center"><span class="font-bold">Старт (МСК):</span>
-        <span>{{ current_solution.contest_user.start_date.strftime("%d.%m.%Y %H:%M") }}</span>
-    </div>
-    <div class="flex gap-x-2 items-center"><span class="font-bold">Финиш (МСК):</span>
-        <span>{{ current_solution.contest_user.end_date.strftime("%d.%m.%Y %H:%M") }}</span>
+
+        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Комментарий жюри:</h2>
+        <div class="flex w-full items-start">
+            <textarea id="comment_textarea" cols="50" name="judge_comment"
+            class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{% if current_solution.judge_comment is not none %}{{ current_solution.judge_comment }}{% endif %}</textarea>
+        </div>
+
+        <script>
+            makeLaTeXArea("comment_textarea", "sheet");
+        </script>
+
+        {% if current_user.is_judge(current_solution.contest_problem.contest) %}
+        <div class="flex pl-2 items-center mt-4 gap-x-4">
+            <h2 class="text-slate-500 font-bold text-xl">Итоговый балл 0 до {{ current_solution.contest_problem.max_score }}:</h2>
+            <input type="number" name="score"
+            {% if current_solution.score is not none %} value="{{ current_solution.score }}" {% endif %}
+            min="0" max="{{ current_solution.contest_problem.max_score }}"
+            class="text-lg text-slate-800 border-black border-2 rounded-lg px-2 py-2 font-bold text-center">
+        </div>
+        {% endif %}
+
+        
+    </form>
+    {% endif %}
+    <div class="h-px w-full bg-neutral-300 my-4"></div>
+    <div class="w-1/2 p-4 border-slate-200 border-2 rounded-lg bg-white text-lg">
+        <div class="flex gap-x-2 items-center"><span class="font-bold">Тип участия:</span>
+            {% if current_solution.contest_user.virtual %}
+            <span>Виртуальное</span>
+            {% else %}
+            <span>Реальное</span>
+            {% endif %}
+        </div>
+        <div class="flex gap-x-2 items-center"><span class="font-bold">Старт (МСК):</span>
+            <span>{{ str_from_dt(current_solution.contest_user.start_date, "seconds") }}</span>
+        </div>
+        <div class="flex gap-x-2 items-center"><span class="font-bold">Финиш (МСК):</span>
+            <span>{{ str_from_dt(current_solution.contest_user.end_date, "seconds") }}</span>
+        </div>
     </div>
 </div>
+
+<script>
+    function BindAttachmentClick() {
+        var inputs = document.querySelectorAll(".input-attachment-name");
+        console.log(inputs);
+        var display = document.querySelector("#display-attachment");
+        display.onerror = () => {
+            console.log("error");
+            this.classList.add("hidden");
+            this.onerror = null;
+        }
+        
+        for (var i = 0; i < inputs.length; i++) {
+            inputs[i].addEventListener("focus", function (event) {
+                inputs.forEach((input) => {
+                    input.classList.remove("border-black", "bg-slate-100");
+                })
+                this.classList.add("border-black", "bg-slate-100");
+                var db_filename = this.id.split("attachment-name-")[1];
+                display.src = `/get_image/${ db_filename }`;
+                display.classList.remove("hidden");
+                display.classList.add("block");
+            })
+        }
+    }
+</script>
+
+
+
+<script>
+    const fade = (el, timeout=1000) => {
+        el.style.opacity = 1;
+        var timer = setTimeout(function() {
+            el.style.opacity = 0;
+        }, timeout)
+    };
+</script>
+
+
+<script>
+    function syncShowCode(id) {
+        var textarea = document.getElementById(id);
+        var container = textarea.parentElement;
+        var pre = textarea.nextElementSibling;
+        var output = pre.nextElementSibling;
+        textarea.style.display = "none";
+        pre.style.display = "none";
+    }
+</script>
+
+<script>
+    var flash_message = document.getElementById("flash-message");
+    if (flash_message) {
+        fade(flash_message, 3000);
+    }
+</script>
+
+
+<script>
+    syncShowCode("solution_textarea");
+    BindAttachmentClick();
+</script>
+
+{% if not current_user.is_judge(current_solution.contest_problem.contest) %}
+<script>
+    syncShowCode("comment_textarea");
+</script>
+{% endif %}
+
 {% endblock %}

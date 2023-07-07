@@ -16,4 +16,7 @@ import copy
 from PIL import Image
 
 from .utils_and_functions.token_gen import generate_token
-from .utils_and_functions.current_time import current_time
+from .utils_and_functions.current_time import current_time, dt_from_str, str_from_dt
+
+import locale
+locale.setlocale(locale.LC_TIME, "ru_RU")

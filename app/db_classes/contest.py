@@ -12,6 +12,7 @@ class Contest(db.Model):
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
     is_public = db.Column(db.Boolean, default=False)
+    rating = db.Column(db.String, default="public")
 
     # --> RELATIONS
     contest_problems = db.relationship("Contest_Problem", backref="contest")
@@ -20,6 +21,10 @@ class Contest(db.Model):
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
     # --> FUNCTIONS
+    def is_rating_public(self):
+        return self.rating == "public"
+    def is_rating_private(self):
+        return self.rating == "private"
     def is_archived(self):
         return self.is_public
 
@@ -38,7 +43,10 @@ class Contest(db.Model):
 
     def is_ended(self):
         return self.end_date <= current_time()
-
+    
+    def is_rating_available(self, user=current_user):
+        return (user.is_judge(self) or self.is_rating_public())
+    
     def is_problem_submitted(self, problem):
         from app.dbc import Contest_Problem, Contest_User_Solution
 
@@ -87,8 +95,12 @@ class Contest(db.Model):
             if cj is not None and cj.user is not None
         ]
 
+    def get_nonsecret_contest_problems(self):
+        return [cp for cp in self.contest_problems if cp.is_accessible()]
+
     def get_nonsecret_problems(self):
-        return [cp.problem for cp in self.contest_problems if cp.is_accessible()]
+        return [cp.problem for cp in self.get_nonsecret_contest_problems()]
+    
 
     def get_active_cu(self, user=current_user):
         from app.dbc import Contest_User
@@ -96,10 +108,52 @@ class Contest(db.Model):
         return Contest_User.get_active_by_contest_and_user(self, user)
 
     def get_idx_by_contest_problem(self, contest_problem):
-        cproblems = [cp for cp in self.contest_problems if cp.is_accessible()]
+        cproblems = self.get_nonsecret_contest_problems()
         if contest_problem not in cproblems:
             return None
         return cproblems.index(contest_problem) + 1
+    
+    def get_cu_by_mode_and_part(self, mode="all", part="real", user=current_user):
+        if mode not in ["all", "my"]:
+            return None
+        if part not in ["real", "virtual"]:
+            return None
+        all_cu = [cu for cu in self.contest_users if cu.is_any_cus_available(user)]
+        if mode == "my":
+           all_cu = [cu for cu in all_cu if cu.user.id == user.id]
+        if part == "real":
+            all_cu = [cu for cu in all_cu if (not cu.virtual)]
+        elif part == "virtual":
+            all_cu = [cu for cu in all_cu if (cu.virtual)]
+        return all_cu
+    
+    def get_rating_table(self, all_cu):
+        from app.dbc import Contest_User_Solution
+        t = []
+        all_cp = self.get_nonsecret_contest_problems()
+        for cu in all_cu:
+            tr = [None, None, None, None]
+            tr[0] = cu # Contest_User object
+            tr[1] = cu.get_total_score() # Total score
+            tr[2] = [] # List of (Contest_Problem, Contest_User_Solution)
+            tr[3] = -1 # User's place
+            for cp in all_cp:
+                cus = Contest_User_Solution.get_by_contest_problem_and_contest_user(cp, cu)
+                tr[2].append((cp, cus))
+            t.append(tr)
+        if self.is_rating_available():
+            t.sort(key=lambda x: x[1], reverse=True)
+        else:
+            t.sort(key=lambda x: x[0].user.name)
+        if len(t) == 0:
+            return t
+        t[0][3] = 1
+        for i in range(1, len(t)):
+            if (t[i][1] == t[i - 1][1]):
+                t[i][3] = t[i-1][3]
+            else:
+                t[i][3] = i + 1
+        return t
 
     def act_set_name(self, name):
         self.name = name
@@ -143,7 +197,7 @@ class Contest(db.Model):
         else:
             start = dt_from_str(start_date)
             end = dt_from_str(end_date)
-            if (start is None) or (end is None) or (start > end):
+            if (start is None) or (end is None) or (start > end) or (start < self.start_date) or (start < current_time()):
                 return
             Contest_User(
                 contest_id=self.id,
@@ -269,7 +323,26 @@ class Contest(db.Model):
         for cp in self.contest_problems:
             if cp.problem.hashed_id not in hashes:
                 cp.remove()
+    def act_set_rating_public(self):
+        if not self.is_my():
+            return
+        self.rating = "public"
+        db.session.commit()
         return self
+    
+    def act_set_rating_private(self):
+        if not self.is_my():
+            return
+        self.rating = "private"
+        db.session.commit()
+        return self
+    
+    def act_toggle_rating(self, mode):
+        if mode is None:
+            return self.act_set_rating_private()
+        else:
+            return self.act_set_rating_public()
+
 
     @staticmethod
     def get_by_id(id):
