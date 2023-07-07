@@ -179,15 +179,14 @@ class Contest(db.Model):
     def act_add_judge_by_name(self, name):
         from app.dbc import User
 
-        self.act_add_judge(User.get_by_name(name))
-        return self
+        return self.act_add_judge(User.get_by_name(name))
 
     def act_remove_judge(self, user):
         from app.dbc import Contest_Judge
 
         if user is None:
             return self
-        if not self.is_my(user):
+        if not self.is_my():
             return self
         cj = Contest_Judge.get_by_contest_and_user(self, user)
         if cj is not None:
