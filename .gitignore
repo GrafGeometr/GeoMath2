@@ -24,3 +24,9 @@ app/database/profile_pics
 app/static/js/generator.js
 app/static/js/html-generator.js
 app/static/js/latex.component.js
+migrations/alembic.ini
+migrations/env.py
+migrations/README
+migrations/script.py.mako
+migrations/versions/d5d3131cb36b_commit_message123.py
+migrations
