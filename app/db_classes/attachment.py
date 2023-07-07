@@ -51,6 +51,8 @@ class Attachment(db.Model):
     def is_secret(self):
         return self.other_data["is_secret"]
 
+    def is_from_parent(self, obj):
+        return self.parent_type == DbParent.fromType(type(obj)) and self.parent_id == obj.id
 
     def add(self):
         db.session.add(self)

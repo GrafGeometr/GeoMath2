@@ -26,21 +26,9 @@ class Sheet(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    def get_tags(self):
-        from app.dbc import Tag, Tag_Relation
+    
 
-        return sorted(
-            [
-                Tag.query.filter_by(id=sheet_tag.tag_id).first()
-                for sheet_tag in Tag_Relation.query.filter_by(
-                    parent_type=DbParent.fromType(type(self)), parent_id=self.id
-                ).all()
-            ],
-            key=lambda t: t.name.lower(),
-        )
-
-    def get_tag_names(self):
-        return list(map(lambda t: t.name, self.get_tags()))
+    
 
     def get_attachments(self):
         from app.dbc import Attachment
@@ -61,14 +49,7 @@ class Sheet(db.Model):
             return True
         return False
 
-    def is_have_tag(self, tag):
-        if tag is None:
-            return False
-        from app.dbc import Tag_Relation
-
-        if Tag_Relation.get_by_parent_and_tag(self, tag) is None:
-            return False
-        return True
+    
 
     def get_nonsecret_attachments(self):
         result = []
@@ -106,6 +87,39 @@ class Sheet(db.Model):
         db.session.commit()
         return self
 
+    
+
+    def save(self):
+        db.session.commit()
+        return self
+
+    # TAGS BLOCK
+
+    def get_tags(self):
+        from app.dbc import Tag, Tag_Relation
+
+        return sorted(
+            [
+                Tag.query.filter_by(id=sheet_tag.tag_id).first()
+                for sheet_tag in Tag_Relation.query.filter_by(
+                    parent_type=DbParent.fromType(type(self)), parent_id=self.id
+                ).all()
+            ],
+            key=lambda t: t.name.lower(),
+        )
+    
+    def get_tag_names(self):
+        return list(map(lambda t: t.name, self.get_tags()))
+    
+    def is_have_tag(self, tag):
+        if tag is None:
+            return False
+        from app.dbc import Tag_Relation
+
+        if Tag_Relation.get_by_parent_and_tag(self, tag) is None:
+            return False
+        return True
+    
     def act_add_tag(self, tag):
         from app.dbc import Tag_Relation
 
@@ -122,8 +136,10 @@ class Sheet(db.Model):
 
     def act_add_tag_by_name(self, tag_name):
         from app.dbc import Tag
-
-        return self.act_add_tag(Tag.get_by_name(tag_name))
+        tag = Tag.get_by_name(tag_name)
+        if tag is None:
+            tag = Tag(name=tag_name).add()
+        return self.act_add_tag(tag)
 
     def act_remove_tag(self, tag):
         from app.dbc import Tag_Relation
@@ -142,13 +158,60 @@ class Sheet(db.Model):
 
         return self.act_remove_tag(Tag.get_by_name(tag_name))
 
-    def act_set_atgs(self, names):
+    def act_set_tags(self, names):
         for tag in self.get_tags():
             self.act_remove_tag(tag)
         for name in names:
             self.act_add_tag_by_name(name)
         return self
+    
+    # ATTACHMENTS BLOCK
 
-    def save(self):
-        db.session.commit()
+    def get_attachments(self):
+        from app.dbc import Attachment
+        return Attachment.get_all_by_parent(self)
+
+    def get_nonsecret_attachments(self):
+        result = []
+        for attachment in self.get_attachments():
+            if not attachment.is_secret():
+                if self.is_statement_available():
+                    result.append(attachment)
+            if attachment.is_secret():
+                if self.is_solution_available():
+                    result.append(attachment)
+        return result
+    
+    def is_attachment(self, attachment):
+        if attachment is None:
+            return False
+        return attachment.parent_type == DbParent.fromType(type(self)) and attachment.parent_id == self.id
+    
+    def act_add_attachment(self, attachment):
+        attachment.parent_type = DbParent.fromType(type(self))
+        attachment.parent_id = self.id
+        return self.save()
+    
+    def act_add_attachment_by_db_filename(self, db_filename):
+        if db_filename is None:
+            return self
+        from app.dbc import Attachment
+        return self.act_add_attachment(Attachment.get_by_db_filename(db_filename))
+    
+    def act_remove_attachment(self, attachment):
+        attachment.parent_type = None
+        attachment.parent_id = None
+        return self.save()
+    
+    def act_remove_attachment_by_db_filename(self, db_filename):
+        if db_filename is None:
+            return self
+        from app.dbc import Attachment
+        return self.act_remove_attachment(Attachment.get_by_db_filename(db_filename))
+    
+    def act_set_attachments(self, names):
+        for attachment in self.get_attachments():
+            self.act_remove_attachment(attachment)
+        for name in names:
+            self.act_add_attachment_by_db_filename(name)
         return self

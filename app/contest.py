@@ -103,7 +103,7 @@ def upload_file_to_cus(contest_id, problem_hashed_id):
         db_folder=directory,
         db_filename=filename,
         short_name="Рисунок",
-        parent_type="Contest_User_Solution",
+        parent_type=DbParent.fromType(type(cus)),
         parent_id=cus.id,
         other_data={}
     )

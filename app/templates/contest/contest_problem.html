@@ -6,7 +6,6 @@
         elems[i].classList.remove("border-black");
         elems[i].classList.add("border-slate-400");
     }
-    console.log(elems);
     var element = document.getElementById("problem_href-{{current_cp.problem.hashed_id}}");
     element.classList.remove("border-slate-400");
     element.classList.add("border-black");
@@ -18,19 +17,25 @@
             <h2 class="text-slate-500 font-bold text-xl">Максимальный балл: <span class="text-black">{{ current_cp.max_score }}</span></h2>
             <div class="h-px w-full bg-neutral-300 my-2"></div>
             <div class="flex w-full items-start">
-                <textarea id="statement_textarea" cols="50" name="statement"
-                class="w-1/2 p-4">{{ current_cp.problem.statement }}</textarea>
+                <textarea id="statement" class="hidden">{{ current_cp.problem.statement }}</textarea>
+                <div class="text-lg p-4 bg-white border-slate-200 w-full" id="statement-latex-output">
+
+                </div>
             </div>
             <script>
-                makeLaTeXArea("statement_textarea", "problem");
-                var textarea = document.getElementById("statement_textarea");
-                var container = textarea.parentElement;
-                var pre = textarea.nextElementSibling;
-                var output = pre.nextElementSibling;
-                textarea.style.display = "none";
-                pre.style.display = "none";
-                output.classList.remove("w-1/2", "border-2", "border-solid", "rounded-lg");
-                output.classList.add("w-full");
+                var elem = document.getElementById("statement-latex-output");
+                renderAreas["statement"] = () => {
+                    elem.innerHTML = "";
+                    imageNameList = [];
+                    {% for attachment in current_cp.problem.get_nonsecret_attachments() %}
+                    imageNameList.push([ {{attachment.db_filename | tojson}}, {{attachment.short_name | tojson}} ]);
+                    {% endfor %}
+                    elem.appendChild(getRenderedIframe({{ current_cp.problem.statement | tojson }}, inputElementId="statement"));
+                };
+
+                renderAreas["statement"]();
+                
+
             </script>
         </div>
     </div>
@@ -111,10 +116,10 @@
 <script>
     function BindAttachmentClick() {
         var inputs = document.querySelectorAll(".input-attachment-name");
-        console.log(inputs);
+        // console.log(inputs);
         var display = document.querySelector("#display-attachment");
         display.onerror = () => {
-            console.log("error");
+            // console.log("error");
             this.classList.add("hidden");
             this.onerror = null;
         }

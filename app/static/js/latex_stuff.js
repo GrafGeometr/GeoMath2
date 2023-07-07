@@ -44,7 +44,6 @@ function check_tab(element, event) {
 }
 
 function makeLaTeXArea(elementId, editorType="problem") {
-    console.log(editorType);
     const element = document.getElementById(elementId);
 
     // highlighting
@@ -177,6 +176,7 @@ function makeLaTeXArea(elementId, editorType="problem") {
 
 
 const getGenerator = (inputElementId = null, editorType = 'problem') => {
+    console.log(inputElementId);
     const generator = new latexjs.HtmlGenerator({
         CustomMacros: (function () {
             var args = CustomMacros.args = {},
@@ -253,8 +253,6 @@ const getGenerator = (inputElementId = null, editorType = 'problem') => {
                     if (!parts) parts = "";
                     parts = parts.split(/\s+/);
                     parts = parts.map(p => p.trim()).filter(p => p.length > 0);
-                    console.log("problem_hashed_id: ", problem_hashed_id);
-                    console.log("parts: ", parts);
 
                     if (!(problem_hashed_id in problemList)){
                         const href = `${window.location.origin}/get_problem_content/${problem_hashed_id}`;
@@ -297,6 +295,7 @@ const getGenerator = (inputElementId = null, editorType = 'problem') => {
 }
 
 function getRenderedIframe(text, inputElementId = null, editorType = 'problem') {
+    console.log(inputElementId);
     var generator = getGenerator(inputElementId, editorType);
 
     generator = latexjs.parse(text, { generator: generator });
@@ -371,6 +370,7 @@ setInterval(checkReRender, 500);
 
 var imageNameList = [];
 
+
 function manageAttachments() {
     imageNameList = [];
 
@@ -424,7 +424,6 @@ function renderProblem(additional, json, args, mode = "inplace", inputElementId 
         if (args.includes('solution')) toRender += `\n\n${json['solution']}`;
         if (args.includes('tags')) toRender += `\n\n${json['tags'].map(t => `\\footnotesize{\\textit{ \\# ${t} }}`).join('\n')}`;
         toRender = toRender.replace('#', '\\#');
-        console.log(toRender);
 
         var oldImageNameList = imageNameList;
         imageNameList = [];

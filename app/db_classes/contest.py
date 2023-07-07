@@ -61,18 +61,6 @@ class Contest(db.Model):
         cus = Contest_User_Solution.get_by_contest_problem_and_contest_user(cp, cu)
         return (cus is not None) and (cus.content is not None)
 
-    def get_tags(self):
-        from app.dbc import Tag, Tag_Relation
-
-        return sorted(
-            [
-                Tag.get_by_id(contest_tag.tag_id)
-                for contest_tag in Tag_Relation.get_all_by_parent(self)
-            ],
-        )
-
-    def get_tag_names(self):
-        return list(map(lambda t: t.name.lower(), self.get_tags()))
 
     def get_problems(self):
         from app.dbc import Problem, Contest_Problem
@@ -377,3 +365,76 @@ class Contest(db.Model):
     def save(self):
         db.session.commit()
         return self
+
+    # TAGS BLOCK
+
+    def get_tags(self):
+        from app.dbc import Tag, Tag_Relation
+
+        return sorted(
+            [
+                Tag.query.filter_by(id=sheet_tag.tag_id).first()
+                for sheet_tag in Tag_Relation.query.filter_by(
+                    parent_type=DbParent.fromType(type(self)), parent_id=self.id
+                ).all()
+            ],
+            key=lambda t: t.name.lower(),
+        )
+    
+    def get_tag_names(self):
+        return list(map(lambda t: t.name, self.get_tags()))
+    
+    def is_have_tag(self, tag):
+        if tag is None:
+            return False
+        from app.dbc import Tag_Relation
+
+        if Tag_Relation.get_by_parent_and_tag(self, tag) is None:
+            return False
+        return True
+    
+    def act_add_tag(self, tag):
+        from app.dbc import Tag_Relation
+
+        if tag is None:
+            return self
+        if not self.is_my():
+            return self
+        if self.is_have_tag(tag):
+            return self
+        Tag_Relation(
+            parent_type=DbParent.fromType(type(self)), parent_id=self.id, tag_id=tag.id
+        ).add()
+        return self
+
+    def act_add_tag_by_name(self, tag_name):
+        from app.dbc import Tag
+        tag = Tag.get_by_name(tag_name)
+        if tag is None:
+            tag = Tag(name=tag_name).add()
+        return self.act_add_tag(tag)
+
+    def act_remove_tag(self, tag):
+        from app.dbc import Tag_Relation
+
+        if tag is None:
+            return self
+        if not self.is_my():
+            return self
+        rel = Tag_Relation.get_by_parent_and_tag(self, tag)
+        if rel is not None:
+            rel.remove()
+        return self
+
+    def act_remove_tag_by_name(self, tag_name):
+        from app.dbc import Tag
+
+        return self.act_remove_tag(Tag.get_by_name(tag_name))
+
+    def act_set_tags(self, names):
+        for tag in self.get_tags():
+            self.act_remove_tag(tag)
+        for name in names:
+            self.act_add_tag_by_name(name)
+        return self
+    

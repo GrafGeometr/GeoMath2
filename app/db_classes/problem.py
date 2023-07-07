@@ -70,22 +70,6 @@ class Problem(db.Model):
             return None
         return Problem.query.filter_by(hashed_id=hashed_id).first()
 
-    def get_tags(self):
-        from app.dbc import Tag, Tag_Relation
-        return sorted(
-            [
-                Tag.get_by_id(problem_tag.tag_id)
-                for problem_tag in Tag_Relation.get_all_by_parent(self) if problem_tag is not None
-            ],
-            key=lambda t: t.name.lower(),
-        )
-
-    def get_tag_names(self):
-        return list(map(lambda t: t.name.lower(), self.get_tags()))
-
-    def get_attachments(self):
-        from app.dbc import Attachment
-        return Attachment.get_all_by_parent(self)
 
     def is_archived(self):
         return self.is_public
@@ -146,6 +130,103 @@ class Problem(db.Model):
         from app.dbc import Contest_Problem
         return Contest_Problem.get_by_contest_and_problem(contest, self) is not None
 
+    
+
+    @staticmethod
+    def get_by_id(id):
+        if id is None:
+            return None
+        return Problem.query.filter_by(id=id).first()
+    
+    
+    @staticmethod
+    def get_all_by_pool(pool):
+        if pool is None:
+            return []
+        return Problem.query.filter_by(pool_id=pool.id).all()
+
+    def save(self):
+        db.session.commit()
+        return self
+    
+    # TAGS BLOCK
+    
+    def get_tags(self):
+        from app.dbc import Tag, Tag_Relation
+
+        return sorted(
+            [
+                Tag.query.filter_by(id=sheet_tag.tag_id).first()
+                for sheet_tag in Tag_Relation.query.filter_by(
+                    parent_type=DbParent.fromType(type(self)), parent_id=self.id
+                ).all()
+            ],
+            key=lambda t: t.name.lower(),
+        )
+    
+    def get_tag_names(self):
+        return list(map(lambda t: t.name, self.get_tags()))
+    
+    def is_have_tag(self, tag):
+        if tag is None:
+            return False
+        from app.dbc import Tag_Relation
+
+        if Tag_Relation.get_by_parent_and_tag(self, tag) is None:
+            return False
+        return True
+    
+    def act_add_tag(self, tag):
+        from app.dbc import Tag_Relation
+
+        if tag is None:
+            return self
+        if not self.is_my():
+            return self
+        if self.is_have_tag(tag):
+            return self
+        Tag_Relation(
+            parent_type=DbParent.fromType(type(self)), parent_id=self.id, tag_id=tag.id
+        ).add()
+        return self
+
+    def act_add_tag_by_name(self, tag_name):
+        from app.dbc import Tag
+        tag = Tag.get_by_name(tag_name)
+        if tag is None:
+            tag = Tag(name=tag_name).add()
+        return self.act_add_tag(tag)
+
+    def act_remove_tag(self, tag):
+        from app.dbc import Tag_Relation
+
+        if tag is None:
+            return self
+        if not self.is_my():
+            return self
+        rel = Tag_Relation.get_by_parent_and_tag(self, tag)
+        if rel is not None:
+            rel.remove()
+        return self
+
+    def act_remove_tag_by_name(self, tag_name):
+        from app.dbc import Tag
+
+        return self.act_remove_tag(Tag.get_by_name(tag_name))
+
+    def act_set_tags(self, names):
+        for tag in self.get_tags():
+            self.act_remove_tag(tag)
+        for name in names:
+            self.act_add_tag_by_name(name)
+        return self
+
+    # ATTACHMENTS BLOCK
+
+    def get_attachments(self):
+        from app.dbc import Attachment
+        return Attachment.get_all_by_parent(self)
+
     def get_nonsecret_attachments(self):
         result = []
         for attachment in self.get_attachments():
@@ -156,25 +237,37 @@ class Problem(db.Model):
                 if self.is_solution_available():
                     result.append(attachment)
         return result
-
-    @staticmethod
-    def get_by_id(id):
-        if id is None:
-            return None
-        return Problem.query.filter_by(id=id).first()
     
-    @staticmethod
-    def get_by_hashed_id(hashed_id):
-        if hashed_id is None:
-            return None
-        return Problem.query.filter_by(hashed_id=hashed_id).first()
+    def is_attachment(self, attachment):
+        if attachment is None:
+            return False
+        return attachment.parent_type == DbParent.fromType(type(self)) and attachment.parent_id == self.id
     
-    @staticmethod
-    def get_all_by_pool(pool):
-        if pool is None:
-            return []
-        return Problem.query.filter_by(pool_id=pool.id).all()
-
-    def save(self):
-        db.session.commit()
+    def act_add_attachment(self, attachment):
+        attachment.parent_type = DbParent.fromType(type(self))
+        attachment.parent_id = self.id
+        return self.save()
+    
+    def act_add_attachment_by_db_filename(self, db_filename):
+        if db_filename is None:
+            return self
+        from app.dbc import Attachment
+        return self.act_add_attachment(Attachment.get_by_db_filename(db_filename))
+    
+    def act_remove_attachment(self, attachment):
+        attachment.parent_type = None
+        attachment.parent_id = None
+        return self.save()
+    
+    def act_remove_attachment_by_db_filename(self, db_filename):
+        if db_filename is None:
+            return self
+        from app.dbc import Attachment
+        return self.act_remove_attachment(Attachment.get_by_db_filename(db_filename))
+    
+    def act_set_attachments(self, names):
+        for attachment in self.get_attachments():
+            self.act_remove_attachment(attachment)
+        for name in names:
+            self.act_add_attachment_by_db_filename(name)
         return self

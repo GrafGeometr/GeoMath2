@@ -14,8 +14,8 @@ def show_problem_attachment(problem_hashed_id, filename):
     if problem is None:
         print("problem none")
         return
-    attachment = Attachment.query.filter_by(parent_type="Problem", parent_id = problem.id, db_filename = filename).first()
-    if attachment is None:
+    attachment = Attachment.get_by_db_filename(filename)
+    if not attachment.is_from_parent(problem):
         print("attachment none")
         return
     if attachment.locked:

@@ -88,10 +88,6 @@ class Contest_User_Solution(db.Model):
             return None
         return Contest_User_Solution.query.filter_by(hashed_id=hashed_id).first()
 
-
-    def get_attachments(self):
-        from app.dbc import Attachment
-        return Attachment.query.filter_by(parent_type="Contest_User_Solution", parent_id=self.id).all()
     
     @staticmethod
     def get_by_contest_problem_and_contest_user(contest_problem, contest_user):
@@ -101,4 +97,55 @@ class Contest_User_Solution(db.Model):
     
     def save(self):
         db.session.commit()
+        return self
+    
+    # ATTACHMENTS BLOCK
+
+    def get_attachments(self):
+        from app.dbc import Attachment
+        return Attachment.get_all_by_parent(self)
+
+    def get_nonsecret_attachments(self):
+        result = []
+        for attachment in self.get_attachments():
+            if not attachment.is_secret():
+                if self.is_statement_available():
+                    result.append(attachment)
+            if attachment.is_secret():
+                if self.is_solution_available():
+                    result.append(attachment)
+        return result
+    
+    def is_attachment(self, attachment):
+        if attachment is None:
+            return False
+        return attachment.parent_type == DbParent.fromType(type(self)) and attachment.parent_id == self.id
+    
+    def act_add_attachment(self, attachment):
+        attachment.parent_type = DbParent.fromType(type(self))
+        attachment.parent_id = self.id
+        return self.save()
+    
+    def act_add_attachment_by_db_filename(self, db_filename):
+        if db_filename is None:
+            return self
+        from app.dbc import Attachment
+        return self.act_add_attachment(Attachment.get_by_db_filename(db_filename))
+    
+    def act_remove_attachment(self, attachment):
+        attachment.parent_type = None
+        attachment.parent_id = None
+        return self.save()
+    
+    def act_remove_attachment_by_db_filename(self, db_filename):
+        if db_filename is None:
+            return self
+        from app.dbc import Attachment
+        return self.act_remove_attachment(Attachment.get_by_db_filename(db_filename))
+    
+    def act_set_attachments(self, names):
+        for attachment in self.get_attachments():
+            self.act_remove_attachment(attachment)
+        for name in names:
+            self.act_add_attachment_by_db_filename(name)
         return self

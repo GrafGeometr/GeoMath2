@@ -33,6 +33,15 @@ class Tag(db.Model):
         db.session.commit()
         return self
 
+
+    def add(self):
+        db.session.add(self)
+        db.session.commit()
+        return self
+    
+    def remove(self):
+        raise NotImplementedError("Emplement remove tag")
+
     def save(self):
         db.session.commit()
         return self

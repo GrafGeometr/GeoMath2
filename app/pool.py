@@ -211,24 +211,13 @@ def problem(pool_hashed_id, problem_hashed_id):
             form = request.form.to_dict()
             print(form)
 
+            new_tags_names = []
             for key, value in form.items():
                 if key[:4] == "tag ":
-                    print(key, value)
-                    tag = Tag.query.filter_by(name=value).first()
-                    print(1)
-                    if tag is None:
-                        tag = Tag(name=value)
-                        db.session.add(tag)
-                        db.session.commit()
-                    if (Tag_Relation.query.filter_by(parent_type="Problem", parent_id=problem.id, tag_id=tag.id).first() is None):
-                        tag_relation = Tag_Relation(parent_type="Problem", parent_id=problem.id, tag_id=tag.id)
-                        db.session.add(tag_relation)
-                        db.session.commit()
+                    new_tags_names.append(value)
+            
+            problem.act_set_tags(new_tags_names)
 
-            for tag in problem.get_tags():
-                if form.get(f"tag {tag.name}", None) is None:
-                    db.session.delete(Tag_Relation.query.filter_by(parent_type="Problem", parent_id=problem.id, tag_id=tag.id).first())
-                    db.session.commit()
 
             for attachment in problem.get_attachments():
                 print(attachment.db_filename)
@@ -264,7 +253,7 @@ import json
 
 # get problem content
 @pool.route("/get_problem_content/<problem_hashed_id>", methods=["GET", "POST"])
-def get_problem_content(problem_hashed_id):
+def get_problem_content(problem_hashed_id): # TODO fix access
     print(problem_hashed_id)
     problem = Problem.query.filter_by(hashed_id=problem_hashed_id).first()
     if problem is None:
@@ -272,12 +261,12 @@ def get_problem_content(problem_hashed_id):
         return
     
     # if problem is archived
-    if problem.is_public and problem.moderated:
+    if problem.is_archived():
         return json.dumps(
             { 'name': problem.name
             , 'statement': problem.statement
-            , 'solution': problem.solution if problem.show_solution else "Решение скрыто"
-            , 'files': [[file.preview_name, file.db_filename] for file in problem.get_attachments() if file.other_data.get("is_secret", False)]
+            , 'solution': problem.solution if problem.is_solution_available() else "Решение скрыто"
+            , 'files': [[file.preview_name, file.db_filename] for file in problem.get_nonsecret_attachments() if file.other_data.get("is_secret", False)]
             , 'tags': [tag.name for tag in problem.get_tags()]
             }
         )
@@ -294,7 +283,7 @@ def get_problem_content(problem_hashed_id):
         { 'name': problem.name
         , 'statement': problem.statement
         , 'solution': problem.solution
-        , 'files': [[file.short_name, file.db_filename] for file in problem.get_attachments()]
+        , 'files': [[file.short_name, file.db_filename] for file in problem.get_nonsecret_attachments()]
         , 'tags': [tag.name for tag in problem.get_tags()]
         }
     )
@@ -317,7 +306,7 @@ def get_image(db_filename):
         return
     pt = attachment.parent_type
     try:
-        if pt == "Problem":
+        if pt.name == "Problem":
             flag = None
             if not attachment.other_data["is_secret"]:
                 flag = par.is_statement_available()
@@ -330,7 +319,7 @@ def get_image(db_filename):
                     as_attachment=True,
                 )
             
-        if pt == "Sheet":
+        if pt.name == "Sheet":
             flag = par.is_text_available()
             if (flag):
                 return send_from_directory(
@@ -339,7 +328,7 @@ def get_image(db_filename):
                     as_attachment=True,
                 )
             
-        if pt == "Contest_User_Solution":
+        if pt.name == "Contest_User_Solution":
             flag = par.is_available()
             if (flag):
                 return send_from_directory(
@@ -375,10 +364,8 @@ def show_problem_attachment(pool_hashed_id, problem_hashed_id, filename):
     if problem is None:
         print("problem none")
         return
-    attachment = Attachment.query.filter_by(
-        parent_type="problem", parent_id=problem.id, db_filename=filename
-    ).first()
-    if attachment is None:
+    attachment = Attachment.get_by_db_filename(filename)
+    if not attachment.is_from_parent(problem):
         print("attachment none")
         return
     try:
@@ -518,24 +505,12 @@ def sheet(pool_hashed_id, sheet_id):
             form = request.form.to_dict()
             print(form)
 
+            new_tags_names = []
             for key, value in form.items():
                 if key[:4] == "tag ":
-                    print(key, value)
-                    tag = Tag.query.filter_by(name=value).first()
-                    print(1)
-                    if tag is None:
-                        tag = Tag(name=value)
-                        db.session.add(tag)
-                        db.session.commit()
-                    if (Tag_Relation.query.filter_by(parent_type="Sheet", parent_id=sheet.id, tag_id=tag.id).first() is None):
-                        tag_relation = Tag_Relation(parent_type="Sheet", parent_id=sheet.id, tag_id=tag.id)
-                        db.session.add(tag_relation)
-                        db.session.commit()
-
-            for tag in sheet.get_tags():
-                if form.get(f"tag {tag.name}", None) is None:
-                    db.session.delete(Tag_Relation.query.filter_by(parent_type="Sheet", parent_id=sheet.id, tag_id=tag.id).first())
-                    db.session.commit()
+                    new_tags_names.append(value)
+            
+            sheet.act_set_tags(new_tags_names)
 
             for attachment in sheet.get_attachments():
                 print(attachment.db_filename)
@@ -605,7 +580,7 @@ def upload_file_to_sheet(pool_hashed_id, sheet_id):
             db_folder=directory,
             db_filename=filename,
             short_name="Рисунок",
-            parent_type="Sheet",
+            parent_type=DbParent.fromType(type(sheet)),
             parent_id=sheet.id,
             other_data={}
         )
@@ -718,23 +693,12 @@ def contest(pool_hashed_id, contest_id):
             form = request.form.to_dict()
             print(form)
 
+            new_tags_names = []
             for key, value in form.items():
-                if len(key) >= 4 and key[:4] == "tag ":
-                    print(key, value)
-                    tag = Tag.query.filter_by(name=value).first()
-                    print(1)
-                    if tag is None:
-                        tag = Tag(name=value)
-                        db.session.add(tag)
-                        db.session.commit()
-                    if (Tag_Relation.query.filter_by(parent_type="Contest", parent_id=contest.id, tag_id=tag.id).first() is None):
-                        tag_relation = Tag_Relation(parent_type="Contest", parent_id=contest.id, tag_id=tag.id)
-                        db.session.add(tag_relation)
-                        db.session.commit()
-            for tag in contest.get_tags():
-                if form.get(f"tag {tag.name}", None) is None:
-                    db.session.delete(Tag_Relation.query.filter_by(parent_type="Contest", parent_id=contest.id, tag_id=tag.id).first())
-                    db.session.commit()
+                if key[:4] == "tag ":
+                    new_tags_names.append(value)
+            
+            contest.act_set_tags(new_tags_names)
 
             hashes = request.form.getlist("problem_hash")
             scores = request.form.getlist("max_score")

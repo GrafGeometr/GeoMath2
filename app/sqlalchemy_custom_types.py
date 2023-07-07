@@ -72,7 +72,7 @@ class DbParent:
         )
 
 class DbParentType(TypeDecorator):
-    # cache_ok = False
+    cache_ok = False
 
     impl = String
 
