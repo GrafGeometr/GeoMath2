@@ -10,6 +10,7 @@
     <div id="contest-state-div" class="flex gap-x-2 items-center"><span class="font-bold">Состояние:</span><span id="contest-state-span"></span></div>
     <div id="timer-div" class="flex gap-x-2 items-center"><span class="font-bold" id="timer-span-text"></span><span id='timer-span-clock'></span></div>
 
+    {% if current_contest.is_archived() %}
     <br>
     {% with cu = current_contest.get_active_cu(current_user) %}
     {% if cu %}
@@ -57,6 +58,9 @@
     </div>
     {% endif %}
     {% endwith %}
+    {% else %}
+    <div class="flex gap-x-2 items-center"><span class="font-bold">Контест не опубликован, регистрация невозможна</span></div>
+    {% endif %}
 </div>
 
 <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Описание:</h2>
