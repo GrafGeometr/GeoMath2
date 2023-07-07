@@ -44,3 +44,45 @@ pre::-webkit-scrollbar {
     color: white;
     background: #333;
 }
+
+.table1 {
+    text-align: center;
+    border-collapse: separate;
+}
+
+.table1 tr:first-child {
+    background-color: rgb(229, 229, 229);
+}
+
+.table1 tr:first-child th, .table1 tr:first-child td {
+    border-top-width: 1px;
+    border-color: black;
+}
+
+.table1 tr th:first-child, .table1 tr td:first-child {
+    border-left-width: 1px;
+    border-color: black;
+}
+
+.table1 tr th, .table1 tr td {
+    border-bottom-width: 1px;
+    border-right-width: 1px;
+    border-color: black;
+    padding: 0.5rem 1rem;
+}
+
+.table1 tr:first-child th:first-child, .table1 tr:first-child td:first-child {
+    border-top-left-radius: 0.5rem;
+}
+
+.table1 tr:first-child th:last-child, .table1 tr:first-child td:last-child {
+    border-top-right-radius: 0.5rem;
+}
+
+.table1 tr:last-child th:first-child, .table1 tr:last-child td:first-child {
+    border-bottom-left-radius: 0.5rem;
+}
+
+.table1 tr:last-child th:last-child, .table1 tr:last-child td:last-child {
+    border-bottom-right-radius: 0.5rem;
+}

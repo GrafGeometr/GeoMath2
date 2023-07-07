@@ -1,31 +1,33 @@
 {% if current_pool.problems %}
 
-<table class="text-center border-separate" cellpadding="0" cellspacing="0">
-    <tr class="bg-neutral-200">
-        <th class="rounded-tl-lg border-l border-r border-b border-t border-black px-4 py-2">Название</th>
-        <th class="border-r border-b border-t  border-black px-4 py-2">Хеш</th>
-        <th class="border-r border-b border-t  border-black px-4 py-2">Тип доступа</th>
-        <th class="rounded-tr-lg border-r border-b border-t  border-black px-4 py-2"></th>
+<table class="table1" cellpadding="0" cellspacing="0">
+    <tr>
+        <th>Название</th>
+        <th>Хеш</th>
+        <th>Тип доступа</th>
+        <th></th>
     </tr>
     {% for problem in current_pool.problems %}
-    <tr class="group">
-        <td class="group-last:rounded-bl-lg border-l border-r border-b  border-black hover:underline">
+    <tr>
+        <td class="hover:underline">
             <a href="/pool/{{ current_pool.hashed_id }}/problem/{{ problem.hashed_id }}"
-            class="block px-4 py-2">{{ problem.name }}</a>
+            class="block">{{ problem.name }}</a>
         </td>
-        <td class="border-r border-b border-black">
+        <td>
             <span id="copy_hash_span-{{ problem.id }}"
-                class="mx-2 text-slate-500 px-4 py-2">{{
+                class="text-slate-500">{{
                 problem.hashed_id }}</span>
         </td>
-        <td class="border-r border-b border-black">
-            {% if problem.is_archived() %}
-            <span class="block bg-green-200 px-4 py-2">В архиве</span>
-            {% else %}
-            <span class="block bg-slate-200 px-4 py-2">Скрытая</span>
-            {% endif %}
+        {% if problem.is_archived() %}
+        <td class="bg-green-200">
+            <span class="block">В архиве</span>
         </td>
-        <td class="group-last:rounded-br-lg p-2 border-r border-b  border-black">
+        {% else %}
+        <td class="bg-slate-200">
+            <span class="block">Скрытая</span>
+        </td>
+        {% endif %}
+        <td>
             <button class="border-0 bg-transparent cursor-pointer block"
             onclick="remove_problem('{{ current_pool.hashed_id }}', '{{ problem.hashed_id }}')"><img
                 class="w-6 border-0" src="/static/images/bin.png" alt="bin"></button>

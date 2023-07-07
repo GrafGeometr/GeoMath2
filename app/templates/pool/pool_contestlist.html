@@ -1,25 +1,27 @@
 {% if current_pool.contests %}
-<table class="text-center border-separate" cellpadding="0" cellspacing="0">
-    <tr class="bg-neutral-200">
-        <th class="rounded-tl-lg border-l border-r border-b border-t border-black px-4 py-2">Название</th>
-        <th class="border-r border-b border-t  border-black px-4 py-2">Тип доступа</th>
-        <th class="border-r border-b border-t  border-black px-4 py-2">Состояние</th>
-        <th class="rounded-tr-lg border-r border-b border-t  border-black px-4 py-2"></th>
+<table class="table1" cellpadding="0" cellspacing="0">
+    <tr>
+        <th>Название</th>
+        <th>Тип доступа</th>
+        <th>Состояние</th>
+        <th></th>
     </tr>
     {% for contest in current_pool.contests %}
-    <tr class="group">
-        <td class="group-last:rounded-bl-lg border-l border-r border-b  border-black hover:underline">
+    <tr>
+        <td class="hover:underline">
             <a href="/pool/{{ current_pool.hashed_id }}/contest/{{ contest.id }}"
-            class="block px-4 py-2">{{ contest.name }}</a>
+            class="block">{{ contest.name }}</a>
         </td>
-        <td class="border-r border-b border-black">
-            {% if contest.is_archived() %}
-            <span class="block bg-green-200 px-4 py-2">В архиве</span>
-            {% else %}
-            <span class="block bg-slate-200 px-4 py-2">Скрытая</span>
-            {% endif %}
+        {% if contest.is_archived() %}
+        <td class="bg-green-200">
+            <span class="block">В архиве</span>
         </td>
-        <td class="border-r border-b border-black">
+        {% else %}
+        <td class="bg-slate-200">
+            <span class="block">Скрытый</span>
+        </td>
+        {% endif %}
+        <td>
             {% if contest.is_ended() %}
             <span>Завершён</span>
             {% elif contest.is_started() %}
@@ -28,7 +30,7 @@
             <span>Не начался</span>
             {% endif %}
         </td>
-        <td class="group-last:rounded-br-lg p-2 border-r border-b  border-black">
+        <td>
             <button class="border-0 bg-transparent cursor-pointer block"
             onclick="remove_contest('{{ current_pool.hashed_id }}', '{{ contest.id }}')"><img
                 class="w-6 border-0" src="/static/images/bin.png" alt="bin"></button>
