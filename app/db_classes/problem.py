@@ -139,6 +139,9 @@ class Problem(db.Model):
                 return False
             return all([cus.contest_user.is_ended() for cus in all_cus])
 
+    def is_tags_available(self, user=current_user):
+        return self.is_solution_available()
+
     def is_my(self, user=current_user):
         return user.is_pool_access(self.pool_id)
     

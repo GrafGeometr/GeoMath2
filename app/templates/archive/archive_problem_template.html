@@ -68,6 +68,7 @@
     </div>
     {% endif %}
 
+    {% if current_problem.is_tags_available() %}
     {% if current_problem.get_tags()|length > 0 %}
     <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Теги:</h2>
     <div class="flex gap-x-8 items-start">
@@ -81,6 +82,7 @@
             {% endfor %}
         </ul>
     </div>
+    {% endif %}
     {% endif %}
 </div>
 

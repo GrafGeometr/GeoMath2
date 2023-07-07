@@ -47,11 +47,14 @@ class Sheet(db.Model):
     def is_archived(self):
         return self.is_public
 
-    def is_text_available(self):
-        return self.is_archived() or self.is_my()
+    def is_text_available(self, user=current_user):
+        return self.is_archived() or self.is_my(user)
+    
+    def is_tags_available(self, user=current_user):
+        return self.is_text_available(user)
 
-    def is_my(self):
-        relation = current_user.get_pool_relation(self.pool_id)
+    def is_my(self, user=current_user):
+        relation = user.get_pool_relation(self.pool_id)
         if relation is None:
             return False
         if relation.role.isOwner() or relation.role.isParticipant():
