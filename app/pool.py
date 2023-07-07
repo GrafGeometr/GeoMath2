@@ -106,8 +106,7 @@ def remove_problem_from_pool():
         flash("Задача не найдена", "danger")
         return redirect(f"/pool/{pool_hashed_id}/problems")
 
-    db.session.delete(problem)
-    db.session.commit()
+    problem.remove()
     return render_template(
         "pool/pool_problemlist.html", current_pool=pool, title=f"{pool.name} - задачи"
     )

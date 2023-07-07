@@ -6,6 +6,11 @@
 <div class="flex flex-col">
     <div class="flex flex-row justify-between mt-4">
         <div class="flex flex-row items-center">
+            {% if current_sheet.is_my() %}
+            <a href="/pool/{{ current_sheet.pool.hashed_id }}/sheet/{{ current_sheet.id }}">
+                <img src="/static/images/settings.png" alt="settings" class="w-12 h-12 mr-2">
+            </a>
+            {% endif %}
             <span class="mr-4 text-2xl font-bold">{{ current_sheet.name }}</span>
             <span class="text-slate-500 text-xl">[</span>
             <span id="copy_hash_span" class="mx-2 text-slate-500 hover:cursor-pointer hover:underline hover:text-slate-800">{{ current_sheet.id }}</span>

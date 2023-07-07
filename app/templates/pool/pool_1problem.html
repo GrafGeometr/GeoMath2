@@ -4,8 +4,10 @@
 {% if current_user.get_pool_relation(current_pool.id).role.isOwner() %}
 <div class="flex justify-between">
     {% if current_problem.is_public %}
-    <div class="flex flex-row items-center mt-4">
-        <h3 class="text-red-600 font-bold text-xl">Вы не можете редактировать задачу, если она опубликована</h3>
+    <div class="flex flex-row items-center">
+        <a href="/archive/problem/{{ current_problem.hashed_id }}" class="text-green-600 font-bold text-xl hover:underline">
+            <h3>Задача опубликована</h3>
+        </a>
         <span class="text-slate-500 font-bold mx-4 text-xl">|</span>
         <form action="/pool/{{ current_pool.hashed_id }}/problems" method="post">
             <input type="hidden" name="back_to_pool" value="{{ current_pool.hashed_id }}">
@@ -29,7 +31,14 @@
     </span>
     {% endif %}
 </div>
+
+{% if current_problem.is_public %}
+<div class="h-px w-full bg-neutral-300 my-2"></div>
 {% endif %}
+
+{% endif %}
+
+
 <div class="flex flex-col">
     <form autocomplete="off" action="/pool/{{ current_pool.hashed_id }}/problem/{{ current_problem.hashed_id }}"
         method="post" class="w-full mt-2 px-4" enctype="multipart/form-data">
@@ -47,20 +56,20 @@
             </div>
             <input type="submit" value="Сохранить"
                 class="hover:cursor-pointer px-8 py-2 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700 ml-8 mr-4">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% for category, message in messages %}
-            {% if category == "danger" %}
-            <div id="flash-message" class="text-stone-800 text-semibold rounded text-lg text-center">
-                {{ message }}</div>
-            {% elif category == "warning" %}
-            <div id="flash-message" class="text-stone-800 text-semibold rounded text-lg text-center">
-                {{ message }}</div>
-            {% elif category == "success" %}
-            <div id="flash-message" class="text-stone-800 text-semibold rounded text-lg text-center">
-                {{ message }}</div>
-            {% endif %}
-            {% endfor %}
-            {% endwith %}
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                {% if category == "danger" %}
+                <div id="flash-message" class="text-stone-800 text-semibold rounded text-lg text-center">
+                    {{ message }}</div>
+                {% elif category == "warning" %}
+                <div id="flash-message" class="text-stone-800 text-semibold rounded text-lg text-center">
+                    {{ message }}</div>
+                {% elif category == "success" %}
+                <div id="flash-message" class="text-stone-800 text-semibold rounded text-lg text-center">
+                    {{ message }}</div>
+                {% endif %}
+                {% endfor %}
+                {% endwith %}
         </div>
 
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Название:</h2>

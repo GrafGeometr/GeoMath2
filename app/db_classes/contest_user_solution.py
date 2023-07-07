@@ -23,6 +23,8 @@ class Contest_User_Solution(db.Model):
         return self
 
     def remove(self):
+        for att in self.get_attachments():
+            att.remove()
         db.session.delete(self)
         db.session.commit()
 

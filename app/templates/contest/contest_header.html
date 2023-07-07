@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="my-4 pl-4">
+<div class="my-4 pl-4 flex items-center">
+    {% if current_contest.is_my() %}
+    <a href="/pool/{{ current_contest.pool.hashed_id }}/contest/{{ current_contest.id }}">
+        <img src="/static/images/settings.png" alt="settings" class="w-12 h-12 mr-2">
+    </a>
+    {% endif %}
     <span class="text-2xl text-stone-800 font-bold"> <a href="/contest/{{ current_contest.id }}" class="no-underline hover:underline">{{ current_contest.name }}</a> </span>
 </div>
 
