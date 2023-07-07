@@ -3,27 +3,17 @@ from .model_imports import *
 
 admin = Blueprint('admin', __name__)
 
-@admin.route("/admin/problem_moderation/<filename>")
-def show_problem_attachment(filename):
-    attachment = ProblemAttachment.query.filter_by(db_filename = filename).first()
-    if attachment is None:
-        print("attachment none")
-        return
-    try:
-        return send_from_directory(os.path.join(basedir, 'database/attachments/problems'), filename, as_attachment=True)
-    except Exception as e:
-        print(e)
 
 @admin.route("/admin", methods=["GET", "POST"])
 @admin.route("/admin/enter", methods=["GET", "POST"])
 @login_required
 def enter():
-    if AdminPassword.query.first() is None:
-        db.session.add(AdminPassword())
+    if Admin_Password.query.first() is None:
+        db.session.add(Admin_Password())
         db.session.commit()
     if request.method == "POST":
         password = request.form.get("password")
-        if check_password_hash(AdminPassword.query.first().password, password):
+        if check_password_hash(Admin_Password.query.first().password, password):
             current_user.admin = True
             db.session.commit()
             print("OKadm")
@@ -43,8 +33,8 @@ def settings():
         if confirm_password != new_password:
             flash("Пароли не совпадают", "danger")
             return redirect("/admin/settings")
-        if check_password_hash(AdminPassword.query.first().password, old_password):
-            AdminPassword.query.first().password = generate_password_hash(new_password)
+        if check_password_hash(Admin_Password.query.first().password, old_password):
+            Admin_Password.query.first().password = generate_password_hash(new_password)
             db.session.commit()
 
             for user in User.query.all():
