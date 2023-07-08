@@ -57,7 +57,7 @@
             {% if not email.verified %}
             <button class = "hover:cursor-pointer px-8 py-3 rounded-xl text-md text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700" onclick="send_verifying_link('{{ email.name }}')">Подтвердить</button>
             {% endif %}
-            <button class = "border-0 bg-transparent hover:cursor-pointer" onclick="remove_email('{{ email.name }}')"><img class = "h-8 w-8 mix-blend-multiply" src="/static/images/bin.png" alt="bin" onmouseover="this.src='/static/images/bin_colored.png'" onmouseout="this.src='/static/images/bin.png'"></button>
+            <button class = "border-0 bg-transparent hover:cursor-pointer" onclick="remove_email('{{ email.name }}')"><img class = "h-8 w-8 mix-blend-multiply" src="/static/images/bin.svg" alt="bin" onmouseover="this.src='/static/images/bin_colored.png'" onmouseout="this.src='/static/images/bin.svg'"></button>
         </div>
     </div>
     {% endfor %}
