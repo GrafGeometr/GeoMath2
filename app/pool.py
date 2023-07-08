@@ -292,61 +292,7 @@ def get_problem_content(problem_hashed_id): # TODO fix access
 # -----------------------------------------------------------------------------------------------------------------------------
 
 
-# get problem image
-@pool.route("/get_image/<db_filename>", methods=["GET", "POST"])
-@login_required
-def get_image(db_filename):
-    attachment = Attachment.query.filter_by(db_filename=db_filename).first()
-    if attachment is None:
-        print("attachment none")
-        return
-    par = attachment.get_parent()
-    if par is None:
-        print("parent none")
-        return
-    pt = attachment.parent_type
-    try:
-        if pt.name == "Problem":
-            flag = None
-            if not attachment.other_data["is_secret"]:
-                flag = par.is_statement_available()
-            else:
-                flag = par.is_solution_available()
-            if (flag):
-                print("OK, sending", attachment.short_name)
-                img = send_from_directory(
-                    os.path.join(basedir, attachment.db_folder.split("app/")[1]),
-                    db_filename,
-                    as_attachment=True,
-                )
-                print(img)
-                return send_from_directory(
-                    os.path.join(basedir, attachment.db_folder.split("app/")[1]),
-                    db_filename,
-                    as_attachment=True,
-                )
-            
-        if pt.name == "Sheet":
-            flag = par.is_text_available()
-            if (flag):
-                return send_from_directory(
-                    os.path.join(basedir, attachment.db_folder.split("app/")[1]),
-                    db_filename,
-                    as_attachment=True,
-                )
-            
-        if pt.name == "Contest_User_Solution":
-            flag = par.is_available()
-            if (flag):
-                return send_from_directory(
-                    os.path.join(basedir, attachment.db_folder.split("app/")[1]),
-                    db_filename,
-                    as_attachment=True,
-                )
-    
-    except Exception as e:
-        print(e)
-        return
+
 
 
 # send problem attachment
@@ -1092,33 +1038,35 @@ def pool_collaborators(pool_hashed_id):
         elif request.form.get("login1") is not None:
             print(request.form.get("login1"))
 
-            user_name = request.form.get("login1")
-            user = User.query.filter_by(name=user_name).first()
+            user_names = request.form.get("login1")
+            for un in user_names.split(";"):
+                user_name = un.strip()
+                user = User.query.filter_by(name=user_name).first()
 
-            if user is None:
-                flash(f"Пользователь {user_name} не найден", "danger")
-                print("Пользователь не найден")
+                if user is None:
+                    flash(f"Пользователь {user_name} не найден", "danger")
+                    print("Пользователь не найден")
+                    return redirect(
+                        url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
+                    )
+                user_relation = user.get_pool_relation(pool.id)
+                if user_relation is not None:
+                    flash(
+                        f"Пользователь {user.name} уже приглашен или состоит в пуле",
+                        "danger",
+                    )
+                    return redirect(
+                        url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
+                    )
+                # add this user to the pool
+
+                relation = User_Pool(user=user, pool=pool, role=Invited)
+                db.session.add(relation)
+                db.session.commit()
+                flash(f"Пользователь {user.name} успешно приглашен", "success")
                 return redirect(
                     url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
                 )
-            user_relation = user.get_pool_relation(pool.id)
-            if user_relation is not None:
-                flash(
-                    f"Пользователь {user.name} уже приглашен или состоит в пуле",
-                    "danger",
-                )
-                return redirect(
-                    url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                )
-            # add this user to the pool
-
-            relation = User_Pool(user=user, pool=pool, role=Invited)
-            db.session.add(relation)
-            db.session.commit()
-            flash(f"Пользователь {user.name} успешно приглашен", "success")
-            return redirect(
-                url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-            )
 
     return render_template(
         "pool/pool_management_collaborators.html",

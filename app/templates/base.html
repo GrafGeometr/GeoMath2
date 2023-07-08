@@ -12,8 +12,9 @@
     <link rel="stylesheet" href="/static/css/prism.css">
     <script src="/static/js/prism.js"></script>
     <script src="/static/js/latex_stuff.js"></script>
+    <script src="/static/js/autocomplete.js"></script>
 
-
+    
 
     <title>{{ title }}</title>
 
@@ -62,6 +63,9 @@
 </head>
 
 <body class="mx-32 bg-slate-50 mb-32 tex2jax_ignore">
+    <script>
+        autocomplete(null, {"obj":"tags"});
+    </script>
     <header class="flex justify-between items-stretch">
         <div class="flex items-center py-4">
             <a href="/feed"><img class="mix-blend-multiply h-20" src="/static/images/logo.png" alt="logo"></a>

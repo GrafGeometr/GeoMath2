@@ -35,6 +35,9 @@ def create_app():
         response.cache_control.public = False
         return response
     
+    from .general import general as general_blueprint
+    app.register_blueprint(general_blueprint)
+
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
 
