@@ -34,11 +34,10 @@ function autocomplete_from_arr(inp, arr) {
         /*create a DIV element that will contain the items (values):*/
         a = document.createElement("DIV");
         a.setAttribute("id", this.id + "autocomplete-list");
-        a.classList.add("absolute", "z-50", "top-full", "inset-x-0", "overflow-y-auto", "h-60", "autocomplete-items");
+        a.classList.add("absolute", "z-50", "top-full", "inset-x-0", "overflow-y-auto", "max-h-60", "autocomplete-items");
+        a.classList.add("mt-4", "rounded-lg", "border-2", "border-black", "bg-neutral-200");
         /*append the DIV element as a child of the autocomplete container:*/
         this.parentNode.appendChild(a);
-
-
         
 
         /*for each item in the array...*/
@@ -47,7 +46,7 @@ function autocomplete_from_arr(inp, arr) {
             if (arr[i].toUpperCase().includes(suffix.toUpperCase())) {
                 /*create a DIV element for each matching element:*/
                 b = document.createElement("DIV");
-                b.classList.add("p-4", "cursor-pointer", "bg-white", "border-b-2", "border-gray-200", "hover:bg-gray-100");
+                b.classList.add("p-4", "cursor-pointer", "bg-white", "border-b-2", "last:border-b-0", "border-black", "hover:bg-gray-100");
                 var idx = arr[i].toUpperCase().indexOf(suffix.toUpperCase());
                 /*make the matching letters bold:*/
                 b.innerHTML += arr[i].substr(0, idx);
@@ -71,6 +70,9 @@ function autocomplete_from_arr(inp, arr) {
                 });
                 a.appendChild(b);
             }
+        }
+        if (!a.hasChildNodes()) {
+            a.style.display = "none";
         }
     });
     /*execute a function presses a key on the keyboard:*/
