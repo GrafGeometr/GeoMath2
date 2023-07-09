@@ -35,7 +35,7 @@ function autocomplete_from_arr(inp, arr) {
         a = document.createElement("DIV");
         a.setAttribute("id", this.id + "autocomplete-list");
         a.classList.add("absolute", "z-50", "top-full", "inset-x-0", "overflow-y-auto", "max-h-60", "autocomplete-items");
-        a.classList.add("mt-4", "rounded-lg", "border-2", "border-black", "bg-neutral-200");
+        a.classList.add("mt-4", "mb-4", "rounded-lg", "border-2", "border-black", "bg-neutral-200");
         /*append the DIV element as a child of the autocomplete container:*/
         this.parentNode.appendChild(a);
         
