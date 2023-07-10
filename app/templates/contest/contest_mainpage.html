@@ -134,6 +134,7 @@
             var start_date = new Date(start_date_input.value);
             var end_date = new Date(end_date_input.value);
             if (start_date > end_date) {
+                showToast("warning", "Время окончания должно быть позже времени начала");
                 return;
             }
             const XHR = new XMLHttpRequest();

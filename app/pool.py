@@ -10,10 +10,10 @@ pool = Blueprint("pool", __name__)
 # check if user is in pool
 def check_user_in_pool(user, pool):
     if user.get_pool_relation(pool.id) is None:
-        flash("Вы не можете просматривать этот пул", "danger")
+        flash("Вы не можете просматривать этот пул", "error")
         return "/myprofile"
     if user.get_pool_relation(pool.id).role.isInvited():
-        flash("Вы не приняли приглашение в этот пул", "danger")
+        flash("Вы не приняли приглашение в этот пул", "error")
         return f"/profile/{user.name}/pools"
     return None
 
@@ -25,7 +25,7 @@ def check_user_in_pool(user, pool):
 def check_management_access(user, pool):
     if user.get_pool_relation(pool.id).role.isOwner():
         return None
-    flash("Вы не можете управлять этим пулом", "danger")
+    flash("Вы не можете управлять этим пулом", "error")
     return url_for("pool.pool_participants", pool_hashed_id=pool.hashed_id)
 
 
@@ -42,7 +42,7 @@ def pool_problems(pool_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -68,7 +68,7 @@ def new_problem(pool_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -93,7 +93,7 @@ def remove_problem_from_pool():
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -103,7 +103,7 @@ def remove_problem_from_pool():
     problem = Problem.query.filter_by(hashed_id=problem_hashed_id).first()
 
     if problem is None:
-        flash("Задача не найдена", "danger")
+        flash("Задача не найдена", "error")
         return redirect(f"/pool/{pool_hashed_id}/problems")
 
     problem.remove()
@@ -124,7 +124,7 @@ def upload_file_to_problem(pool_hashed_id, problem_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -133,12 +133,12 @@ def upload_file_to_problem(pool_hashed_id, problem_hashed_id):
 
     problem = Problem.query.filter_by(hashed_id=problem_hashed_id).first()
     if problem is None:
-        flash("Задача не найдена", "danger")
+        flash("Задача не найдена", "error")
         return redirect(f"/pool/{pool_hashed_id}/problems")
 
     file = request.files.get("file")
     if file is None:
-        flash("Файл не был загружен", "danger")
+        flash("Файл не был загружен", "error")
         return redirect(f"/pool/{pool_hashed_id}/problem/{problem_hashed_id}")
     
     if not problem.is_public:
@@ -150,7 +150,7 @@ def upload_file_to_problem(pool_hashed_id, problem_hashed_id):
         filename = filenames[0]
 
         if filename is None:
-            flash("Ошибка при загрузке", "danger")
+            flash("Ошибка при загрузке", "error")
             return redirect(f"/pool/{pool_hashed_id}/problem/{problem_hashed_id}")
         
         attachment = Attachment(
@@ -180,7 +180,7 @@ def problem(pool_hashed_id, problem_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -190,7 +190,7 @@ def problem(pool_hashed_id, problem_hashed_id):
     problem = Problem.query.filter_by(hashed_id=problem_hashed_id).first()
 
     if problem is None:
-        flash("Задача не найдена", "danger")
+        flash("Задача не найдена", "error")
         return redirect(f"/pool/{pool_hashed_id}/problems")
 
     if request.method == "POST":
@@ -344,7 +344,7 @@ def pool_sheets(pool_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -373,7 +373,7 @@ def new_sheet(pool_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -398,7 +398,7 @@ def remove_sheet_from_pool():
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -408,7 +408,7 @@ def remove_sheet_from_pool():
     sheet = Sheet.query.filter_by(id=sheet_id).first()
 
     if sheet is None:
-        flash("Подборка не найдена", "danger")
+        flash("Подборка не найдена", "error")
         return redirect(f"/pool/{pool_hashed_id}/sheets")
 
     db.session.delete(sheet)
@@ -430,7 +430,7 @@ def sheet(pool_hashed_id, sheet_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -440,7 +440,7 @@ def sheet(pool_hashed_id, sheet_id):
     sheet = Sheet.query.filter_by(id=sheet_id).first()
 
     if sheet is None:
-        flash("Подборка не найдена", "danger")
+        flash("Подборка не найдена", "error")
         return redirect(f"/pool/{pool_hashed_id}/sheets")
 
     if request.method == "POST":
@@ -500,7 +500,7 @@ def upload_file_to_sheet(pool_hashed_id, sheet_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -509,12 +509,12 @@ def upload_file_to_sheet(pool_hashed_id, sheet_id):
 
     sheet = Sheet.query.filter_by(id=sheet_id).first()
     if sheet is None:
-        flash("Подборка не найдена", "danger")
+        flash("Подборка не найдена", "error")
         return redirect(f"/pool/{pool_hashed_id}/sheets")
 
     file = request.files.get("file")
     if file is None:
-        flash("Файл не был загружен", "danger")
+        flash("Файл не был загружен", "error")
         return redirect(f"/pool/{pool_hashed_id}/sheet/{sheet_id}")
     
     if not sheet.is_public:
@@ -526,7 +526,7 @@ def upload_file_to_sheet(pool_hashed_id, sheet_id):
         filename = filenames[0]
 
         if filename is None:
-            flash("Ошибка при загрузке", "danger")
+            flash("Ошибка при загрузке", "error")
             return redirect(f"/pool/{pool_hashed_id}/sheet/{sheet_id}")
         
         attachment = Attachment(
@@ -558,7 +558,7 @@ def pool_contests(pool_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -584,7 +584,7 @@ def new_contest(pool_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -604,7 +604,7 @@ def contest(pool_hashed_id, contest_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -614,7 +614,7 @@ def contest(pool_hashed_id, contest_id):
     contest = Contest.query.filter_by(id=contest_id).first()
 
     if contest is None:
-        flash("Контест не найден", "danger")
+        flash("Контест не найден", "error")
         return redirect(f"/pool/{pool_hashed_id}/contests")
 
     if request.method == "POST":
@@ -686,7 +686,7 @@ def remove_contest_from_pool():
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -696,7 +696,7 @@ def remove_contest_from_pool():
     contest = Contest.query.filter_by(id=contest_id).first()
 
     if contest is None:
-        flash("Контест не найден", "danger")
+        flash("Контест не найден", "error")
         return redirect(f"/pool/{pool_hashed_id}/contests")
 
     db.session.delete(contest)
@@ -724,7 +724,7 @@ def accept_pool_invitation():
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     relation = User_Pool.query.filter_by(
@@ -755,7 +755,7 @@ def decline_pool_invitation():
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     relation = User_Pool.query.filter_by(
@@ -802,7 +802,7 @@ def create_new_pool():
 def pool_participants(pool_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -813,14 +813,14 @@ def pool_participants(pool_hashed_id):
         if request.form.get("leave_pool") is not None:
             user_relation = current_user.get_pool_relation(pool.id)
             if user_relation is None:
-                flash("Такого пользователя нет в пуле", "danger")
+                flash("Такого пользователя нет в пуле", "error")
                 return redirect(
                     url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id)
                 )
             if user_relation.role.isOwner() and pool.count_owners() == 1:
                 flash(
                     "Вы не можете выходить из пула, так как являетесь единственным владельцем",
-                    "danger",
+                    "error",
                 )
                 return redirect(
                     url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id)
@@ -860,7 +860,7 @@ def pool_manager_general(pool_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -875,7 +875,7 @@ def pool_manager_general(pool_hashed_id):
         print(request.form.get("pool_name"))
         if not current_user.get_pool_relation(pool.id).role.isOwner():
             print("OOPS")
-            flash("Вы не имеете доступа к этой странице", "danger")
+            flash("Вы не имеете доступа к этой странице", "error")
             return redirect(
                 url_for("pool.pool_manager_general", pool_hashed_id=pool_hashed_id)
             )
@@ -915,7 +915,7 @@ def pool_collaborators(pool_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
 
     if pool is None:
-        flash("Пул с таким id не найден", "danger")
+        flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
     user_checked = check_user_in_pool(current_user, pool)
@@ -928,7 +928,7 @@ def pool_collaborators(pool_hashed_id):
 
     if request.method == "POST":
         if not current_user.get_pool_relation(pool.id).role.isOwner():
-            flash("Вы не имеете доступа к этой странице", "danger")
+            flash("Вы не имеете доступа к этой странице", "error")
             return redirect(
                 url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
             )
@@ -936,13 +936,13 @@ def pool_collaborators(pool_hashed_id):
             user_id = request.form.get("upgrade_to_owner")
             user = User.query.filter_by(id=user_id).first()
             if user is None:
-                flash("Пользователь не найден", "danger")
+                flash("Пользователь не найден", "error")
                 return redirect(
                     url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
                 )
             user_relation = user.get_pool_relation(pool.id)
             if user_relation is None:
-                flash("Такого пользователя нет в пуле", "danger")
+                flash("Такого пользователя нет в пуле", "error")
                 return redirect(
                     url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
                 )
@@ -970,13 +970,13 @@ def pool_collaborators(pool_hashed_id):
             user_id = request.form.get("downgrade_to_participant")
             user = User.query.filter_by(id=user_id).first()
             if user is None:
-                flash("Пользователь не найден", "danger")
+                flash("Пользователь не найден", "error")
                 return redirect(
                     url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
                 )
             user_relation = user.get_pool_relation(pool.id)
             if user_relation is None:
-                flash("Такого пользователя нет в пуле", "danger")
+                flash("Такого пользователя нет в пуле", "error")
                 return redirect(
                     url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
                 )
@@ -1009,18 +1009,18 @@ def pool_collaborators(pool_hashed_id):
             user_id = request.form.get("remove_participant")
             user = User.query.filter_by(id=user_id).first()
             if user is None:
-                flash("Пользователь не найден", "danger")
+                flash("Пользователь не найден", "error")
                 return redirect(
                     url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
                 )
             user_relation = user.get_pool_relation(pool.id)
             if user_relation is None:
-                flash("Такого пользователя нет в пуле", "danger")
+                flash("Такого пользователя нет в пуле", "error")
                 return redirect(
                     url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
                 )
             if user_id == current_user.id:
-                flash("Вы не можете удалить себя из пула на этой странице", "danger")
+                flash("Вы не можете удалить себя из пула на этой странице", "error")
                 return redirect(
                     url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
                 )
@@ -1044,7 +1044,7 @@ def pool_collaborators(pool_hashed_id):
                 user = User.query.filter_by(name=user_name).first()
 
                 if user is None:
-                    flash(f"Пользователь {user_name} не найден", "danger")
+                    flash(f"Пользователь {user_name} не найден", "error")
                     print("Пользователь не найден")
                     return redirect(
                         url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
@@ -1053,7 +1053,7 @@ def pool_collaborators(pool_hashed_id):
                 if user_relation is not None:
                     flash(
                         f"Пользователь {user.name} уже приглашен или состоит в пуле",
-                        "danger",
+                        "error",
                     )
                     return redirect(
                         url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)

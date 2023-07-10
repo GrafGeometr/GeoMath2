@@ -34,7 +34,7 @@ def squarify(d, f):
 def profile(username):
     user = User.query.filter_by(name = username).first()
     if user is None:
-        flash("Пользователь не найден", "danger")
+        flash("Пользователь не найден", "error")
         return redirect("/myprofile")
     if request.method == "POST":
         if user.name != current_user.name:
@@ -43,7 +43,7 @@ def profile(username):
             directory = 'app/database/profile_pics'
             file = request.files.get("profile_pic")
             if file is None:
-                flash("Файл не был загружен", "danger")
+                flash("Файл не был загружен", "error")
                 return redirect(f"/myprofile")
             filenames = safe_image_upload([file], directory, 5*1024*1024)
             if filenames and filenames[0] is not None:

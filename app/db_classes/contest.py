@@ -188,6 +188,7 @@ class Contest(db.Model):
                 end_date=self.end_date,
                 virtual=False,
             ).add()
+            flash("Вы успешно зарегистрировались на контест", "success")
         else:
             start = dt_from_str(start_date)
             end = dt_from_str(end_date)
@@ -200,6 +201,7 @@ class Contest(db.Model):
                 end_date=end,
                 virtual=True,
             ).add()
+            flash("Вы успешно зарегистрировались на виртуальное участие", "success")
         return self
 
     def act_stop(self, user=current_user):

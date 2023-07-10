@@ -23,7 +23,7 @@ def add_email():
     # CHECK: INVALID EMAIL NAME
     if not email_validity_checker(email_name):
         err = "Error: Invalid email name"
-        flash("Некорректный email", "danger")
+        flash("Некорректный email", "error")
         return render_template("profile/emails_list.html")
     # CHECK: EMAIL ALREADY EXISTS (CURRENT USER)
     if email_name in [em.name for em in current_user.emails]:
@@ -70,7 +70,7 @@ def remove_email():
     # CHECK: INVALID EMAIL NAME
     if not email_validity_checker(email_name):
         err = "Error: Invalid email name"
-        flash("Некорректный email", "danger")
+        flash("Некорректный email", "error")
         return render_template("profile/emails_list.html")
 
     # CHECK: USER HASN'T EMAIL
@@ -79,7 +79,7 @@ def remove_email():
         # email doesn't exist
         # TODO say something about this
         err = "Error: Email doesn't exist"
-        flash("Этот email не используется Вами", "danger")
+        flash("Этот email не используется Вами", "error")
         return render_template("profile/emails_list.html")
 
     # OK
@@ -109,14 +109,14 @@ def send_verifying_link():
     # CHECK: INVALID EMAIL NAME
     if not email_validity_checker(email_name):
         err = "Error: Invalid email name"
-        flash("Некорректный email", "danger")
+        flash("Некорректный email", "error")
         return render_template("profile/emails_list.html")
 
     # CHECK: USER HASN'T EMAIL
     email = Email.query.filter_by(name = email_name, user_id = current_user.id).first()
     if not email:
         err = "Error: Email doesn't exist"
-        flash("Этот email не используется Вами", "danger")
+        flash("Этот email не используется Вами", "error")
         return render_template("profile/emails_list.html")
 
     # CHECK: EMAIL ALREADY VERIFIED

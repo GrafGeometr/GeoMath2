@@ -19,7 +19,7 @@ def enter():
             print("OKadm")
             return redirect("/admin/settings")
         else:
-            flash("Неверный админ-пароль", "danger")
+            flash("Неверный админ-пароль", "error")
             return redirect("/admin/enter")
     return render_template("admin/admin_enter.html", title="GeoMath - админка")
 
@@ -31,7 +31,7 @@ def settings():
         new_password = request.form.get("new_password")
         confirm_password = request.form.get("confirm_password")
         if confirm_password != new_password:
-            flash("Пароли не совпадают", "danger")
+            flash("Пароли не совпадают", "error")
             return redirect("/admin/settings")
         if check_password_hash(Admin_Password.query.first().password, old_password):
             Admin_Password.query.first().password = generate_password_hash(new_password)
@@ -44,7 +44,7 @@ def settings():
             flash("Пароль успешно изменен", "success")
             return redirect("/admin/enter")
         else:
-            flash("Неверный старый пароль", "danger")
+            flash("Неверный старый пароль", "error")
             return redirect("/admin/settings")
 
     return render_template("admin/admin_settings.html", title="GeoMath - настройки")

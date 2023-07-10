@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="/static/css/tailwind.css">
     <link rel="stylesheet" type="text/css" href="/static/css/general.css">
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/toast.css">
 
     <link rel="stylesheet" href="/static/css/prism.css">
     <script src="/static/js/prism.js"></script>
@@ -63,9 +64,6 @@
 </head>
 
 <body class="mx-32 bg-slate-50 mb-32 tex2jax_ignore">
-    <script>
-        autocomplete(null, {"obj":"tags"});
-    </script>
     <header class="flex justify-between items-stretch">
         <div class="flex items-center py-4">
             <a href="/feed"><img class="mix-blend-multiply h-20" src="/static/images/logo.png" alt="logo"></a>
@@ -97,24 +95,78 @@
         
     </nav>
 
-    <div class="hidden mathjax-class">
-        $\DeclareMathOperator{\tg}{tg}$
-        $\DeclareMathOperator{\ctg}{ctg}$
-    </div>
-
     <div class="content">
         {% block content %}{% endblock %}
     </div>
+
+    <div id="toastBox"></div>
 </body>
 
 
 
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({tex2jax: {inlineMath: [ ['$','$'], ["\\(","\\)"] ], processEscapes: true}, elements: document.getElementsByClassName("mathjax-class")});
+<script>
+    let tB = sessionStorage.getItem("toastBox");
+    let toastBox = document.getElementById("toastBox");
+    if (tB) {
+        toastBox.innerHTML = tB;
+    }
+    
+    
+    function showToast(cat, msg) {
+        let toast = document.createElement("div");
+        toast.classList.add("toast", cat);
+        let toastIcon = document.createElement("img");
+        toastIcon.classList.add("toastIcon");
+        if (cat == "success") toastIcon.src = "/static/images/success.svg";
+        if (cat == "warning") toastIcon.src = "/static/images/warning.svg";
+        if (cat == "error") toastIcon.src = "/static/images/error.svg";
+
+        let toastClose = document.createElement("img");
+        toastClose.classList.add("toastClose");
+        toastClose.src = "/static/images/close.svg";
+
+        let toastContent = document.createElement("div");
+        toastContent.classList.add("toastContent");
+        toastContent.innerText = msg;
+
+        toast.appendChild(toastIcon);
+        toast.appendChild(toastContent);
+        toast.appendChild(toastClose);
+
+        toastBox.appendChild(toast);
+        sessionStorage.setItem("toastBox", toastBox.innerHTML);
+    }
+    function setToastTimeout(){
+        for (let i = 0; i < toastBox.children.length; i++){
+            let toast = toastBox.children[i];
+            setTimeout(()=>{
+                toast.remove();
+                sessionStorage.setItem("toastBox", toastBox.innerHTML);
+            }, 6000)
+        }
+    }
+    function bindToastClose(){
+        for (let i = 0; i < toastBox.children.length; i++){
+            let toast = toastBox.children[i];
+            toast.addEventListener("click", function (e) {
+                e.target.parentNode.remove();
+                sessionStorage.setItem("toastBox", toastBox.innerHTML);
+            })
+        }
+    }
 </script>
-<script type="text/javascript" charset="utf-8"
-    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
+
+<script>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            showToast('{{ category }}', '{{ message }}');
+        {% endfor %}
+    {% endwith %}
+
+    setToastTimeout();
+    bindToastClose();
+</script>
+
 
 <script>
     var textareas = document.getElementsByTagName("textarea");
@@ -123,6 +175,7 @@
         fitContent(textarea);
     }
 </script>
+
 
 
 </html>

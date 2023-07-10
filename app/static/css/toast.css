@@ -1,0 +1,70 @@
+#toastBox{
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 1.5rem;
+}
+.toast{
+    width: 25rem;
+    height: 5rem;
+    background: white;
+    font-weight: 500;
+    margin: 1rem 0;
+    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    position: relative;
+    transform: translateX(100%);
+    animation: moveleft 0.5s linear forwards;
+}
+@keyframes moveleft {
+    100%{
+        transform: translateX(0);
+    }
+}
+
+.toast .toastIcon {
+    margin: 0 1rem;
+    width: 2.5rem;
+}
+
+.toast .toastClose {
+    margin: 0 1rem;
+    width: 1.5rem;
+}
+.toast .toastClose:hover {
+    cursor: pointer;
+}
+
+.toast .toastContent {
+    flex-grow: 1;
+}
+
+.toast::after{
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 0.3rem;
+    background: black;
+    animation: anim 6s linear forwards;
+}
+@keyframes anim {
+    100%{
+        width: 0;
+    }
+}
+.toast.success::after{
+    background: #13851c;
+}
+.toast.warning::after{
+    background: #e6962e;
+}
+.toast.error::after{
+    background: #ff4d4d;
+}

@@ -87,7 +87,7 @@ def upload_file_to_cus(contest_id, problem_hashed_id):
 
     file = request.files.get("file")
     if file is None:
-        flash("Файл не был загружен", "danger")
+        flash("Файл не был загружен", "error")
         return redirect(f"/contest/{contest_id}/problem/{problem_hashed_id}")
     
     directory = "app/database/attachments/problems"
@@ -96,7 +96,7 @@ def upload_file_to_cus(contest_id, problem_hashed_id):
     filename = filenames[0]
 
     if filename is None:
-        flash("Ошибка при загрузке", "danger")
+        flash("Ошибка при загрузке", "error")
         return redirect(f"/contest/{contest_id}/problem/{problem_hashed_id}")
     
     attachment = Attachment(

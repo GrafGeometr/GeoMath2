@@ -37,13 +37,13 @@ def publish_problem(problem_hashed_id):
         return redirect(f"/pool/{pool_hashed_id}/problems")
     
     if not problem.name:
-        flash("Не указано название задачи", "danger")
+        flash("Не указано название задачи", "error")
         return redirect(f"/pool/{pool_hashed_id}/problem/{problem.hashed_id}")
     if not problem.statement:
-        flash("Не указано условие задачи", "danger")
+        flash("Не указано условие задачи", "error")
         return redirect(f"/pool/{pool_hashed_id}/problem/{problem.hashed_id}")
     if not problem.solution:
-        flash("Не указано решение задачи", "danger")
+        flash("Не указано решение задачи", "error")
         return redirect(f"/pool/{pool_hashed_id}/problem/{problem.hashed_id}")
 
     problem.is_public = True
@@ -63,10 +63,10 @@ def publish_sheet(sheet_id):
         return redirect(f"/pool/{pool_hashed_id}/sheets")
     
     if not sheet.name:
-        flash("Не указано название подборки", "danger")
+        flash("Не указано название подборки", "error")
         return redirect(f"/pool/{pool_hashed_id}/sheet/{sheet.id}")
     if not sheet.text:
-        flash("Не указан текст подборки", "danger")
+        flash("Не указан текст подборки", "error")
         return redirect(f"/pool/{pool_hashed_id}/sheet/{sheet.id}")
 
     sheet.is_public = True
@@ -86,15 +86,15 @@ def publish_contest(contest_id):
         return redirect(f"/pool/{pool_hashed_id}/contests")
     
     if not contest.name:
-        flash("Не указано название контеста", "danger")
+        flash("Не указано название контеста", "error")
         return redirect(f"/pool/{pool_hashed_id}/contest/{contest.id}")
     
     if not contest.description:
-        flash("Не указано описание контеста", "danger")
+        flash("Не указано описание контеста", "error")
         return redirect(f"/pool/{pool_hashed_id}/contest/{contest.id}")
     
     if contest.start_date > contest.end_date:
-        flash("Контест должен начаться раньше, чем закончиться", "danger")
+        flash("Контест должен начаться раньше, чем закончиться", "error")
         return redirect(f"/pool/{pool_hashed_id}/contest/{contest.id}")
     
     contest.is_public = True

@@ -19,7 +19,7 @@ def login():
                 return redirect(next_url)
             return redirect("/myprofile")
         else:
-            flash("Неверный логин или пароль", "danger")
+            flash("Неверный логин или пароль", "error")
     
     return render_template("auth/login.html", title="GeoMath - авторизация")
 
@@ -35,16 +35,16 @@ def register():
         next_url = request.form.get("next")
 
         if not email_validity_checker(email_name):
-            flash("Некорректный email", "danger")
+            flash("Некорректный email", "error")
             return redirect("/register")
 
         if password != repeat_password:
             # passwords don't match
-            flash("Пароли не совпадают", "danger")
+            flash("Пароли не совпадают", "error")
             return redirect("/register")
 
         if User.query.filter_by(name = login).first():
-            flash("Пользователь с таким именем уже существует", "danger")
+            flash("Пользователь с таким именем уже существует", "error")
             return redirect("/register")
         user = User(name=login)
         email = Email(name=email_name, user=user)
