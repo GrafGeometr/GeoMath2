@@ -147,8 +147,8 @@
     }
     function bindToastClose(){
         for (let i = 0; i < toastBox.children.length; i++){
-            let toast = toastBox.children[i];
-            toast.addEventListener("click", function (e) {
+            let toastClose = toastBox.children[i].getElementsByClassName("toastClose")[0];
+            toastClose.addEventListener("click", function (e) {
                 e.target.parentNode.remove();
                 sessionStorage.setItem("toastBox", toastBox.innerHTML);
             })
