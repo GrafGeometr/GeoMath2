@@ -4,7 +4,7 @@
 
 
 <div class="flex flex-col">
-    <div class="flex flex-row justify-between mt-4">
+    <div class="flex flex-row justify-between items-center mt-4">
         <div class="flex flex-row items-center">
             {% if current_problem.is_my() %}
             <a href="/pool/{{ current_problem.pool.hashed_id }}/problem/{{ current_problem.hashed_id }}" class="mr-2">

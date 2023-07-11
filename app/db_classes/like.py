@@ -28,8 +28,9 @@ class Like(db.Model):
             db.session.commit()
         return self
 
-    def remove(self):
-        par = self.get_parent()
+    def remove(self, par=None):
+        if par is None:
+            par = self.get_parent()
         if par is not None:
             par.total_likes -= 1
             db.session.commit()

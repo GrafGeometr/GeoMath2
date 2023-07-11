@@ -386,6 +386,9 @@ class Contest(db.Model):
             cj.remove()
         for cu in cu_s:
             cu.remove()
+        from app.dbc import Like
+        for l in Like.get_all_by_parent(self):
+            l.remove(par=self)
         db.session.delete(self)
         db.session.commit()
 
