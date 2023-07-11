@@ -97,6 +97,6 @@ def like():
         Like.act_remove_like_from_parent(parent)
 
     check = (Like.get_by_parent_and_user(parent, current_user) is not None)
-    cnt = len(Like.get_all_by_parent(parent))
+    cnt = parent.total_likes
     return {"check": check, "cnt": cnt}
     

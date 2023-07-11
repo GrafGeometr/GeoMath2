@@ -22,9 +22,17 @@ class Like(db.Model):
     def add(self):
         db.session.add(self)
         self.save()
+        par = self.get_parent()
+        if par is not None:
+            par.total_likes += 1
+            db.session.commit()
         return self
 
     def remove(self):
+        par = self.get_parent()
+        if par is not None:
+            par.total_likes -= 1
+            db.session.commit()
         db.session.delete(self)
         self.save()
     

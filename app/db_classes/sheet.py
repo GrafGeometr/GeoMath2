@@ -10,6 +10,7 @@ class Sheet(db.Model):
     name = db.Column(db.String)
     text = db.Column(db.String)
     is_public = db.Column(db.Boolean, default=False)
+    total_likes = db.Column(db.Integer, default=0)
 
     # --> RELATIONS
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
@@ -27,7 +28,23 @@ class Sheet(db.Model):
         db.session.commit()
 
     
+    def is_liked(self):
+        from app.dbc import Like
+        return Like.query.filter_by(parent_type="Sheet", parent_id=self.id, user_id=current_user.id).first() is not None
 
+    def act_add_like(self):
+        if self.is_liked():
+            return
+        from app.dbc import Like
+        Like(parent_type="Sheet", parent_id=self.id, user_id=current_user.id).add()
+        return
+    
+    def act_remove_like(self):
+        if not self.is_liked():
+            return
+        from app.dbc import Like
+        Like.query.filter_by(parent_type="Sheet", parent_id=self.id, user_id=current_user.id).remove()
+        return
     
 
     def get_attachments(self):
