@@ -8,52 +8,37 @@
     <div class="mt-4">
         <!-- search panel -->
 
-        <section class="flex">
         <form autocomplete="off" class="flex w-full" action="/archive/contests/all" method="POST">
             <div class="w-2/3 relative inline-block">
                 <input id="search_tags" type="text" placeholder="Введите теги через точку с запятой" name="tags"
-                    class="w-full border-slate-400 border-2 rounded px-2" {% if tags %} value="{{ tags }}" {% endif %}>
+                    class="w-full border-slate-400 border-2 rounded px-2 h-8" {% if tags %} value="{{ tags }}" {% endif %}>
             </div>
             <span class="text-slate-700 font-bold mx-4">|</span>
             <input type="submit" value="Найти" class="hover:font-bold hover:cursor-pointer hover:text-green-600">
         </form>
-        {% if pages_to_show %}
-            <ul class="flex text-lg text-center">
-                    <li>
-                        {% if current_page > pages_to_show[0] %}
-                        <a class="text-sky-500 px-4 hover:underline font-bold text-xl" href="{{ url_for('arch.archive_contest_search', tags=tags, page=current_page-1, mode=mode) }}">&lt;</a>
-                        {% else %}
-                        <a class="invisible text-sky-500 px-4 hover:underline" href="{{ url_for('arch.archive_contest_search', tags=tags, page=current_page-1, mode=mode) }}">&lt;</a>
-                        {% endif %}
-                    </li>
-                {% for x in pages_to_show %}
-                    {% if x == current_page %}
-                        <li class="w-8">
-                            <span class="font-bold text-stone-800 px-2">{{ x }}</span>
-                        </li>
-                    {% else %}
-                        <li class="w-8">
-                            <a class="text-sky-500 px-2 hover:underline" href="{{ url_for('arch.archive_contest_search', tags=tags, page=x, mode=mode) }}">{{ x }}</a>
-                        </li>
-                    {% endif %}
-                {% endfor %}
-                <li>
-                    {% if current_page < pages_to_show[-1] %}
-                    <a class="text-sky-500 px-4 hover:underline font-bold text-xl" href="{{ url_for('arch.archive_contest_search', tags=tags, page=current_page+1, mode=mode) }}">&gt;</a>
-                    {% else %}
-                    <a class="invisible text-sky-500 px-4 hover:underline" href="{{ url_for('arch.archive_contest_search', tags=tags, page=current_page+1, mode=mode) }}">&gt;</a>
-                    {% endif %}
-                </li>
-            </ul>
-        {% endif %}
-        </section>
 
-        <!-- problems list -->
-
+        <div class="flex flex-col items-center">
         {% include "archive/archive_contests_list.html" %}
 
-        <!-- select page from 0 to total pages -->
-        
+        {% if pages_to_show %}
+        <ul class="flex text-lg text-center mt-2 gap-x-2">
+            {% for x in pages_to_show %}
+                {% if x == current_page %}
+                    <li>
+                        <div class="w-6 h-6 rounded-full bg-blue-500"></div>
+                    </li>
+                {% else %}
+                    <li>
+                        <a class="hover:underline" href="{{ url_for('arch.archive_contest_search', tags=tags, page=x, mode=mode) }}">
+                            <div class="w-6 h-6 rounded-full bg-blue-200"></div>
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        {% endif %}
+        </div>
+
     </div>
 
     <script>

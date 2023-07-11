@@ -75,3 +75,28 @@ def autocomplete():
         return [up.pool.name for up in current_user.get_pools()]
     else:
         return []
+    
+@general.route("/like", methods=["POST"])
+@login_required
+def like():
+    data = request.get_json()
+    parent_type = data.get("parent_type")
+    parent_id = int(data.get("parent_id"))
+    action = data.get("action")
+
+    if parent_type == "Problem":
+        parent = Problem.query.filter_by(id=parent_id).first()
+    elif parent_type == "Sheet":
+        parent = Sheet.query.filter_by(id=parent_id).first()
+    elif parent_type == "Contest":
+        parent = Contest.query.filter_by(id=parent_id).first()
+
+    if action == "add":
+        Like.act_add_like_to_parent(parent)
+    elif action == "remove":
+        Like.act_remove_like_from_parent(parent)
+
+    check = (Like.get_by_parent_and_user(parent, current_user) is not None)
+    cnt = len(Like.get_all_by_parent(parent))
+    return {"check": check, "cnt": cnt}
+    

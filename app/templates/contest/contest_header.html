@@ -7,7 +7,12 @@
         <img src="/static/images/settings.svg" alt="settings" class="w-12 h-12 mr-2">
     </a>
     {% endif %}
-    <span class="text-2xl text-stone-800 font-bold"> <a href="/contest/{{ current_contest.id }}" class="no-underline hover:underline">{{ current_contest.name }}</a> </span>
+    <div class="flex items-center gap-x-4">
+        <span class="text-2xl text-stone-800 font-bold">
+            <a href="/contest/{{ current_contest.id }}" class="no-underline hover:underline">{{ current_contest.name }}</a>
+        </span>
+        <div class="like"></div>
+    </div>
 </div>
 
 <nav class="flex pl-4 gap-x-4 items-center h-12">
@@ -43,4 +48,10 @@ class="flex items-center no-underline text-stone-800 text-xl text-center rounded
 <div class="h-px w-full bg-neutral-300 my-2"></div>
 
 {% block contest_body %}{% endblock %}
+
+<script>
+    var likeDiv = document.getElementsByClassName("like")[0];
+    var data = {"parent_type": "Contest", "parent_id": "{{ current_contest.id }}"};
+    likeButton(likeDiv, true, data);
+</script>
 {% endblock %}

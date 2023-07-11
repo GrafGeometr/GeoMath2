@@ -17,6 +17,7 @@ class User(UserMixin, db.Model):
     user_pools = db.relationship("User_Pool", backref="user")
     contest_judges = db.relationship("Contest_Judge", backref="user")
     contest_users = db.relationship("Contest_User", backref="user")
+    likes = db.relationship("Like", backref="user")
 
     # --> FUNCTIONS
     def set_password(self, password):

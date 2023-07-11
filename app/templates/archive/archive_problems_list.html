@@ -1,4 +1,4 @@
-<ul class="list-none p-0 border-4 border-solid border-sky-400 rounded-lg mt-4">
+<ul class="list-none p-0 border-4 border-solid border-sky-400 rounded-lg mt-4 w-1/2">
     {% for problem in problems %}
 
     {% with textcolor='text-white' %}
@@ -22,12 +22,14 @@
     
 
 
-    <li class="border-b border-slate-200 bg-white p-4 flex flex-row first:rounded-t-lg last:rounded-b-lg hover:bg-slate-100 items-center">
-        <a href="/archive/problem/{{ problem[0].hashed_id }}" class="no-underline text-black text-xl hover:underline mr-4">
-            <span class="text-black text-xl">{{ problem[0].name }}</span>
-        </a>
-        
-        <span>Совпадение: <span class="text-bold {{bgcolor}}">{{ perc }}%</span></span>
+    <li class="border-b border-slate-200 bg-white p-4 flex flex-row justify-between first:rounded-t-lg last:rounded-b-lg hover:bg-slate-100 items-center">
+        <div class="flex flex-row items-center">
+            <a href="/archive/problem/{{ problem[0].hashed_id }}" class="no-underline text-black text-xl hover:underline mr-4">
+                <span class="text-black text-xl">{{ problem[0].name }}</span>
+            </a>
+            <span>Совпадение: <span class="text-bold {{bgcolor}}">{{ perc }}%</span></span>
+        </div>
+        <div class="like" id="like-Problem-{{ problem[0].id }}"></div>
     </li>
     {% endwith %}
     {% endwith %}

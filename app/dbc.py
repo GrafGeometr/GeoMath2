@@ -6,6 +6,7 @@ from app.db_classes.contest_user_solution import Contest_User_Solution
 from app.db_classes.contest_user import Contest_User
 from app.db_classes.contest import Contest
 from app.db_classes.email import Email
+from app.db_classes.like import Like
 from app.db_classes.pool import Pool
 from app.db_classes.problem import Problem
 from app.db_classes.sheet import Sheet

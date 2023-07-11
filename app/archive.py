@@ -155,8 +155,8 @@ def archive_problem_search(mode):
 
 
     problems = Problem.query.all()
-    problems = [(p, len([tag for tag in tags if tag in p.get_tag_names()]), len(tags)) for p in problems if p.is_statement_available()]
-    problems.sort(key = lambda p: p[1], reverse=True)
+    problems = [(p, len([tag for tag in tags if tag in p.get_tag_names()]), len(tags), len(Like.get_all_by_parent(p))) for p in problems if p.is_statement_available()]
+    problems.sort(key = lambda p: (p[1], p[3]), reverse=True)
     
 
     #if mode == "all":
@@ -205,8 +205,8 @@ def archive_sheet_search(mode):
 
 
     sheets = Sheet.query.all()
-    sheets = [(s, len([tag for tag in tags if tag in s.get_tag_names()]), len(tags)) for s in sheets if s.is_text_available()]
-    sheets.sort(key = lambda s: s[1], reverse=True)
+    sheets = [(s, len([tag for tag in tags if tag in s.get_tag_names()]), len(tags), len(Like.get_all_by_parent(s))) for s in sheets if s.is_text_available()]
+    sheets.sort(key = lambda s: (s[1], s[3]), reverse=True)
     
 
     #if mode == "all":
@@ -258,8 +258,8 @@ def archive_contest_search(mode):
 
 
     contests = Contest.query.all()
-    contests = [(c, len([tag for tag in tags if tag in c.get_tag_names()]), len(tags)) for c in contests if c.is_description_available()]
-    contests.sort(key = lambda c: c[1], reverse=True)
+    contests = [(c, len([tag for tag in tags if tag in c.get_tag_names()]), len(tags), len(Like.get_all_by_parent(c))) for c in contests if c.is_description_available()]
+    contests.sort(key = lambda c: (c[1], c[3]), reverse=True)
     
 
     #if mode == "all":
