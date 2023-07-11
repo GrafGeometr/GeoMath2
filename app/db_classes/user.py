@@ -37,7 +37,7 @@ class User(UserMixin, db.Model):
         from app.dbc import Pool, User_Pool
         pool = Pool(name=name).add()
 
-        relation = User_Pool(user_id=self.id, pool_id=pool.id, role=Owner).add()
+        relation = User_Pool(user_id=self.id, pool_id=pool.id, role=Owner, invited_date=current_time(), joined_date=current_time()).add()
 
         return pool.hashed_id
 

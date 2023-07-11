@@ -75,7 +75,7 @@ def profile(username):
 @prof.route("/profile/pools")
 @login_required
 def profile_pools():
-    return render_template("profile/profile_pools.html", title="Мои пулы", user=current_user)
+    return render_template("profile/profile_pools.html", title="Мои пулы", user=current_user, str_from_dt = str_from_dt)
 
 
 @prof.route("/profile/groups")

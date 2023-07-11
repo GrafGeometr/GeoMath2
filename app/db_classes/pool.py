@@ -54,6 +54,19 @@ class Pool(db.Model):
 
         return Problem.get_all_by_pool(self)
 
+    def act_invite_user(self, user):
+        if user is None:
+            return
+        relation = user.get_pool_relation(self.id)
+        if relation is not None:
+            flash(f"Пользователь {user.name} уже приглашен или состоит в пуле", "error")
+            return
+        from app.dbc import User_Pool
+        relation = User_Pool(user=user, pool=self, role=Invited, invited_date=current_time()).add()
+        flash(f"Пользователь {user.name} успешно приглашен", "success")
+        return relation
+                
+
     def new_problem(self):
         from app.dbc import Problem
 

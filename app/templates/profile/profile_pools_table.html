@@ -4,8 +4,8 @@
             <th class="text-lg py-2 px-6">Название пула</th>
             <th class="text-lg py-2 px-6">Роль</th>
             <th class="text-lg py-2 px-6">Приглашение</th>
-            <th class="text-lg py-2 px-6">Время вступления</th>
             <th class="text-lg py-2 px-6">Время приглашения</th>
+            <th class="text-lg py-2 px-6">Время вступления</th>
         </tr>
         {% for userpool in current_user.get_pools() %}
         <tr class="odd:bg-white even:bg-neutral-100 hover:bg-neutral-200">
@@ -18,16 +18,24 @@
             {% else %}
             <td class="text-center text-base py-2">
                 <div class="flex justify-center gap-x-4">
-                    <a href="javascript:Accept('{{ userpool.pool.hashed_id }}');" class="no-underline text-green-500">Принять</a>
-                    <a href="javascript:Decline('{{ userpool.pool.hashed_id }}');" class="no-underline text-red-500">Отклонить</a>
+                    <a href="javascript:Accept('{{ userpool.pool.hashed_id }}');" class="no-underline text-green-500 hover:underline">Принять</a>
+                    <a href="javascript:Decline('{{ userpool.pool.hashed_id }}');" class="no-underline text-red-500 hover:underline">Отклонить</a>
                 </div>
             </td>
             {% endif %}
             <td class="text-center text-base py-2">
-                ???
+                {% if userpool.invited_date is not none %}
+                    {{ str_from_dt(userpool.invited_date, "seconds")}}
+                {% else %}
+                    ???
+                {% endif %}
             </td>
             <td class="text-center text-base py-2">
-                ???
+                {% if userpool.joined_date is not none %}
+                    {{ str_from_dt(userpool.joined_date, "seconds")}}
+                {% else %}
+                    ???
+                {% endif %}
             </td>
         </tr>
         {% endfor %}

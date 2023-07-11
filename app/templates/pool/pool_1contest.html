@@ -119,6 +119,32 @@
             </div>
         </div>
 
+        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Теги:</h2>
+        <div class="flex gap-x-8 items-start">
+            <ul class="w-full" id="tas_list">
+                {% for tag in current_contest.get_tags() %}
+                <li class="flex">
+                    <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
+                    <span class="text-slate-500 font-bold mr-4">#</span>
+                    <div class="w-2/3"><span>{{ tag.name }}</span></div>
+                    <span class="text-slate-500 font-bold mx-4">|</span>
+                    <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-red-600"
+                        onclick="DeleteTag(this)">Удалить тег</button>
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="flex w-full">
+                <span class="text-slate-500 font-bold mr-4">#</span>
+                <div class="w-2/3 relative inline-block">
+                    <input id="addtag" type="text" placeholder="Введите тег" name="tag_name"
+                        class="w-full border-slate-400 border-2 rounded px-2">
+                </div>
+                <span class="text-slate-700 font-bold mx-4">|</span>
+                <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-green-600"
+                    onclick="AddTag()">Добавить тег</button>
+            </div>
+        </div>
+
         <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Настройки:</h2>
         <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
             <div class="flex flex-col gap-y-4">
@@ -168,31 +194,7 @@
             </div>
         </div>
 
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Теги:</h2>
-        <div class="flex gap-x-8 items-start">
-            <ul class="w-full" id="tas_list">
-                {% for tag in current_contest.get_tags() %}
-                <li class="flex">
-                    <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
-                    <span class="text-slate-500 font-bold mr-4">#</span>
-                    <div class="w-2/3"><span>{{ tag.name }}</span></div>
-                    <span class="text-slate-500 font-bold mx-4">|</span>
-                    <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-red-600"
-                        onclick="DeleteTag(this)">Удалить тег</button>
-                </li>
-                {% endfor %}
-            </ul>
-            <div class="flex w-full">
-                <span class="text-slate-500 font-bold mr-4">#</span>
-                <div class="w-2/3 relative inline-block">
-                    <input id="addtag" type="text" placeholder="Введите тег" name="tag_name"
-                        class="w-full border-slate-400 border-2 rounded px-2">
-                </div>
-                <span class="text-slate-700 font-bold mx-4">|</span>
-                <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-green-600"
-                    onclick="AddTag()">Добавить тег</button>
-            </div>
-        </div>
+        
     </form>
 </div>
 

@@ -6,11 +6,13 @@ class User_Pool(db.Model):
     __tablename__ = "user_pool"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
     role = db.Column(RoleType)
+    invited_date = db.Column(db.DateTime)
+    joined_date = db.Column(db.DateTime)
 
     # --> RELATIONS
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
     # --> FUNCTIONS
     @staticmethod
@@ -35,8 +37,15 @@ class User_Pool(db.Model):
             return []
         return User_Pool.query.filter_by(user_id=user.id).all()
     
+    def act_accept_invitation(self):
+        self.role = Participant
+        self.joined_date = current_time()
+        db.session.commit()
+        return self
+
     def add(self):
         db.session.add(self)
+        self.invited_date = current_time()
         db.session.commit()
         return self
     

@@ -734,9 +734,8 @@ def accept_pool_invitation():
     if relation is None:
         return "user not invited"
 
-    relation.role = Participant
-
-    db.session.commit()
+    relation.act_accept_invitation()
+    
     print("DONE")
 
     return render_template("profile/profile_pools_table.html")
@@ -1045,28 +1044,11 @@ def pool_collaborators(pool_hashed_id):
 
                 if user is None:
                     flash(f"Пользователь {user_name} не найден", "error")
-                    print("Пользователь не найден")
-                    return redirect(
-                        url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                    )
-                user_relation = user.get_pool_relation(pool.id)
-                if user_relation is not None:
-                    flash(
-                        f"Пользователь {user.name} уже приглашен или состоит в пуле",
-                        "error",
-                    )
-                    return redirect(
-                        url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                    )
-                # add this user to the pool
-
-                relation = User_Pool(user=user, pool=pool, role=Invited)
-                db.session.add(relation)
-                db.session.commit()
-                flash(f"Пользователь {user.name} успешно приглашен", "success")
-                return redirect(
-                    url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                )
+                pool.act_invite_user(user)
+                
+            return redirect(
+                url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
+            )
 
     return render_template(
         "pool/pool_management_collaborators.html",
