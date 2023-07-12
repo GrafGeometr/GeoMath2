@@ -14,7 +14,7 @@ def check_user_in_pool(user, pool):
         return "/myprofile"
     if user.get_pool_relation(pool.id).role.isInvited():
         flash("Вы не приняли приглашение в этот пул", "error")
-        return f"/profile/{user.name}/pools"
+        return f"/profile/user/{user.name}/pools"
     return None
 
 
@@ -818,7 +818,7 @@ def pool_participants(pool_hashed_id):
                 )
             if user_relation.role.isOwner() and pool.count_owners() == 1:
                 flash(
-                    "Вы не можете выходить из пула, так как являетесь единственным владельцем",
+                    "Вы единственный владелец, сначала удалите пул",
                     "error",
                 )
                 return redirect(
@@ -826,7 +826,7 @@ def pool_participants(pool_hashed_id):
                 )
             db.session.delete(user_relation)
             db.session.commit()
-            flash(f"Пользователь {current_user.name} успешно удалён", "success")
+            flash(f"Вы вышли из пула", "success")
             return redirect("/myprofile")
 
     return render_template(
@@ -959,7 +959,7 @@ def pool_collaborators(pool_hashed_id):
             # current_user.get_pool_relation(pool.id).role = Participant
             db.session.commit()
             flash(
-                f"Права владельца успешно переданы пользователю {user.name}", "success"
+                f"Права владельца успешно выданы пользователю {user.name}", "success"
             )
             return redirect(
                 url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id)
@@ -991,7 +991,7 @@ def pool_collaborators(pool_hashed_id):
                 )
             if user.id == current_user.id and pool.count_owners() == 1:
                 flash(
-                    "Вы являетесь единственным владельцем пула, понижение невозможно",
+                    "Вы единственный владелец пула, понижение невозможно",
                     "warning",
                 )
                 return redirect(

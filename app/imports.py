@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from sqlalchemy.orm.attributes import flag_modified
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import confirm_login, login_user, logout_user, UserMixin, current_user
-from . import db, basedir
+from . import db, basedir, socketio
 import datetime
 import pytz
 import re
@@ -14,6 +14,7 @@ import cv2
 import numpy
 import copy
 from PIL import Image
+from flask_socketio import join_room, leave_room, send, SocketIO
 
 from .utils_and_functions.token_gen import generate_token
 from .utils_and_functions.current_time import current_time, dt_from_str, str_from_dt

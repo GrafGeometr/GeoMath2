@@ -1,0 +1,43 @@
+{% extends "chat/chat_management.html" %}
+{% block chat_settings %}
+
+<script>
+    var element = document.getElementById("management_collaborators_href");
+    element.classList.remove("text-stone-800");
+    element.classList.add("text-blue-600");
+</script>
+
+
+<section>
+    <h1 class="text-2xl text-stone-800 font-medium">Количество участников</h1>
+    <div class="h-px w-full bg-neutral-300 mt-2 mb-4"></div>
+    <ul class="text-lg">
+        <li><span class="inline-block text-blue-500 mr-2 font-semibold w-60">Всего пользователей:</span>{{ chat.user_chats|length }} чел.</li>
+        <li><span class="inline-block text-amber-500 mr-2 font-semibold w-60">Владельцы:</span>{{ chat.count_owners() }} чел.</li>
+        <li><span class="inline-block text-purple-500 mr-2 font-semibold w-60">Участники:</span>{{ chat.count_participants() }} чел.</li>
+    </ul>
+</section>
+
+<section>
+    <h1 class="text-2xl text-stone-800 font-medium">Управление доступом</h1>
+    <div class="h-px w-full bg-neutral-300 mt-2 mb-4"></div>
+    
+
+    {% include "chat/table_of_collaborators.html" %}
+</section>
+
+<section>
+    <h1 class="text-2xl text-stone-800 font-medium">Коды-приглашения</h1>
+    <div class="h-px w-full bg-neutral-300 mt-2 mb-4"></div>
+    <form action="/chat/{{ chat.hashed_id }}/management/collaborators" method="POST">
+        <input type="hidden" name="new_invite_code">
+        <input type="submit" value="Сгенерировать новый код на 24ч"
+        class="mb-4 hover: cursor-pointer px-8 py-2 rounded-md text-lg text-white font-semibold bg-blue-400 hover:bg-blue-500 active:bg-blue-600">
+    </form>
+    <ul>
+        {% for invite_code in chat.chat_invites %}
+        <li>{{ invite_code.code }}</li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}

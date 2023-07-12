@@ -1,0 +1,114 @@
+{% extends 'chat/chat_1chat.html' %}
+{% block body %}
+
+<script>
+    var element = document.getElementById("messages_href");
+    element.classList.remove("text-stone-800");
+    element.classList.add("text-blue-600");
+</script>
+
+<style>
+    #messages::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    background-color: #F5F5F5;
+    }
+
+    #messages::-webkit-scrollbar {
+    width: 12px;
+    background-color: #F5F5F5;
+    }
+
+    #messages::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+    background-color: #4096ff;
+    }
+
+    .message-box{
+        height: 60vh;
+    }
+</style>
+
+<div class="message-box w-1/2 border-2 border-black rounded-xl py-2">
+    
+    <div class="messages flex flex-col gap-y-4 overflow-y-scroll h-full px-4 bg-neutral-50" id="messages"></div>
+    
+</div>
+<div class="inputs flex gap-x-4 items-center mt-2">
+<textarea
+    type="text"
+    rows="3"
+    placeholder="Сообщение"
+    name="message"
+    id="message"
+    class="border-2 border-slate-500 rounded-xl p-2 w-1/2 pr-16 break-word whitespace-pre-wrap"
+></textarea>
+<button type="button" name="send" id="send-btn" onclick="sendMessage()" class="-ml-16">
+    <img src="/static/images/send.svg" class="w-8 hover:cursor-pointer">
+</button>
+<script>
+    var textarea = document.getElementById("message");
+    fitContent(textarea);
+    textarea.addEventListener("input", (e) => {
+        fitContent(textarea);
+    })
+</script>
+</div>
+
+  <script type="text/javascript">
+    var socketio = io();
+  
+    const messages = document.getElementById("messages");
+    
+    const createMessage = (name, msg, date) => {
+        console.log(msg);
+        let newMessage = document.createElement("div");
+        newMessage.classList.add( "flex", "flex-col", "p-4", "w-fit");
+        if (name == '{{current_user.name}}') newMessage.classList.add("bg-sky-200", "rounded-tl-lg", "rounded-tr-lg", "rounded-bl-lg", "ml-auto");
+        else newMessage.classList.add("bg-slate-200", "rounded-tl-lg", "rounded-tr-lg", "rounded-br-lg", "mr-auto");
+
+        let header = document.createElement("div");
+        header.classList.add("flex", "gap-x-4", "items-center");
+
+        let userName = document.createElement("a");
+        userName.classList.add("font-bold");
+        userName.innerHTML = name;
+        userName.href = `/profile/user/${name}`;
+
+        let userMsg = document.createElement("span");
+        userMsg.classList.add("break-words", "block", "w-72", "whitespace-pre-line");
+        userMsg.innerHTML = msg;
+
+        let timer = document.createElement("span");
+        timer.classList.add("text-slate-500", "text-xs");
+        timer.innerHTML = date;
+
+        header.appendChild(userName);
+        header.appendChild(timer);
+        newMessage.appendChild(header);
+        newMessage.appendChild(userMsg);
+
+        messages.appendChild(newMessage);
+        messages.scrollTop = messages.scrollHeight;
+        fitContent(textarea);
+    };
+  
+    socketio.on("message", (data) => {
+      createMessage(data.user, data.message, data.date);
+    });
+  
+    const sendMessage = () => {
+      const message = document.getElementById("message");
+      if (message.value == "") return;
+      socketio.emit("message", { room: '{{chat.hashed_id}}', message: prevent_injection(message.value) });
+      message.value = "";
+    };
+  </script>
+  {% for msg in messages %}
+  <script type="text/javascript">
+    createMessage("{{msg.user_chat.user.name}}", "{{msg.content}}", "{{str_from_dt(msg.date)}}");
+  </script>
+  {% endfor %} 
+
+{% endblock %}

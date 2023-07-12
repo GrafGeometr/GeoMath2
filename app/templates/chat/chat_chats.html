@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<a class="inline-block my-2 hover:cursor-pointer px-12 py-3 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700" href="/chat/create">Добавить чат</a>
+{% if current_user.user_chats %}
+<table class="table1 text-lg" cellspacing="0" cellpadding="0">
+    <tr>
+        <th>Название чата</th>
+    </tr>
+    {% for uc in current_user.user_chats %}
+    <tr>
+        <td class="flex justify-center items-center gap-x-2">
+            <a href="/chat/{{ uc.chat.hashed_id }}/messages" class="hover:underline block">{{ uc.chat.name }}</a>
+            {% set unread_count = uc.chat.get_unread_messages()|length %}
+            {% if unread_count > 0 %}
+            <span class="bg-red-500 text-white rounded-md px-2 py-1 text-base">{{ unread_count }}</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

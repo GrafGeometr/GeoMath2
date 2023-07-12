@@ -4,10 +4,12 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
+from flask_socketio import SocketIO
 
 
 db = SQLAlchemy()
 basedir = os.path.abspath(os.path.dirname(__file__))
+socketio = SocketIO()
 
 
 def create_app():
@@ -16,6 +18,7 @@ def create_app():
     app.config['SECRET_KEY'] = 'yandexlyceum_secret_key_2'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database/data.sqlite')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    socketio.init_app(app)
 
     db.init_app(app)
     migrate = Migrate(app, db)
@@ -64,6 +67,9 @@ def create_app():
 
     from .contest import contest as contest_blueprint
     app.register_blueprint(contest_blueprint)
+
+    from .chat import chat as chat_blueprint
+    app.register_blueprint(chat_blueprint)
 
     from .errorhandlers import err as err_blueprint
     app.register_blueprint(err_blueprint)

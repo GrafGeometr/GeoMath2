@@ -18,6 +18,8 @@ class User(UserMixin, db.Model):
     contest_judges = db.relationship("Contest_Judge", backref="user")
     contest_users = db.relationship("Contest_User", backref="user")
     likes = db.relationship("Like", backref="user")
+    user_chats = db.relationship("User_Chat", backref="user")
+    user_messages = db.relationship("User_Message", backref="user")
 
     # --> FUNCTIONS
     def set_password(self, password):
@@ -44,6 +46,11 @@ class User(UserMixin, db.Model):
     def get_pool_relation(self, pool_id):
         from app.dbc import User_Pool
         relation = User_Pool.query.filter_by(user_id=self.id, pool_id=pool_id).first()
+        return relation
+    
+    def get_chat_relation(self, chat_id):
+        from app.dbc import User_Chat
+        relation = User_Chat.query.filter_by(user_id=self.id, chat_id=chat_id).first()
         return relation
     
     def is_pool_access(self, pool_id):

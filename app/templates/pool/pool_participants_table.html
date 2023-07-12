@@ -6,7 +6,7 @@
     {% for userpool in current_pool.get_users() %}
     <tr>
         <td class="hover:underline">
-            <a href="/profile/{{ userpool.user.name }}"
+            <a href="/profile/user/{{ userpool.user.name }}"
             class="block">{{ userpool.user.name }}</a>
         </td>
         <td>

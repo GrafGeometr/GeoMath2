@@ -1,0 +1,44 @@
+<div id="table_of_collaborators">
+    <table class="border-collapse border-2 border-solid border-sky-400 w-full h-full">
+        <tbody>
+            <tr class="odd:bg-white even:bg-neutral-100 hover:bg-neutral-200">
+                <th class="text-xl py-2 px-8 w-1/2">Пользователь</th>
+                <th class="text-xl py-2 px-8 w-1/2">Роль</th>
+            </tr>
+            {% for user_chat in chat.user_chats %}
+            <tr class="odd:bg-white even:bg-neutral-100 hover:bg-neutral-200">
+                <td class="p-2">
+                    <span>{{ user_chat.user.name }}</span>
+                </td>
+                <td class="p-2">
+                    <details>
+                        {% if user_chat.role.isOwner() %}
+                            <summary class="font-bold text-amber-500">
+                                <span>Владелец</span>
+                            </summary>
+                            <div class="h-px w-full bg-gray-500 mb-4 mt-2"></div>
+                            <form action="/chat/{{ chat.hashed_id }}/management/collaborators" method="POST">
+                                <input type="hidden" name="downgrade_to_participant" value="{{ user_chat.user.id }}">
+                                <input type="submit" value="Понизить до участника" class="font-bold hover:text-red-500 hover:cursor-pointer">
+                            </form>
+
+                        {% elif user_chat.role.isParticipant() %} 
+                            <summary class="font-bold text-purple-500">
+                                <span>Участник</span>
+                            </summary>
+                            <div class="h-px w-full bg-gray-500 mb-4 mt-2"></div>
+                            <form action="/chat/{{ chat.hashed_id }}/management/collaborators" method="POST">
+                                <input type="hidden" name="upgrade_to_owner" value="{{ user_chat.user.id }}">
+                                <input type="submit" value="Повысить до владельца" class="font-bold hover:text-green-500 hover:cursor-pointer">
+                            </form>
+                            <form action="/chat/{{ chat.hashed_id }}/management/collaborators" method="POST">
+                                <input type="hidden" name="remove_participant" value="{{ user_chat.user.id }}">
+                                <input type="submit" value="Удалить из пула" class="font-bold hover:text-red-500 hover:cursor-pointer">
+                            </form>
+                        {% endif %}
+                    </details>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

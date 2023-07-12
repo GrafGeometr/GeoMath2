@@ -16,7 +16,7 @@ def show_profile_pic(filename):
 @prof.route("/myprofile")
 @login_required
 def to_profile():
-    return redirect(f"/profile/{current_user.name}")
+    return redirect(f"/profile/user/{current_user.name}")
     
 
 def squarify(d, f):
@@ -30,7 +30,7 @@ def squarify(d, f):
     img.save(path)
 
 
-@prof.route("/profile/<username>", methods=["GET", "POST"])
+@prof.route("/profile/user/<username>", methods=["GET", "POST"])
 def profile(username):
     user = User.query.filter_by(name = username).first()
     if user is None:
@@ -38,7 +38,7 @@ def profile(username):
         return redirect("/myprofile")
     if request.method == "POST":
         if user.name != current_user.name:
-            return redirect(f"/profile/{user.name}")
+            return redirect(f"/profile/user/{user.name}")
         if request.form.get("update_profile_pic") is not None:
             directory = 'app/database/profile_pics'
             file = request.files.get("profile_pic")
@@ -55,7 +55,7 @@ def profile(username):
                 squarify(directory, filename)
                 current_user.profile_pic = filename
                 db.session.commit()
-                return redirect(f"/profile/{user.name}")
+                return redirect(f"/profile/user/{user.name}")
         if request.form.get("delete_profile_pic") is not None:
             directory = 'app/database/profile_pics'
             try:
@@ -64,7 +64,7 @@ def profile(username):
                 pass
             current_user.profile_pic = None
             db.session.commit()
-            return redirect(f"/profile/{user.name}")
+            return redirect(f"/profile/user/{user.name}")
 
 
 

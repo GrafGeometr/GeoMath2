@@ -12,7 +12,7 @@ def email_required(f):
     def decorated_function(*args, **kwargs):
         if current_user.get_verified_emails_count() == 0:
             # TODO redirect to verification page
-            return redirect("/profile/{current_user.name}/settings")
+            return redirect("/profile/user/{current_user.name}/settings")
         return f(*args, **kwargs)
     return decorated_function
 

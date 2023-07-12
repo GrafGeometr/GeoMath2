@@ -1,0 +1,31 @@
+{% extends "chat/chat_management.html" %}
+{% block chat_settings %}
+
+<script>
+    var element = document.getElementById("management_general_href");
+    element.classList.remove("text-stone-800");
+    element.classList.add("text-blue-600");
+</script>
+
+<section>
+    <h1 class="text-2xl text-stone-800 font-medium">Общее</h1>
+    <div class="h-px w-full bg-neutral-300 mt-2 mb-4"></div>
+
+    <form action="/chat/{{ chat.hashed_id }}/management/general" method="POST">
+        <h2 class="text-lg text-stone-800 font-semibold">Название чата</h2>
+        <div class="flex gap-x-4">
+            <input class="text-lg bg-slate-100 border border-solid border-slate-400 rounded-md px-2 w-1/2 rounded-md" type="text" name="chat_name" value="{{ chat.name }}" required>
+            <input class="hover:cursor-pointer px-8 py-2 border border-solid border-slate-400 rounded-md text-lg text-stone-800 font-semibold bg-slate-100 hover:bg-slate-200 active:bg-slate-300" type="submit" value="Переименовать">
+        </div>
+    </form>
+    
+</section>
+<section>
+    <h1 class="text-2xl text-stone-800 font-medium">Опасная зона</h1>
+    <div class="h-px w-full bg-neutral-300 mt-2 mb-4"></div>
+    <form action="/chat/{{ chat.hashed_id }}/management/general" method="POST">
+        <input type="hidden" name="delete_chat" value="Hm, Value">
+        <input class="hover: cursor-pointer px-8 py-2 rounded-md text-lg text-white font-semibold bg-red-400 hover:bg-red-500 active:bg-red-600" type="submit" value="Удалить чат">
+    </form>
+</section>
+{% endblock %}
