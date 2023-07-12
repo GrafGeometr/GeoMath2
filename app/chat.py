@@ -49,6 +49,9 @@ def chat_messages(chat_hashed_id):
     if chat is None:
         flash("Чат с таким id не найден", "error")
         return redirect("/chats")
+    if not chat.is_my():
+        flash("Вы не состоите в этом чате", "error")
+        return redirect("/chats")
     chat.act_mark_all_as_read()
     return render_template("chat/chat_messages.html", chat=chat, messages=chat.get_all_messages(), str_from_dt = str_from_dt)
 
