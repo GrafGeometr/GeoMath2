@@ -781,10 +781,37 @@ def decline_pool_invitation():
 @login_required
 def create_new_pool():
     if request.method == "POST":
-        name = request.form.get("name")
-        print(name)
-        hashed_id = current_user.create_new_pool(name)
-        return redirect(f"/pool/{hashed_id}/problems")
+        create = request.form.get("create", False)
+        join = request.form.get("join", False)
+        name = request.form.get("name", "")
+        code = request.form.get("code", "").strip()
+        if (create):
+            if name is None or name == "":
+                flash("Необходимо указать название пула", "warning")
+                return render_template("pool/pool_create.html", title=f"Создание пула", name=name, code=code)
+            pool = Pool(name=name)
+            pool.add()
+            pool.act_add_user(user=current_user, role=Owner)
+            flash("Пул успешно создан", "success")
+            return redirect(f"/pool/{pool.hashed_id}/problems")
+        elif (join):
+            Invite.act_refresh_all()
+            if code is None or code == "":
+                flash("Необходимо указать код-приглашение", "warning")
+                return render_template("pool/pool_create.html", title=f"Создание пула", name=name, code=code)
+            i = Invite.query.filter_by(code=code).first()
+            if i is None:
+                flash("Код-приглашение не действителен", "error")
+                return render_template("pool/pool_create.html", title=f"Создание пула", name=name, code=code)
+            pool = i.get_parent()
+            if type(pool) != Pool:
+                flash("Код-приглашение не действителен", "error")
+                return render_template("pool/pool_create.html", title=f"Создание пула", name=name, code=code)
+            pool.act_add_user_by_invite(current_user, i)
+            flash("Вы присоединились к пулу", "success")
+            return redirect(f"/pool/{pool.hashed_id}/problems")
+
+        
 
     return render_template("pool/pool_create.html", title=f"Создание пула")
 
@@ -857,27 +884,17 @@ def pool_manager(pool_hashed_id):  # ok
 @login_required
 def pool_manager_general(pool_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
-
     if pool is None:
         flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
-
-    user_checked = check_user_in_pool(current_user, pool)
-    if user_checked is not None:
-        return redirect(user_checked)
-
-    management_access_checked = check_management_access(current_user, pool)
-    if management_access_checked is not None:
-        return redirect(management_access_checked)
+    if not pool.is_my():
+        flash("Вы не состоите в этом пуле", "error")
+        return redirect("/profile/pools")
+    if not current_user.get_pool_relation(pool.id).role.isOwner():
+        flash("Недостаточно прав", "error")
+        return redirect(f"/pool/{pool_hashed_id}/chats")
 
     if request.method == "POST":
-        print(request.form.get("pool_name"))
-        if not current_user.get_pool_relation(pool.id).role.isOwner():
-            print("OOPS")
-            flash("Вы не имеете доступа к этой странице", "error")
-            return redirect(
-                url_for("pool.pool_manager_general", pool_hashed_id=pool_hashed_id)
-            )
         if request.form.get("pool_name") is not None:
             print(type(request.form.get("pool_name")))
             pool.name = request.form.get("pool_name")
@@ -912,146 +929,85 @@ def pool_manager_general(pool_hashed_id):
 @login_required
 def pool_collaborators(pool_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
-
     if pool is None:
         flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
-
-    user_checked = check_user_in_pool(current_user, pool)
-    if user_checked is not None:
-        return redirect(user_checked)
-
-    management_access_checked = check_management_access(current_user, pool)
-    if management_access_checked is not None:
-        return redirect(management_access_checked)
+    if not pool.is_my():
+        flash("Вы не состоите в этом пуле", "error")
+        return redirect("/profile/pools")
+    if not current_user.get_pool_relation(pool.id).role.isOwner():
+        flash("Недостаточно прав", "error")
+        return redirect(f"/pool/{pool_hashed_id}/chats")
+    
 
     if request.method == "POST":
-        if not current_user.get_pool_relation(pool.id).role.isOwner():
-            flash("Вы не имеете доступа к этой странице", "error")
-            return redirect(
-                url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-            )
         if request.form.get("upgrade_to_owner") is not None:
             user_id = request.form.get("upgrade_to_owner")
             user = User.query.filter_by(id=user_id).first()
             if user is None:
                 flash("Пользователь не найден", "error")
-                return redirect(
-                    url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                )
+                return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
             user_relation = user.get_pool_relation(pool.id)
             if user_relation is None:
                 flash("Такого пользователя нет в пуле", "error")
-                return redirect(
-                    url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                )
+                return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
             if user_relation.role.isOwner():
                 flash("Пользователь уже владелец пула", "warning")
-                return redirect(
-                    url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                )
+                return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
             if user_relation.role.isInvited():
                 flash("Передать права владельца можно только участнику", "warning")
-                return redirect(
-                    url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                )
+                return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
             user_relation.role = Owner
-            # current_user.get_pool_relation(pool.id).role = Participant
             db.session.commit()
-            flash(
-                f"Права владельца успешно выданы пользователю {user.name}", "success"
-            )
-            return redirect(
-                url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id)
-            )
+            flash(f"Права владельца успешно выданы пользователю {user.name}", "success")
+            return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
 
         elif request.form.get("downgrade_to_participant") is not None:
             user_id = request.form.get("downgrade_to_participant")
             user = User.query.filter_by(id=user_id).first()
             if user is None:
                 flash("Пользователь не найден", "error")
-                return redirect(
-                    url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                )
+                return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
             user_relation = user.get_pool_relation(pool.id)
             if user_relation is None:
                 flash("Такого пользователя нет в пуле", "error")
-                return redirect(
-                    url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                )
+                return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
             if user_relation.role.isParticipant():
                 flash("Пользователь уже участник пула", "warning")
-                return redirect(
-                    url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                )
+                return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
             if user_relation.role.isInvited():
                 flash("Понизить до участника можно только владельца", "warning")
-                return redirect(
-                    url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                )
+                return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
             if user.id == current_user.id and pool.count_owners() == 1:
-                flash(
-                    "Вы единственный владелец пула, понижение невозможно",
-                    "warning",
-                )
-                return redirect(
-                    url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                )
+                flash("Вы единственный владелец пула, понижение невозможно", "warning")
+                return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
             user_relation.role = Participant
             db.session.commit()
             flash(f"Пользователь {user.name} успешно понижен до участника", "success")
-            return redirect(
-                url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id)
-            )
+            return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
 
         elif request.form.get("remove_participant") is not None:
             user_id = request.form.get("remove_participant")
             user = User.query.filter_by(id=user_id).first()
             if user is None:
                 flash("Пользователь не найден", "error")
-                return redirect(
-                    url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                )
+                return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
             user_relation = user.get_pool_relation(pool.id)
             if user_relation is None:
                 flash("Такого пользователя нет в пуле", "error")
-                return redirect(
-                    url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                )
+                return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
             if user_id == current_user.id:
                 flash("Вы не можете удалить себя из пула на этой странице", "error")
-                return redirect(
-                    url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                )
+                return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
             if user_relation.role.isOwner():
                 flash("Удалить владельца невозможно, сначала понизьте его до участника")
-                return redirect(
-                    url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-                )
+                return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
             db.session.delete(user_relation)
             db.session.commit()
             flash(f"Пользователь {user.name} успешно удалён", "success")
-            return redirect(
-                url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-            )
-        elif request.form.get("login1") is not None:
-            print(request.form.get("login1"))
+            return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
+        elif request.form.get("new_invite_code") is not None:
+            pool.act_generate_new_invite_code()
+            return redirect(url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id))
 
-            user_names = request.form.get("login1")
-            for un in user_names.split(";"):
-                user_name = un.strip()
-                user = User.query.filter_by(name=user_name).first()
-
-                if user is None:
-                    flash(f"Пользователь {user_name} не найден", "error")
-                pool.act_invite_user(user)
-                
-            return redirect(
-                url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
-            )
-
-    return render_template(
-        "pool/pool_management_collaborators.html",
-        current_pool=pool,
-        title=f"{pool.name} - участники",
-    )
+    return render_template("pool/pool_management_collaborators.html", current_pool=pool, title=f"{pool.name} - управление участниками")

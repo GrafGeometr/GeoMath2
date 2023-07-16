@@ -28,11 +28,20 @@ def login():
 @auth.route("/register", methods=["POST", "GET"])
 def register():
     if request.method == "POST":
-        login = request.form.get("login")
+        login = request.form.get("login", "").strip()
         email_name = request.form.get("email")
         password = request.form.get("password")
         repeat_password = request.form.get("repeat_password")
         next_url = request.form.get("next")
+
+        possible_characters = string.ascii_letters + string.digits + "_-."
+        if (login=="") or (not all(c in possible_characters for c in login)):
+            flash("Некорректный логин, допустимые символы: A-Z a-z 0-9 _ - .", "error")
+            return redirect("/register")
+        
+        if login.lower() in [user.name.lower() for user in User.query.all()]:
+            flash("Пользователь с таким именем уже существует", "error")
+            return redirect("/register")
 
         if not email_validity_checker(email_name):
             flash("Некорректный email", "error")
@@ -42,14 +51,16 @@ def register():
             # passwords don't match
             flash("Пароли не совпадают", "error")
             return redirect("/register")
-
-        if User.query.filter_by(name = login).first():
-            flash("Пользователь с таким именем уже существует", "error")
+        
+        if len(password) < 6:
+            flash("Длина пароля должна быть не менее 6 символов", "error")
             return redirect("/register")
+
+        
+
         user = User(name=login)
         email = Email(name=email_name, user=user)
 
-        print(email.name)
 
         email_token_stuff(email)
 

@@ -51,23 +51,27 @@ class DbParent:
         return self.name == object.name
 
     def toType(self):
-        from app.dbc import Contest, Problem, Sheet, Contest_User_Solution
+        from app.dbc import Contest, Problem, Sheet, Contest_User_Solution, Pool, Club
         return {
             "Contest": Contest,
             "Problem": Problem,
             "Sheet": Sheet,
             "Contest_User_Solution": Contest_User_Solution,
+            "Pool": Pool,
+            "Club": Club
         }.get(self.name, None)
 
     @staticmethod
     def fromType(type):
-        from app.dbc import Contest, Problem, Sheet, Contest_User_Solution
+        from app.dbc import Contest, Problem, Sheet, Contest_User_Solution, Pool, Club
         return DbParent(
             {
                 Contest: "Contest",
                 Problem: "Problem",
                 Sheet: "Sheet",
                 Contest_User_Solution: "Contest_User_Solution",
+                Pool: "Pool",
+                Club: "Club"
             }.get(type, None)
         )
 

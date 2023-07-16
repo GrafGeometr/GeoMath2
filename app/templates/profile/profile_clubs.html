@@ -1,23 +1,22 @@
 {% extends "profile/profile.html" %}
 {% block profile_content %}
 <script>
-    var element = document.getElementById("profile_pools_href");
+    var element = document.getElementById("profile_clubs_href");
     element.classList.add("border-b-2");
     element.classList.add("border-b-sky-400");
     element.classList.add("border-solid");
 </script>
-<a class="inline-block mb-4 hover:cursor-pointer px-12 py-3 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700"
-href="/pool/create">Добавить пул</a>
-{% if current_user.user_pools %}
+<a class="inline-block mb-4 hover:cursor-pointer px-12 py-3 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700" href="/club/create">Добавить кружок</a>
+{% if current_user.user_clubs %}
 <table class="table1 text-lg" cellspacing="0" cellpadding="0">
     <tr>
-        <th>Название пула</th>
+        <th>Название кружка</th>
         <th>Роль</th>
     </tr>
-    {% for uc in current_user.user_pools %}
+    {% for uc in current_user.user_clubs %}
     <tr>
         <td class="flex justify-center items-center gap-x-2">
-            <a href="/pool/{{ uc.pool.hashed_id }}/problems" class="hover:underline block">{{ uc.pool.name }}</a>
+            <a href="/club/{{ uc.club.hashed_id }}/chats" class="hover:underline block">{{ uc.club.name }}</a>
         </td>
         {% if uc.role.isOwner() %} <td class="text-center text-base py-2 text-amber-500">Владелец</td>
         {% elif uc.role.isParticipant() %} <td class="text-center text-base py-2 text-purple-500">Участник</td>

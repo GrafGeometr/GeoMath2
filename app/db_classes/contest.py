@@ -12,13 +12,14 @@ class Contest(db.Model):
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
     is_public = db.Column(db.Boolean, default=False)
-    rating = db.Column(db.String, default="public")
+    rating = db.Column(db.String, default="public") # 'public' | 'private'
     total_likes = db.Column(db.Integer, default=0)
 
     # --> RELATIONS
     contest_problems = db.relationship("Contest_Problem", backref="contest")
     contest_judges = db.relationship("Contest_Judge", backref="contest")
     contest_users = db.relationship("Contest_User", backref="contest")
+    club_contests = db.relationship("Club_Contest", backref="contest")
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
     # --> FUNCTIONS
@@ -126,14 +127,20 @@ class Contest(db.Model):
             return None
         return cproblems.index(contest_problem) + 1
     
-    def get_cu_by_mode_and_part(self, mode="all", part="real", user=current_user):
-        if mode not in ["all", "my"]:
+    def get_cu_by_mode_and_part(self, mode="all", part="real", user=current_user, club=None):
+        if mode not in ["all", "my", "club"]:
             return None
         if part not in ["real", "virtual"]:
             return None
         all_cu = [cu for cu in self.contest_users if cu.is_any_cus_available(user)]
-        if mode == "my":
-           all_cu = [cu for cu in all_cu if cu.user.id == user.id]
+
+        if mode == "all":
+            all_cu = all_cu
+        elif mode == "my":
+            all_cu = [cu for cu in all_cu if cu.user.id == user.id]
+        elif mode == "club":
+            all_cu = [cu for cu in all_cu if cu.user.get_club_relation(club.id)]
+
         if part == "real":
             all_cu = [cu for cu in all_cu if (not cu.virtual)]
         elif part == "virtual":
@@ -380,12 +387,15 @@ class Contest(db.Model):
         cp_s = self.contest_problems
         cu_s = self.contest_users
         cj_s = self.contest_judges
+        cc_s = self.club_contests
         for cp in cp_s:
             cp.remove()
         for cj in cj_s:
             cj.remove()
         for cu in cu_s:
             cu.remove()
+        for cc in cc_s:
+            cc.remove()
         from app.dbc import Like
         for l in Like.get_all_by_parent(self):
             l.remove(par=self)

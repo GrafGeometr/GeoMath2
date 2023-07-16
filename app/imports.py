@@ -14,6 +14,7 @@ import cv2
 import numpy
 import copy
 from PIL import Image
+import string
 from flask_socketio import join_room, leave_room, send, SocketIO
 
 from .utils_and_functions.token_gen import generate_token

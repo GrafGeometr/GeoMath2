@@ -71,6 +71,9 @@ def create_app():
     from .chat import chat as chat_blueprint
     app.register_blueprint(chat_blueprint)
 
+    from .club import club as club_blueprint
+    app.register_blueprint(club_blueprint)
+
     from .errorhandlers import err as err_blueprint
     app.register_blueprint(err_blueprint)
 

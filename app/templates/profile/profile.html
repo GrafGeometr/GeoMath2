@@ -4,7 +4,8 @@
     <a id="profile_about_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/user/{{ user.name }}">Основное</a>
     {% if current_user.is_authenticated and (current_user.name == user.name) %}
         <a id="profile_pools_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/pools">Пулы</a>
-        <a id="profile_groups_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/chats">Чаты</a>
+        <a id="profile_clubs_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/clubs">Кружки</a>
+        <a id="profile_chats_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/chats">Чаты</a>
         <a id="profile_settings_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/settings">Настройки</a>
         <div class="w-px bg-neutral-300"></div>
         <a id="profile_myproblems_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/archive/problems/my">Мои задачи</a>

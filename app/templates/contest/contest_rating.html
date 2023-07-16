@@ -108,10 +108,10 @@ rounded-tl-full rounded-tr-full rounded-bl-full w-fit text-xs"></div>
             class="text-center hover:cursor-pointer px-12 py-2 rounded-xl text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">Показать все посылки</a>
         {% endif %}
         {% if part=="real" %}
-            <a href="/contest/{{ current_contest.id }}/rating/{{mode}}/virtual"
+            <a href="{{url_for('contest.contest_rating', contest_id=current_contest.id, mode=mode, part='virtual', club=club_hashed_id)}}"
             class="text-center hover:cursor-pointer px-12 py-2 rounded-xl text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">Показать виртуальных участников</a>
         {% else %}
-            <a href="/contest/{{ current_contest.id }}/rating/{{mode}}/real"
+            <a href="{{url_for('contest.contest_rating', contest_id=current_contest.id, mode=mode, part='real', club=club_hashed_id)}}"
             class="text-center hover:cursor-pointer px-12 py-2 rounded-xl text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">Показать реальных участников</a>
         {% endif %}
     </nav>

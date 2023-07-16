@@ -19,6 +19,7 @@ class User(UserMixin, db.Model):
     contest_users = db.relationship("Contest_User", backref="user")
     likes = db.relationship("Like", backref="user")
     user_chats = db.relationship("User_Chat", backref="user")
+    user_clubs = db.relationship("User_Club", backref="user")
     user_messages = db.relationship("User_Message", backref="user")
 
     # --> FUNCTIONS
@@ -48,9 +49,24 @@ class User(UserMixin, db.Model):
         relation = User_Pool.query.filter_by(user_id=self.id, pool_id=pool_id).first()
         return relation
     
+    def is_chat_owner(self, chat):
+        from app.dbc import User_Chat
+        uc = User_Chat.query.filter_by(user_id=self.id, chat_id=chat.id).first()
+        return (uc is not None) and (uc.is_owner())
+    
+    def is_chat_participant(self, chat):
+        from app.dbc import User_Chat
+        uc = User_Chat.query.filter_by(user_id=self.id, chat_id=chat.id).first()
+        return (uc is not None) and (uc.is_participant())
+
     def get_chat_relation(self, chat_id):
         from app.dbc import User_Chat
         relation = User_Chat.query.filter_by(user_id=self.id, chat_id=chat_id).first()
+        return relation
+    
+    def get_club_relation(self, club_id):
+        from app.dbc import User_Club
+        relation = User_Club.query.filter_by(user_id=self.id, club_id=club_id).first()
         return relation
     
     def is_pool_access(self, pool_id):

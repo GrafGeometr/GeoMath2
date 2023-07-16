@@ -1,0 +1,60 @@
+{% extends "club/club_header.html" %}
+{% block club_body %}
+<script>
+    var element = document.getElementById("contests_href");
+    element.classList.remove("text-stone-800");
+    element.classList.add("text-blue-600");
+</script>
+
+{% if current_user.get_club_relation(club.id).role.isOwner() %}
+<a class="inline-block my-2 hover:cursor-pointer px-12 py-3 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700"
+href="/club/{{ club.hashed_id }}/contest/create">Прикрепить контест</a>
+{% endif %}
+
+{% if club.club_contests %}
+{% set own = current_user.get_club_relation(club.id).role.isOwner() %}
+<table class="table1 text-lg" cellpadding="0" cellspacing="0">
+    <tr>
+        <th>Название</th>
+        <th>Рейтинг кружка</th>
+        <th>Состояние</th>
+        {% if own %}
+        <th></th>
+        {% endif %}
+    </tr>
+    {% for cc in club.club_contests %}
+    <tr>
+        <td>
+            <a href="/contest/{{ cc.contest.id }}" class="hover:text-blue-600"
+            class="block">{{ cc.contest.name }}</a>
+        </td>
+        <td>
+            <a href="{{url_for('contest.contest_rating', contest_id=cc.contest.id, mode='club', part='real', club=club.hashed_id)}}" class="hover:text-blue-600"
+            class="block">Открыть</a>
+        </td>
+        <td>
+            {% if cc.contest.is_ended() %}
+            <span>Завершён</span>
+            {% elif cc.contest.is_started() %}
+            <span>Идёт...</span>
+            {% else %}
+            <span>Не начался</span>
+            {% endif %}
+        </td>
+        {% if own %}
+        <td>
+            <form action="/club/{{ club.hashed_id }}/contests" method="post">
+                <input type="hidden" name="remove_contest" value="{{ cc.contest.id }}">
+                <label class="cursor-pointer">
+                    <input type="submit" class="hidden">
+                    <img class="w-6 border-0" src="/static/images/bin.svg" alt="bin">
+                </label>
+            </form>
+        </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+{% endblock %}

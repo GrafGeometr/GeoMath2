@@ -31,7 +31,7 @@ class Contest_User_Solution(db.Model):
     def is_available(self, user=current_user):
         if user is None or self.contest_user is None or self.contest_user.user is None or self.contest_user.contest is None:
             return False
-        return (self.contest_user.user.id == user.id) or (user.is_judge(self.contest_user.contest))
+        return (self.contest_user.user.id == user.id) or (self.contest_user.contest.is_rating_public()) or (user.is_judge(self.contest_user.contest))
     
     def act_set_hashed_id(self):
         while True:

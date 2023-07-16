@@ -42,6 +42,7 @@ class Contest_User(db.Model):
         return not self.is_ended()
     
     def is_any_cus_available(self, user=current_user):
+        print(user)
         return any([cus.is_available(user) for cus in self.contest_user_solutions])
 
 

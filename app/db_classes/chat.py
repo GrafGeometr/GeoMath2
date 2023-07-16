@@ -9,10 +9,11 @@ class Chat(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False)
     hashed_id = db.Column(db.String, unique=True, nullable=True)
+    readonly = db.Column(db.Boolean, default=False)
 
     # --> RELATIONS
     user_chats = db.relationship("User_Chat", backref="chat")
-    chat_invites = db.relationship("Chat_Invite", backref="chat")
+    club_id = db.Column(db.Integer, db.ForeignKey("club.id")) # if not a dialog
 
     # --> FUNCTIONS
     def add(self):
@@ -22,8 +23,9 @@ class Chat(db.Model):
         return self
 
     def remove(self):
-        for ci in self.chat_invites:
-            ci.remove()
+        from app.dbc import Invite
+        for i in Invite.get_all_by_parent(self):
+            i.remove()
         for uc in self.user_chats:
             uc.remove()
         db.session.delete(self)
@@ -50,16 +52,12 @@ class Chat(db.Model):
             res.extend(User_Message.query.filter_by(user=user, message=m, read=False).all())
         return res
     
-    
-    def get_all_chat_invites(self):
-        self.act_refresh_chat_invites()
-        return self.chat_invites
 
     def count_owners(self):
-        return len([uc.user for uc in self.user_chats if uc.role.isOwner()])
+        return len([uc.user for uc in self.user_chats if uc.is_owner()])
 
     def count_participants(self):
-        return len([uc.user for uc in self.user_chats if uc.role.isParticipant()])
+        return len([uc.user for uc in self.user_chats if uc.is_participant()])
 
     def act_set_hashed_id(self):
         while True:
@@ -69,28 +67,21 @@ class Chat(db.Model):
                 break
         db.session.commit()
 
-    def act_add_user(self, user=current_user, role=Participant):
+    def act_add_user(self, user=current_user):
         from app.dbc import User_Chat
         if self.is_contains_user(user):
             return
-        uc = User_Chat(user=user, chat=self, role=role)
+        uc = User_Chat(user=user, chat=self)
         uc.add()
         return self
-    
-    def act_add_user_by_code(self, user=current_user, code=None):
-        if code is None:
+
+    def act_remove_user(self, user=current_user):
+        from app.dbc import User_Chat
+        if not self.is_contains_user(user):
             return
-        from app.dbc import Chat_Invite
-        ci = Chat_Invite.query.filter_by(code=code).first()
-        if ci is None:
-            flash("Код-приглашение не действителен", "error")
-            return
-        ci.act_check_expired()
-        ci = Chat_Invite.query.filter_by(code=code).first()
-        if ci is None:
-            flash("Код-приглашение не действителен", "error")
-            return
-        self.act_add_user(user)
+        uc = User_Chat.query.filter_by(user=user, chat=self).first()
+        uc.remove()
+        return self
 
     def act_refresh_chat_invites(self):
         for ci in self.chat_invites:

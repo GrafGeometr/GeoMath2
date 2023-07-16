@@ -7,7 +7,6 @@ class User_Chat(db.Model):
     __tablename__ = "user_chat"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    role = db.Column(RoleType)
 
     # --> RELATIONS
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
@@ -15,6 +14,18 @@ class User_Chat(db.Model):
     messages = db.relationship("Message", backref="user_chat")
 
     # --> FUNCTIONS
+    def is_owner(self):
+        if self.chat.club is None:
+            return True
+        
+        return self.user.get_club_relation(self.chat.club.id).role.isOwner()
+
+    def is_participant(self):
+        if self.chat.club is None:
+            return False
+        
+        return self.user.get_club_relation(self.chat.club.id).role.isParticipant()
+
     def add(self):
         db.session.add(self)
         db.session.commit()

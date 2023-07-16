@@ -17,6 +17,12 @@ class Pool(db.Model):
     contests = db.relationship("Contest", backref="pool")
 
     # --> FUNCTIONS
+    def is_contains_user(self, user=current_user):
+        return user in [up.user for up in self.user_pools]
+
+    def is_my(self):
+        return self.is_contains_user(current_user)
+    
     def act_set_hashed_id(self):
         while True:
             hashed_id = generate_token(20)
@@ -26,6 +32,41 @@ class Pool(db.Model):
 
         self.hashed_id = hashed_id
         return self.save()
+    
+    def act_add_user(self, user=current_user, role=Participant):
+        from app.dbc import User_Pool
+        if user is None:
+            return
+        if self.is_contains_user(user):
+            return
+        up = User_Pool(user=user, pool=self, role=role)
+        up.add()
+        return self
+    
+    def act_remove_user(self, user=current_user):
+        from app.dbc import User_Pool
+        if user is None:
+            return
+        if not self.is_contains_user(user):
+            return
+        up = User_Pool.query.filter_by(user=user, pool=self).first()
+        up.remove()
+        return self
+    
+    def act_add_user_by_invite(self, user=current_user, invite=None):
+        if (invite is None) or (invite.is_expired()) or (invite.get_parent() != self):
+            return
+        if self.is_contains_user(user):
+            return
+        self.act_add_user(user)
+        return self
+    
+    def act_generate_new_invite_code(self):
+        from app.dbc import Invite
+        Invite.act_refresh_all()
+        invite = Invite(parent_type=DbParent.fromType(Pool), parent_id=self.id)
+        invite.add()
+        return invite
 
     def get_users(self):
         from app.dbc import User_Pool
@@ -46,25 +87,14 @@ class Pool(db.Model):
     def count_participants(self):
         return len([user for user in self.get_users() if user.role.isParticipant()])
 
-    def count_invited(self):
-        return len([user for user in self.get_users() if user.role.isInvited()])
-
     def get_problems(self):
         from app.dbc import Problem
 
         return Problem.get_all_by_pool(self)
-
-    def act_invite_user(self, user):
-        if user is None:
-            return
-        relation = user.get_pool_relation(self.id)
-        if relation is not None:
-            flash(f"Пользователь {user.name} уже приглашен или состоит в пуле", "error")
-            return
-        from app.dbc import User_Pool
-        relation = User_Pool(user=user, pool=self, role=Invited, invited_date=current_time()).add()
-        flash(f"Пользователь {user.name} успешно приглашен", "success")
-        return relation
+    
+    def get_all_invites(self):
+        from app.dbc import Invite
+        return Invite.get_all_by_parent(self)
                 
 
     def new_problem(self):

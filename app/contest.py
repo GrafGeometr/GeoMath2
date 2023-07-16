@@ -139,11 +139,17 @@ def contest_rating(contest_id, mode, part):
     contest = Contest.get_by_id(contest_id)
     if (contest is None) or (not contest.is_description_available()):
         return redirect("/myprofile")
-    if mode not in ["all", "my"]:
+    if mode not in ["all", "my", "club"]:
         return redirect(f"/contest/{contest_id}")
     if part not in ["real", "virtual"]:
         return redirect(f"/contest/{contest_id}")
-    all_cu = contest.get_cu_by_mode_and_part(mode, part)
+    club_hashed_id = request.args.get("club")
+    club = Club.get_by_hashed_id(club_hashed_id)
+    if mode == "club":
+        if club is None:
+            return redirect(f"/contest/{contest_id}")
+    all_cu = contest.get_cu_by_mode_and_part(mode=mode, part=part, club=club)
     table = contest.get_rating_table(all_cu)
+    print(all_cu)
     return render_template("contest/contest_rating.html", current_contest=contest, title=f"{contest.name} - рейтинг",
-                           mode=mode, part=part, rating_table=table, str_from_dt = str_from_dt)
+                           mode=mode, part=part, club_hashed_id=club_hashed_id, rating_table=table, str_from_dt = str_from_dt)

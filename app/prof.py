@@ -78,10 +78,10 @@ def profile_pools():
     return render_template("profile/profile_pools.html", title="Мои пулы", user=current_user, str_from_dt = str_from_dt)
 
 
-@prof.route("/profile/groups")
+@prof.route("/profile/clubs")
 @login_required
-def profile_groups():
-    return render_template("profile/profile_groups.html", title="Мои кружки", user=current_user)
+def profile_clubs():
+    return render_template("profile/profile_clubs.html", title="Мои кружки", user=current_user)
 
 @prof.route("/profile/settings")
 @login_required

@@ -30,11 +30,12 @@
     }
 </style>
 
-<div class="message-box w-1/2 border-2 border-black rounded-xl py-2">
+<div class="message-box w-1/2 border-2 border-slate-500 rounded-xl py-2">
     
     <div class="messages flex flex-col gap-y-4 overflow-y-scroll h-full px-4 bg-neutral-50" id="messages"></div>
     
 </div>
+{% if (not chat.readonly) or (current_user.is_chat_owner(chat)) %}
 <div class="inputs flex gap-x-4 items-center mt-2">
 <textarea
     type="text"
@@ -55,6 +56,7 @@
     })
 </script>
 </div>
+{% endif %}
 
   <script type="text/javascript">
     var socketio = io();
@@ -64,7 +66,7 @@
     const createMessage = (name, msg, date) => {
         console.log(msg);
         let newMessage = document.createElement("div");
-        newMessage.classList.add( "flex", "flex-col", "p-4", "w-fit");
+        newMessage.classList.add("flex", "flex-col", "p-4", "w-full");
         if (name == '{{current_user.name}}') newMessage.classList.add("bg-sky-200", "rounded-tl-lg", "rounded-tr-lg", "rounded-bl-lg", "ml-auto");
         else newMessage.classList.add("bg-slate-200", "rounded-tl-lg", "rounded-tr-lg", "rounded-br-lg", "mr-auto");
 
@@ -77,7 +79,7 @@
         userName.href = `/profile/user/${name}`;
 
         let userMsg = document.createElement("span");
-        userMsg.classList.add("break-words", "block", "w-72", "whitespace-pre-line");
+        userMsg.classList.add("break-words", "block", "w-full", "whitespace-pre-line");
         userMsg.innerHTML = msg;
 
         let timer = document.createElement("span");
