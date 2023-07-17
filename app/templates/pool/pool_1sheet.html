@@ -24,11 +24,6 @@
             class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
             value="Опубликовать в архив">
     </form>
-    {% else %}
-    <span
-        class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">
-        В архиве
-    </span>
     {% endif %}
 </div>
 
@@ -39,96 +34,99 @@
 {% endif %}
 <div class="flex flex-col">
     <form autocomplete="off" action="/pool/{{ current_pool.hashed_id }}/sheet/{{ current_sheet.id }}" method="post"
-        class="w-full mt-2 px-4" enctype="multipart/form-data">
+        class="w-full mt-2 px-4 flex flex-col gap-y-4" enctype="multipart/form-data">
         <input type="hidden" name="save_sheet" value="239">
         
-        <div class="flex flex-row items-center mt-4 w-1/2">
-            <h1 class="text-2xl font-bold">{{ current_sheet.name }}</h1>
+        <div class="flex flex-row items-center w-full gap-x-4">
+            <div class="flex flex-row items-center">
+                <span class="text-2xl font-bold">{{ current_sheet.name }}</span>
+            </div>
             <input type="submit" value="Сохранить"
-                class="hover:cursor-pointer px-8 py-2 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700 ml-8 mr-4">
-            {% with messages = get_flashed_messages() %}
-            {% for message in messages %}
-            <div id="flash-message"
-                class="text-stone-800 text-semibold rounded text-lg text-center">
-                {{ message }}</div>
-            {% endfor %}
-            {% endwith %}
+                class="hover:cursor-pointer px-8 py-2 rounded-md text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700">
         </div>
         
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Название:</h2>
-        <div class="flex w-full">
-            <textarea rows="1" cols="50" name="name" class="text-lg w-full p-4 border-slate-200 border-2 rounded-lg" {%
-                if current_sheet.is_public %} readonly {% endif %}>{{ current_sheet.name }}</textarea>
+        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+            <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Название:</h2>
+            <div class="flex w-full">
+                <textarea rows="1" cols="50" name="name" class="text-lg w-full p-4 border-slate-200 border-2 rounded-lg" {%
+                    if current_sheet.is_public %} readonly {% endif %}>{{ current_sheet.name }}</textarea>
+            </div>
         </div>
 
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Текст:</h2>
-        <div class="flex w-full items-start">
-            <textarea id="text_textarea" cols="50" name="text" {% if current_sheet.is_public %}
-                readonly {% endif %} class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_sheet.text }}</textarea>
+        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+            <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Текст:</h2>
+            <div class="flex w-full items-start">
+                <textarea id="text_textarea" cols="50" name="text" {% if current_sheet.is_public %}
+                    readonly {% endif %} class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_sheet.text }}</textarea>
+            </div>
         </div>
 
         <script>
             makeLaTeXArea("text_textarea", "sheet");
         </script>
 
-
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Теги:</h2>
-        <div class="flex gap-x-8 items-start">
-            <ul class="w-full" id="tas_list">
-                {% for tag in current_sheet.get_tags() %}
-                <li class="flex">
-                    <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
+        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+            <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Теги:</h2>
+            <div class="flex gap-x-8 items-start">
+                <ul class="w-full" id="tas_list">
+                    {% for tag in current_sheet.get_tags() %}
+                    <li class="flex">
+                        <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
+                        <span class="text-slate-500 font-bold mr-4">#</span>
+                        <div class="w-2/3"><span>{{ tag.name }}</span></div>
+                        <span class="text-slate-500 font-bold mx-4">|</span>
+                        <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-red-600"
+                            onclick="DeleteTag(this)">Удалить тег</button>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <div class="flex w-full">
                     <span class="text-slate-500 font-bold mr-4">#</span>
-                    <div class="w-2/3"><span>{{ tag.name }}</span></div>
-                    <span class="text-slate-500 font-bold mx-4">|</span>
-                    <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-red-600"
-                        onclick="DeleteTag(this)">Удалить тег</button>
-                </li>
-                {% endfor %}
-            </ul>
-            <div class="flex w-full">
-                <span class="text-slate-500 font-bold mr-4">#</span>
-                <div class="w-2/3 relative inline-block">
-                    <input id="addtag" type="text" placeholder="Введите тег" name="tag_name"
-                        class="w-full border-slate-400 border-2 rounded px-2">
+                    <div class="w-2/3 relative inline-block">
+                        <input id="addtag" type="text" placeholder="Введите тег" name="tag_name"
+                            class="w-full border-slate-400 border-2 rounded px-2">
+                    </div>
+                    <span class="text-slate-700 font-bold mx-4">|</span>
+                    <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-green-600"
+                        onclick="AddTag()">Добавить тег</button>
                 </div>
-                <span class="text-slate-700 font-bold mx-4">|</span>
-                <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-green-600"
-                    onclick="AddTag()">Добавить тег</button>
             </div>
         </div>
 
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Вложения:</h2>
-        <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
-            <div class="border-r-2 border-slate-300 w-1/3">
-                <div class="flex flex-col {% if current_sheet.get_attachments() %} gap-y-4 {% endif %} mr-4">
-                    <ul class="flex flex-col gap-y-2 " id="files-list">
-                        {% for attachment in current_sheet.get_attachments() %}
-                        <li class="flex w-full gap-x-2">
-                            <input type="text" name="attachment_name {{ attachment.db_filename }}" id="attachment-name-{{ attachment.db_filename }}"
-                                value="{{ attachment.short_name }}" placeholder="Как назвать картинку?" {% if current_sheet.is_public %} readonly {% endif %}
-                                class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
-                            {% if not current_sheet.is_public %}
-                                <button onclick="DeleteAttachment(this)"
-                                class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
-                            {% endif %}
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    <div class="border-2 border-blue-500 border-dashed px-8 py-4 rounded-xl flex justify-center {% if current_sheet.is_public %} hidden {% endif %}">
-                        <label class="label text-lg">
-                            <input type="file" class="file-input w-0 h-0" name="attachments" accept="image/*" multiple {% if current_sheet.is_public %} readonly {% endif %}>
-                            {% if not current_sheet.is_public %}
-                            <span class="browse-files-text text-blue-500 font-semibold cursor-pointer inline-block"
-                                onclick="ResetFileInput()">Загрузить файлы</span>
-                            {% endif %}
-                        </label>
+
+        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+            <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Вложения:</h2>
+            <div class="flex">
+                <div class="border-r-2 border-slate-300 w-1/3">
+                    <div class="flex flex-col {% if current_sheet.get_attachments() %} gap-y-4 {% endif %} mr-4">
+                        <ul class="flex flex-col gap-y-2 " id="files-list">
+                            {% for attachment in current_sheet.get_attachments() %}
+                            <li class="flex w-full gap-x-2">
+                                <input type="text" name="attachment_name {{ attachment.db_filename }}" id="attachment-name-{{ attachment.db_filename }}"
+                                    value="{{ attachment.short_name }}" placeholder="Как назвать картинку?" {% if current_sheet.is_public %} readonly {% endif %}
+                                    class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+                                {% if not current_sheet.is_public %}
+                                    <button onclick="DeleteAttachment(this)"
+                                    class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="border-2 border-blue-500 border-dashed px-8 py-4 rounded-xl flex justify-center {% if current_sheet.is_public %} hidden {% endif %}">
+                            <label class="label text-lg">
+                                <input type="file" class="file-input w-0 h-0" name="attachments" accept="image/*" multiple {% if current_sheet.is_public %} readonly {% endif %}>
+                                {% if not current_sheet.is_public %}
+                                <span class="browse-files-text text-blue-500 font-semibold cursor-pointer inline-block"
+                                    onclick="ResetFileInput()">Загрузить файлы</span>
+                                {% endif %}
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="w-1/3 ml-4">
-                <img id="display-attachment" class="hidden border-2 border-sky-400 padding-8 rounded-xl">
+                <div class="w-1/3 ml-4">
+                    <img id="display-attachment" class="hidden border-2 border-sky-400 padding-8 rounded-xl">
+                </div>
             </div>
         </div>
 

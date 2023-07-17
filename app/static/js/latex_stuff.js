@@ -94,7 +94,7 @@ function makeLaTeXArea(elementId, editorType="problem") {
     // create output div
     const latexOutput = document.createElement("div");
     latexOutput.id = `${elementId}-latex-output`;
-    latexOutput.classList.add("text-lg", "p-4", "bg-white", "border-2", "border-solid", "border-slate-200", "rounded-lg", "w-1/2");
+    latexOutput.classList.add("text-lg", "p-4", "bg-white", "w-1/2");
 
     element.parentElement.appendChild(latexOutput);
     element.parentElement.classList.add("gap-x-4");

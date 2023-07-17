@@ -34,11 +34,6 @@
             class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
             value="Опубликовать в архив">
     </form>
-    {% else %}
-    <span
-        class="hover:cursor-pointer px-12 py-2 rounded-xl text-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">
-        В архиве
-    </span>
     {% endif %}
 </div>
 {% if current_contest.is_public %}
@@ -48,147 +43,152 @@
 {% endif %}
 <div class="flex flex-col">
     <form autocomplete="off" action="/pool/{{ current_pool.hashed_id }}/contest/{{ current_contest.id }}" method="post"
-        class="w-full mt-2 px-4" enctype="multipart/form-data">
+        class="w-full mt-2 px-4 flex flex-col gap-y-4" enctype="multipart/form-data">
         <input type="hidden" name="save_contest" value="239">
         
 
-        <div class="flex flex-row items-center mt-4 w-1/2">
-            <h1 class="text-2xl font-bold">{{ current_contest.name }}</h1>
+        <div class="flex flex-row items-center w-full gap-x-4">
+            <div class="flex flex-row items-center">
+                <span class="text-2xl font-bold">{{ current_contest.name }}</span>
+            </div>
             <input type="submit" value="Сохранить"
-                class="hover:cursor-pointer px-8 py-2 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700 ml-8 mr-4">
-            {% with messages = get_flashed_messages() %}
-            {% for message in messages %}
-            <div id="flash-message"
-                class="text-stone-800 text-semibold rounded text-lg text-center">
-                {{ message }}</div>
-            {% endfor %}
-            {% endwith %}
+                class="hover:cursor-pointer px-8 py-2 rounded-md text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700">
         </div>
         
         {% if current_contest.is_public %}
-        <div class="w-1/2 p-4 border-slate-200 border-2 rounded-lg bg-white mt-4 mb-2 text-lg">
+        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
             <div id="contest-state-div" class="flex gap-x-2 items-center"><span class="font-bold">Состояние:</span><span id="contest-state-span"></span></div>
             <div id="timer-div" class="flex gap-x-2 items-center"><span class="font-bold" id="timer-span-text"></span><span id='timer-span-clock'></span></div>
         </div>
         {% endif %}
         
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Название:</h2>
-        <div class="flex w-full">
-            <textarea rows="1" cols="50" name="name" class="text-lg w-full p-4 border-slate-200 border-2 rounded-lg" {%
-                if current_contest.is_public %} readonly {% endif %}>{{ current_contest.name }}</textarea>
+        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+            <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Название:</h2>
+            <div class="flex w-full">
+                <textarea rows="1" cols="50" name="name" class="text-lg w-full p-4 border-slate-200 border-2 rounded-lg" {%
+                    if current_contest.is_public %} readonly {% endif %}>{{ current_contest.name }}</textarea>
+            </div>
         </div>
 
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Описание:</h2>
-        <div class="flex w-full items-start">
-            <textarea id="description_textarea" cols="50" name="description" {% if current_contest.is_public %}
-                readonly {% endif %} class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_contest.description }}</textarea>
+        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+            <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Описание:</h2>
+            <div class="flex w-full items-start">
+                <textarea id="description_textarea" cols="50" name="description" {% if current_contest.is_public %}
+                    readonly {% endif %} class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_contest.description }}</textarea>
+            </div>
         </div>
 
         <script>
             makeLaTeXArea("description_textarea", "contest");
         </script>
 
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Задачи:</h2>
-        <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
-            <div class="border-r-2 border-slate-300 w-1/2">
-                <div class="flex flex-col {% if current_contest.get_problems() %} gap-y-4 {% endif %} mr-4">
-                    <ul class="flex flex-col gap-y-2 " id="problems-list">
-                        {% for cp in current_contest.contest_problems %}
-                        {% with problem = cp.problem %}
-                        <li class="flex w-full gap-x-2">
-                            <input type="text" name="problem_hash"
-                                value="{{ problem.hashed_id }}" placeholder="Хеш задачи"
-                                class="input-problem-hash text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
-                            <input type="number" name="max_score"
-                                value="{{ cp.max_score }}" placeholder="Балл"
-                                min="1" max="999"
-                                class="input-max-score text-lg text-slate-800 border-slate-200 border rounded-lg px-2 py-2">
-                                <button onclick="DeleteProblem(this)"
-                                class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-600">Удалить</button>
-                        </li>
-                        {% endwith %}
-                        {% endfor %}
-                    </ul>
-                    <button onclick="event.preventDefault(); AddProblem(event)"
-                    class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-green-600">Добавить</button>
-                </div>
-            </div>
-
-            <div class="w-1/2 ml-4">
-                <div id="display-problem" class="hidden border-2 border-sky-400 p-8 rounded-xl"></div>
-            </div>
-        </div>
-
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Теги:</h2>
-        <div class="flex gap-x-8 items-start">
-            <ul class="w-full" id="tas_list">
-                {% for tag in current_contest.get_tags() %}
-                <li class="flex">
-                    <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
-                    <span class="text-slate-500 font-bold mr-4">#</span>
-                    <div class="w-2/3"><span>{{ tag.name }}</span></div>
-                    <span class="text-slate-500 font-bold mx-4">|</span>
-                    <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-red-600"
-                        onclick="DeleteTag(this)">Удалить тег</button>
-                </li>
-                {% endfor %}
-            </ul>
-            <div class="flex w-full">
-                <span class="text-slate-500 font-bold mr-4">#</span>
-                <div class="w-2/3 relative inline-block">
-                    <input id="addtag" type="text" placeholder="Введите тег" name="tag_name"
-                        class="w-full border-slate-400 border-2 rounded px-2">
-                </div>
-                <span class="text-slate-700 font-bold mx-4">|</span>
-                <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-green-600"
-                    onclick="AddTag()">Добавить тег</button>
-            </div>
-        </div>
-
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mt-4 mb-2">Настройки:</h2>
-        <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
-            <div class="flex flex-col gap-y-4">
-                <div class="flex items-center gap-x-4">
-                    <input type="datetime-local" name="start_date" class="w-80 px-4 py-2 border-slate-200 border-2 rounded-lg" value="{{ current_contest.start_date.isoformat() }}">
-                    <span class="w-60">Время начала (МСК)</span>
-                </div>
-                <div class="flex items-center gap-x-4">
-                    <input type="datetime-local" name="end_date" class="w-80 px-4 py-2 border-slate-200 border-2 rounded-lg" value="{{ current_contest.end_date.isoformat() }}">
-                    <span class="w-60">Время окончания (МСК)</span>
-                </div>
-                <label>
-                    <input type="checkbox" name="is_rating_public" {% if current_contest.is_rating_public() %} checked {% endif %}
-                    class="hidden" id="is-rating-public">
-                    <span class="text-lg">
-                        <span class="font-bold">Результаты проверки:</span>
-                        {% if current_contest.is_rating_public() %}
-                        <span class="text-green-600 cursor-pointer hover:underline" id="is-rating-public-span">
-                            видны всем пользователям
-                        </span>
-                        {% else %}
-                        <span class="text-slate-500 cursor-pointer hover:underline" id="is-rating-public-span">
-                            видны только жюри контеста
-                        </span>
-                        {% endif %}
-                    </span>
-                </label>
-                
-                <div class="flex flex-col gap-y-4">
-                    <h3 class="text-black text-lg font-bold">Члены жюри:</h3>
-                    <div class="flex flex-col {% if current_contest.get_judges() %} gap-y-4 {% endif %} mr-4">
+        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+            <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Задачи:</h2>
+            <div class="flex">
+                <div class="border-r-2 border-slate-300 w-1/2">
+                    <div class="flex flex-col {% if current_contest.get_problems() %} gap-y-4 {% endif %} mr-4">
                         <ul class="flex flex-col gap-y-2 " id="problems-list">
-                            {% for judge in current_contest.get_judges() %}
+                            {% for cp in current_contest.contest_problems %}
+                            {% with problem = cp.problem %}
                             <li class="flex w-full gap-x-2">
-                                <input type="text" name="judge_name"
-                                    value="{{ judge.name }}" placeholder="Имя пользователя"
-                                    class="input-judge-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
-                                    <button onclick="DeleteJudge(this)"
+                                <input type="text" name="problem_hash"
+                                    value="{{ problem.hashed_id }}" placeholder="Хеш задачи"
+                                    class="input-problem-hash text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+                                <input type="number" name="max_score"
+                                    value="{{ cp.max_score }}" placeholder="Балл"
+                                    min="1" max="999"
+                                    class="input-max-score text-lg text-slate-800 border-slate-200 border rounded-lg px-2 py-2">
+                                    <button onclick="DeleteProblem(this)"
                                     class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-600">Удалить</button>
                             </li>
+                            {% endwith %}
                             {% endfor %}
                         </ul>
-                        <button onclick="event.preventDefault(); AddJudge(event)"
+                        <button onclick="event.preventDefault(); AddProblem(event)"
                         class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-green-600">Добавить</button>
+                    </div>
+                </div>
+
+                <div class="w-1/2 ml-4">
+                    <div id="display-problem" class="hidden border-2 border-sky-400 p-8 rounded-xl"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+            <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Теги:</h2>
+            <div class="flex gap-x-8 items-start">
+                <ul class="w-full" id="tas_list">
+                    {% for tag in current_contest.get_tags() %}
+                    <li class="flex">
+                        <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
+                        <span class="text-slate-500 font-bold mr-4">#</span>
+                        <div class="w-2/3"><span>{{ tag.name }}</span></div>
+                        <span class="text-slate-500 font-bold mx-4">|</span>
+                        <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-red-600"
+                            onclick="DeleteTag(this)">Удалить тег</button>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <div class="flex w-full">
+                    <span class="text-slate-500 font-bold mr-4">#</span>
+                    <div class="w-2/3 relative inline-block">
+                        <input id="addtag" type="text" placeholder="Введите тег" name="tag_name"
+                            class="w-full border-slate-400 border-2 rounded px-2">
+                    </div>
+                    <span class="text-slate-700 font-bold mx-4">|</span>
+                    <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-green-600"
+                        onclick="AddTag()">Добавить тег</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+            <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Настройки:</h2>
+            <div class="flex">
+                <div class="flex flex-col gap-y-4">
+                    <div class="flex items-center gap-x-4">
+                        <input type="datetime-local" name="start_date" class="w-80 px-4 py-2 border-slate-200 border-2 rounded-lg" value="{{ current_contest.start_date.isoformat() }}">
+                        <span class="w-60">Время начала (МСК)</span>
+                    </div>
+                    <div class="flex items-center gap-x-4">
+                        <input type="datetime-local" name="end_date" class="w-80 px-4 py-2 border-slate-200 border-2 rounded-lg" value="{{ current_contest.end_date.isoformat() }}">
+                        <span class="w-60">Время окончания (МСК)</span>
+                    </div>
+                    <label>
+                        <input type="checkbox" name="is_rating_public" {% if current_contest.is_rating_public() %} checked {% endif %}
+                        class="hidden" id="is-rating-public">
+                        <span class="text-lg">
+                            <span class="font-bold">Результаты проверки:</span>
+                            {% if current_contest.is_rating_public() %}
+                            <span class="text-green-600 cursor-pointer hover:underline" id="is-rating-public-span">
+                                видны всем пользователям
+                            </span>
+                            {% else %}
+                            <span class="text-slate-500 cursor-pointer hover:underline" id="is-rating-public-span">
+                                видны только жюри контеста
+                            </span>
+                            {% endif %}
+                        </span>
+                    </label>
+                    
+                    <div class="flex flex-col gap-y-4">
+                        <h3 class="text-black text-lg font-bold">Члены жюри:</h3>
+                        <div class="flex flex-col {% if current_contest.get_judges() %} gap-y-4 {% endif %} mr-4">
+                            <ul class="flex flex-col gap-y-2 " id="problems-list">
+                                {% for judge in current_contest.get_judges() %}
+                                <li class="flex w-full gap-x-2">
+                                    <input type="text" name="judge_name"
+                                        value="{{ judge.name }}" placeholder="Имя пользователя"
+                                        class="input-judge-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+                                        <button onclick="DeleteJudge(this)"
+                                        class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-600">Удалить</button>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            <button onclick="event.preventDefault(); AddJudge(event)"
+                            class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-green-600">Добавить</button>
+                        </div>
                     </div>
                 </div>
             </div>
