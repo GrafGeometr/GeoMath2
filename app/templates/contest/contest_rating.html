@@ -6,53 +6,90 @@
     element.classList.add("text-blue-600");
 </script>
 <div id="for tailwind"
-class="hidden bg-slate-200 hover:bg-slate-300 bg-green-200 hover:bg-green-300
+class="hidden bg-neutral-200 hover:bg-slate-300 bg-green-200 hover:bg-green-300
 bg-lime-200 hover:bg-lime-300 bg-yellow-200 hover:bg-yellow-300 bg-orange-200 hover:bg-orange-300 bg-red-200 hover:bg-red-300
 bg-sky-400 !bg-sky-400
-absolute z-50 top-full inset-x-0 overflow-y-auto h-60 bg-neutral-200 max-h-60 last:border-b-0 hover:bg-gray-100
+absolute z-50 top-full inset-x-0 overflow-y-auto h-60 bg-neutral-200 max-h-60 last:border-y-0 hover:bg-gray-100
 after:content-none after:absolute rounded-tl-lg rounded-tr-lg rounded-bl-lg
 rounded-tl-full rounded-tr-full rounded-bl-full w-fit text-xs"></div>
 
-<div class="flex justify-between">
-    <table class="border-collapse" cellspacing="0" cellpadding="0">
-        <tr>
-            <th class="pb-2 px-4">Участник</th>
-            <th class="pb-2 px-4">Старт (МСК)</th>
-            <th class="pb-2 px-4">Финиш (МСК)</th>
+<div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+    <div class="flex justify-between">
+        <span class="text-2xl font-bold text-blue-800">Таблица результатов - {{ current_contest.name }}</span>
+        <nav class="flex flex-col gap-y-2 w-1/4">
+            {% if mode=="all" %}
+                <a href="/contest/{{ current_contest.id }}/rating/my/{{part}}"
+                class="text-center hover:cursor-pointer px-12 py-2 rounded-xl text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">Показать мои посылки</a>
+            {% else %}
+                <a href="/contest/{{ current_contest.id }}/rating/all/{{part}}"
+                class="text-center hover:cursor-pointer px-12 py-2 rounded-xl text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">Показать все посылки</a>
+            {% endif %}
+            {% if part=="real" %}
+                <a href="{{url_for('contest.contest_rating', contest_id=current_contest.id, mode=mode, part='virtual', club=club_hashed_id)}}"
+                class="text-center hover:cursor-pointer px-12 py-2 rounded-xl text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">Показать виртуальных участников</a>
+            {% else %}
+                <a href="{{url_for('contest.contest_rating', contest_id=current_contest.id, mode=mode, part='real', club=club_hashed_id)}}"
+                class="text-center hover:cursor-pointer px-12 py-2 rounded-xl text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">Показать реальных участников</a>
+            {% endif %}
+        </nav>
+    </div>
+    <table class="border-separate mt-4 rounded-lg overflow-hidden border-neutral-300 border w-full" cellspacing="0" cellpadding="0">
+        <tr class="text-slate-700">
+            <th class="p-4 bg-neutral-200">#</th>
+            <th class="p-4 bg-neutral-200 text-left">Имя участника</th>
+            <th class="p-4 bg-neutral-200 text-left">Тип участия</th>
+            <th class="p-4 bg-neutral-200 text-left">Старт (МСК)</th>
+            <th class="p-4 bg-neutral-200 text-left">Финиш (МСК)</th>
             {% for problem in current_contest.get_nonsecret_problems() %}
-            <th class="w-12 pb-2 px-4">
+            <th class="w-12 p-4 bg-neutral-200">
                 <a id="problem_href-{{problem.hashed_id}}" href="/contest/{{ current_contest.id }}/problem/{{ problem.hashed_id }}"
                 class="block hover:underline">
                     <span>{{ loop.index }}</span>
                 </a>
             </th>
             {% endfor %}
-            <th class="pb-2 px-4">Σ</th>
-            <th class="pb-2 px-4">№</th>
+            <th class="p-4 bg-neutral-200 text-left">Сумма</th>   
         </tr>
         {% for tr in rating_table %}
         <tr class="h-12">
+            <td class="p-4 text-center w-px whitespace-nowrap border-t border-t-neutral-200">
+                {% if current_contest.is_rating_available() %}
+                    {% if tr[3] == 1 %}
+                    <div class="inline-block bg-amber-400 w-6 h-6 rounded-full text-white text-center">{{tr[3]}}</div>
+                    {% elif tr[3] == 2 %}
+                    <div class="inline-block bg-zinc-400 w-6 h-6 rounded-full text-white text-center">{{tr[3]}}</div>
+                    {% elif tr[3] == 3 %}
+                    <div class="inline-block bg-amber-600 w-6 h-6 rounded-full text-white text-center">{{tr[3]}}</div>
+                    {% else %}
+                    <div class="inline-block w-6 h-6 text-center">{{tr[3]}}</div>
+                    {% endif %}
+                {% else %}
+                <div class="inline-block w-6 h-6 text-center">?</div>
+                {% endif %}
+            </td>
             {% set cu = tr[0] %}
-            <td class="py-2 px-4 border-r border-black text-center">
+            <td class="p-4 border-t border-t-neutral-200">
                 <a href="/profile/user/{{ cu.user.name }}" class="hover:underline">
                 {{ cu.user.name }}
-                {% if cu.virtual %} (В) {% endif %}
                 </a>
             </td>
-            <td class="py-2 px-4 border-r border-black text-center">
+            <td class="p-4 border-t border-t-neutral-200">
+                {% if cu.virtual %} Виртуальное {% else %} Реальное {% endif %}
+            </td>
+            <td class="p-4 border-t border-t-neutral-200">
                 {{ str_from_dt(cu.start_date, "seconds") }}
             </td>
-            <td class="py-2 px-4 text-center">
+            <td class="p-4 border-t border-t-neutral-200">
                 {{ str_from_dt(cu.end_date, "seconds") }}
             </td>
             {% for cp, cus in tr[2] %}
-                {% set color = "bg-slate-200" %}
+                {% set color = "bg-neutral-200" %}
                 {% set hover_color = "bg-slate-300" %}
                 {% if cus.is_available() and current_contest.is_rating_available() %}
                     {% set score=cus.score %}
                     {% set max_score=cp.max_score %}
                     {% if score is none %}
-                        {% set color = "bg-slate-200" %}
+                        {% set color = "bg-neutral-200" %}
                         {% set hover_color = "bg-slate-300" %}
                     {% elif score >= 0.9*max_score %}
                         {% set color = 'bg-green-200' %}
@@ -71,49 +108,27 @@ rounded-tl-full rounded-tr-full rounded-bl-full w-fit text-xs"></div>
                         {% set hover_color = 'bg-red-300' %}
                     {% endif %}
                 {% endif %}
-                <td class="{{color}} hover:{{hover_color}} border border-black">
-                    <a id="solution_href-{{cus.hashed_id}}" href="/contest/{{ current_contest.id }}/solution/{{ cus.hashed_id }}"
-                    class="block w-12 h-12 p-2 flex justify-center items-center {% if cus.is_available() %} hover:cursor-pointer {% endif %}">
-                        {% if cus.is_available() and current_contest.is_rating_available() and cus.score is not none %}
-                            <span>{{ cus.score }}</span>
-                        {% endif %}
-                    </a>
+                <td class="p-2 text-center w-px whitespace-nowrap border-t border-t-neutral-200">
+                    <div class="inline-block {{color}} hover:{{hover_color}} {% if cus.is_available() %} hover:cursor-pointer {% endif %} text-slate-600 rounded-md font-bold text-center py-2 w-12"
+                    onclick="window.location.href='/contest/{{ current_contest.id }}/solution/{{ cus.hashed_id }}'">
+                            {% if cus.is_available() and current_contest.is_rating_available() and cus.score is not none %}
+                                <span>{{ cus.score }}</span>
+                            {% else %}
+                                <span>-</span>
+                            {% endif %}
+                    </div>
                 </td>
             {% endfor %}
-            <td class="py-2 px-4 border-r border-black text-center">
+            <td class="p-2 text-center w-px whitespace-nowrap border-t border-t-neutral-200">
                 {% if current_contest.is_rating_available() %}
-                {{ tr[1] }}
+                    <div class="inline-block bg-slate-300 text-slate-600 rounded-md font-bold text-center py-2 w-12">{{tr[1]}}</div>
                 {% else %}
-                ?
-                {% endif %}
-            </td>
-            <td class="py-2 px-4 text-center">
-                {% if current_contest.is_rating_available() %}
-                {{ tr[3] }}
-                {% else %}
-                ?
+                    <div class="inline-block bg-slate-300 text-slate-600 rounded-md font-bold text-center py-2 w-12">?</div>
                 {% endif %}
             </td>
         </tr>
         {% endfor %}
 
     </table>
-
-    <nav class="flex flex-col gap-y-2 w-1/4">
-        {% if mode=="all" %}
-            <a href="/contest/{{ current_contest.id }}/rating/my/{{part}}"
-            class="text-center hover:cursor-pointer px-12 py-2 rounded-xl text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">Показать мои посылки</a>
-        {% else %}
-            <a href="/contest/{{ current_contest.id }}/rating/all/{{part}}"
-            class="text-center hover:cursor-pointer px-12 py-2 rounded-xl text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">Показать все посылки</a>
-        {% endif %}
-        {% if part=="real" %}
-            <a href="{{url_for('contest.contest_rating', contest_id=current_contest.id, mode=mode, part='virtual', club=club_hashed_id)}}"
-            class="text-center hover:cursor-pointer px-12 py-2 rounded-xl text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">Показать виртуальных участников</a>
-        {% else %}
-            <a href="{{url_for('contest.contest_rating', contest_id=current_contest.id, mode=mode, part='real', club=club_hashed_id)}}"
-            class="text-center hover:cursor-pointer px-12 py-2 rounded-xl text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">Показать реальных участников</a>
-        {% endif %}
-    </nav>
 </div>
 {% endblock %}

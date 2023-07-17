@@ -4,13 +4,13 @@
 <div class="my-4 pl-4">
     <span class="text-2xl text-stone-800"> <a href="/chats" class="no-underline hover:underline">Мои чаты</a> </span>
     <span class="text-2xl text-stone-800 mx-2"> / </span>
-    <span class="text-2xl text-stone-800 font-bold"> <a href="/chat/{{ chat.hashed_id }}" class="no-underline hover:underline">{{ chat.name }}</a> </span>
+    <span class="text-2xl text-stone-800 font-bold"> <a href="/chat/{{ chat.hashed_id }}/messages" class="no-underline hover:underline">{{ chat.name }}</a> </span>
 </div>
 {% else %}
 <div class="my-4 pl-4">
     <span class="text-2xl text-stone-800"> <a href="/club/{{ club.hashed_id }}/chats" class="no-underline hover:underline">{{ club.name }}</a> </span>
     <span class="text-2xl text-stone-800 ml-2"> # </span>
-    <span class="text-2xl text-stone-800 font-bold"> <a href="/chat/{{ chat.hashed_id }}" class="no-underline hover:underline">{{ chat.name }}</a> </span>
+    <span class="text-2xl text-stone-800 font-bold"> <a href="/chat/{{ chat.hashed_id }}/messages" class="no-underline hover:underline">{{ chat.name }}</a> </span>
 </div>
 {% endif %}
 

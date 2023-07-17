@@ -15,8 +15,11 @@ class Contest_Problem(db.Model):
 
     # --> FUNCTIONS
     def add(self):
+        from app.dbc import Contest_User_Solution
         db.session.add(self)
         db.session.commit()
+        for cu in self.contest.contest_users:
+            Contest_User_Solution(contest_user=cu, contest_problem=self).add()
         return self
 
     def remove(self):

@@ -1,49 +1,51 @@
 {% extends "club/club_header.html" %}
 {% block club_body %}
+<div class="w-full bg-white rounded-xl shadow-md p-8">
 <script>
     var element = document.getElementById("contests_href");
     element.classList.remove("text-stone-800");
     element.classList.add("text-blue-600");
 </script>
 
-{% if current_user.get_club_relation(club.id).role.isOwner() %}
-<a class="inline-block my-2 hover:cursor-pointer px-12 py-3 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700"
-href="/club/{{ club.hashed_id }}/contest/create">Прикрепить контест</a>
+{% set own = current_user.get_club_relation(club.id).role.isOwner() %}
+{% if own %}
+<div class="flex justify-between">
+    <span class="text-2xl font-bold text-blue-800">Контесты</span>
+    <a class="hover:cursor-pointer px-12 py-3 rounded-md text-md text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700"
+    href="/club/{{ club.hashed_id }}/contest/create">Прикрепить контест</a>
+</div>
 {% endif %}
 
 {% if club.club_contests %}
-{% set own = current_user.get_club_relation(club.id).role.isOwner() %}
-<table class="table1 text-lg" cellpadding="0" cellspacing="0">
-    <tr>
-        <th>Название</th>
-        <th>Рейтинг кружка</th>
-        <th>Состояние</th>
-        {% if own %}
-        <th></th>
-        {% endif %}
+<table class="text-lg w-full mt-4 relative border-separate" cellpadding="0" cellspacing="0">
+    <tr class="border-b-blue-800 border-b-2 text-slate-400 text-left">
+        <th class="p-4 sticky top-0 border-b-blue-800 border-b-2 bg-white">НАЗВАНИЕ</th>
+        <th class="p-4 sticky top-0 border-b-blue-800 border-b-2 bg-white">СОСТОЯНИЕ</th>
+        <th class="p-4 sticky top-0 border-b-blue-800 border-b-2 bg-white">РЕЙТИНГ КРУЖКА</th>
+        {% if own %} <th class="p-4 sticky top-0 border-b-blue-800 border-b-2 bg-white"></th> {% endif %}
     </tr>
     {% for cc in club.club_contests %}
-    <tr>
-        <td>
-            <a href="/contest/{{ cc.contest.id }}" class="hover:text-blue-600"
-            class="block">{{ cc.contest.name }}</a>
+    <tr class="even:bg-slate-200 odd:bg-slate-50">
+        <td class="flex items-center gap-x-2 p-4 text-lg font-bold text-slate-600">
+            <a href="/contest/{{ cc.contest.id }}"
+            class="hover:underline block">{{ cc.contest.name }}</a>
         </td>
-        <td>
+
+        <td class="p-4">
+            <div class="progress-bar flex items-center gap-x-2">
+                <div class="hidden" id="{{ cc.contest.start_date }}"></div>
+                <div class="hidden" id="{{ cc.contest.end_date }}"></div>
+            </div>
+        </td>
+
+        <td class="p-4">
             <a href="{{url_for('contest.contest_rating', contest_id=cc.contest.id, mode='club', part='real', club=club.hashed_id)}}" class="hover:text-blue-600"
             class="block">Открыть</a>
         </td>
-        <td>
-            {% if cc.contest.is_ended() %}
-            <span>Завершён</span>
-            {% elif cc.contest.is_started() %}
-            <span>Идёт...</span>
-            {% else %}
-            <span>Не начался</span>
-            {% endif %}
-        </td>
+
         {% if own %}
-        <td>
-            <form action="/club/{{ club.hashed_id }}/contests" method="post">
+        <td class="p-4 text-right">
+            <form action="/club/{{ club.hashed_id }}/contests" method="post" class="inline-block">
                 <input type="hidden" name="remove_contest" value="{{ cc.contest.id }}">
                 <label class="cursor-pointer">
                     <input type="submit" class="hidden">
@@ -57,4 +59,44 @@ href="/club/{{ club.hashed_id }}/contest/create">Прикрепить конте
 </table>
 {% endif %}
 
+<script>
+    var progress_bars = document.getElementsByClassName("progress-bar");
+    for (var i = 0; i < progress_bars.length; i++) {
+        var pb = progress_bars[i];
+        var start_date = new Date(pb.children[0].getAttribute("id"));
+        var end_date = new Date(pb.children[1].getAttribute("id"));
+        var moscowUTC = 3;
+        var now = current_time(moscowUTC);
+
+        var is_started = (start_date <= now);
+        var is_ended = (end_date <= now);
+
+        
+        var bar = document.createElement("div");
+        var bar_inner = document.createElement("div");
+        bar.appendChild(bar_inner);
+        pb.appendChild(bar);
+
+        var state_span = document.createElement("span");
+        pb.appendChild(state_span);
+
+        bar.style.width = '200px';
+        bar.classList.add("h-4", "bg-blue-200", "rounded-full", "overflow-hidden");
+        bar_inner.style.width = '0';
+        bar_inner.classList.add("h-4", "bg-blue-600", "rounded-full");
+
+        if (!is_started) {
+            state_span.innerText = "Не начался";
+        }
+        else if (is_ended) {
+            state_span.innerText = "Завершён";
+            bar_inner.style.width = '100%';
+        }
+        else {
+            state_span.innerText = "Идёт...";
+            var perc = Math.round((now - start_date) / (end_date - start_date) * 100);
+            bar_inner.style.width = `${perc}%`;
+        }
+    }
+</script>
 {% endblock %}

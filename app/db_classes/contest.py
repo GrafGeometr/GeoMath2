@@ -162,6 +162,7 @@ class Contest(db.Model):
             tr[3] = -1 # User's place
             for cp in all_cp:
                 cus = Contest_User_Solution.get_by_contest_problem_and_contest_user(cp, cu)
+                print(cus)
                 tr[2].append((cp, cus))
             t.append(tr)
         if self.is_rating_available():
