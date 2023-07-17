@@ -1,22 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
-<nav class="flex gap-x-4 my-2">
-    <a id="profile_about_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/user/{{ user.name }}">Основное</a>
+<nav class="flex">
+    <a id="profile_about_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/profile/user/{{ user.name }}">Основное</a>
     {% if current_user.is_authenticated and (current_user.name == user.name) %}
-        <a id="profile_pools_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/pools">Пулы</a>
-        <a id="profile_clubs_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/clubs">Кружки</a>
-        <a id="profile_chats_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/chats">Чаты</a>
-        <a id="profile_settings_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/profile/settings">Настройки</a>
+        <a id="profile_pools_href" class="py-4 px-8  no-underline text-black font-bold hover:bg-slate-200" href="/profile/pools">Пулы</a>
+        <a id="profile_clubs_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/profile/clubs">Кружки</a>
+        <a id="profile_chats_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/chats">Чаты</a>
+        <a id="profile_settings_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/profile/settings">Настройки</a>
         <div class="w-px bg-neutral-300"></div>
-        <a id="profile_myproblems_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/archive/problems/my">Мои задачи</a>
-        <a id="profile_mysheets_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/archive/sheets/my">Мои подборки</a>
-        <a id="profile_mycontests_href" class="py-2 px-4 rounded-md no-underline text-stone-800 hover:bg-neutral-300" href="/archive/contests/my">Мои контесты</a>
+        <a id="profile_myproblems_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/archive/problems/my">Мои задачи</a>
+        <a id="profile_mysheets_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/archive/sheets/my">Мои подборки</a>
+        <a id="profile_mycontests_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/archive/contests/my">Мои контесты</a>
     {% endif %}
 </nav>
 
 <div class="h-px w-full bg-neutral-300"></div>
 
-<div class="flex mt-4 gap-x-12 w-3/4">
+<div class="flex mt-4 gap-x-8 w-full">
     <section class="flex flex-col items-center gap-y-4">
         {% if (user.profile_pic is none) or (user.profile_pic=="") %}
             <img src="/static/images/user.png" class="w-48 rounded-md border-2 border-solid border-stone-300 mix-blend-multiply">
@@ -38,7 +38,7 @@
             </form>
         {% endif %}
     </section>
-    <section class="grow">
+    <section class="grow bg-white rounded-xl shadow-md p-8">
     {% block profile_content %}{% endblock %}
     </section>
 </div>
