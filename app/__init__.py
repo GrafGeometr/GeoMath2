@@ -21,7 +21,7 @@ def create_app():
     socketio.init_app(app)
 
     db.init_app(app)
-    migrate = Migrate(app, db)
+    migrate = Migrate(app, db, compare_type=True)
 
 
     login_manager = LoginManager()
