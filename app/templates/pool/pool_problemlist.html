@@ -1,11 +1,11 @@
 {% if current_pool.problems %}
-<table class="text-lg w-full mt-4" cellpadding="0" cellspacing="0">
-    <tr class="border-b-blue-800 border-b-2 text-slate-400 text-left">
-        <th class="p-4">НАЗВАНИЕ</th>
-        <th class="p-4">ДОСТУП</th>
-        <th class="p-4">ЛАЙКИ</th>
-        <th class="p-4">ХЕШ</th>
-        <th class="p-4"></th>
+<table class="text-lg w-full mt-4 relative border-separate" cellpadding="0" cellspacing="0">
+    <tr class="text-slate-400 text-left">
+        <th class="p-4 sticky top-0 border-b-blue-800 border-b-2 bg-white">НАЗВАНИЕ</th>
+        <th class="p-4 sticky top-0 border-b-blue-800 border-b-2 bg-white">ДОСТУП</th>
+        <th class="p-4 sticky top-0 border-b-blue-800 border-b-2 bg-white">ЛАЙКИ</th>
+        <th class="p-4 sticky top-0 border-b-blue-800 border-b-2 bg-white">ХЕШ</th>
+        <th class="p-4 sticky top-0 border-b-blue-800 border-b-2 bg-white"></th>
     </tr>
     {% for problem in current_pool.problems %}
     <tr class="even:bg-slate-200 odd:bg-slate-50">

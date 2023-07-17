@@ -572,6 +572,10 @@ video {
   position: relative;
 }
 
+.sticky {
+  position: sticky;
+}
+
 .inset-x-0 {
   left: 0px;
   right: 0px;
@@ -591,6 +595,10 @@ video {
 
 .top-full {
   top: 100%;
+}
+
+.top-0 {
+  top: 0px;
 }
 
 .z-50 {

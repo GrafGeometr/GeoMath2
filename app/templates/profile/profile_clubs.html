@@ -14,11 +14,11 @@
 </div>
 
 {% if current_user.user_clubs %}
-<table class="text-lg w-full mt-4" cellspacing="0" cellpadding="0">
+<table class="text-lg w-full mt-4 relative border-separate" cellspacing="0" cellpadding="0">
     <tr class="border-b-blue-800 border-b-2 text-slate-400 text-left">
-        <th class="p-4">НАЗВАНИЕ</th>
-        <th class="p-4">РОЛЬ</th>
-        <th class="p-4">ХЕШ</th>
+        <th class="p-4 sticky top-0 border-b-blue-800 border-b-2 bg-white">НАЗВАНИЕ</th>
+        <th class="p-4 sticky top-0 border-b-blue-800 border-b-2 bg-white">РОЛЬ</th>
+        <th class="p-4 sticky top-0 border-b-blue-800 border-b-2 bg-white">ХЕШ</th>
     </tr>
     {% for uc in current_user.user_clubs %}
     <tr class="even:bg-slate-200 odd:bg-slate-50">
