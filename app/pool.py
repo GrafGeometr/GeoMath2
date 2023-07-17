@@ -635,9 +635,8 @@ def contest(pool_hashed_id, contest_id):
                 contest.name = name
                 contest.description = description
             
-            if start_date:
+            if start_date and end_date and start_date <= end_date:
                 contest.start_date = start_date
-            if end_date:
                 contest.end_date = end_date
 
             db.session.commit()

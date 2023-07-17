@@ -1,37 +1,52 @@
 {% if current_pool.contests %}
-<table class="table1" cellpadding="0" cellspacing="0">
-    <tr>
-        <th>Название</th>
-        <th>Тип доступа</th>
-        <th>Состояние</th>
-        <th></th>
+<table class="text-lg w-full mt-4" cellpadding="0" cellspacing="0">
+    <tr class="border-b-blue-800 border-b-2 text-slate-400 text-left">
+        <th class="p-4">НАЗВАНИЕ</th>
+        <th class="p-4">ДОСТУП</th>
+        <th class="p-4">СОСТОЯНИЕ</th>
+        <th class="p-4">ЛАЙКИ</th>
+        <th class="p-4">ID</th>
+        <th class="p-4"></th>
     </tr>
     {% for contest in current_pool.contests %}
-    <tr>
-        <td class="hover:underline">
+    <tr class="even:bg-slate-200 odd:bg-slate-50">
+        <td class="flex items-center gap-x-2 p-4 text-lg font-bold text-slate-600">
             <a href="/pool/{{ current_pool.hashed_id }}/contest/{{ contest.id }}"
-            class="block">{{ contest.name }}</a>
+            class="hover:underline block">{{ contest.name }}</a>
         </td>
-        {% if contest.is_archived() %}
-        <td class="bg-green-200">
-            <span class="block">В архиве</span>
+
+        {% if contest.is_archived() %} <td class="py-2 p-4 text-base">
+            <div class="flex items-center w-fit gap-x-2 rounded-full bg-green-100 text-green-500 font-bold px-2 py-1">
+                <span class="block h-4 w-4 rounded-full bg-green-500"></span>
+                <span>В АРХИВЕ</span>
+            </div>
         </td>
-        {% else %}
-        <td class="bg-slate-200">
-            <span class="block">Скрытый</span>
+        {% else %} <td class="py-2 p-4 text-base">
+            <div class="flex items-center w-fit gap-x-2 rounded-full bg-stone-200 text-stone-500 font-bold px-2 py-1">
+                <span class="block h-4 w-4 rounded-full bg-stone-500"></span>
+                <span>СКРЫТЫЙ</span>
+            </div>
         </td>
         {% endif %}
-        <td>
-            {% if contest.is_ended() %}
-            <span>Завершён</span>
-            {% elif contest.is_started() %}
-            <span>Идёт...</span>
-            {% else %}
-            <span>Не начался</span>
-            {% endif %}
+
+        <td class="p-4">
+            <div class="progress-bar flex items-center gap-x-2">
+                <div class="hidden" id="{{ contest.start_date }}"></div>
+                <div class="hidden" id="{{ contest.end_date }}"></div>
+            </div>
         </td>
-        <td>
-            <button class="border-0 bg-transparent cursor-pointer block"
+
+
+        <td class="p-4">
+            {{ contest.get_all_likes()|length }}
+        </td>
+
+        <td class="p-4">
+            {{ contest.id }}
+        </td>
+
+        <td class="text-right px-4">
+            <button class="border-0 bg-transparent cursor-pointer inline-block"
             onclick="remove_contest('{{ current_pool.hashed_id }}', '{{ contest.id }}')"><img
                 class="w-6 border-0" src="/static/images/bin.svg" alt="bin"></button>
         </td>
@@ -39,3 +54,44 @@
     {% endfor %}
 </table>
 {% endif %}
+
+<script>
+    var progress_bars = document.getElementsByClassName("progress-bar");
+    for (var i = 0; i < progress_bars.length; i++) {
+        var pb = progress_bars[i];
+        var start_date = new Date(pb.children[0].getAttribute("id"));
+        var end_date = new Date(pb.children[1].getAttribute("id"));
+        var moscowUTC = 3;
+        var now = current_time(moscowUTC);
+
+        var is_started = (start_date <= now);
+        var is_ended = (end_date <= now);
+
+        
+        var bar = document.createElement("div");
+        var bar_inner = document.createElement("div");
+        bar.appendChild(bar_inner);
+        pb.appendChild(bar);
+
+        var state_span = document.createElement("span");
+        pb.appendChild(state_span);
+
+        bar.style.width = '200px';
+        bar.classList.add("h-4", "bg-blue-200", "rounded-full", "overflow-hidden");
+        bar_inner.style.width = '0';
+        bar_inner.classList.add("h-4", "bg-blue-600", "rounded-full");
+
+        if (!is_started) {
+            state_span.innerText = "Не начался";
+        }
+        else if (is_ended) {
+            state_span.innerText = "Завершён";
+            bar_inner.style.width = '100%';
+        }
+        else {
+            state_span.innerText = "Идёт...";
+            var perc = Math.round((now - start_date) / (end_date - start_date) * 100);
+            bar_inner.style.width = `${perc}%`;
+        }
+    }
+</script>

@@ -1,34 +1,43 @@
 {% if current_pool.problems %}
-
-<table class="table1" cellpadding="0" cellspacing="0">
-    <tr>
-        <th>Название</th>
-        <th>Хеш</th>
-        <th>Тип доступа</th>
-        <th></th>
+<table class="text-lg w-full mt-4" cellpadding="0" cellspacing="0">
+    <tr class="border-b-blue-800 border-b-2 text-slate-400 text-left">
+        <th class="p-4">НАЗВАНИЕ</th>
+        <th class="p-4">ДОСТУП</th>
+        <th class="p-4">ЛАЙКИ</th>
+        <th class="p-4">ХЕШ</th>
+        <th class="p-4"></th>
     </tr>
     {% for problem in current_pool.problems %}
-    <tr>
-        <td class="hover:underline">
+    <tr class="even:bg-slate-200 odd:bg-slate-50">
+        <td class="flex items-center gap-x-2 p-4 text-lg font-bold text-slate-600">
             <a href="/pool/{{ current_pool.hashed_id }}/problem/{{ problem.hashed_id }}"
-            class="block">{{ problem.name }}</a>
+            class="hover:underline block">{{ problem.name }}</a>
         </td>
-        <td>
-            <span id="copy_hash_span-{{ problem.id }}"
-                class="text-slate-500">{{
-                problem.hashed_id }}</span>
+
+        {% if problem.is_archived() %} <td class="py-2 p-4 text-base">
+            <div class="flex items-center w-fit gap-x-2 rounded-full bg-green-100 text-green-500 font-bold px-2 py-1">
+                <span class="block h-4 w-4 rounded-full bg-green-500"></span>
+                <span>В АРХИВЕ</span>
+            </div>
         </td>
-        {% if problem.is_archived() %}
-        <td class="bg-green-200">
-            <span class="block">В архиве</span>
-        </td>
-        {% else %}
-        <td class="bg-slate-200">
-            <span class="block">Скрытая</span>
+        {% else %} <td class="py-2 p-4 text-base">
+            <div class="flex items-center w-fit gap-x-2 rounded-full bg-stone-200 text-stone-500 font-bold px-2 py-1">
+                <span class="block h-4 w-4 rounded-full bg-stone-500"></span>
+                <span>СКРЫТАЯ</span>
+            </div>
         </td>
         {% endif %}
-        <td>
-            <button class="border-0 bg-transparent cursor-pointer block"
+
+        <td class="p-4">
+            {{ problem.get_all_likes()|length }}
+        </td>
+
+        <td class="p-4">
+            {{ problem.hashed_id }}
+        </td>
+
+        <td class="text-right px-4">
+            <button class="border-0 bg-transparent cursor-pointer inline-block"
             onclick="remove_problem('{{ current_pool.hashed_id }}', '{{ problem.hashed_id }}')"><img
                 class="w-6 border-0" src="/static/images/bin.svg" alt="bin"></button>
         </td>
@@ -36,25 +45,3 @@
     {% endfor %}
 </table>
 {% endif %}
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const spans = document.querySelectorAll('span[id^="copy_hash_span-"]');
-        console.log(spans);
-
-        for (let span of spans) {
-            span.addEventListener("click", function () {
-                navigator.clipboard.writeText(this.innerText);
-                var flash = document.getElementById(`fading_flash-${span.id.split("copy_hash_span-")[1]}`);
-                fade(flash, 1000);
-            })
-        }
-    });
-
-    /*var span = document.getElementById("copy_hash_span");
-    span.addEventListener("click", function () {
-        navigator.clipboard.writeText(this.innerText);
-        var flash = document.getElementById("fading_flash");
-        fade(flash, 1000);
-    })*/
-</script>

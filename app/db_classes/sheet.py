@@ -49,6 +49,9 @@ class Sheet(db.Model):
         Like.query.filter_by(parent_type="Sheet", parent_id=self.id, user_id=current_user.id).remove()
         return
     
+    def get_all_likes(self):
+        from app.dbc import Like
+        return Like.get_all_by_parent(self)
 
     def get_attachments(self):
         from app.dbc import Attachment

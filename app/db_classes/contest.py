@@ -84,6 +84,9 @@ class Contest(db.Model):
     def is_tags_available(self, user=current_user):
         return self.is_description_available(user)
 
+    def get_all_likes(self):
+        from app.dbc import Like
+        return Like.get_all_by_parent(self)
 
     def get_problems(self):
         from app.dbc import Problem, Contest_Problem

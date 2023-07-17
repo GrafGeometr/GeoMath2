@@ -1,27 +1,43 @@
 {% if current_pool.sheets %}
-<table class="table1" cellpadding="0" cellspacing="0">
-    <tr>
-        <th>Название</th>
-        <th>Тип доступа</th>
-        <th></th>
+<table class="text-lg w-full mt-4" cellpadding="0" cellspacing="0">
+    <tr class="border-b-blue-800 border-b-2 text-slate-400 text-left">
+        <th class="p-4">НАЗВАНИЕ</th>
+        <th class="p-4">ДОСТУП</th>
+        <th class="p-4">ЛАЙКИ</th>
+        <th class="p-4">ID</th>
+        <th class="p-4"></th>
     </tr>
     {% for sheet in current_pool.sheets %}
-    <tr>
-        <td class="hover:underline">
+    <tr class="even:bg-slate-200 odd:bg-slate-50">
+        <td class="flex items-center gap-x-2 p-4 text-lg font-bold text-slate-600">
             <a href="/pool/{{ current_pool.hashed_id }}/sheet/{{ sheet.id }}"
-            class="block">{{ sheet.name }}</a>
+            class="hover:underline block">{{ sheet.name }}</a>
         </td>
-        {% if sheet.is_archived() %}
-        <td class="bg-green-200">
-            <span class="block">В архиве</span>
+
+        {% if sheet.is_archived() %} <td class="py-2 p-4 text-base">
+            <div class="flex items-center w-fit gap-x-2 rounded-full bg-green-100 text-green-500 font-bold px-2 py-1">
+                <span class="block h-4 w-4 rounded-full bg-green-500"></span>
+                <span>В АРХИВЕ</span>
+            </div>
         </td>
-        {% else %}
-        <td class="bg-slate-200">
-            <span class="block">Скрытая</span>
+        {% else %} <td class="py-2 p-4 text-base">
+            <div class="flex items-center w-fit gap-x-2 rounded-full bg-stone-200 text-stone-500 font-bold px-2 py-1">
+                <span class="block h-4 w-4 rounded-full bg-stone-500"></span>
+                <span>СКРЫТАЯ</span>
+            </div>
         </td>
         {% endif %}
-        <td>
-            <button class="border-0 bg-transparent cursor-pointer block"
+
+        <td class="p-4">
+            {{ sheet.get_all_likes()|length }}
+        </td>
+
+        <td class="p-4">
+            {{ sheet.id }}
+        </td>
+
+        <td class="text-right px-4">
+            <button class="border-0 bg-transparent cursor-pointer inline-block"
             onclick="remove_sheet('{{ current_pool.hashed_id }}', '{{ sheet.id }}')"><img
                 class="w-6 border-0" src="/static/images/bin.svg" alt="bin"></button>
         </td>

@@ -109,6 +109,10 @@ class Problem(db.Model):
             )
         return result
     
+    def get_all_likes(self):
+        from app.dbc import Like
+        return Like.get_all_by_parent(self)
+    
 
     def is_statement_available(self, user=current_user):
         from app.dbc import Contest_User_Solution
