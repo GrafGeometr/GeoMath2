@@ -39,6 +39,10 @@ def register():
             flash("Некорректный логин, допустимые символы: A-Z a-z 0-9 _ - .", "error")
             return redirect("/register")
         
+        if len(login) < 4:
+            flash("Длина логина должна быть не менее 4 символов", "error")
+            return redirect("/register")
+        
         if login.lower() in [user.name.lower() for user in User.query.all()]:
             flash("Пользователь с таким именем уже существует", "error")
             return redirect("/register")

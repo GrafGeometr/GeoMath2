@@ -29,7 +29,7 @@
                     </li>
                 {% else %}
                     <li>
-                        <a class="hover:underline" href="{{ url_for('arch.archive_contest_search', tags=tags, page=x, mode=mode) }}">
+                        <a class="hover:underline" href="{{ url_for('arch.archive_contest_search', tags=tags, page=x, username=username) }}">
                             <div class="w-6 h-6 rounded-full bg-blue-200"></div>
                         </a>
                     </li>

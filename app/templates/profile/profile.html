@@ -8,9 +8,14 @@
         <a id="profile_chats_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/chats">Чаты</a>
         <a id="profile_settings_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/profile/settings">Настройки</a>
         <div class="w-px bg-neutral-300"></div>
-        <a id="profile_myproblems_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/archive/problems/my">Мои задачи</a>
-        <a id="profile_mysheets_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/archive/sheets/my">Мои подборки</a>
-        <a id="profile_mycontests_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/archive/contests/my">Мои контесты</a>
+        <a id="profile_myproblems_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/archive/problems/{{ user.name }}">Мои задачи</a>
+        <a id="profile_mysheets_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/archive/sheets/{{ user.name }}">Мои подборки</a>
+        <a id="profile_mycontests_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/archive/contests/{{ user.name }}">Мои контесты</a>
+    {% else %}
+        <div class="w-px bg-neutral-300"></div>
+        <a id="profile_myproblems_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/archive/problems/{{ user.name}}">Задачи пользователя</a>
+        <a id="profile_mysheets_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/archive/sheets/{{ user.name }}">Подборки пользователя</a>
+        <a id="profile_mycontests_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/archive/contests/{{ user.name}}">Контесты пользователя</a>
     {% endif %}
 </nav>
 

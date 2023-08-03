@@ -111,7 +111,7 @@ def get_correct_page_slice(num_of_pages, len_of_slice, index_of_current_page):
     i = index_of_current_page
     print(n, k, i)
     # look how google search works to understand
-    # in a nutshell, it returns a slice with len = k, where i is the middle (except for when i is close to the borders)
+    # in a nutshell, it returns a slice with len = k, where i is in the middle (except for when i is close to the borders)
     # everything is 1-indexed
     
     if k >= n:
@@ -124,13 +124,13 @@ def get_correct_page_slice(num_of_pages, len_of_slice, index_of_current_page):
     else:
         return [x for x in range(i-half, i+(k-half))]
 
-@arch.route("/archive/problems/<string:mode>", methods=["POST", "GET"])
+@arch.route("/archive/problems/<string:username>", methods=["POST", "GET"])
 @login_required
-def archive_problem_search(mode):
+def archive_problem_search(username):
     if request.method == "POST":
         tags = request.form.get("tags")
         if tags is not None:
-            return redirect(url_for("arch.archive_problem_search", tags=tags, page=1, mode=mode))
+            return redirect(url_for("arch.archive_problem_search", tags=tags, page=1, username=username))
         
     
     tags = request.args.get("tags")
@@ -159,10 +159,11 @@ def archive_problem_search(mode):
     problems.sort(key = lambda p: (p[1], p[3]), reverse=True)
     
 
-    #if mode == "all":
-        #problems = [problem for problem in problems if problem[0].moderated]
-    if mode == "my":
-        problems = [problem for problem in problems if problem[0].is_my()]
+    #if username == "all":
+        #problems = [problem for problem in problems if problem[0].usernamerated]
+    user = User.query.filter_by(name=username).first()
+    if user is not None:
+        problems = [problem for problem in problems if problem[0].is_my(user)]
 
 
     num_of_pages = (len(problems)+problems_per_page-1) // problems_per_page
@@ -172,15 +173,15 @@ def archive_problem_search(mode):
     pages_to_show = get_correct_page_slice(num_of_pages, 7, page)
     
 
-    return render_template("archive/archive_search_problems.html", mode=mode, problems=problems, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
+    return render_template("archive/archive_search_problems.html", username=username, problems=problems, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
 
-@arch.route("/archive/sheets/<string:mode>", methods=["POST", "GET"])
+@arch.route("/archive/sheets/<string:username>", methods=["POST", "GET"])
 @login_required
-def archive_sheet_search(mode):
+def archive_sheet_search(username):
     if request.method == "POST":
         tags = request.form.get("tags")
         if tags is not None:
-            return redirect(url_for("arch.archive_sheet_search", tags=tags, page=1, mode=mode))
+            return redirect(url_for("arch.archive_sheet_search", tags=tags, page=1, username=username))
         
     
     tags = request.args.get("tags")
@@ -209,10 +210,11 @@ def archive_sheet_search(mode):
     sheets.sort(key = lambda s: (s[1], s[3]), reverse=True)
     
 
-    #if mode == "all":
-        #problems = [problem for problem in problems if problem[0].moderated]
-    if mode == "my":
-        sheets = [sheet for sheet in sheets if sheet[0].is_my()]
+    #if username == "all":
+        #problems = [problem for problem in problems if problem[0].usernamerated]
+    user = User.query.filter_by(name=username).first()
+    if user is not None:
+        sheets = [sheet for sheet in sheets if sheet[0].is_my(user)]
 
 
     num_of_pages = (len(sheets)+sheets_per_page-1) // sheets_per_page
@@ -223,17 +225,17 @@ def archive_sheet_search(mode):
     
     print(sheets)
 
-    return render_template("archive/archive_search_sheets.html", mode=mode, sheets=sheets, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
+    return render_template("archive/archive_search_sheets.html", username=username, sheets=sheets, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
 
 
 
-@arch.route("/archive/contests/<string:mode>", methods=["POST", "GET"])
+@arch.route("/archive/contests/<string:username>", methods=["POST", "GET"])
 @login_required
-def archive_contest_search(mode):
+def archive_contest_search(username):
     if request.method == "POST":
         tags = request.form.get("tags")
         if tags is not None:
-            return redirect(url_for("arch.archive_contest_search", tags=tags, page=1, mode=mode))
+            return redirect(url_for("arch.archive_contest_search", tags=tags, page=1, username=username))
         
     
     tags = request.args.get("tags")
@@ -262,10 +264,11 @@ def archive_contest_search(mode):
     contests.sort(key = lambda c: (c[1], c[3]), reverse=True)
     
 
-    #if mode == "all":
-        #problems = [problem for problem in problems if problem[0].moderated]
-    if mode == "my":
-        contests = [contest for contest in contests if contest[0].is_my()]
+    #if username == "all":
+        #problems = [problem for problem in problems if problem[0].usernamerated]
+    user = User.query.filter_by(name=username).first()
+    if user is not None:
+        contests = [contest for contest in contests if contest[0].is_my(user)]
 
 
     num_of_pages = (len(contests)+contests_per_page-1) // contests_per_page
@@ -275,7 +278,7 @@ def archive_contest_search(mode):
     pages_to_show = get_correct_page_slice(num_of_pages, 7, page)
     
 
-    return render_template("archive/archive_search_contests.html", mode=mode, contests=contests, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
+    return render_template("archive/archive_search_contests.html", username=username, contests=contests, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
 
 @arch.route("/archive/problem/<problem_hashed_id>")
 @login_required

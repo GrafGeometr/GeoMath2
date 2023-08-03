@@ -68,12 +68,7 @@ class Sheet(db.Model):
         return self.is_text_available(user)
 
     def is_my(self, user=current_user):
-        relation = user.get_pool_relation(self.pool_id)
-        if relation is None:
-            return False
-        if relation.role.isOwner() or relation.role.isParticipant():
-            return True
-        return False
+        return user.is_pool_access(self.pool_id)
 
     
 
