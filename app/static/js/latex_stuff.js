@@ -351,6 +351,7 @@ function getRenderedIframe(text, inputElementId = null, editorType = 'problem') 
     }
 
     work(iframe);
+    work(iframe);
 
     return iframe;
 }
