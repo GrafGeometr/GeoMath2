@@ -41,7 +41,7 @@
     </div>
 
     {% if current_problem.is_statement_available() %}
-    <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+    <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
         <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Условие:</h2>
         <div class="flex w-full items-start">
             <textarea id="statement_textarea" cols="50" name="statement" readonly class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.statement }}</textarea>
@@ -55,7 +55,7 @@
 
 
     {% if current_problem.is_solution_available() %}
-    <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+    <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
         <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2" id="toggle-solution-view">Решение: (спойлер)</h2>
         <div class="flex w-full items-start">
             <textarea id="solution_textarea" cols="50" name="solution" readonly class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.solution }}</textarea>
@@ -78,7 +78,7 @@
     {% endif %}
 
     {% if current_problem.get_nonsecret_attachments()|length > 0 %}
-    <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+    <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
         <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Вложения:</h2>
         <div class="flex border-2 border-slate-200 p-8 rounded-xl bg-white">
             <div class="border-r-2 border-slate-300 w-1/3">
@@ -104,7 +104,7 @@
 
     {% if current_problem.is_tags_available() %}
     {% if current_problem.get_tags()|length > 0 %}
-    <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+    <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
         <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Теги:</h2>
         <div class="flex gap-x-8 items-start">
             <ul class="w-full" id="tas_list">

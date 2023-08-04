@@ -56,13 +56,13 @@
         </div>
         
         {% if current_contest.is_public %}
-        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+        <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
             <div id="contest-state-div" class="flex gap-x-2 items-center"><span class="font-bold">Состояние:</span><span id="contest-state-span"></span></div>
             <div id="timer-div" class="flex gap-x-2 items-center"><span class="font-bold" id="timer-span-text"></span><span id='timer-span-clock'></span></div>
         </div>
         {% endif %}
         
-        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+        <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
             <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Название:</h2>
             <div class="flex w-full">
                 <textarea rows="1" cols="50" name="name" class="text-lg w-full p-4 border-slate-200 border-2 rounded-lg" {%
@@ -70,7 +70,7 @@
             </div>
         </div>
 
-        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+        <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
             <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Описание:</h2>
             <div class="flex w-full items-start">
                 <textarea id="description_textarea" cols="50" name="description" {% if current_contest.is_public %}
@@ -82,7 +82,7 @@
             makeLaTeXArea("description_textarea", "contest");
         </script>
 
-        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+        <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
             <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Задачи:</h2>
             <div class="flex">
                 <div class="border-r-2 border-slate-300 w-1/2">
@@ -115,7 +115,7 @@
             </div>
         </div>
         
-        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+        <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
             <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Теги:</h2>
             <div class="flex gap-x-8 items-start">
                 <ul class="w-full" id="tas_list">
@@ -143,7 +143,7 @@
             </div>
         </div>
         
-        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+        <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
             <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Настройки:</h2>
             <div class="flex">
                 <div class="flex flex-col gap-y-4">

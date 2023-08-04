@@ -45,7 +45,7 @@
                 class="hover:cursor-pointer px-8 py-2 rounded-md text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700">
         </div>
         
-        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+        <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
             <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Название:</h2>
             <div class="flex w-full">
                 <textarea rows="1" cols="50" name="name" class="text-lg w-full p-4 border-slate-200 border-2 rounded-lg" {%
@@ -53,7 +53,7 @@
             </div>
         </div>
 
-        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+        <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
             <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Текст:</h2>
             <div class="flex w-full items-start">
                 <textarea id="text_textarea" cols="50" name="text" {% if current_sheet.is_public %}
@@ -65,7 +65,7 @@
             makeLaTeXArea("text_textarea", "sheet");
         </script>
 
-        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+        <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
             <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Теги:</h2>
             <div class="flex gap-x-8 items-start">
                 <ul class="w-full" id="tas_list">
@@ -94,7 +94,7 @@
         </div>
 
 
-        <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
+        <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
             <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Вложения:</h2>
             <div class="flex">
                 <div class="border-r-2 border-slate-300 w-1/3">
