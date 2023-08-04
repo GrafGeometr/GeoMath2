@@ -56,7 +56,7 @@
 
     {% if current_problem.is_solution_available() %}
     <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2" id="toggle-solution-view">Решение:</h2>
+        <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2" id="toggle-solution-view">Решение: (спойлер)</h2>
         <div class="flex w-full items-start">
             <textarea id="solution_textarea" cols="50" name="solution" readonly class="w-1/2 p-4 border-slate-200 border-2 rounded-lg">{{ current_problem.solution }}</textarea>
         </div>
@@ -70,9 +70,9 @@
         var toggle = document.getElementById("toggle-solution-view");
         var div = document.getElementById("solution_textarea-latex-output");
         toggle.classList.add("hover:cursor-pointer")
-        div.classList.add("hidden");
+        div.classList.add("invisible");
         toggle.addEventListener("click", function () {
-            div.classList.toggle("hidden");
+            div.classList.toggle("invisible");
         })
     </script>
     {% endif %}
