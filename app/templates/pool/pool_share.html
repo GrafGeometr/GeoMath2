@@ -1,0 +1,26 @@
+{% extends "pool/pool_header.html" %}
+{% block pool_body %}
+<div class="flex flex-col items-center">
+    <div class="border-2 border-solid border-sky-400 rounded-lg text-stone-800 bg-white flex flex-col items-center p-4 mt-24 w-1/2 min-w-fit">
+        <div class="flex flex-col items-center">
+            <div class="text-xl font-bold">{{ obj.name }} - перемещение</div>
+            <div class="text-lg font-light">Выбери новый пул из списка или <a href="{{ back }}" class="text-red-500 hover:font-bold">отмени</a> перемещение</div>
+        </div>
+
+        <ul class="w-full mt-2 text-lg">
+            {% for up in current_user.get_pools() %}
+            {% if up.pool != current_pool %}
+            <li class="even:bg-slate-200 odd:bg-slate-50 first:border-t-blue-800 first:border-t-2">
+                <form method="POST" class="block">
+                    <input type="hidden" name="new_pool" value="{{ up.pool.id }}">
+                    <input type="submit" value="{{ up.pool.name }}" class="block p-2 w-full text-left hover:cursor-pointer hover:text-blue-600 hover:font-bold">
+                </form>
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+
+        
+    </div>
+</div>
+{% endblock %}

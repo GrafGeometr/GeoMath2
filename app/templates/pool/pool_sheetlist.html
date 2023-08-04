@@ -37,8 +37,10 @@
         </td>
 
         <td class="text-right px-4">
+            <a href="/pool/{{ current_pool.hashed_id }}/share/sheet/{{ sheet.id }}" class="inline-block cursor-pointer mr-2"><img
+                class="w-6 border-0" src="/static/images/share.svg" alt="share"></a>
             <button class="border-0 bg-transparent cursor-pointer inline-block"
-            onclick="remove_sheet('{{ current_pool.hashed_id }}', '{{ sheet.id }}')"><img
+            onclick="remove_contest('{{ current_pool.hashed_id }}', '{{ sheet.id }}')"><img
                 class="w-6 border-0" src="/static/images/bin.svg" alt="bin"></button>
         </td>
     </tr>

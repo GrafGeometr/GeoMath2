@@ -189,7 +189,7 @@ def problem(pool_hashed_id, problem_hashed_id):
 
     problem = Problem.query.filter_by(hashed_id=problem_hashed_id).first()
 
-    if problem is None:
+    if (problem is None) or (problem.pool != pool):
         flash("Задача не найдена", "error")
         return redirect(f"/pool/{pool_hashed_id}/problems")
 
@@ -248,7 +248,64 @@ def problem(pool_hashed_id, problem_hashed_id):
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
+# move problem (or smth) to another pool
+@pool.route("/pool/<pool_hashed_id>/share/<string:obj_type>/<int:obj_id>", methods=["GET", "POST"])
+@login_required
+def share_problem(pool_hashed_id, obj_type, obj_id):
+    pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
+    if pool is None:
+        flash("Пул с таким id не найден", "error")
+        return redirect("/myprofile")
 
+    if not current_user.get_pool_relation(pool.id).role.isOwner():
+        flash("Недостаточно прав", "error")
+        return redirect(f"/pool/{pool_hashed_id}/problems")
+    
+    redirect_link = f"/pool/{pool_hashed_id}/problems"
+    if obj_type == "problem":
+        redirect_link = f"/pool/{pool_hashed_id}/problems"
+    elif obj_type == "sheet":
+        redirect_link = f"/pool/{pool_hashed_id}/sheets"
+    elif obj_type == "contest":
+        redirect_link = f"/pool/{pool_hashed_id}/contests"
+
+    obj = None
+    if obj_type == "problem":
+        obj = Problem.query.filter_by(id=obj_id).first()
+    elif obj_type == "sheet":
+        obj = Sheet.query.filter_by(id=obj_id).first()
+    elif obj_type == "contest":
+        obj = Contest.query.filter_by(id=obj_id).first()
+    if (obj is None) or (obj.pool != pool):
+        flash("Перемещение невозможно", "error")
+        return redirect(redirect_link)
+
+    if request.method == "POST":
+        if request.form.get("new_pool") is not None:
+            new_pool_id = request.form.get("new_pool")
+            new_pool = Pool.query.filter_by(id=new_pool_id).first()
+            if (new_pool is None) or (new_pool == pool):
+                flash("Перемещение невозможно", "error")
+                return redirect(f"/pool/{pool_hashed_id}/share/{obj_type}/{obj_id}")
+            if not current_user.is_pool_access(new_pool.id):
+                flash("Перемещение невозможно, недостаточно прав", "error")
+                return redirect(f"/pool/{pool_hashed_id}/share/{obj_type}/{obj_id}")
+            obj.pool = new_pool
+            db.session.commit()
+            flash("Перемещение выполнено", "success")
+
+            redirect_link = f"/pool/{new_pool.hashed_id}/problems"
+            if obj_type == "problem":
+                redirect_link = f"/pool/{new_pool.hashed_id}/problems"
+            elif obj_type == "sheet":
+                redirect_link = f"/pool/{new_pool.hashed_id}/sheets"
+            elif obj_type == "contest":
+                redirect_link = f"/pool/{new_pool.hashed_id}/contests"
+            return redirect(redirect_link)
+    
+    return render_template("/pool/pool_share.html", current_pool=pool, obj=obj, back=redirect_link, title="Переместить в другой пул")
+    
+# -----------------------------------------------------------------------------------------------------------------------------
 import json
 
 # get problem content
@@ -439,7 +496,7 @@ def sheet(pool_hashed_id, sheet_id):
 
     sheet = Sheet.query.filter_by(id=sheet_id).first()
 
-    if sheet is None:
+    if (sheet is None) or (sheet.pool != pool):
         flash("Подборка не найдена", "error")
         return redirect(f"/pool/{pool_hashed_id}/sheets")
 
@@ -613,7 +670,7 @@ def contest(pool_hashed_id, contest_id):
 
     contest = Contest.query.filter_by(id=contest_id).first()
 
-    if contest is None:
+    if (contest is None) or (contest.pool != pool):
         flash("Контест не найден", "error")
         return redirect(f"/pool/{pool_hashed_id}/contests")
 
