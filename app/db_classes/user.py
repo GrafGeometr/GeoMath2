@@ -64,6 +64,19 @@ class User(UserMixin, db.Model):
         relation = User_Chat.query.filter_by(user_id=self.id, chat_id=chat_id).first()
         return relation
     
+    def get_chats(self):
+        from app.dbc import User_Chat
+        chats = [uc.chat for uc in User_Chat.query.filter_by(user_id=self.id).all()]
+        return chats
+    
+    def get_nonclub_chats(self):
+        return [chat for chat in self.get_chats() if chat.club_id is None]
+    
+    def get_sorted_nonclub_chats(self):
+        chats = self.get_nonclub_chats()
+        chats.sort(key=lambda chat: chat.get_last_message_date(), reverse=True)
+        return chats
+    
     def get_club_relation(self, club_id):
         from app.dbc import User_Club
         relation = User_Club.query.filter_by(user_id=self.id, club_id=club_id).first()

@@ -80,6 +80,9 @@ class Pool(db.Model):
             else (2, up.user.name)
         )
         return userpools
+    
+    def get_owners(self):
+        return [up.user for up in self.get_users() if up.role.isOwner()]
 
     def count_owners(self):
         return len([user for user in self.get_users() if user.role.isOwner()])

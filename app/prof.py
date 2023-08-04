@@ -37,9 +37,24 @@ def profile(username):
         flash("Пользователь не найден", "error")
         return redirect("/myprofile")
     if request.method == "POST":
-        if user.name != current_user.name:
-            return redirect(f"/profile/user/{user.name}")
+        if request.form.get("chat_with_user") is not None:
+            if user.name == current_user.name:
+                return redirect(f"/profile/user/{user.name}")
+            
+            current_user_nonclub = current_user.get_nonclub_chats()
+            user_nonclub = user.get_nonclub_chats()
+            for chat in current_user_nonclub:
+                if (chat in user_nonclub):
+                    return redirect(f"/chat/{chat.hashed_id}/messages")
+            
+            chat = Chat(name="")
+            chat.add()
+            User_Chat(user=current_user, chat=chat).add()
+            User_Chat(user=user, chat=chat).add()
+            return redirect(f"/chat/{chat.hashed_id}/messages")
         if request.form.get("update_profile_pic") is not None:
+            if user.name != current_user.name:
+                return redirect(f"/profile/user/{user.name}")
             directory = 'app/database/profile_pics'
             file = request.files.get("profile_pic")
             if file is None:
@@ -57,6 +72,8 @@ def profile(username):
                 db.session.commit()
                 return redirect(f"/profile/user/{user.name}")
         if request.form.get("delete_profile_pic") is not None:
+            if user.name != current_user.name:
+                return redirect(f"/profile/user/{user.name}")
             directory = 'app/database/profile_pics'
             try:
                 os.remove(os.path.join(directory, current_user.profile_pic))
@@ -82,6 +99,21 @@ def profile_pools():
 @login_required
 def profile_clubs():
     return render_template("profile/profile_clubs.html", title="Мои кружки", user=current_user)
+
+@prof.route("/profile/chats", methods=["GET", "POST"])
+@login_required
+def profile_chats():
+    if request.method == "POST":
+        if request.form.get("remove_chat") is not None:
+            chat_id = request.form.get("remove_chat")
+            chat = Chat.query.filter_by(id=chat_id).first()
+            if (chat is None) or (chat.club_id is not None) or (not chat.is_my()):
+                flash("Чат не найден", "error")
+                return redirect("/profile/chats")
+            chat.remove()
+            return redirect("/profile/chats")
+            
+    return render_template("profile/profile_chats.html", title="Мои чаты", user=current_user)
 
 @prof.route("/profile/settings")
 @login_required

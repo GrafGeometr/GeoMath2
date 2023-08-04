@@ -5,7 +5,7 @@
     {% if current_user.is_authenticated and (current_user.name == user.name) %}
         <a id="profile_pools_href" class="py-4 px-8  no-underline text-black font-bold hover:bg-slate-200" href="/profile/pools">Пулы</a>
         <a id="profile_clubs_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/profile/clubs">Кружки</a>
-        <a id="profile_chats_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/chats">Чаты</a>
+        <a id="profile_chats_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/profile/chats">Чаты</a>
         <a id="profile_settings_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/profile/settings">Настройки</a>
         <div class="w-px bg-neutral-300"></div>
         <a id="profile_myproblems_href" class="py-4 px-8 no-underline text-black font-bold hover:bg-slate-200" href="/archive/problems/{{ user.name }}">Мои задачи</a>
@@ -28,7 +28,18 @@
         {% else %}
             <img src="{{ url_for('prof.show_profile_pic', filename=user.profile_pic) }}" alt="{{ user.name }}" class="w-48 rounded-md border-2 border-solid border-stone-300 mix-blend-multiply">
         {% endif %}
-        <span class="text-xl text-stone-900 font-semibold">{{ user.name }}</span>
+        <div class="flex flex-row items-center gap-x-2">
+            <span class="text-xl text-stone-900 font-semibold">{{ user.name }}</span>
+            {% if current_user.is_authenticated and (current_user.name != user.name) %}
+                <form class="flex flex-col items-center" action="/profile/user/{{user.name}}" method="POST">
+                    <input type="hidden" name="chat_with_user" value="239">
+                    <label>
+                        <input type="submit" value="Написать" class="hidden">
+                        <img src="/static/images/send.svg" class="w-8 h-8 hover:cursor-pointer">
+                    </label>
+                </form>
+            {% endif %}
+        </div>
         {% if current_user.is_authenticated and (current_user.name == user.name) %}
             <form class="flex flex-col items-center" action="/profile/user/{{user.name}}" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="update_profile_pic" value="239">

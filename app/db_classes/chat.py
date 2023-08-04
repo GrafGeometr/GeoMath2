@@ -52,6 +52,25 @@ class Chat(db.Model):
             res.extend(User_Message.query.filter_by(user=user, message=m, read=False).all())
         return res
     
+    def get_last_message_date(self):
+        messages = self.get_all_messages()
+        if len(messages) == 0:
+            return datetime.datetime.min
+        return max([m.date for m in messages])
+    
+    def get_other_user(self, user=current_user):
+        if self.club_id is not None:
+            return None
+        from app.dbc import User_Chat
+        users = [uc.user for uc in self.user_chats]
+        if user not in users:
+            return None
+        if len(users) <= 1:
+            return None
+        if user == users[0]:
+            return users[1]
+        return users[0]
+    
 
     def count_owners(self):
         return len([uc.user for uc in self.user_chats if uc.is_owner()])

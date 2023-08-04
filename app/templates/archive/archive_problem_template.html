@@ -28,6 +28,18 @@
         Показать код</span>
     </div>
 
+    <div class="text-lg">
+        <span class="font-bold">Опубликовали:</span>
+        {% set owners = current_problem.pool.get_owners() %}
+        {% if owners %}
+            {% for user in owners[:-1] %}
+                <a href="/profile/user/{{ user.name }}" class="hover:underline">{{ user.name }}</a>
+                <span class="mx text-slate-500 text-xl">|</span>
+            {% endfor %}
+            <a href="/profile/user/{{ owners[-1].name }}" class="hover:underline">{{ owners[-1].name }}</a>
+        {% endif %}
+    </div>
+
     {% if current_problem.is_statement_available() %}
     <div class="w-full bg-white rounded-xl shadow-md hover:shadow-lg p-8">
         <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Условие:</h2>

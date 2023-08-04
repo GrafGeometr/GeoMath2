@@ -3,10 +3,6 @@ from .model_imports import *
 
 chat = Blueprint('chat', __name__)
 
-@chat.route("/chats", methods=["GET", "POST"])
-@login_required
-def chats():
-    return render_template("chat/chat_chats.html", chats=[uc.chat for uc in current_user.user_chats])
 
 
 
@@ -16,10 +12,10 @@ def chat_messages(chat_hashed_id):
     chat = Chat.query.filter_by(hashed_id=chat_hashed_id).first()
     if chat is None:
         flash("Чат с таким id не найден", "error")
-        return redirect("/chats")
+        return redirect("/profile/chats")
     if not chat.is_my():
         flash("Вы не состоите в этом чате", "error")
-        return redirect("/chats")
+        return redirect("/profile/chats")
     chat.act_mark_all_as_read()
     return render_template("chat/chat_messages.html", chat=chat, messages=chat.get_all_messages(), str_from_dt = str_from_dt)
 
@@ -45,6 +41,9 @@ def chat_manager_general(chat_hashed_id):
         flash("Вы не состоите в этом чате", "error")
         return redirect("/myprofile")
 
+    if chat.club_id is None:
+        flash("Страница недоступна", "error")
+        return redirect(f"/chat/{chat_hashed_id}/messages")
 
     if request.method == "POST":
         if not current_user.is_chat_owner(chat):
@@ -80,11 +79,15 @@ def chat_collaborators(chat_hashed_id):
 
     if chat is None:
         flash("чат с таким id не найден", "error")
-        return redirect("/myprofile")
+        return redirect("/profile/chats")
 
     if not chat.is_my():
         flash("Вы не состоите в этом чате", "error")
-        return redirect("/myprofile")
+        return redirect("/profile/chats")
+    
+    if chat.club_id is None:
+        flash("Страница недоступна", "error")
+        return redirect(f"/chat/{chat_hashed_id}/messages")
 
     if request.method == "POST":
         if not current_user.is_chat_owner(chat):

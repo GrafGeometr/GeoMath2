@@ -284,7 +284,7 @@ def archive_contest_search(username):
 @login_required
 def arch_problem(problem_hashed_id):
     problem = Problem.query.filter_by(hashed_id = problem_hashed_id).first()
-    if problem is None:
+    if (problem is None) or (not problem.is_statement_available()):
         return redirect("/archive/problems/all")
     return render_template(
         "archive/archive_problem_template.html",
@@ -296,7 +296,7 @@ def arch_problem(problem_hashed_id):
 @login_required
 def arch_sheet(sheet_id):
     sheet = Sheet.query.filter_by(id = sheet_id).first()
-    if sheet is None:
+    if (sheet is None) or (not sheet.is_text_available()):
         return redirect("/archive/sheets/all")
     return render_template(
         "archive/archive_sheet_template.html",
