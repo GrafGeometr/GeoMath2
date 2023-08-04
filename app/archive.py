@@ -173,7 +173,7 @@ def archive_problem_search(username):
     pages_to_show = get_correct_page_slice(num_of_pages, 7, page)
     
 
-    return render_template("archive/archive_search_problems.html", username=username, problems=problems, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
+    return render_template("archive/archive_search_problems.html", title="Поиск задач", username=username, problems=problems, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
 
 @arch.route("/archive/sheets/<string:username>", methods=["POST", "GET"])
 @login_required
@@ -225,7 +225,7 @@ def archive_sheet_search(username):
     
     print(sheets)
 
-    return render_template("archive/archive_search_sheets.html", username=username, sheets=sheets, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
+    return render_template("archive/archive_search_sheets.html", title="Поиск подборок", username=username, sheets=sheets, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
 
 
 
@@ -278,7 +278,7 @@ def archive_contest_search(username):
     pages_to_show = get_correct_page_slice(num_of_pages, 7, page)
     
 
-    return render_template("archive/archive_search_contests.html", username=username, contests=contests, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
+    return render_template("archive/archive_search_contests.html", title="Поиск контестов", username=username, contests=contests, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
 
 @arch.route("/archive/problem/<problem_hashed_id>")
 @login_required
