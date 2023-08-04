@@ -4,7 +4,7 @@
 <div class="my-4 pl-4">
     <span class="text-2xl text-stone-800"> <a href="/profile/chats" class="no-underline hover:underline">Мои чаты</a> </span>
     <span class="text-2xl text-stone-800 mx-2"> / </span>
-    <span class="text-2xl text-stone-800 font-bold"> <a href="/chat/{{ chat.hashed_id }}/messages" class="no-underline hover:underline">{{ chat.get_other_user().name }}</a> </span>
+    <span class="text-2xl text-stone-800 font-bold"> <a href="/profile/user/{{ chat.get_other_user().name }}" class="no-underline hover:underline">{{ chat.get_other_user().name }}</a> </span>
 </div>
 {% else %}
 <div class="my-4 pl-4">
