@@ -85,8 +85,10 @@ def profile(username):
 
 
 
-
-    return render_template("profile/profile_about.html", title="Мой профиль", user=user)
+    title = "Мой профиль"
+    if user.name != current_user.name:
+        title = f"Профиль {user.name}"
+    return render_template("profile/profile_about.html", title=title, user=user)
 
 
 @prof.route("/profile/pools")
