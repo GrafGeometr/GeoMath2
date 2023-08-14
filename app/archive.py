@@ -148,8 +148,6 @@ def archive_problem_search(username):
 
 
     tags = list(set(tags))
-    print(tags)
-    print(page)
 
     problems_per_page = 10
 
