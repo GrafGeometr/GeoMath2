@@ -51,7 +51,7 @@ class Tag(db.Model):
     
     def get_hash(self):
         from app.utils_and_functions.usefull_functions import get_string_hash
-        if True or self.hash is None:
+        if self.hash is None:
             self.hash = get_string_hash(self.name.lower())
             self.save()
         return self.hash
