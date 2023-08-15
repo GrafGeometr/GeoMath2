@@ -146,26 +146,49 @@ def archive_problem_search(username):
     else:
         tags = list(map(lambda x: x.strip() , tags.split(";")))
 
+    from app.utils_and_functions.usefull_functions import get_string_hash
 
-    tags = list(set(tags))
+    tags_hashes = sorted([get_string_hash(tag) for tag in tags])
+    tags_count = len(tags)
+
+    print(tags_hashes)
 
     problems_per_page = 10
 
 
     problems = Problem.query.all()
-    problems = [(p, len([tag for tag in tags if tag in p.get_tag_names()]), len(tags), p.total_likes) for p in problems if p.is_statement_available()]
-    problems.sort(key = lambda p: (p[1], p[3]), reverse=True)
+
+    user = User.query.filter_by(name=username).first()
+    if user is not None:
+        problems = [problem for problem in problems if problem.is_my(user)]
+
+    resulting_problems = []
+
+    for problem in problems:
+        if not problem.is_statement_available():
+            continue
+        problems_tags = [tag.get_hash() for tag in problem.get_tags()]
+        print(problems_tags)
+        cnt = 0
+        for tag_hash in tags_hashes:
+            ind = bisect.bisect_left(problems_tags, tag_hash)
+            if ind != len(problems_tags) and problems_tags[ind] == tag_hash:
+                cnt += 1
+        resulting_problems.append((problem, cnt, tags_count, problem.total_likes))
+
+
+
+    # problems = [(p, len([tag for tag in tags if tag in p.get_tag_names()]), len(tags), p.total_likes) for p in problems if p.is_statement_available()]
+    # problems.sort(key = lambda p: (p[1], p[3]), reverse=True)
     
 
     #if username == "all":
         #problems = [problem for problem in problems if problem[0].usernamerated]
-    user = User.query.filter_by(name=username).first()
-    if user is not None:
-        problems = [problem for problem in problems if problem[0].is_my(user)]
+    
 
 
     num_of_pages = (len(problems)+problems_per_page-1) // problems_per_page
-    problems = problems[(page-1)*problems_per_page : page*problems_per_page]
+    problems = resulting_problems[(page-1)*problems_per_page : page*problems_per_page]
 
 
     pages_to_show = get_correct_page_slice(num_of_pages, 7, page)

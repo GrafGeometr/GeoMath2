@@ -1,12 +1,15 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
+
 class Tag(db.Model):
     # --> INITIALIZE
     __tablename__ = "tag"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, unique=True, nullable=True)
+
+    hash = db.Column(db.Integer, nullable=True)
 
     # --> RELATIONS
 
@@ -45,3 +48,10 @@ class Tag(db.Model):
     def save(self):
         db.session.commit()
         return self
+    
+    def get_hash(self):
+        from app.utils_and_functions.usefull_functions import get_string_hash
+        if self.hash is None:
+            self.hash = get_string_hash(self.name)
+            self.save()
+        return self.hash
