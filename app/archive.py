@@ -148,7 +148,7 @@ def archive_problem_search(username):
 
     from app.utils_and_functions.usefull_functions import get_string_hash
 
-    tags_hashes = sorted([get_string_hash(tag) for tag in tags])
+    tags_hashes = sorted([get_string_hash(tag.lower()) for tag in tags])
     tags_count = len(tags)
 
     print(tags_hashes)
