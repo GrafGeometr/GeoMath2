@@ -170,9 +170,9 @@ def archive_problem_search(username):
         problems_tags = [tag.get_hash() for tag in problem.get_tags()]
         print(problems_tags)
         cnt = 0
-        for tag_hash in tags_hashes:
-            ind = bisect.bisect_left(problems_tags, tag_hash)
-            if ind != len(problems_tags) and problems_tags[ind] == tag_hash:
+        for tag_hash in problems_tags:
+            ind = bisect.bisect_left(tags_hashes, tag_hash)
+            if ind != len(tags_hashes) and tags_hashes[ind] == tag_hash:
                 cnt += 1
         resulting_problems.append((problem, cnt, tags_count, problem.total_likes))
 
