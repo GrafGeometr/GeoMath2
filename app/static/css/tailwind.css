@@ -819,8 +819,8 @@ video {
   width: 1px;
 }
 
-.min-w-\[75rem\] {
-  min-width: 75rem;
+.min-w-\[90rem\] {
+  min-width: 90rem;
 }
 
 .min-w-fit {
