@@ -21,12 +21,12 @@
 
 <div class="h-px w-full bg-neutral-300"></div>
 
-<div class="flex mt-4 gap-x-8 w-full items-start">
-    <section class="flex flex-col items-center gap-y-4">
+<div class="flex mt-4 gap-x-8 items-start w-full">
+    <section class="flex flex-col items-center gap-y-4 w-48">
         {% if (user.profile_pic is none) or (user.profile_pic=="") %}
-            <img src="/static/images/user.png" class="w-48 rounded-md border-2 border-solid border-stone-300 mix-blend-multiply">
+            <img src="/static/images/user.png" class="w-full rounded-full border-2 border-solid border-stone-800 mix-blend-multiply box_shadow">
         {% else %}
-            <img src="{{ url_for('prof.show_profile_pic', filename=user.profile_pic) }}" alt="{{ user.name }}" class="w-48 rounded-md border-2 border-solid border-stone-300 mix-blend-multiply">
+            <img src="{{ url_for('prof.show_profile_pic', filename=user.profile_pic) }}" alt="{{ user.name }}" class="w-full rounded-full border-2 border-solid border-stone-800 mix-blend-multiply box_shadow">
         {% endif %}
         <div class="flex flex-row items-center gap-x-2">
             <span class="text-xl text-stone-900 font-semibold">{{ user.name }}</span>
@@ -41,21 +41,38 @@
             {% endif %}
         </div>
         {% if current_user.is_authenticated and (current_user.name == user.name) %}
-            <form class="flex flex-col items-center" action="/profile/user/{{user.name}}" method="POST" enctype="multipart/form-data">
+        <div class="flex flex-col gap-y-2 w-full">
+            <form class="flex flex-col items-center w-full gap-y-2" action="/profile/user/{{user.name}}" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="update_profile_pic" value="239">
-                <label for="inp_file" class="label_for_file">Выберите файлы</label>
-                <input type="file" class="my_file_input" id="inp_file" name="profile_pic" accept="image/*">
+                <label for="inp_file" id="label_for_file" class="block border border-black rounded-md p-2 hover:text-white hover:bg-stone-700 hover:cursor-pointer w-full text-center whitespace-nowrap overflow-hidden text-ellipsis">Загрузить фото</label>
+                <input type="file" id="inp_file" class="hidden" name="profile_pic" accept="image/*">
 
-                <input type="submit" class="my">
+                <input type="submit" value="Сохранить"
+                class="hover:cursor-pointer px-4 py-2 rounded-md text-md text-white bg-green-500 hover:bg-green-600 active:bg-green-700 w-full">
             </form>
             <form class="flex flex-col items-center" action="/profile/user/{{user.name}}" method="POST">
                 <input type="hidden" name="delete_profile_pic" value="239">
                 <input type="submit" value="Удалить фото" class="font-bold hover:text-red-500 hover:cursor-pointer">
             </form>
+        </div>
         {% endif %}
     </section>
     <section class="grow bg-white rounded-xl box_shadow p-8">
     {% block profile_content %}{% endblock %}
     </section>
 </div>
+
+<script>
+    var fileInput = document.getElementById("inp_file");
+    var fileLabel = document.getElementById("label_for_file");
+    fileInput.addEventListener("change", function (event) {
+        if (event.target.files.length > 0) {
+            var file = event.target.files[0];
+            fileLabel.textContent = file.name;
+        }
+        else {
+            fileLabel.textContent = "Загрузить фото";
+        }
+    })
+</script>
 {% endblock %}
