@@ -82,6 +82,12 @@ def profile(username):
             current_user.profile_pic = None
             db.session.commit()
             return redirect(f"/profile/user/{user.name}")
+        if request.form.get("save_about") is not None:
+            if user.name != current_user.name:
+                return redirect(f"/profile/user/{user.name}")
+            current_user.about = request.form.get("about")
+            db.session.commit()
+            return redirect(f"/profile/user/{user.name}")
 
 
 

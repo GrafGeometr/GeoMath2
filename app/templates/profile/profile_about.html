@@ -7,5 +7,32 @@
     element.classList.add("border-solid");
     element.classList.add("bg-slate-200");
 </script>
-<p>Some info about user...</p>
+<div class="flex">
+    <span class="text-2xl font-bold text-blue-800">О себе</span>
+</div>
+<form class="flex flex-col w-1/2 gap-y-4 mt-4" action="/profile/user/{{ user.name }}" method="POST">
+    <input type="hidden" name="save_about" value="239">
+
+    <textarea
+    type="text"
+    rows="3"
+    {% if user == current_user %} placeholder="Всё, что угодно: любите ли вы капибар, проективную геометрию, творчество Высоцкого, настольный футбол..."
+    {% else %} placeholder="Нам неизвестно ничего про {{ user.name }} =(" {% endif %}
+    name="about"
+    id="about"
+    class="border-2 border-slate-500 rounded-md p-2 pr-16 break-word whitespace-pre-wrap"
+    {% if user != current_user %} readonly {% endif %}
+    >{% if user.about %}{{ user.about }}{% endif %}</textarea>
+    
+    {% if user == current_user %}
+    <input type="submit" value="Сохранить" class="hover:cursor-pointer px-12 py-3 rounded-md text-md text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700">
+    {% endif %}
+</form>
+<script>
+    var textarea = document.getElementById("about");
+    fitContent(textarea);
+    textarea.addEventListener("input", (e) => {
+        fitContent(textarea);
+    })
+</script>
 {% endblock %}
