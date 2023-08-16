@@ -64,3 +64,13 @@ def safe_image_upload(files, directory, maxsize=2*1024*1024):
         except:
             result.append(None)
     return result
+
+
+
+p = 2027
+q = 2305843009213693951
+def get_string_hash(s):
+    result = 0
+    for i in range(len(s)):
+        result = (result * p + ord(s[i])) % q
+    return result

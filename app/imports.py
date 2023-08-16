@@ -17,6 +17,8 @@ from PIL import Image
 import string
 from flask_socketio import join_room, leave_room, send, SocketIO
 
+import bisect
+
 from .utils_and_functions.token_gen import generate_token
 from .utils_and_functions.current_time import current_time, dt_from_str, str_from_dt
 

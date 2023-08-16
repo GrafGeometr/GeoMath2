@@ -301,3 +301,6 @@ class Problem(db.Model):
         for name in names:
             self.act_add_attachment_by_db_filename(name)
         return self
+
+    def get_similar_problems_link(self):
+        return url_for("arch.archive_problem_search", tags="; ".join(self.get_tag_names()), page=1, username="all")

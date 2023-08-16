@@ -101,11 +101,16 @@
         </div>
     </div>
     {% endif %}
-
+    
     {% if current_problem.is_tags_available() %}
     {% if current_problem.get_tags()|length > 0 %}
     <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
-        <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Теги:</h2>
+        <div class="flex flex-row justify-between items-center">
+            <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Теги:</h2>
+            <a href="{{ current_problem.get_similar_problems_link() }}" class="hover:cursor-pointer w-60 px-12 py-2 rounded-xl text-lg text-center text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">
+                Искать похожие
+            </a>
+        </div>
         <div class="flex gap-x-8 items-start">
             <ul class="w-full" id="tas_list">
                 {% for tag in current_problem.get_tags() %}
