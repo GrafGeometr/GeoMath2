@@ -1,26 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="flex flex-col items-center">
-    <form class="border-2 border-solid border-sky-400 rounded-lg text-stone-800 bg-white flex flex-col items-center p-4 mt-24 w-1/2 min-w-fit" action="/chat/create" method="POST">
+    <form class="border-2 border-solid border-sky-400 rounded-lg text-stone-800 bg-white flex flex-col items-center p-4 mt-24 w-1/2 min-w-fit"
+    action="/chat/create" method="POST">
         <div class="flex flex-col items-center">
-            <div class="text-xl font-bold">Общайся с друзьями!</div>
-            <div class="text-base font-light">Создай новый чат или присоединись к нему</div>
+            <div class="text-xl font-bold">Найди пользователя!</div>
         </div>
 
         <div class="flex w-full gap-x-4 mt-4">
-            <input placeholder="Название" type="text" id="name" name="name" class="grow text-2xl bg-neutral-100 border-2 border-solid border-neutral-300 rounded-md p-2" value="{{name}}">
-            <input name="create" class="w-60 hover:cursor-pointer px-12 py-3 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700" type="submit" value="Создать">
+            <input placeholder="Логин" type="text" id="name" name="name" class="grow text-2xl bg-neutral-100 border-2 border-solid border-neutral-300 rounded-md p-2" value="{{name}}">
+            <input name="create" class="w-60 hover:cursor-pointer px-12 py-3 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700" type="submit" value="Найти">
         </div>
-
-        
-
-
-        <div class="flex w-full gap-x-4 mt-4">
-            <input placeholder="Код-приглашение" type="text" id="code" name="code" class="grow text-2xl bg-neutral-100 border-2 border-solid border-neutral-300 rounded-md p-2" value="{{code}}">
-            <input name="join" class="w-60 hover:cursor-pointer px-12 py-3 rounded-xl text-lg text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700" type="submit" value="Присоединиться">
-        </div>
-
-        
     </form>
 </div>
 {% endblock %}

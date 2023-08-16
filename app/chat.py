@@ -5,6 +5,21 @@ chat = Blueprint('chat', __name__)
 
 
 
+@chat.route("/chat/create", methods=["POST", "GET"])
+@login_required
+def create_new_chat():
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        user = User.query.filter_by(name=name).first()
+        if user is None:
+            flash("Пользователь не найден", "error")
+            return render_template("chat/chat_create.html", title=f"Найти пользователя", name=name)
+        return redirect(f"/profile/user/{name}")
+
+        
+
+    return render_template("chat/chat_create.html", title=f"Найти пользователя", name="")
+
 
 @chat.route("/chat/<chat_hashed_id>/messages", methods=["GET", "POST"])
 @login_required

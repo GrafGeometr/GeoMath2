@@ -11,6 +11,7 @@ class User(UserMixin, db.Model):
     admin = db.Column(db.Boolean, default=False)
     created_date = db.Column(db.DateTime, default=current_time)
     profile_pic = db.Column(db.String(), nullable=True)
+    about = db.Column(db.String(), nullable=True, default="")
 
     # --> RELATIONS
     emails = db.relationship("Email", backref="user")
