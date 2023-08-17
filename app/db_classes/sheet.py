@@ -196,10 +196,7 @@ class Sheet(db.Model):
         result = []
         for attachment in self.get_attachments():
             if not attachment.is_secret():
-                if self.is_statement_available():
-                    result.append(attachment)
-            if attachment.is_secret():
-                if self.is_solution_available():
+                if self.is_text_available():
                     result.append(attachment)
         return result
     
