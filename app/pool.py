@@ -592,7 +592,7 @@ def upload_file_to_sheet(pool_hashed_id, sheet_id):
             short_name="Рисунок",
             parent_type=DbParent.fromType(type(sheet)),
             parent_id=sheet.id,
-            other_data={}
+            other_data={"is_secret": False}
         )
         db.session.add(attachment)
 

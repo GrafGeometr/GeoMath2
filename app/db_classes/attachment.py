@@ -49,6 +49,8 @@ class Attachment(db.Model):
 
 
     def is_secret(self):
+        if self.other_data.get("is_secret") is None:
+            self.other_data['is_secret'] = False
         return self.other_data["is_secret"]
 
     def is_from_parent(self, obj):
