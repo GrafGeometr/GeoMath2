@@ -181,18 +181,15 @@ class Problem(db.Model):
     
     # TAGS BLOCK
     
-    def get_tags(self):
+    def get_nonsorted_tags(self):
         from app.dbc import Tag, Tag_Relation
 
-        return sorted(
-            [
-                Tag.query.filter_by(id=sheet_tag.tag_id).first()
-                for sheet_tag in Tag_Relation.query.filter_by(
-                    parent_type=DbParent.fromType(type(self)), parent_id=self.id
-                ).all()
-            ],
-            key=lambda t: t.name.lower(),
-        )
+        return [Tag.query.filter_by(id=sheet_tag.tag_id).first()
+                for sheet_tag in Tag_Relation.query.filter_by(parent_type=DbParent.fromType(type(self)), parent_id=self.id).all()
+                ]
+    
+    def get_tags(self):
+        return sorted(self.get_nonsorted_tags(), key=lambda t: t.name.lower())
     
     def get_tag_names(self):
         return list(map(lambda t: t.name, self.get_tags()))
@@ -245,7 +242,7 @@ class Problem(db.Model):
         return self.act_remove_tag(Tag.get_by_name(tag_name))
 
     def act_set_tags(self, names):
-        for tag in self.get_tags():
+        for tag in self.get_nonsorted_tags():
             self.act_remove_tag(tag)
         for name in names:
             self.act_add_tag_by_name(name)

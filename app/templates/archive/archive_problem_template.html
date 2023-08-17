@@ -103,7 +103,7 @@
     {% endif %}
     
     {% if current_problem.is_tags_available() %}
-    {% if current_problem.get_tags()|length > 0 %}
+    {% if current_problem.get_nonsorted_tags()|length > 0 %}
     <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
         <div class="flex flex-row justify-between items-center">
             <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Теги:</h2>
