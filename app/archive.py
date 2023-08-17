@@ -167,7 +167,7 @@ def archive_problem_search(username):
     for problem in problems:
         if not problem.is_statement_available():
             continue
-        problems_tags = [tag.get_hash() for tag in problem.get_tags()]
+        problems_tags = [tag.get_hash() for tag in problem.get_nonsorted_tags()]
         print(problems_tags)
         cnt = 0
         for tag_hash in problems_tags:
