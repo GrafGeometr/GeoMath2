@@ -151,35 +151,35 @@ def archive_problem_search(username):
     tags_hashes = sorted([get_string_hash(tag.lower()) for tag in tags])
     tags_count = len(tags)
 
-    problems_per_page = 10
+    objs_per_page = 10
 
     tag_id_to_hash = {}
     for t in Tag.query.all():
         tag_id_to_hash[t.id] = t.get_hash()
 
-    problem_id_to_cnt = {}
+    obj_id_to_cnt = {}
     for tr in Tag_Relation.query.all():
-        problem_id = tr.parent_id
+        obj_id = tr.parent_id
         tag_hash = tag_id_to_hash[tr.tag_id]
         idx = bisect.bisect_left(tags_hashes, tag_hash)
         if idx != len(tags_hashes) and tags_hashes[idx] == tag_hash:
-            problem_id_to_cnt[problem_id] = problem_id_to_cnt.get(problem_id, 0) + 1
+            obj_id_to_cnt[obj_id] = obj_id_to_cnt.get(obj_id, 0) + 1
 
 
-    problems = Problem.query.all()
+    objs = Problem.query.all() # Problem | Sheet | Contest
     user = User.query.filter_by(name=username).first()
     if user is not None:
-        problems = [problem for problem in problems if problem.is_my(user)]
+        objs = [obj for obj in objs if obj.is_my(user)]
 
-    resulting_problems = []
+    resulting_objs = []
 
-    for problem in problems:
-        if not problem.is_statement_available():
+    for obj in objs:
+        if not obj.is_statement_available(): # statement | text | description
             continue
-        cnt = problem_id_to_cnt.get(problem.id, 0)
-        resulting_problems.append((problem, cnt, tags_count, problem.total_likes))
+        cnt = obj_id_to_cnt.get(obj.id, 0)
+        resulting_objs.append((obj, cnt, tags_count, obj.total_likes))
 
-    resulting_problems.sort(key = lambda p: (p[1], p[3]), reverse=True)
+    resulting_objs.sort(key = lambda o: (o[1], o[3]), reverse=True)
 
     # problems = [(p, len([tag for tag in tags if tag in p.get_tag_names()]), len(tags), p.total_likes) for p in problems if p.is_statement_available()]
     # problems.sort(key = lambda p: (p[1], p[3]), reverse=True)
@@ -190,14 +190,14 @@ def archive_problem_search(username):
     
 
 
-    num_of_pages = (len(problems)+problems_per_page-1) // problems_per_page
-    problems = resulting_problems[(page-1)*problems_per_page : page*problems_per_page]
+    num_of_pages = (len(objs)+objs_per_page-1) // objs_per_page
+    objs = resulting_objs[(page-1)*objs_per_page : page*objs_per_page]
 
 
     pages_to_show = get_correct_page_slice(num_of_pages, 7, page)
     
 
-    return render_template("archive/archive_search_problems.html", title="Поиск задач", username=username, problems=problems, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
+    return render_template("archive/archive_search_problems.html", title="Поиск задач", username=username, problems=objs, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
 
 @arch.route("/archive/sheets/<string:username>", methods=["POST", "GET"])
 @login_required
@@ -222,34 +222,57 @@ def archive_sheet_search(username):
         tags = list(map(lambda x: x.strip() , tags.split(";")))
 
 
-    tags = list(set(tags))
-    print(tags)
-    print(page)
+    from app.utils_and_functions.usefull_functions import get_string_hash
 
-    sheets_per_page = 10
+    tags_hashes = sorted([get_string_hash(tag.lower()) for tag in tags])
+    tags_count = len(tags)
+
+    objs_per_page = 10
+
+    tag_id_to_hash = {}
+    for t in Tag.query.all():
+        tag_id_to_hash[t.id] = t.get_hash()
+
+    obj_id_to_cnt = {}
+    for tr in Tag_Relation.query.all():
+        obj_id = tr.parent_id
+        tag_hash = tag_id_to_hash[tr.tag_id]
+        idx = bisect.bisect_left(tags_hashes, tag_hash)
+        if idx != len(tags_hashes) and tags_hashes[idx] == tag_hash:
+            obj_id_to_cnt[obj_id] = obj_id_to_cnt.get(obj_id, 0) + 1
 
 
-    sheets = Sheet.query.all()
-    sheets = [(s, len([tag for tag in tags if tag in s.get_tag_names()]), len(tags), s.total_likes) for s in sheets if s.is_text_available()]
-    sheets.sort(key = lambda s: (s[1], s[3]), reverse=True)
+    objs = Sheet.query.all() # Problem | Sheet | Contest
+    user = User.query.filter_by(name=username).first()
+    if user is not None:
+        objs = [obj for obj in objs if obj.is_my(user)]
+
+    resulting_objs = []
+
+    for obj in objs:
+        if not obj.is_text_available(): # statement | text | description
+            continue
+        cnt = obj_id_to_cnt.get(obj.id, 0)
+        resulting_objs.append((obj, cnt, tags_count, obj.total_likes))
+
+    resulting_objs.sort(key = lambda o: (o[1], o[3]), reverse=True)
+
+    # problems = [(p, len([tag for tag in tags if tag in p.get_tag_names()]), len(tags), p.total_likes) for p in problems if p.is_statement_available()]
+    # problems.sort(key = lambda p: (p[1], p[3]), reverse=True)
     
 
     #if username == "all":
         #problems = [problem for problem in problems if problem[0].usernamerated]
-    user = User.query.filter_by(name=username).first()
-    if user is not None:
-        sheets = [sheet for sheet in sheets if sheet[0].is_my(user)]
+    
 
 
-    num_of_pages = (len(sheets)+sheets_per_page-1) // sheets_per_page
-    sheets = sheets[(page-1)*sheets_per_page : page*sheets_per_page]
+    num_of_pages = (len(objs)+objs_per_page-1) // objs_per_page
+    objs = resulting_objs[(page-1)*objs_per_page : page*objs_per_page]
 
 
     pages_to_show = get_correct_page_slice(num_of_pages, 7, page)
-    
-    print(sheets)
 
-    return render_template("archive/archive_search_sheets.html", title="Поиск подборок", username=username, sheets=sheets, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
+    return render_template("archive/archive_search_sheets.html", title="Поиск подборок", username=username, sheets=objs, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
 
 
 
@@ -276,33 +299,58 @@ def archive_contest_search(username):
         tags = list(map(lambda x: x.strip() , tags.split(";")))
 
 
-    tags = list(set(tags))
-    print(tags)
-    print(page)
+    from app.utils_and_functions.usefull_functions import get_string_hash
 
-    contests_per_page = 10
+    tags_hashes = sorted([get_string_hash(tag.lower()) for tag in tags])
+    tags_count = len(tags)
+
+    objs_per_page = 10
+
+    tag_id_to_hash = {}
+    for t in Tag.query.all():
+        tag_id_to_hash[t.id] = t.get_hash()
+
+    obj_id_to_cnt = {}
+    for tr in Tag_Relation.query.all():
+        obj_id = tr.parent_id
+        tag_hash = tag_id_to_hash[tr.tag_id]
+        idx = bisect.bisect_left(tags_hashes, tag_hash)
+        if idx != len(tags_hashes) and tags_hashes[idx] == tag_hash:
+            obj_id_to_cnt[obj_id] = obj_id_to_cnt.get(obj_id, 0) + 1
 
 
-    contests = Contest.query.all()
-    contests = [(c, len([tag for tag in tags if tag in c.get_tag_names()]), len(tags), c.total_likes) for c in contests if c.is_description_available()]
-    contests.sort(key = lambda c: (c[1], c[3]), reverse=True)
+    objs = Contest.query.all() # Problem | Sheet | Contest
+    user = User.query.filter_by(name=username).first()
+    if user is not None:
+        objs = [obj for obj in objs if obj.is_my(user)]
+
+    resulting_objs = []
+
+    for obj in objs:
+        if not obj.is_description_available(): # statement | text | description
+            continue
+        cnt = obj_id_to_cnt.get(obj.id, 0)
+        resulting_objs.append((obj, cnt, tags_count, obj.total_likes))
+
+    resulting_objs.sort(key = lambda o: (o[1], o[3]), reverse=True)
+
+    # problems = [(p, len([tag for tag in tags if tag in p.get_tag_names()]), len(tags), p.total_likes) for p in problems if p.is_statement_available()]
+    # problems.sort(key = lambda p: (p[1], p[3]), reverse=True)
     
 
     #if username == "all":
         #problems = [problem for problem in problems if problem[0].usernamerated]
-    user = User.query.filter_by(name=username).first()
-    if user is not None:
-        contests = [contest for contest in contests if contest[0].is_my(user)]
+    
 
 
-    num_of_pages = (len(contests)+contests_per_page-1) // contests_per_page
-    contests = contests[(page-1)*contests_per_page : page*contests_per_page]
+    num_of_pages = (len(objs)+objs_per_page-1) // objs_per_page
+    objs = resulting_objs[(page-1)*objs_per_page : page*objs_per_page]
 
 
     pages_to_show = get_correct_page_slice(num_of_pages, 7, page)
     
 
-    return render_template("archive/archive_search_contests.html", title="Поиск контестов", username=username, contests=contests, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
+    return render_template("archive/archive_search_contests.html", title="Поиск контестов", username=username, contests=objs, pages_to_show=pages_to_show, current_page=page, tags="; ".join(tags), all_tags=sorted(Tag.query.all(), key = lambda t:(t.name).lower()))
 
 @arch.route("/archive/problem/<problem_hashed_id>")
 @login_required
