@@ -176,7 +176,7 @@ def archive_problem_search(username):
     for problem in problems:
         if not problem.is_statement_available():
             continue
-        cnt = problem_id_to_cnt[problem.id]
+        cnt = problem_id_to_cnt.get(problem.id, 0)
         resulting_problems.append((problem, cnt, tags_count, problem.total_likes))
 
     resulting_problems.sort(key = lambda p: (p[1], p[3]), reverse=True)
