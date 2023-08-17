@@ -181,6 +181,7 @@
     for (var i = 0; i < textareas.length; i++) {
         var textarea = textareas[i];
         fitContent(textarea);
+        textarea.addEventListener("input", fitContent);
     }
 </script>
 
