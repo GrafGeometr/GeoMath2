@@ -1,9 +1,12 @@
 // LaTeX highlighting
 
 function fitContent(input, border=2) {
+    var scrollLeft = (document.documentElement || document.body.parentNode || document.body).scrollLeft;
+    var scrollTop = (document.documentElement || document.body.parentNode || document.body).scrollTop;
     input.style.height = "3rem";
     let scHeight = input.scrollHeight;
     input.style.height = `${scHeight+border*2}px`;
+    window.scrollTo(scrollLeft, scrollTop);
 }
 
 function update(elementId, text) {
