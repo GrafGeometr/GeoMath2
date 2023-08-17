@@ -151,13 +151,22 @@ def archive_problem_search(username):
     tags_hashes = sorted([get_string_hash(tag.lower()) for tag in tags])
     tags_count = len(tags)
 
-    print(tags_hashes)
-
     problems_per_page = 10
+
+    tag_id_to_hash = {}
+    for t in Tag.query.all():
+        tag_id_to_hash[t.id] = t.get_hash()
+
+    problem_id_to_cnt = {}
+    for tr in Tag_Relation.query.all():
+        problem_id = tr.parent_id
+        tag_hash = tag_id_to_hash[tr.tag_id]
+        idx = bisect.bisect_left(tags_hashes, tag_hash)
+        if idx != len(tags_hashes) and tags_hashes[idx] == tag_hash:
+            problem_id_to_cnt[problem_id] = problem_id_to_cnt.get(problem_id, 0) + 1
 
 
     problems = Problem.query.all()
-
     user = User.query.filter_by(name=username).first()
     if user is not None:
         problems = [problem for problem in problems if problem.is_my(user)]
@@ -167,13 +176,7 @@ def archive_problem_search(username):
     for problem in problems:
         if not problem.is_statement_available():
             continue
-        problems_tags = [tag.get_hash() for tag in problem.get_nonsorted_tags()]
-        print(problems_tags)
-        cnt = 0
-        for tag_hash in problems_tags:
-            ind = bisect.bisect_left(tags_hashes, tag_hash)
-            if ind != len(tags_hashes) and tags_hashes[ind] == tag_hash:
-                cnt += 1
+        cnt = problem_id_to_cnt[problem.id]
         resulting_problems.append((problem, cnt, tags_count, problem.total_likes))
 
     resulting_problems.sort(key = lambda p: (p[1], p[3]), reverse=True)
