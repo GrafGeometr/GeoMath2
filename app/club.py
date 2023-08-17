@@ -185,6 +185,10 @@ def club_manager_general(club_hashed_id):
             flash("Название кружка успешно изменено", "success")
             return redirect(url_for("club.club_manager_general", club_hashed_id=club_hashed_id))
         if request.form.get("delete_club") is not None:
+            msg = request.form.get("confirm_message")
+            if msg != "Подтверждаю":
+                flash("Вы не подтвердили удаление кружка", "error")
+                return redirect(f"/club/{club_hashed_id}/management/general")
             club.remove()
             flash("Кружок успешно удален", "success")
             return redirect("/profile/clubs")

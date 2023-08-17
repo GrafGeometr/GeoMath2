@@ -23,8 +23,9 @@
 <section>
     <h1 class="text-2xl text-stone-800 font-medium">Опасная зона</h1>
     <div class="h-px w-full bg-neutral-300 mt-2 mb-4"></div>
-    <form action="/club/{{ club.hashed_id }}/management/general" method="POST">
+    <form action="/club/{{ club.hashed_id }}/management/general" method="POST" class="flex gap-x-4">
         <input type="hidden" name="delete_club" value="Hm, Value">
+        <input placeholder="Введите слово 'Подтверждаю'" class="text-lg bg-slate-100 border border-solid border-slate-400 rounded-md px-2 w-1/2 rounded-md" type="text" name="confirm_message" required>
         <input class="hover: cursor-pointer px-8 py-2 rounded-md text-lg text-white font-semibold bg-red-400 hover:bg-red-500 active:bg-red-600" type="submit" value="Удалить кружок">
     </form>
 </section>
