@@ -955,20 +955,18 @@ def pool_manager_general(pool_hashed_id):
             print(type(request.form.get("pool_name")))
             pool.name = request.form.get("pool_name")
             db.session.commit()
-            print(pool.name)
             flash("Имя пула успешно изменено", "success")
             return redirect(
                 url_for("pool.pool_manager_general", pool_hashed_id=pool_hashed_id)
             )
         if request.form.get("delete_pool") is not None:
-            for relation in User_Pool.query.filter_by(pool_id=pool.id).all():
-                db.session.delete(relation)
-            for problem in Problem.query.filter_by(pool_id=pool.id).all():
-                db.session.delete(problem)
-            db.session.delete(pool)
-            db.session.commit()
+            msg = request.form.get("confirm_message")
+            if msg != "Подтверждаю":
+                flash("Вы не подтвердили удаление пула", "error")
+                return redirect(f"/pool/{pool_hashed_id}/management/general")
+            pool.remove()
             flash("Пул успешно удален", "success")
-            return redirect("/myprofile")
+            return redirect("/profile/pools")
 
     return render_template(
         "pool/pool_management_general.html",

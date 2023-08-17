@@ -136,6 +136,19 @@ class Pool(db.Model):
     def add(self):
         db.session.add(self.act_set_hashed_id())
         return self.save()
+    
+    def remove(self):
+        from app.dbc import User_Pool, Problem, Sheet, Contest
+        for relation in User_Pool.query.filter_by(pool_id=self.id).all():
+            relation.remove()
+        for problem in Problem.query.filter_by(pool_id=self.id).all():
+            problem.remove()
+        for sheet in Sheet.query.filter_by(pool_id=self.id).all():
+            sheet.remove()
+        for contest in Contest.query.filter_by(pool_id=self.id).all():
+            contest.remove()
+        db.session.delete(self)
+        db.session.commit()
 
     def save(self):
         db.session.commit()
