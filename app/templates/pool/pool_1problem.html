@@ -259,26 +259,29 @@
             }).then(result => {
                 if (result[0] == "O" && result[1] == "K") {
                     var attachment_db_filename = result.slice(3);
-                    filesList.innerHTML += `
-                        <li class="flex w-full gap-x-2">
-                            <input type="text" name="attachment_name ${attachment_db_filename}" id="attachment-name-${attachment_db_filename}"
-                            value="Рисунок" placeholder="Как назвать картинку?"
-                            class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
 
-                            <label class="relative flex items-center">
-                                <input type="checkbox" name="attachment_is_secret ${attachment_db_filename}" id="attachment-is-secret-${attachment_db_filename}" checked
-                                class="checkbox-attachment-secret hidden">
-                                <span class="text-red-600 peer hover:cursor-help w-32 text-center">Секретное</span>
-                                <div class="absolute top-12 hidden peer-hover:flex p-4 border-2 rounded-md bg-white border-black flex-col z-50">
-                                    <span class="whitespace-nowrap"><span class="text-green-600">Публичное</span> вложение доступно всем пользователям</span>
-                                    <span class="whitespace-nowrap"><span class="text-red-600">Секретное</span> вложение доступно пользователям, имеющим доступ к решению</span>
-                                </div>
-                            </label>
 
-                            <button onclick="DeleteAttachment(this)"
-                            class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-600">Удалить</button>
-                        </li>
-                        `
+                    var li = document.createElement("li");
+                    li.classList.add("flex", "w-full", "gap-x-2");
+                    li.innerHTML = `
+                        <input type="text" name="attachment_name ${attachment_db_filename}" id="attachment-name-${attachment_db_filename}"
+                        value="Рисунок" placeholder="Как назвать картинку?"
+                        class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
+
+                        <label class="relative flex items-center">
+                            <input type="checkbox" name="attachment_is_secret ${attachment_db_filename}" id="attachment-is-secret-${attachment_db_filename}" checked
+                            class="checkbox-attachment-secret hidden">
+                            <span class="text-red-600 peer hover:cursor-help w-32 text-center">Секретное</span>
+                            <div class="absolute top-12 hidden peer-hover:flex p-4 border-2 rounded-md bg-white border-black flex-col z-50">
+                                <span class="whitespace-nowrap"><span class="text-green-600">Публичное</span> вложение доступно всем пользователям</span>
+                                <span class="whitespace-nowrap"><span class="text-red-600">Секретное</span> вложение доступно пользователям, имеющим доступ к решению</span>
+                            </div>
+                        </label>
+
+                        <button onclick="DeleteAttachment(this)"
+                        class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-600">Удалить</button>
+                    `
+                    filesList.appendChild(li);
                     BindAttachmentClick();
                     filesList.parentNode.classList.add("gap-y-4");
                 }

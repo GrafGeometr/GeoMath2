@@ -185,15 +185,16 @@
             }).then(result => {
                     if (result[0] == "O" && result[1] == "K") {
                         var attachment_db_filename = result.slice(3);
-                        filesList.innerHTML += `
-                        <li class="flex w-full gap-x-2">
+                        var li = document.createElement("li");
+                        li.classList.add("flex", "w-full", "gap-x-2");
+                        li.innerHTML = `
                             <input type="text" name="attachment_name ${ attachment_db_filename }" id="attachment-name-${ attachment_db_filename }"
                             value="Рисунок" placeholder="Как назвать картинку?"
                             class="input-attachment-name text-lg text-slate-800 border-slate-200 border rounded-lg px-2 grow py-2">
                             <button onclick="DeleteAttachment(this)"
                             class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-400">Удалить</button>
-                        </li>
                         `
+                        filesList.appendChild(li);
                         BindAttachmentClick();
                         filesList.parentNode.classList.add("gap-y-4");
                     }
