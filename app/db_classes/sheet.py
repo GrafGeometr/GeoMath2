@@ -233,3 +233,6 @@ class Sheet(db.Model):
         for name in names:
             self.act_add_attachment_by_db_filename(name)
         return self
+
+    def get_similar_sheets_link(self):
+        return url_for("arch.archive_sheet_search", tags="; ".join(self.get_tag_names()), page=1, username="all")
