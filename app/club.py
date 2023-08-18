@@ -245,7 +245,7 @@ def club_collaborators(club_hashed_id):
                 flash("Пользователь уже участник кружка", "warning")
                 return redirect(url_for("club.club_collaborators", club_hashed_id=club_hashed_id))
             if user.id == current_user.id and club.count_owners() == 1:
-                flash("Вы единственный владелец чата, понижение невозможно", "warning")
+                flash("Вы единственный владелец кружка, понижение невозможно", "warning")
                 return redirect(url_for("club.club_collaborators", club_hashed_id=club_hashed_id))
             user_relation.role = Participant
             db.session.commit()
