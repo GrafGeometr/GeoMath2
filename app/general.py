@@ -91,12 +91,17 @@ def like():
     elif parent_type == "Contest":
         parent = Contest.query.filter_by(id=parent_id).first()
 
-    if action == "add":
-        Like.act_add_like_to_parent(parent)
+    if action == "add_like":
+        Like.act_add_like_to_parent(parent, current_user, True)
+    elif action == "add_dislike":
+        Like.act_add_like_to_parent(parent, current_user, False)
     elif action == "remove":
         Like.act_remove_like_from_parent(parent)
 
-    check = (Like.get_by_parent_and_user(parent, current_user) is not None)
-    cnt = parent.total_likes
-    return {"check": check, "cnt": cnt}
-    
+    check = None
+    like = Like.get_by_parent_and_user(parent, current_user)
+    if like is not None:
+        check = like.good
+    cnt_likes = parent.total_likes
+    cnt_dislikes = parent.total_dislikes
+    return {"check": check, "cnt_likes": cnt_likes, "cnt_dislikes": cnt_dislikes}

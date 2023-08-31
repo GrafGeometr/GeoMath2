@@ -8,6 +8,7 @@ class Like(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     parent_type = db.Column(DbParentType)
     parent_id = db.Column(db.Integer)
+    good = db.Column(db.Boolean)
 
     # --> RELATIONS
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
@@ -24,7 +25,14 @@ class Like(db.Model):
         self.save()
         par = self.get_parent()
         if par is not None:
-            par.total_likes += 1
+            if self.good:
+                if not par.total_likes:
+                    par.total_likes = 0
+                par.total_likes += 1
+            else:
+                if not par.total_dislikes:
+                    par.total_dislikes = 0
+                par.total_dislikes += 1
             db.session.commit()
         return self
 
@@ -32,7 +40,14 @@ class Like(db.Model):
         if par is None:
             par = self.get_parent()
         if par is not None:
-            par.total_likes -= 1
+            if self.good:
+                if not par.total_likes:
+                    par.total_likes = 0
+                par.total_likes -= 1
+            else:
+                if not par.total_dislikes:
+                    par.total_dislikes = 0
+                par.total_dislikes -= 1
             db.session.commit()
         db.session.delete(self)
         self.save()
@@ -64,13 +79,11 @@ class Like(db.Model):
         return (Like.get_by_parent_and_user(parent, user) is not None)
     
     @staticmethod
-    def act_add_like_to_parent(parent, user=current_user):
+    def act_add_like_to_parent(parent, user=current_user, good=True):
         if parent is None or user is None:
             return
-        if not Like.is_has_like(parent, user):
-            Like(
-                parent_type=DbParent.fromType(type(parent)), parent_id=parent.id, user_id=user.id
-            ).add()
+        Like.act_remove_like_from_parent(parent, user)
+        Like(parent_type=DbParent.fromType(type(parent)), parent_id=parent.id, user_id=user.id, good=good).add()
 
     @staticmethod
     def act_remove_like_from_parent(parent, user=current_user):

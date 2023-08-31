@@ -14,6 +14,7 @@ class Contest(db.Model):
     is_public = db.Column(db.Boolean, default=False)
     rating = db.Column(db.String, default="public") # 'public' | 'private'
     total_likes = db.Column(db.Integer, default=0)
+    total_dislikes = db.Column(db.Integer, default=0)
 
     # --> RELATIONS
     contest_problems = db.relationship("Contest_Problem", backref="contest")

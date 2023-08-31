@@ -1,14 +1,14 @@
-function likeButtons(withCounter=false) {
+function likeButtons() {
     var likeDivs = document.getElementsByClassName("like");
     for (var i = 0; i < likeDivs.length; i++) {
         let likeDiv = likeDivs[i];
         let list = likeDiv.id.split("like-")[1].split("-");
         let data = {"parent_type": list[0], "parent_id": list[1]};
-        likeButton(likeDiv, withCounter, data);
+        likeButton(likeDiv, data);
     }
 }
 
-function likeButton(likeDiv, withCounter=false, data) {
+function likeButton(likeDiv, data) {
     likeDiv.classList.add("flex", "items-center", "gap-x-2");
 
     let likeLabel = document.createElement('label');
@@ -27,9 +27,25 @@ function likeButton(likeDiv, withCounter=false, data) {
     let likeCnt = document.createElement('span');
     likeCnt.classList.add("font-bold", "text-lg");
 
-    if (withCounter) {
-        likeDiv.appendChild(likeCnt);
-    }
+    likeDiv.appendChild(likeCnt);
+
+    let dislikeLabel = document.createElement('label');
+    likeDiv.appendChild(dislikeLabel);
+
+    let dislikeBtn = document.createElement('input');
+    dislikeBtn.type = 'checkbox';
+    dislikeBtn.classList.add("hidden");
+    dislikeLabel.appendChild(dislikeBtn);
+   
+    let dislikeIcon = document.createElement('img');
+    dislikeIcon.src = '/static/images/dislike.svg';
+    dislikeIcon.classList.add("w-8", "hover:cursor-pointer");
+    dislikeLabel.appendChild(dislikeIcon);
+
+    let dislikeCnt = document.createElement('span');
+    dislikeCnt.classList.add("font-bold", "text-lg");
+
+    likeDiv.appendChild(dislikeCnt);
 
     function refresh() {
         var xhr = new XMLHttpRequest();
@@ -39,13 +55,17 @@ function likeButton(likeDiv, withCounter=false, data) {
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 let check = this.response["check"];
-                let cnt = this.response["cnt"];
-                likeIcon.src = check ? '/static/images/like_active.svg' : '/static/images/like.svg';
-                likeBtn.checked = check;
-                console.log('refreshed', check, cnt);
-                if (withCounter) {
-                    likeCnt.innerHTML = cnt;
-                }
+                let cnt_likes = this.response["cnt_likes"];
+                let cnt_dislikes = this.response["cnt_dislikes"];
+
+                likeIcon.src = (check == true) ? '/static/images/like_active.svg' : '/static/images/like.svg';
+                likeBtn.checked = (check == true);
+
+                dislikeIcon.src = (check == false) ? '/static/images/dislike_active.svg' : '/static/images/dislike.svg';
+                dislikeBtn.checked = (check == false);
+
+                likeCnt.innerHTML = cnt_likes;
+                dislikeCnt.innerHTML = cnt_dislikes;
             }
         }
         console.log(data);
@@ -55,9 +75,8 @@ function likeButton(likeDiv, withCounter=false, data) {
     refresh();
 
     likeBtn.addEventListener('change', function(e) {
-        console.log(likeBtn.checked);
         if (likeBtn.checked) {
-            data['action'] = 'add';
+            data['action'] = 'add_like';
         }
         else {
             data['action'] = 'remove';
@@ -65,5 +84,13 @@ function likeButton(likeDiv, withCounter=false, data) {
         refresh();
     })
 
-    
+    dislikeBtn.addEventListener('change', function(e) {
+        if (dislikeBtn.checked) {
+            data['action'] = 'add_dislike';
+        }
+        else {
+            data['action'] = 'remove';
+        }
+        refresh();
+    })
 }

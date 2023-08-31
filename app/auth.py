@@ -12,6 +12,8 @@ def login():
         next_url = request.form.get("next")
 
         user = User.query.filter_by(name = login).first()
+        if user is None:
+            user = User.get_by_verified_email(login)
         if user and user.check_password(password):
             login_user(user, remember=True, duration=datetime.timedelta(days=5))
             confirm_login()

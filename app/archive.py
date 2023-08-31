@@ -177,7 +177,7 @@ def archive_problem_search(username):
         if not obj.is_statement_available(): # statement | text | description
             continue
         cnt = obj_id_to_cnt.get(obj.id, 0)
-        resulting_objs.append((obj, cnt, tags_count, obj.total_likes))
+        resulting_objs.append((obj, cnt, tags_count, (obj.total_likes + 1) / (obj.total_dislikes + 1)))
 
     resulting_objs.sort(key = lambda o: (o[1], o[3]), reverse=True)
 
@@ -253,7 +253,7 @@ def archive_sheet_search(username):
         if not obj.is_text_available(): # statement | text | description
             continue
         cnt = obj_id_to_cnt.get(obj.id, 0)
-        resulting_objs.append((obj, cnt, tags_count, obj.total_likes))
+        resulting_objs.append((obj, cnt, tags_count, (obj.total_likes + 1) / (obj.total_dislikes + 1)))
 
     resulting_objs.sort(key = lambda o: (o[1], o[3]), reverse=True)
 
@@ -330,7 +330,7 @@ def archive_contest_search(username):
         if not obj.is_description_available(): # statement | text | description
             continue
         cnt = obj_id_to_cnt.get(obj.id, 0)
-        resulting_objs.append((obj, cnt, tags_count, obj.total_likes))
+        resulting_objs.append((obj, cnt, tags_count, (obj.total_likes + 1) / (obj.total_dislikes + 1)))
 
     resulting_objs.sort(key = lambda o: (o[1], o[3]), reverse=True)
 

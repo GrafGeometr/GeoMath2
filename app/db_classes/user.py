@@ -99,6 +99,15 @@ class User(UserMixin, db.Model):
     @staticmethod
     def get_by_name(name):
         return User.query.filter_by(name=name).first()
+    
+    @staticmethod
+    def get_by_verified_email(email):
+        from app.dbc import Email
+        users = [email.user for email in Email.query.filter_by(verified=True, name=email).all()]
+        if users:
+            return users[0]
+        else:
+            return None
 
     def save(self):
         db.session.commit()

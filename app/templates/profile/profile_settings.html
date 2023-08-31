@@ -8,6 +8,54 @@
     element.classList.add("bg-slate-200");
 </script>
 <div id="emails_block" class="flex flex-col w-full">
-{% include "profile/emails_list.html" %}
+    <div class="flex justify-between">
+        <span class="text-2xl font-bold text-blue-800">Мои почты</span>
+    </div>
+    {% if current_user.emails %}
+    <div class="flex flex-col border-2 border-solid border-sky-400 rounded-lg w-full my-4 min-w-fit">
+        {% for email in current_user.emails %}
+        <div class="flex justify-between items-center h-16 px-4 odd:bg-white even:bg-neutral-100 first:rounded-t-lg last:rounded-b-lg">
+            <div class="flex items-center h-full w-full">
+                {% if email.verified %}
+                <img class = "h-8 w-8 mix-blend-multiply" src="/static/images/check.png" alt="check">
+                {% else %}
+                <img class = "h-8 w-8 mix-blend-multiply" src="/static/images/cancel.png" alt="cancel">
+                {% endif %}
+                <h2 class="mx-3 text-2xl text-stone-800 font-bold">{{ email.name }}</h2>
+            </div>
+            <div class="flex justify-end items-center h-full w-full gap-x-4">
+                {% if not email.verified %}
+                <form method="POST" action="/send_verifying_link">
+                    <input type="hidden" name="email" value="{{ email.name }}">
+                    <input class="hover:cursor-pointer px-8 py-3 rounded-xl text-md text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700" type="submit" value="Подтвердить">
+                </form>
+                {% endif %}
+                <form method="POST" action="/remove_email">
+                    <input type="hidden" name="email" value="{{ email.name }}">
+                    <label class="border-0 bg-transparent hover:cursor-pointer">
+                        <input type="submit" class="hidden">
+                        <img class = "h-8 w-8 mix-blend-multiply" src="/static/images/bin.svg" alt="bin">
+                    </label>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    
+    <div class="mt-4 mb-2">
+        Добавьте и подтвердите email, чтобы входить на сайт по адресу электронной почты:
+    </div>
+
+    <div class="flex flex-col w-full">
+    <form class="rounded-lg text-stone-800 flex gap-x-4 items-stretch mb-4 min-w-fit form-anticlear" action="/add_email" method="POST">
+        <input placeholder="Email" type="text" name="email" id="add_email_input" class="text-2xl bg-neutral-100 border-2 border-solid border-neutral-300 rounded-md p-2 w-1/2" value="{{ form_email }}" required >
+        <input class="hover: cursor-pointer px-12 py-3 rounded-xl text-lg text-white font-semibold bg-blue-400 hover:bg-blue-500 active:bg-blue-600" type="submit" value="Добавить">
+    </form>
+    
+    
+    </div>
+
 </div>
 {% endblock %}

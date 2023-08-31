@@ -12,6 +12,7 @@ class Problem(db.Model):
     solution = db.Column(db.String)
     is_public = db.Column(db.Boolean, default=False)
     total_likes = db.Column(db.Integer, default=0)
+    total_dislikes = db.Column(db.Integer, default=0)
 
     # --> RELATIONS
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
