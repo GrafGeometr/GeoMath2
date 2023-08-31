@@ -16,22 +16,6 @@ def show_profile_pic(filename):
 @prof.route("/myprofile")
 @login_required
 def to_profile():
-    from app.dbc import Like, Problem, Sheet, Contest
-    for like in Like.query.all():
-        like.remove()
-    
-    for problem in Problem.query.all():
-        problem.total_likes = 0
-        problem.total_dislikes = 0
-        db.session.commit()
-    for sheet in Sheet.query.all():
-        sheet.total_likes = 0
-        sheet.total_dislikes = 0
-        db.session.commit()
-    for contest in Contest.query.all():
-        contest.total_likes = 0
-        contest.total_dislikes = 0
-        db.session.commit()
     return redirect(f"/profile/user/{current_user.name}")
     
 
