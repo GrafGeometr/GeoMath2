@@ -88,6 +88,11 @@ class Contest(db.Model):
     def get_all_likes(self):
         from app.dbc import Like
         return Like.get_all_by_parent(self)
+    def get_all_likes_good(self):
+        return [like for like in self.get_all_likes() if like.good]
+    
+    def get_all_likes_bad(self):
+        return [like for like in self.get_all_likes() if not like.good]
 
     def get_problems(self):
         from app.dbc import Problem, Contest_Problem

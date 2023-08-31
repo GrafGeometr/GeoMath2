@@ -29,7 +29,7 @@
         {% endif %}
 
         <td class="p-4">
-            {{ sheet.get_all_likes()|length }}
+            +{{ sheet.get_all_likes_good()|length }} -{{ sheet.get_all_likes_bad()|length }}
         </td>
 
         <td class="p-4">

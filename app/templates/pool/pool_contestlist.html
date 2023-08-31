@@ -38,7 +38,7 @@
 
 
         <td class="p-4">
-            {{ contest.get_all_likes()|length }}
+            +{{ contest.get_all_likes_good()|length }} -{{ contest.get_all_likes_bad()|length }}
         </td>
 
         <td class="p-4">
