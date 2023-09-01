@@ -174,7 +174,7 @@ def archive_problem_search(username):
     resulting_objs = []
 
     for obj in objs:
-        if not obj.is_statement_available(): # statement | text | description
+        if not obj.is_solution_available(): # solution | text | description
             continue
         cnt = obj_id_to_cnt.get(obj.id, 0)
         resulting_objs.append((obj, cnt, tags_count, (obj.total_likes + 1) / (obj.total_dislikes + 1)))
@@ -250,7 +250,7 @@ def archive_sheet_search(username):
     resulting_objs = []
 
     for obj in objs:
-        if not obj.is_text_available(): # statement | text | description
+        if not obj.is_text_available(): # solution | text | description
             continue
         cnt = obj_id_to_cnt.get(obj.id, 0)
         resulting_objs.append((obj, cnt, tags_count, (obj.total_likes + 1) / (obj.total_dislikes + 1)))
@@ -327,7 +327,7 @@ def archive_contest_search(username):
     resulting_objs = []
 
     for obj in objs:
-        if not obj.is_description_available(): # statement | text | description
+        if not obj.is_description_available(): # solution | text | description
             continue
         cnt = obj_id_to_cnt.get(obj.id, 0)
         resulting_objs.append((obj, cnt, tags_count, (obj.total_likes + 1) / (obj.total_dislikes + 1)))
