@@ -12,13 +12,16 @@
             </a>
             {% endif %}
             <div class="flex items-center gap-x-4">
-                <span class="text-2xl font-bold">{{ current_sheet.name }}</span>
+                <span class="text-2xl font-bold" id="sheet_name">{{ current_sheet.name }}</span>
                 <div class="like" id="like-Sheet-{{ current_sheet.id }}"></div>
             </div>
         </div>
+        <div class="flex gap-x-2">
         <span id="toggle_code_view"
-        class="hover:cursor-pointer w-60 py-2 rounded-xl text-lg text-center text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">
+        class="hover:cursor-pointer w-40 py-2 rounded-xl text-base text-center text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">
         Показать код</span>
+        <a href="javascript:downloadSheet();" class="hover:cursor-pointer w-40 py-2 rounded-xl text-base text-center text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">Скачать PNG</a>
+        </div>
     </div>
 
     {% if current_sheet.is_text_available() %}
@@ -64,7 +67,7 @@
     <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
         <div class="flex flex-row justify-between items-center">
             <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Теги:</h2>
-            <a href="{{ current_sheet.get_similar_sheets_link() }}" class="hover:cursor-pointer w-60 py-2 rounded-xl text-lg text-center text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">
+            <a href="{{ current_sheet.get_similar_sheets_link() }}" class="hover:cursor-pointer w-40 py-2 rounded-xl text-base text-center text-white font-semibold bg-blue-500 hover:bg-blue-600 active:bg-blue-700">
                 Искать похожие
             </a>
         </div>
