@@ -746,8 +746,20 @@ video {
   height: 1px;
 }
 
+.h-80 {
+  height: 20rem;
+}
+
+.h-\[30rem\] {
+  height: 30rem;
+}
+
 .max-h-60 {
   max-height: 15rem;
+}
+
+.max-h-\[30rem\] {
+  max-height: 30rem;
 }
 
 .w-0 {

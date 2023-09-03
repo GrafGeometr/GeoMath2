@@ -17,26 +17,70 @@
             <input type="submit" value="Найти" class="hover:font-bold hover:cursor-pointer hover:text-green-600">
         </form>
 
-        <div class="flex flex-col items-center">
-        {% include "archive/archive_problems_list.html" %}
+        <div class="flex mt-4 gap-x-4">
+            <div class="flex flex-col items-center w-2/3">
+            {% include "archive/archive_problems_list.html" %}
 
-        {% if pages_to_show %}
-        <ul class="flex text-lg text-center mt-2 gap-x-2">
-            {% for x in pages_to_show %}
-                {% if x == current_page %}
-                    <li>
-                        <div class="w-6 h-6 rounded-full bg-blue-500"></div>
-                    </li>
-                {% else %}
-                    <li>
-                        <a class="hover:underline" href="{{ url_for('arch.archive_problem_search', tags=tags, page=x, username=username) }}">
-                            <div class="w-6 h-6 rounded-full bg-blue-200"></div>
-                        </a>
-                    </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-        {% endif %}
+            {% if pages_to_show %}
+            <ul class="flex text-lg text-center mt-2 gap-x-2">
+                {% for x in pages_to_show %}
+                    {% if x == current_page %}
+                        <li>
+                            <div class="w-6 h-6 rounded-full bg-blue-500"></div>
+                        </li>
+                    {% else %}
+                        <li>
+                            <a class="hover:underline" href="{{ url_for('arch.archive_problem_search', tags=tags, page=x, username=username) }}">
+                                <div class="w-6 h-6 rounded-full bg-blue-200"></div>
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            {% endif %}
+            </div>
+            <div class="flex flex-col gap-y-4 items-center grow">
+                <h1 class="text-xl font-bold">Предпросмотр</h1>
+                <div class="h-px w-full bg-slate-300"></div>
+                <div class="relative w-full h-full overflow-hidden">
+                {% for problem in problems %}
+                    <div class="flex w-full items-start absolute">
+                        <textarea id="statement{{ problem[0].id }}" class="hidden">{{ problem[0].statement }}</textarea>
+                        <div class="text-lg p-4 bg-white border-slate-200 w-full max-h-[30rem] z-50 invisible overflow-hidden rounded-xl border-2 border-slate-300" id="statement{{ problem[0].id }}-latex-output">
+        
+                        </div>
+                    </div>
+
+                    <script>
+                        let link{{ problem[0].id }} = document.getElementById("link{{ problem[0].id }}");
+                        link{{ problem[0].id }}.addEventListener("mouseover", function() {
+                            let dropdown = document.getElementById("statement{{ problem[0].id }}-latex-output");
+                            dropdown.classList.remove("invisible");
+            
+                        });
+                        link{{ problem[0].id }}.addEventListener("mouseout", function() {
+                            let dropdown = document.getElementById("statement{{ problem[0].id }}-latex-output");
+                            dropdown.classList.add("invisible");
+                        });
+                    </script>
+            
+                    <script>
+                        var elem = document.getElementById("statement{{ problem[0].id }}-latex-output");
+                        renderAreas["statement{{ problem[0].id }}"] = () => {
+                            elem.innerHTML = "";
+                            imageNameList = [];
+                            {% for attachment in problem[0].get_nonsecret_attachments() %}
+                            imageNameList.push([ {{attachment.db_filename | tojson}}, {{attachment.short_name | tojson}} ]);
+                            {% endfor %}
+                            elem.appendChild(getRenderedIframe({{ problem[0].statement | tojson }}, inputElementId="statement{{ problem[0].id }}"));
+                        };
+            
+                        renderAreas["statement{{ problem[0].id }}"]();
+            
+                    </script>
+                {% endfor %}
+                </div>
+            </div>
         </div>
 
     </div>
