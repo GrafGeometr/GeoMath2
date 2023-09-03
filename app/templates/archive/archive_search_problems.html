@@ -65,14 +65,14 @@
                     </script>
             
                     <script>
-                        var elem = document.getElementById("statement{{ problem[0].id }}-latex-output");
+                        var elem{{ problem[0].id }} = document.getElementById("statement{{ problem[0].id }}-latex-output");
                         renderAreas["statement{{ problem[0].id }}"] = () => {
-                            elem.innerHTML = "";
+                            elem{{ problem[0].id }}.innerHTML = "";
                             imageNameList = [];
                             {% for attachment in problem[0].get_nonsecret_attachments() %}
                             imageNameList.push([ {{attachment.db_filename | tojson}}, {{attachment.short_name | tojson}} ]);
                             {% endfor %}
-                            elem.appendChild(getRenderedIframe({{ problem[0].statement | tojson }}, inputElementId="statement{{ problem[0].id }}"));
+                            elem{{ problem[0].id }}.appendChild(getRenderedIframe({{ problem[0].statement | tojson }}, inputElementId="statement{{ problem[0].id }}"));
                         };
             
                         renderAreas["statement{{ problem[0].id }}"]();
