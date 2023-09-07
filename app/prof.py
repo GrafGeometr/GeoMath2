@@ -31,6 +31,7 @@ def squarify(d, f):
 
 
 @prof.route("/profile/user/<username>", methods=["GET", "POST"])
+@login_required
 def profile(username):
     user = User.query.filter_by(name = username).first()
     if user is None:
