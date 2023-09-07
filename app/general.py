@@ -80,6 +80,7 @@ def autocomplete():
 @login_required
 def like():
     data = request.get_json()
+    
     parent_type = data.get("parent_type")
     parent_id = int(data.get("parent_id"))
     action = data.get("action")

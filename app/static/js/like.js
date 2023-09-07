@@ -68,7 +68,6 @@ function likeButton(likeDiv, data) {
                 dislikeCnt.innerHTML = cnt_dislikes;
             }
         }
-        console.log(data);
         xhr.send(JSON.stringify(data));
     }
     data['action'] = null;
