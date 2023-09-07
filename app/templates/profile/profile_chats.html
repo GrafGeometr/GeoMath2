@@ -14,7 +14,7 @@
 </div>
 
 {% if current_user.get_nonclub_chats() %}
-<table class="text-lg w-full mt-4 relative border-separate" cellspacing="0" cellpadding="0">
+<table class="text-lg w-full mt-4 relative border-separate max-h-[60rem] overflow-y-auto" cellspacing="0" cellpadding="0">
     <tr class="border-b-blue-800 border-b-2 text-slate-400 text-left">
         <th class="p-4 sticky top-0 border-b-blue-800 border-b-2 bg-white">ПОЛЬЗОВАТЕЛЬ</th>
         <th class="p-4 sticky top-0 border-b-blue-800 border-b-2 bg-white">НЕПРОЧИТАННЫЕ</th>
@@ -50,15 +50,15 @@
 {% endif %}
 <div class="flex justify-between mt-8">
     <span class="text-2xl font-bold text-blue-800">Друзья</span>
-    <select id="friends_mode" class="p-2 text-lg rounded-lg bg-slate-100 border-slate-200 border-2">
+    <select id="friends_mode" class="p-2 text-lg rounded-lg bg-slate-100 border-slate-200 border-2 hover:cursor-pointer">
         <option value="all" class="p-2 text-lg">Мои друзья ({{ current_user.get_friends() | length }})</option>
         <option value="to" class="p-2 text-lg">Входящие заявки ({{ current_user.get_friends_to() | length }})</option>
         <option value="from" class="p-2 text-lg">Исходящие заявки ({{ current_user.get_friends_from() | length }})</option>
     </select>
 </div>
-<ul id="friends_all_list" class="pl-4 flex flex-col gap-y-2 max-h-[60rem] overflow-y-auto mt-2">
+<ul id="friends_all_list" class="flex flex-col gap-y-2 max-h-[60rem] overflow-y-auto mt-2">
     {% for friend in current_user.get_friends() %}
-    <li class="flex items-center text-xl text-slate-600 gap-x-20">
+    <li class="flex items-center text-xl text-slate-600 justify-between odd:bg-slate-200 even:bg-slate-50 p-4">
         <a href="/profile/user/{{ friend.name }}" class="h-12 flex items-center gap-x-2 font-bold">
             {% if (friend.profile_pic is none) or (friend.profile_pic=="") %}
                 <img src="/static/images/user.png" class="h-full rounded-full border border-solid border-stone-800">
@@ -77,9 +77,9 @@
     </li>
     {% endfor %}
 </ul>
-<ul class="hidden pl-4 flex flex-col gap-y-2 max-h-[60rem] overflow-y-auto mt-2" id="friends_to_list">
+<ul class="hidden flex flex-col gap-y-2 max-h-[60rem] overflow-y-auto mt-2" id="friends_to_list">
     {% for friend in current_user.get_friends_to() %}
-    <li class="flex items-center text-xl text-slate-600 gap-x-20">
+    <li class="flex items-center text-xl text-slate-600 justify-between odd:bg-slate-200 even:bg-slate-50 p-4">
         <a href="/profile/user/{{ friend.name }}" class="h-12 flex items-center gap-x-2 font-bold">
             {% if (friend.profile_pic is none) or (friend.profile_pic=="") %}
                 <img src="/static/images/user.png" class="h-full rounded-full border border-solid border-stone-800">
@@ -103,9 +103,9 @@
     </li>
     {% endfor %}
 </ul>
-<ul class="hidden pl-4 flex flex-col gap-y-2 max-h-[60rem] overflow-y-auto mt-2" id="friends_from_list">
+<ul class="hidden flex flex-col gap-y-2 max-h-[60rem] overflow-y-auto mt-2" id="friends_from_list">
     {% for friend in current_user.get_friends_from() %}
-    <li class="flex items-center text-xl text-slate-600 gap-x-20">
+    <li class="flex items-center text-xl text-slate-600 justify-between odd:bg-slate-200 even:bg-slate-50 p-4">
         <a href="/profile/user/{{ friend.name }}" class="h-12 flex items-center gap-x-2 font-bold">
             {% if (friend.profile_pic is none) or (friend.profile_pic=="") %}
                 <img src="/static/images/user.png" class="h-full rounded-full border border-solid border-stone-800">
