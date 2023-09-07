@@ -460,7 +460,7 @@ class Contest(db.Model):
     def act_add_tag_by_name(self, tag_name):
         from app.dbc import Tag
         tag = Tag.get_by_name(tag_name)
-        if tag is None:
+        if (tag is None) and (current_user.admin):
             tag = Tag(name=tag_name).add()
         return self.act_add_tag(tag)
 
