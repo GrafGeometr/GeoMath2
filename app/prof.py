@@ -120,6 +120,54 @@ def profile_chats():
                 return redirect("/profile/chats")
             chat.remove()
             return redirect("/profile/chats")
+        if request.form.get("cmd") is not None:
+            cmd = request.form.get("cmd")
+            if cmd == "remove_friend":
+                friend_id = request.form.get("friend_id")
+                user = User.query.filter_by(id=friend_id).first()
+                if (user is not None):
+                    for friend in Friend.query.all():
+                        f,t = friend.friend_from, friend.friend_to
+                        if (friend.accepted) and ((f,t)==(user.id,current_user.id) or (f,t)==(current_user.id,user.id)):
+                            friend.remove()
+                            return redirect("/profile/chats")
+                        
+            elif cmd == "accept_friend":
+                friend_id = request.form.get("friend_id")
+                user = User.query.filter_by(id=friend_id).first()
+                if (user is not None):
+                    for friend in Friend.query.all():
+                        if friend.friend_from == user.id and friend.friend_to == current_user.id and (not friend.accepted):
+                            friend.act_accept()
+                            return redirect("/profile/chats")
+                        
+            elif cmd == "reject_friend":
+                friend_id = request.form.get("friend_id")
+                user = User.query.filter_by(id=friend_id).first()
+                if (user is not None):
+                    for friend in Friend.query.all():
+                        if friend.friend_from == user.id and friend.friend_to == current_user.id and (not friend.accepted):
+                            friend.remove()
+                            return redirect("/profile/chats")
+
+            elif cmd == "cancel_friend":
+                friend_id = request.form.get("friend_id")
+                user = User.query.filter_by(id=friend_id).first()
+                if (user is not None):
+                    for friend in Friend.query.all():
+                        if friend.friend_from == current_user.id and friend.friend_to == user.id and (not friend.accepted):
+                            friend.remove()
+                            return redirect("/profile/chats")
+                        
+            elif cmd == "send_friend":
+                friend_id = request.form.get("friend_id")
+                user = User.query.filter_by(id=friend_id).first()
+                if (user is not None) and (user != current_user):
+                    if (user not in current_user.get_friends_to()) and (user not in current_user.get_friends_from()) and (user not in current_user.get_friends()):
+                        friend = Friend(friend_from=current_user.id, friend_to=user.id, accepted=False)
+                        friend.add()
+                        return redirect("/profile/chats")
+            
             
     return render_template("profile/profile_chats.html", title="Мои чаты", user=current_user)
 

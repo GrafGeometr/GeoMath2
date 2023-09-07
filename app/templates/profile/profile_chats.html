@@ -22,8 +22,15 @@
     </tr>
     {% for chat in current_user.get_sorted_nonclub_chats() %}
     <tr class="even:bg-slate-200 odd:bg-slate-50">
-        <td class="flex items-center gap-x-2 p-4 text-lg font-bold text-slate-600">
-            <a href="/chat/{{ chat.hashed_id }}/messages" class="block hover:underline">{{ chat.get_other_user().name }}</a>
+        <td class="flex items-center gap-x-2 p-4 text-xl font-bold text-slate-600">
+            <a href="/chat/{{ chat.hashed_id }}/messages" class="h-12 flex items-center gap-x-2">
+                {% if (chat.get_other_user().profile_pic is none) or (chat.get_other_user().profile_pic=="") %}
+                    <img src="/static/images/user.png" class="h-full rounded-full border border-solid border-stone-800">
+                {% else %}
+                    <img src="{{ url_for('prof.show_profile_pic', filename=chat.get_other_user().profile_pic) }}" alt="{{ chat.get_other_user().name }}" class="h-full rounded-full border border-solid border-stone-800">
+                {% endif %}
+            <span>{{ chat.get_other_user().name }}</span>
+            </a>
         </td>
         <td class="p-4 font-bold">
             <span>{{chat.get_unread_messages()|length}}</span>
@@ -41,5 +48,103 @@
     {% endfor %}
 </table>
 {% endif %}
+<div class="flex justify-between mt-8">
+    <span class="text-2xl font-bold text-blue-800">Друзья</span>
+    <select id="friends_mode" class="p-2 text-lg rounded-lg bg-slate-100 border-slate-200 border-2">
+        <option value="all" class="p-2 text-lg">Мои друзья ({{ current_user.get_friends() | length }})</option>
+        <option value="to" class="p-2 text-lg">Входящие заявки ({{ current_user.get_friends_to() | length }})</option>
+        <option value="from" class="p-2 text-lg">Исходящие заявки ({{ current_user.get_friends_from() | length }})</option>
+    </select>
+</div>
+<ul id="friends_all_list" class="pl-4 flex flex-col gap-y-2 max-h-[60rem] overflow-y-auto mt-2">
+    {% for friend in current_user.get_friends() %}
+    <li class="flex items-center text-xl text-slate-600 gap-x-20">
+        <a href="/profile/user/{{ friend.name }}" class="h-12 flex items-center gap-x-2 font-bold">
+            {% if (friend.profile_pic is none) or (friend.profile_pic=="") %}
+                <img src="/static/images/user.png" class="h-full rounded-full border border-solid border-stone-800">
+            {% else %}
+                <img src="{{ url_for('prof.show_profile_pic', filename=friend.profile_pic) }}" alt="{{ friend.name }}" class="h-full rounded-full border border-solid border-stone-800">
+            {% endif %}
+        <span>{{ friend.name }}</span>
+        </a>
+        <div class="flex items-center gap-x-4">
+            <form action="/profile/chats" method="POST">
+                <input type="hidden" name="cmd" value="remove_friend">
+                <input type="hidden" name="friend_id" value="{{ friend.id }}">
+                <input type="submit" value="Удалить из друзей" class="hover:cursor-pointer text-base p-2 rounded-md text-white bg-red-400 hover:bg-red-500">
+            </form>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+<ul class="hidden pl-4 flex flex-col gap-y-2 max-h-[60rem] overflow-y-auto mt-2" id="friends_to_list">
+    {% for friend in current_user.get_friends_to() %}
+    <li class="flex items-center text-xl text-slate-600 gap-x-20">
+        <a href="/profile/user/{{ friend.name }}" class="h-12 flex items-center gap-x-2 font-bold">
+            {% if (friend.profile_pic is none) or (friend.profile_pic=="") %}
+                <img src="/static/images/user.png" class="h-full rounded-full border border-solid border-stone-800">
+            {% else %}
+                <img src="{{ url_for('prof.show_profile_pic', filename=friend.profile_pic) }}" alt="{{ friend.name }}" class="h-full rounded-full border border-solid border-stone-800">
+            {% endif %}
+        <span>{{ friend.name }}</span>
+        </a>
+        <div class="flex items-center gap-x-4">
+            <form action="/profile/chats" method="POST">
+                <input type="hidden" name="cmd" value="accept_friend">
+                <input type="hidden" name="friend_id" value="{{ friend.id }}">
+                <input type="submit" value="Добавить в друзья" class="hover:cursor-pointer text-base p-2 rounded-md text-white bg-green-500 hover:bg-green-600">
+            </form>
+            <form action="/profile/chats" method="POST">
+                <input type="hidden" name="cmd" value="reject_friend">
+                <input type="hidden" name="friend_id" value="{{ friend.id }}">
+                <input type="submit" value="Отклонить заявку" class="hover:cursor-pointer text-base p-2 rounded-md text-white bg-red-400 hover:bg-red-500">
+            </form>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+<ul class="hidden pl-4 flex flex-col gap-y-2 max-h-[60rem] overflow-y-auto mt-2" id="friends_from_list">
+    {% for friend in current_user.get_friends_from() %}
+    <li class="flex items-center text-xl text-slate-600 gap-x-20">
+        <a href="/profile/user/{{ friend.name }}" class="h-12 flex items-center gap-x-2 font-bold">
+            {% if (friend.profile_pic is none) or (friend.profile_pic=="") %}
+                <img src="/static/images/user.png" class="h-full rounded-full border border-solid border-stone-800">
+            {% else %}
+                <img src="{{ url_for('prof.show_profile_pic', filename=friend.profile_pic) }}" alt="{{ friend.name }}" class="h-full rounded-full border border-solid border-stone-800">
+            {% endif %}
+        <span>{{ friend.name }}</span>
+        </a>
+        <div class="flex items-center gap-x-4">
+            <form action="/profile/chats" method="POST">
+                <input type="hidden" name="cmd" value="cancel_friend">
+                <input type="hidden" name="friend_id" value="{{ friend.id }}">
+                <input type="submit" value="Отменить заявку" class="hover:cursor-pointer text-base p-2 rounded-md text-white bg-red-400 hover:bg-red-500">
+            </form>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+
+<script>
+    var friends_all_list = document.getElementById("friends_all_list");
+    var friends_to_list = document.getElementById("friends_to_list");
+    var friends_from_list = document.getElementById("friends_from_list");
+    var comboBox = document.getElementById("friends_mode");
+    comboBox.addEventListener("change", function() {
+        friends_all_list.classList.add("hidden");
+        friends_to_list.classList.add("hidden");
+        friends_from_list.classList.add("hidden");
+        if (comboBox.value == "all") {
+            friends_all_list.classList.remove("hidden");
+        }
+        else if (comboBox.value == "to") {
+            friends_to_list.classList.remove("hidden");
+        }
+        else if (comboBox.value == "from") {
+            friends_from_list.classList.remove("hidden");
+        }
+    })
+</script>
+
 
 {% endblock %}

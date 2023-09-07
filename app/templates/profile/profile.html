@@ -40,6 +40,30 @@
                 </form>
             {% endif %}
         </div>
+        {% if current_user.is_authenticated and (current_user.name != user.name) %}
+        {% if (user in current_user.get_friends_from()) %}
+        <span class="text-center">Заявка в друзья отправлена</span>
+        {% elif (user in current_user.get_friends_to()) %}
+        <form class="flex flex-col items-center" action="/profile/chats" method="POST">
+            <input type="hidden" name="cmd" value="accept_friend">
+            <input type="hidden" name="friend_id" value="{{ user.id }}">
+            <input type="submit" value="Принять заявку в друзья" class="hover:cursor-pointer hover:text-green-500 hover:font-bold">
+        </form>
+        <form class="flex flex-col items-center" action="/profile/chats" method="POST">
+            <input type="hidden" name="cmd" value="reject_friend">
+            <input type="hidden" name="friend_id" value="{{ user.id }}">
+            <input type="submit" value="Отклонить заявку" class="hover:cursor-pointer hover:text-red-600 hover:font-bold">
+        </form>
+        {% elif (user in current_user.get_friends()) %}
+        <span class="text-center">У вас в друзьях</span>
+        {% else %}
+        <form class="flex flex-col items-center" action="/profile/chats" method="POST">
+            <input type="hidden" name="cmd" value="send_friend">
+            <input type="hidden" name="friend_id" value="{{ user.id }}">
+            <input type="submit" value="Добавить в друзья" class="hover:cursor-pointer">
+        </form>
+        {% endif %}
+        {% endif %}
         {% if current_user.is_authenticated and (current_user.name == user.name) %}
         <div class="flex flex-col gap-y-2 w-full">
             <form class="flex flex-col items-center w-full gap-y-2" action="/profile/user/{{user.name}}" method="POST" enctype="multipart/form-data">

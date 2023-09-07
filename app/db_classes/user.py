@@ -83,6 +83,24 @@ class User(UserMixin, db.Model):
         relation = User_Club.query.filter_by(user_id=self.id, club_id=club_id).first()
         return relation
     
+    def get_friends_from(self):
+        from app.dbc import Friend
+        friends = Friend.query.filter_by(friend_from=self.id, accepted=False).all()
+        return [User.query.filter_by(id=f.friend_to).first() for f in friends]
+    def get_friends_to(self):
+        from app.dbc import Friend
+        friends = Friend.query.filter_by(friend_to=self.id, accepted=False).all()
+        return [User.query.filter_by(id=f.friend_from).first() for f in friends]
+    def get_friends(self):
+        from app.dbc import Friend, User
+        res = []
+        for f in Friend.query.filter_by(accepted=True).all():
+            if f.friend_from == self.id:
+                res.append(User.query.filter_by(id=f.friend_to).first())
+            elif f.friend_to == self.id:
+                res.append(User.query.filter_by(id=f.friend_from).first())
+        return res
+    
     def is_pool_access(self, pool_id):
         from app.dbc import User_Pool
         relation = User_Pool.query.filter_by(user_id=self.id, pool_id=pool_id).first()
