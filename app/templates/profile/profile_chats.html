@@ -56,7 +56,7 @@
         <option value="from" class="p-2 text-lg">Исходящие заявки ({{ current_user.get_friends_from() | length }})</option>
     </select>
 </div>
-<ul id="friends_all_list" class="flex flex-col gap-y-2 max-h-[60rem] overflow-y-auto mt-2">
+<ul id="friends_all_list" class="flex flex-col max-h-[60rem] overflow-y-auto mt-2">
     {% for friend in current_user.get_friends() %}
     <li class="flex items-center text-xl text-slate-600 justify-between odd:bg-slate-200 even:bg-slate-50 p-4">
         <a href="/profile/user/{{ friend.name }}" class="h-12 flex items-center gap-x-2 font-bold">
@@ -77,7 +77,7 @@
     </li>
     {% endfor %}
 </ul>
-<ul class="hidden flex flex-col gap-y-2 max-h-[60rem] overflow-y-auto mt-2" id="friends_to_list">
+<ul class="hidden flex flex-col max-h-[60rem] overflow-y-auto mt-2" id="friends_to_list">
     {% for friend in current_user.get_friends_to() %}
     <li class="flex items-center text-xl text-slate-600 justify-between odd:bg-slate-200 even:bg-slate-50 p-4">
         <a href="/profile/user/{{ friend.name }}" class="h-12 flex items-center gap-x-2 font-bold">
@@ -103,7 +103,7 @@
     </li>
     {% endfor %}
 </ul>
-<ul class="hidden flex flex-col gap-y-2 max-h-[60rem] overflow-y-auto mt-2" id="friends_from_list">
+<ul class="hidden flex flex-col max-h-[60rem] overflow-y-auto mt-2" id="friends_from_list">
     {% for friend in current_user.get_friends_from() %}
     <li class="flex items-center text-xl text-slate-600 justify-between odd:bg-slate-200 even:bg-slate-50 p-4">
         <a href="/profile/user/{{ friend.name }}" class="h-12 flex items-center gap-x-2 font-bold">
