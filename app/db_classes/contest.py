@@ -52,7 +52,12 @@ class Contest(db.Model):
     def is_description_available(self, user=current_user):
         if user is None:
             return False
-        return self.is_public or self.is_my(user)
+        if (self.is_public) or (self.is_my(user)):
+            return True
+        from app.dbc import Club_Contest, User_Club
+        all_cc = [cc for cc in self.club_contests if cc.is_valid()]
+        my_clubs = [uc.club for uc in User_Club.query.filter_by(user=user).all()]
+        return any(cc.club in my_clubs for cc in all_cc)
 
     def is_my(self, user=current_user):
         if user is None:
@@ -210,7 +215,7 @@ class Contest(db.Model):
         # mode = "real" / "virtual", start=end='%Y-%m-%dT%H:%M' (строка в таком формате, надо преобразовать в datetime)
         from app.dbc import Contest_User, Contest_User_Solution
 
-        if not self.is_archived():
+        if not self.is_description_available():
             return
         if self.get_active_cu():
             return

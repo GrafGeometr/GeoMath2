@@ -103,8 +103,9 @@ class Club(db.Model):
         contest = Contest.query.filter_by(id=contest_id).first()
         if contest is None:
             return
-        if not contest.is_archived():
-            return
+        if (not contest.is_archived()):
+            if (not current_user.get_pool_relation(contest.pool_id).isOwner()) or (not current_user.get_club_relation(self.id).isOwner()):
+                return
         cc = Club_Contest(contest=contest, club=self)
         cc.add()
         return self
