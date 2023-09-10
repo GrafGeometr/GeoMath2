@@ -67,7 +67,7 @@ def autocomplete():
     obj = data["obj"]
     if obj == "tags":
         tags = Tag.query.all()
-        return [tag.name for tag in tags]
+        return [sorted(tag.name) for tag in tags]
     elif obj == "users":
         users = User.query.all()
         return [user.name for user in users]
