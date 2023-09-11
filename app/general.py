@@ -106,3 +106,17 @@ def like():
     cnt_likes = parent.total_likes
     cnt_dislikes = parent.total_dislikes
     return {"check": check, "cnt_likes": cnt_likes, "cnt_dislikes": cnt_dislikes}
+
+@general.route("/notifications", methods=["POST"])
+@login_required
+def notifications():
+    data = request.get_json()
+    if data.get("remove") is not None:
+        remove_id = data.get("remove")
+        notification = Notification.query.filter_by(id=int(remove_id)).first()
+        if notification.user == current_user:
+            notification.remove()
+    elif data.get("mark_all_as_read") is not None:
+        Notification.mark_all_as_read()
+    
+    return "OK"

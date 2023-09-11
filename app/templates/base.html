@@ -78,6 +78,12 @@
         </div>
         <div class="flex items-end gap-x-4 text-2xl pb-3">
             {% if current_user.is_authenticated %}
+            <div id="notification_div" class="relative z-50">
+                <img src="/static/images/bell.svg" alt="bell" class="w-8 h-8 hover:cursor-pointer" id="notification_bell">
+                <div id="notification_counter" class="{% if not current_user.is_has_unread_notifications() %} hidden {% endif %} absolute -top-1 -right-1 bg-red-600 w-4 h-4 rounded-full"></div>
+                <div id="notification_list"
+                class="hidden w-[40rem] max-h-[20rem] absolute top-10 right-0 bg-white border-2 border-slate-500 rounded-md overflow-y-auto flex flex-col"></div>
+            </div>
             <a class="no-underline text-center font-medium text-stone-800 hover:text-sky-600"
                 href="/profile/user/{{ current_user.name }}">{{ current_user.name }}</a>
             <a class="no-underline text-center font-medium text-stone-800 hover:text-red-600" href="/logout">Выйти</a>
@@ -174,6 +180,120 @@
     setToastTimeout();
     bindToastClose();
 </script>
+
+<script>
+    var nD = document.getElementById("notification_div");
+    var nB = document.getElementById("notification_bell");
+    var nC = document.getElementById("notification_counter");
+    var nL = document.getElementById("notification_list");
+    nB.addEventListener("click", function(){
+        var is_shown = !nL.classList.contains("hidden");
+        if (is_shown) {
+            nL.classList.add("hidden");
+        }
+        else {
+            nC.classList.add("hidden");
+            nL.classList.remove("hidden");
+
+            var xhr = new XMLHttpRequest();
+            xhr.responseType = 'json';
+            xhr.open('POST', '/notifications', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            var data = {'mark_all_as_read': 1};
+            xhr.send(JSON.stringify(data));
+        }
+    })
+</script>
+
+<script>
+    function showNotification(id, head, content, url, date, read) {
+        let notification = document.createElement("div");
+        notification.classList.add("w-full", "text-base", "p-2", "border-b-2", "border-slate-500", "last:border-b-0", "relative");
+
+        if (read) {
+            notification.classList.add("hover:bg-slate-200");
+        }
+        else {
+            notification.classList.add("bg-blue-100")
+            notification.classList.add("hover:bg-blue-200");
+        }
+
+        let notId = document.createElement("div");
+        notId.innerHTML = id;
+        notId.classList.add("hidden");
+        notification.appendChild(notId);
+
+        let notDate = document.createElement("div");
+        notDate.classList.add("text-slate-500", "text-xs");
+        notDate.innerHTML = date;
+        notification.appendChild(notDate);
+
+        let notHead = document.createElement("div");
+        notHead.innerHTML = head;
+        notHead.classList.add("font-bold", "text-lg");
+        notification.appendChild(notHead);
+
+        let notContent = document.createElement("div");
+        notContent.innerHTML = content;
+        notification.appendChild(notContent);
+
+        let notUrl = document.createElement("a");
+        notUrl.href = url;
+        notUrl.innerHTML = "<span>перейти</span>";
+        notUrl.classList.add("font-bold", "text-blue-500", "flex", "flex-col", "items-end");
+        notification.appendChild(notUrl);
+
+        let notClose = document.createElement("img");
+        notClose.src = "/static/images/close.svg";
+        notClose.classList.add("cursor-pointer", "absolute", "top-2", "right-2", "w-4", "h-4");
+        notification.appendChild(notClose);
+
+        notClose.addEventListener("click", function (e) {
+            var xhr = new XMLHttpRequest();
+            xhr.responseType = 'json';
+            xhr.open('POST', '/notifications', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    e.target.parentNode.remove();
+                    if (nL.childNodes.length == 0) {
+                        nL.classList.remove("border-2");
+                        nL.classList.add("border-0");
+                    }
+                }
+            }
+            var data = {'remove': id};
+            xhr.send(JSON.stringify(data));
+            });
+        
+        nL.appendChild(notification);      
+    }
+</script>
+
+{% if current_user.is_authenticated %}
+<script>
+    {% with notifications = current_user.get_notifications() %}
+        {% for notification in notifications %}
+            showNotification(
+                {{notification.id}},
+                '{{notification.head}}',
+                '{{notification.content}}',
+                '{{notification.url}}',
+                '{{notification.get_date_as_str()}}',
+                {{notification.is_read()}}
+            )
+        {% endfor %}
+    {% endwith %}
+</script>
+{% endif %}
+
+<script>
+    if (nL.childNodes.length == 0) {
+        nL.classList.remove("border-2");
+        nL.classList.add("border-0");
+    }
+</script>
+
 
 
 <script>

@@ -19,6 +19,7 @@ class User(UserMixin, db.Model):
     contest_judges = db.relationship("Contest_Judge", backref="user")
     contest_users = db.relationship("Contest_User", backref="user")
     likes = db.relationship("Like", backref="user")
+    notifications = db.relationship("Notification", backref="user")
     user_chats = db.relationship("User_Chat", backref="user")
     user_clubs = db.relationship("User_Club", backref="user")
     user_messages = db.relationship("User_Message", backref="user")
@@ -50,6 +51,12 @@ class User(UserMixin, db.Model):
         relation = User_Pool.query.filter_by(user_id=self.id, pool_id=pool_id).first()
         return relation
     
+    def is_has_unread_notifications(self):
+        for notification in self.notifications:
+            if not notification.read:
+                return True
+        return False
+
     def is_chat_owner(self, chat):
         from app.dbc import User_Chat
         uc = User_Chat.query.filter_by(user_id=self.id, chat_id=chat.id).first()
@@ -59,6 +66,10 @@ class User(UserMixin, db.Model):
         from app.dbc import User_Chat
         uc = User_Chat.query.filter_by(user_id=self.id, chat_id=chat.id).first()
         return (uc is not None) and (uc.is_participant())
+
+    def get_notifications(self):
+        from app.dbc import Notification
+        return sorted(Notification.query.filter_by(user_id=self.id).all(), key=lambda n: n.date, reverse=True)
 
     def get_chat_relation(self, chat_id):
         from app.dbc import User_Chat

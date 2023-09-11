@@ -93,7 +93,7 @@ pre::-webkit-scrollbar {
 .box_shadow:hover {
     box-shadow: 0 0 1rem rgba(0, 0, 0, 0.25);
 }
-textarea, pre {
+textarea, pre, .noscrollbar {
     overflow: auto;
     -ms-overflow-style: none; /* IE 11 */
     scrollbar-width: none; /* Firefox 64 */

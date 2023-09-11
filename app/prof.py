@@ -140,6 +140,7 @@ def profile_chats():
                     for friend in Friend.query.all():
                         if friend.friend_from == user.id and friend.friend_to == current_user.id and (not friend.accepted):
                             friend.act_accept()
+                            Notification.send_to_user(current_user.name, "принял вашу заявку в друзья", "/profile/chats", user)
                             return redirect("/profile/chats")
                         
             elif cmd == "reject_friend":
@@ -167,6 +168,9 @@ def profile_chats():
                     if (user not in current_user.get_friends_to()) and (user not in current_user.get_friends_from()) and (user not in current_user.get_friends()):
                         friend = Friend(friend_from=current_user.id, friend_to=user.id, accepted=False)
                         friend.add()
+
+                        Notification.send_to_user(current_user.name, "отправил вам заявку в друзья", "/profile/chats", user)
+
                         return redirect("/profile/chats")
             
             

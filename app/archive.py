@@ -49,6 +49,8 @@ def publish_problem(problem_hashed_id):
     problem.is_public = True
 
     db.session.commit()
+    for user in problem.pool.get_owners():
+        Notification.send_to_friends(user.name, "опубликовал новую задачу", f"/archive/problem/{problem.hashed_id}", user)
 
     return redirect(f"/pool/{pool_hashed_id}/problem/{problem.hashed_id}")
 
@@ -72,6 +74,8 @@ def publish_sheet(sheet_id):
     sheet.is_public = True
 
     db.session.commit()
+    for user in sheet.pool.get_owners():
+        Notification.send_to_friends(user.name, "опубликовал новую подборку", f"/archive/sheet/{sheet.id}", user)
 
     return redirect(f"/pool/{pool_hashed_id}/sheet/{sheet.id}")
 
@@ -100,6 +104,8 @@ def publish_contest(contest_id):
     contest.is_public = True
 
     db.session.commit()
+    for user in contest.pool.get_owners():
+        Notification.send_to_friends(user.name, "опубликовал новый контест", f"/contest/{contest.id}", user)
 
     return redirect(f"/pool/{pool_hashed_id}/contest/{contest.id}")
 
