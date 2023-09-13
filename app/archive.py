@@ -180,7 +180,7 @@ def archive_problem_search(username):
     resulting_objs = []
 
     for obj in objs:
-        if not obj.is_solution_available(): # solution | text | description
+        if not obj.is_archived():
             continue
         cnt = obj_id_to_cnt.get(obj.id, 0)
         resulting_objs.append((obj, cnt, tags_count, (obj.total_likes + 1) / (obj.total_dislikes + 1)))
@@ -193,12 +193,8 @@ def archive_problem_search(username):
 
     #if username == "all":
         #problems = [problem for problem in problems if problem[0].usernamerated]
-    
-
-
-    num_of_pages = (len(objs)+objs_per_page-1) // objs_per_page
+    num_of_pages = (len(resulting_objs)+objs_per_page-1) // objs_per_page
     objs = resulting_objs[(page-1)*objs_per_page : page*objs_per_page]
-
 
     pages_to_show = get_correct_page_slice(num_of_pages, 7, page)
     
@@ -256,7 +252,7 @@ def archive_sheet_search(username):
     resulting_objs = []
 
     for obj in objs:
-        if not obj.is_text_available(): # solution | text | description
+        if not obj.is_archived():
             continue
         cnt = obj_id_to_cnt.get(obj.id, 0)
         resulting_objs.append((obj, cnt, tags_count, (obj.total_likes + 1) / (obj.total_dislikes + 1)))
@@ -272,7 +268,7 @@ def archive_sheet_search(username):
     
 
 
-    num_of_pages = (len(objs)+objs_per_page-1) // objs_per_page
+    num_of_pages = (len(resulting_objs)+objs_per_page-1) // objs_per_page
     objs = resulting_objs[(page-1)*objs_per_page : page*objs_per_page]
 
 
@@ -333,7 +329,7 @@ def archive_contest_search(username):
     resulting_objs = []
 
     for obj in objs:
-        if not obj.is_description_available(): # solution | text | description
+        if not obj.is_archived():
             continue
         cnt = obj_id_to_cnt.get(obj.id, 0)
         resulting_objs.append((obj, cnt, tags_count, (obj.total_likes + 1) / (obj.total_dislikes + 1)))
@@ -349,7 +345,7 @@ def archive_contest_search(username):
     
 
 
-    num_of_pages = (len(objs)+objs_per_page-1) // objs_per_page
+    num_of_pages = (len(resulting_objs)+objs_per_page-1) // objs_per_page
     objs = resulting_objs[(page-1)*objs_per_page : page*objs_per_page]
 
 
