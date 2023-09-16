@@ -150,7 +150,11 @@ def archive_problem_search(username):
     if tags is None or tags == "":
         tags = []
     else:
-        tags = list(map(lambda x: x.strip() , tags.split(";")))
+        tmp = tags.split(";")
+        tags = []
+        for t in tmp:
+            if t.strip() != "":
+                tags.append(t.strip())
 
     from app.utils_and_functions.usefull_functions import get_string_hash
 
@@ -221,7 +225,11 @@ def archive_sheet_search(username):
     if tags is None or tags == "":
         tags = []
     else:
-        tags = list(map(lambda x: x.strip() , tags.split(";")))
+        tmp = tags.split(";")
+        tags = []
+        for t in tmp:
+            if t.strip() != "":
+                tags.append(t.strip())
 
 
     from app.utils_and_functions.usefull_functions import get_string_hash
@@ -298,7 +306,11 @@ def archive_contest_search(username):
     if tags is None or tags == "":
         tags = []
     else:
-        tags = list(map(lambda x: x.strip() , tags.split(";")))
+        tmp = tags.split(";")
+        tags = []
+        for t in tmp:
+            if t.strip() != "":
+                tags.append(t.strip())
 
 
     from app.utils_and_functions.usefull_functions import get_string_hash
