@@ -112,6 +112,31 @@ function makeLaTeXArea(elementId, editorType="problem") {
 
     renderAreas[elementId] = render;
 
+    // Some hotkeys
+    element.addEventListener("keydown", event => {
+        var ctrlDown = event.ctrlKey || event.metaKey;
+        var c = event.code;
+        const t = event.target;
+        const hotkeys = [
+            ["KeyB", "\\textbf{", "}", 8],
+            ["KeyI", "\\textit{", "}", 8],
+            ["KeyU", "\\underline{", "}", 11],
+            ["KeyO", "\\overline{", "}", 10],
+            ["KeyM", "$", "$", 1],
+        ]
+
+        for (let i = 0; i < hotkeys.length; i++) {
+            if (ctrlDown && c == hotkeys[i][0]) {
+                event.preventDefault();
+                const start = t.selectionStart;
+                const end = t.selectionEnd;
+                t.value = t.value.slice(0, start) + hotkeys[i][1] + t.value.slice(start, end) + hotkeys[i][2] + t.value.slice(end, t.value.length);
+                t.selectionStart = start + hotkeys[i][3];
+                t.selectionEnd = end + hotkeys[i][3];
+            }
+        }
+    })
+
     // Auto-delete pair of brackets
     element.addEventListener("keydown", event => {
         const brackets = [["(", ")"], ["[", "]"], ["{", "}"], ["$", "$"]];
@@ -129,6 +154,16 @@ function makeLaTeXArea(elementId, editorType="problem") {
                 }
             }
         }
+    })
+
+    // Re-render
+    element.addEventListener("keydown", event => {
+        let text = event.target.value;
+        update(`${elementId}-highlighting-content`, text);
+        sync_scroll(element, `${elementId}-highlighting`);
+        clearTimeout(timeout);
+        timeout = setTimeout(render, 500);
+        fitContent(element, 2);
     })
 
     // Auto-add pair of brackets
@@ -153,13 +188,12 @@ function makeLaTeXArea(elementId, editorType="problem") {
                 }
             }
         }
+
         let text = event.target.value;
         update(`${elementId}-highlighting-content`, text);
         sync_scroll(element, `${elementId}-highlighting`);
-
         clearTimeout(timeout);
         timeout = setTimeout(render, 500);
-
         fitContent(element, 2);
     })
 
