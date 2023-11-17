@@ -106,7 +106,7 @@ function isMath(symbol) {
 }
 function isNeutral(symbol) {
     var neutral = [".", "-", "(", ")", ",", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-    if (symbol in neutral) return true;
+    if (neutral.includes(symbol)) return true;
 
     return false;
 }
@@ -117,6 +117,7 @@ function isNonMath(symbol) {
 
 function toLatexWord(string) {
     var latexWord = {"word": "", "type": 1};
+    console.log(isNeutral("."));
     const N = 5;
     for (var i = 0; i < string.length; i++) {
         // The longest substr from allMathSymbols that starts in string[i]
@@ -135,6 +136,7 @@ function toLatexWord(string) {
                 break;
             }
             else if (isNeutral(char)) {
+                console.log("neu", char);
                 latexWord["word"] += char;
                 i += l - 1;
                 break;
@@ -191,6 +193,7 @@ function toLatex(string) {
             
         }
     }
+    console.log(words);
     nxtByType.reverse();
     nxtByType.push([sz,sz,sz]);
     for (var i = 0; i < sz; i++) {
@@ -219,7 +222,10 @@ function toLatex(string) {
         else {
             res += words[i][3];
         }
-        if (i < sz-1) res += ' ';
+        if (i < sz-1) {
+            if (openedMath) res += "\\";
+        res += " ";
+        }
     }
     return res;
 }
