@@ -137,6 +137,23 @@ function makeLaTeXArea(elementId, editorType="problem") {
         }
     })
 
+    // LaTeX hotkey Ctrl+L
+    element.addEventListener("keydown", event => {
+        var ctrlDown = event.ctrlKey || event.metaKey;
+        var c = event.code;
+        var t = event.target;
+        if (ctrlDown && c == "KeyL") {
+            event.preventDefault();
+            const start = element.selectionStart;
+            const end = element.selectionEnd;
+            var slice = element.value.slice(start, end);
+            slice = toLatex(slice);
+            t.value = t.value.slice(0, start) + slice + t.value.slice(end, t.value.length);
+            t.selectionStart = start;
+            t.selectionEnd = start + slice.length;
+        }
+    })
+
     // Auto-delete pair of brackets
     element.addEventListener("keydown", event => {
         const brackets = [["(", ")"], ["[", "]"], ["{", "}"], ["$", "$"]];
@@ -223,7 +240,6 @@ function makeLaTeXArea(elementId, editorType="problem") {
 
 // LaTeX rendering
 const getGenerator = (inputElementId = null, editorType = 'problem') => {
-    console.log(inputElementId);
     const generator = new latexjs.HtmlGenerator({
         CustomMacros: (function () {
             var args = CustomMacros.args = {},
