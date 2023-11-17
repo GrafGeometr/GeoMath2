@@ -79,7 +79,8 @@ var unaryOperators = {
     "∮∮∮": "\\oiint",
     "{": "\\{",
     "}": "\\}",
-    "\\": "\\"
+    "\\": "\\",
+    "$": "$"
 }
 
 for (symbol in greekLetters) allMathSymbols[symbol] = greekLetters[symbol];
