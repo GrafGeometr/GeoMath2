@@ -9,10 +9,11 @@ class Contest(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
     description = db.Column(db.String)
+    grade = db.Column(db.String)
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
     is_public = db.Column(db.Boolean, default=False)
-    rating = db.Column(db.String, default="public") # 'public' | 'private'
+    rating = db.Column(db.String, default="public")  # 'public' | 'private'
     total_likes = db.Column(db.Integer, default=0)
     total_dislikes = db.Column(db.Integer, default=0)
 
@@ -22,30 +23,43 @@ class Contest(db.Model):
     contest_users = db.relationship("Contest_User", backref="contest")
     club_contests = db.relationship("Club_Contest", backref="contest")
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
+    olimpiad_id = db.Column(db.Integer, db.ForeignKey("olimpiad.id"))
 
     # --> FUNCTIONS
     def is_liked(self):
         from app.dbc import Like
-        return Like.query.filter_by(parent_type="Contest", parent_id=self.id, user_id=current_user.id).first() is not None
+
+        return (
+            Like.query.filter_by(
+                parent_type="Contest", parent_id=self.id, user_id=current_user.id
+            ).first()
+            is not None
+        )
 
     def act_add_like(self):
         if self.is_liked():
             return
         from app.dbc import Like
+
         Like(parent_type="Contest", parent_id=self.id, user_id=current_user.id).add()
         return
-    
+
     def act_remove_like(self):
         if not self.is_liked():
             return
         from app.dbc import Like
-        Like.query.filter_by(parent_type="Contest", parent_id=self.id, user_id=current_user.id).remove()
+
+        Like.query.filter_by(
+            parent_type="Contest", parent_id=self.id, user_id=current_user.id
+        ).remove()
         return
 
     def is_rating_public(self):
         return self.rating == "public"
+
     def is_rating_private(self):
         return self.rating == "private"
+
     def is_archived(self):
         return self.is_public
 
@@ -55,6 +69,7 @@ class Contest(db.Model):
         if (self.is_public) or (self.is_my(user)):
             return True
         from app.dbc import Club_Contest, User_Club
+
         all_cc = [cc for cc in self.club_contests if cc.is_valid()]
         my_clubs = [uc.club for uc in User_Club.query.filter_by(user=user).all()]
         return any(cc.club in my_clubs for cc in all_cc)
@@ -69,10 +84,10 @@ class Contest(db.Model):
 
     def is_ended(self):
         return self.end_date <= current_time()
-    
+
     def is_rating_available(self, user=current_user):
-        return (user.is_judge(self) or self.is_rating_public())
-    
+        return user.is_judge(self) or self.is_rating_public()
+
     def is_problem_submitted(self, problem):
         from app.dbc import Contest_Problem, Contest_User_Solution
 
@@ -86,16 +101,18 @@ class Contest(db.Model):
             return False
         cus = Contest_User_Solution.get_by_contest_problem_and_contest_user(cp, cu)
         return (cus is not None) and (cus.content is not None)
-    
+
     def is_tags_available(self, user=current_user):
         return self.is_description_available(user)
 
     def get_all_likes(self):
         from app.dbc import Like
+
         return Like.get_all_by_parent(self)
+
     def get_all_likes_good(self):
         return [like for like in self.get_all_likes() if like.good]
-    
+
     def get_all_likes_bad(self):
         return [like for like in self.get_all_likes() if not like.good]
 
@@ -128,7 +145,6 @@ class Contest(db.Model):
 
     def get_nonsecret_problems(self):
         return [cp.problem for cp in self.get_nonsecret_contest_problems()]
-    
 
     def get_active_cu(self, user=current_user):
         from app.dbc import Contest_User
@@ -140,8 +156,10 @@ class Contest(db.Model):
         if contest_problem not in cproblems:
             return None
         return cproblems.index(contest_problem) + 1
-    
-    def get_cu_by_mode_and_part(self, mode="all", part="real", user=current_user, club=None):
+
+    def get_cu_by_mode_and_part(
+        self, mode="all", part="real", user=current_user, club=None
+    ):
         if mode not in ["all", "my", "club"]:
             return None
         if part not in ["real", "virtual"]:
@@ -160,19 +178,22 @@ class Contest(db.Model):
         elif part == "virtual":
             all_cu = [cu for cu in all_cu if (cu.virtual)]
         return all_cu
-    
+
     def get_rating_table(self, all_cu):
         from app.dbc import Contest_User_Solution
+
         t = []
         all_cp = self.get_nonsecret_contest_problems()
         for cu in all_cu:
             tr = [None, None, None, None]
-            tr[0] = cu # Contest_User object
-            tr[1] = cu.get_total_score() # Total score
-            tr[2] = [] # List of (Contest_Problem, Contest_User_Solution)
-            tr[3] = -1 # User's place
+            tr[0] = cu  # Contest_User object
+            tr[1] = cu.get_total_score()  # Total score
+            tr[2] = []  # List of (Contest_Problem, Contest_User_Solution)
+            tr[3] = -1  # User's place
             for cp in all_cp:
-                cus = Contest_User_Solution.get_by_contest_problem_and_contest_user(cp, cu)
+                cus = Contest_User_Solution.get_by_contest_problem_and_contest_user(
+                    cp, cu
+                )
                 print(cus)
                 tr[2].append((cp, cus))
             t.append(tr)
@@ -184,8 +205,8 @@ class Contest(db.Model):
             return t
         t[0][3] = 1
         for i in range(1, len(t)):
-            if (t[i][1] == t[i - 1][1]):
-                t[i][3] = t[i-1][3]
+            if t[i][1] == t[i - 1][1]:
+                t[i][3] = t[i - 1][3]
             else:
                 t[i][3] = i + 1
         return t
@@ -193,7 +214,7 @@ class Contest(db.Model):
     def act_set_name(self, name):
         self.name = name
         return self.save()
-    
+
     def act_set_description(self, description):
         self.description = description
         return self.save()
@@ -233,7 +254,13 @@ class Contest(db.Model):
         else:
             start = dt_from_str(start_date)
             end = dt_from_str(end_date)
-            if (start is None) or (end is None) or (start > end) or (start < self.start_date) or (start < current_time()):
+            if (
+                (start is None)
+                or (end is None)
+                or (start > end)
+                or (start < self.start_date)
+                or (start < current_time())
+            ):
                 return
             Contest_User(
                 contest_id=self.id,
@@ -360,26 +387,26 @@ class Contest(db.Model):
         for cp in self.contest_problems:
             if cp.problem.hashed_id not in hashes:
                 cp.remove()
+
     def act_set_rating_public(self):
         if not self.is_my():
             return
         self.rating = "public"
         db.session.commit()
         return self
-    
+
     def act_set_rating_private(self):
         if not self.is_my():
             return
         self.rating = "private"
         db.session.commit()
         return self
-    
+
     def act_toggle_rating(self, mode):
         if mode is None:
             return self.act_set_rating_private()
         else:
             return self.act_set_rating_public()
-
 
     @staticmethod
     def get_by_id(id):
@@ -412,6 +439,7 @@ class Contest(db.Model):
         for cc in cc_s:
             cc.remove()
         from app.dbc import Like
+
         for l in Like.get_all_by_parent(self):
             l.remove(par=self)
         db.session.delete(self)
@@ -435,10 +463,10 @@ class Contest(db.Model):
             ],
             key=lambda t: t.name.lower(),
         )
-    
+
     def get_tag_names(self):
         return list(map(lambda t: t.name, self.get_tags()))
-    
+
     def is_have_tag(self, tag):
         if tag is None:
             return False
@@ -447,7 +475,7 @@ class Contest(db.Model):
         if Tag_Relation.get_by_parent_and_tag(self, tag) is None:
             return False
         return True
-    
+
     def act_add_tag(self, tag):
         from app.dbc import Tag_Relation
 
@@ -464,6 +492,7 @@ class Contest(db.Model):
 
     def act_add_tag_by_name(self, tag_name):
         from app.dbc import Tag
+
         tag = Tag.get_by_name(tag_name)
         if (tag is None) and (current_user.admin):
             tag = Tag(name=tag_name).add()
@@ -492,4 +521,3 @@ class Contest(db.Model):
         for name in names:
             self.act_add_tag_by_name(name)
         return self
-    
