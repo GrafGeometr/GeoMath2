@@ -23,7 +23,7 @@
                                 {{ problem.name }}
                             </li>
                             <script>
-                                let element_problem = document.getElementById("{{season}}-{{grade}}-problem-{{ problem.hashed_id }}");
+                                var element_problem = document.getElementById("{{season}}-{{grade}}-problem-{{ problem.hashed_id }}");
                                 element_problem.onclick = function () {
                                     let problems = document.getElementsByClassName("problem_button");
                                     for (let i = 0; i < problems.length; i++) {
@@ -60,24 +60,24 @@
                         </ul>
                     </details>
                     <script>
-                        let element_grade = document.getElementById("grade-{{ grade }}");
+                        var element_grade = document.getElementById("grade-{{ grade }}");
                         element_grade.onclick = function () {
                             let grades = document.getElementsByClassName("grade_details");
-                            for (let i = 0; i < grades.length; i++) {
+                            for (var i = 0; i < grades.length; i++) {
                                 let g = grades[i];
-                                if (g != this) g.parentElement.open = false;
+                                if (g.id != this.id) g.parentElement.open = false;
                             }
                         }
                     </script>
                     {% endfor %}
                 </details>
                 <script>
-                    let element_season = document.getElementById("season-{{ season }}");
+                    var element_season = document.getElementById("season-{{ season }}");
                     element_season.onclick = function () {
                         let seasons = document.getElementsByClassName("season_details");
-                        for (let i = 0; i < seasons.length; i++) {
+                        for (var i = 0; i < seasons.length; i++) {
                             let s = seasons[i];
-                            if (s != this) s.parentElement.open = false;
+                            if (s.id != this.id) s.parentElement.open = false;
                         }
                     }
                 </script>
