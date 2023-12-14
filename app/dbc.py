@@ -14,6 +14,7 @@ from app.db_classes.invite import Invite
 from app.db_classes.like import Like
 from app.db_classes.message import Message
 from app.db_classes.notification import Notification
+from app.db_classes.olimpiad import Olimpiad
 from app.db_classes.pool import Pool
 from app.db_classes.problem import Problem
 from app.db_classes.sheet import Sheet
