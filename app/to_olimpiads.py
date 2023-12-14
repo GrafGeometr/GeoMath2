@@ -28,11 +28,12 @@ def to_olimpiads_page():
             lambda s: len(s) == 7
             and s[:4].isdigit()
             and s[4] == "-"
-            and s[5:].isdigit()
-        ), tags
+            and s[5:].isdigit(),
+            tags
+        )
     )
 
-    grades = set(filter(lambda s: s.endswith("класс")), tags)
+    grades = set(filter(lambda s: s.endswith("класс"), tags))
 
     for name in olimpiads_old_names:
         if name == "Всероссийская олимпиада школьников":
