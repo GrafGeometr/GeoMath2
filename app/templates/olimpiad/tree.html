@@ -23,8 +23,8 @@
                                 {{ problem.name }}
                             </li>
                             <script>
-                                let element = document.getElementById("{{season}}-{{grade}}-problem-{{ problem.hashed_id }}");
-                                element.onclick = function () {
+                                let element_problem = document.getElementById("{{season}}-{{grade}}-problem-{{ problem.hashed_id }}");
+                                element_problem.onclick = function () {
                                     let problems = document.getElementsByClassName("problem_button");
                                     for (let i = 0; i < problems.length; i++) {
                                         let p = problems[i];
@@ -60,8 +60,8 @@
                         </ul>
                     </details>
                     <script>
-                        let element = document.getElementById("grade-{{ grade }}");
-                        element.onclick = function () {
+                        let element_grade = document.getElementById("grade-{{ grade }}");
+                        element_grade.onclick = function () {
                             let grades = document.getElementsByClassName("grade_details");
                             for (let i = 0; i < grades.length; i++) {
                                 let g = grades[i];
@@ -72,8 +72,8 @@
                     {% endfor %}
                 </details>
                 <script>
-                    let element = document.getElementById("season-{{ season }}");
-                    element.onclick = function () {
+                    let element_season = document.getElementById("season-{{ season }}");
+                    element_season.onclick = function () {
                         let seasons = document.getElementsByClassName("season_details");
                         for (let i = 0; i < seasons.length; i++) {
                             let s = seasons[i];
