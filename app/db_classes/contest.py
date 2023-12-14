@@ -80,10 +80,10 @@ class Contest(db.Model):
         return user.is_pool_access(self.pool_id)
 
     def is_started(self):
-        return self.start_date <= current_time()
+        return (self.start_date is None) or self.start_date <= current_time()
 
     def is_ended(self):
-        return self.end_date <= current_time()
+        return (self.end_date is None) or self.end_date <= current_time()
 
     def is_rating_available(self, user=current_user):
         return user.is_judge(self) or self.is_rating_public()
