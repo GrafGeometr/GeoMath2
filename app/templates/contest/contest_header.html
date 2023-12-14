@@ -9,7 +9,7 @@
     {% endif %}
     <div class="flex items-center gap-x-4">
         <span class="text-2xl text-stone-800 font-bold">
-            <a href="/contest/{{ current_contest.id }}" class="no-underline hover:underline">{{ current_contest.name }}</a>
+            <a href="/contest/{{ current_contest.id }}" class="no-underline hover:underline">{{ current_contest.get_full_name() }}</a>
         </span>
         <div class="like" id="like-Contest-{{ current_contest.id }}"></div>
     </div>
