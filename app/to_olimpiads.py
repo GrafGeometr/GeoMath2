@@ -24,16 +24,15 @@ def to_olimpiads_page():
 
     tags = list(map(lambda tag: tag.name, Tag.query.all()))
 
-    seasons = set(
-        tags.filter(
+    seasons = set(filter(
             lambda s: len(s) == 7
             and s[:4].isdigit()
             and s[4] == "-"
             and s[5:].isdigit()
-        )
+        ), tags
     )
 
-    grades = set(tags.filter(lambda s: s.endswith("класс")))
+    grades = set(filter(lambda s: s.endswith("класс")), tags)
 
     for name in olimpiads_old_names:
         if name == "Всероссийская олимпиада школьников":
