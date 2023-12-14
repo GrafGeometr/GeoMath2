@@ -23,10 +23,10 @@
                                 {{ problem.name }}
                             </li>
                             <script>
-                                var element = document.getElementById("{{season}}-{{grade}}-problem-{{ problem.hashed_id }}");
+                                let element = document.getElementById("{{season}}-{{grade}}-problem-{{ problem.hashed_id }}");
                                 element.onclick = function () {
                                     let problems = document.getElementsByClassName("problem_button");
-                                    for (var i = 0; i < problems.length; i++) {
+                                    for (let i = 0; i < problems.length; i++) {
                                         let p = problems[i];
                                         p.classList.add("hover:cursor-pointer", "text-neutral-500", "hover:text-neutral-700");
                                         p.classList.remove("text-blue-500");
@@ -39,7 +39,7 @@
 
 
 
-                                    var elem = document.getElementById("statement-latex-output");
+                                    let elem = document.getElementById("statement-latex-output");
                                     renderAreas["statement"] = () => {
                                         elem.innerHTML = "";
                                         imageNameList = [];
@@ -51,7 +51,7 @@
 
                                     renderAreas["statement"]();
 
-                                    var a = document.getElementById("problem-archive-link");
+                                    let a = document.getElementById("problem-archive-link");
                                     a.href = "/archive/problem/{{ problem.hashed_id }}";
                                     a.classList.remove("hidden");
                                 }
@@ -60,10 +60,10 @@
                         </ul>
                     </details>
                     <script>
-                        var element = document.getElementById("grade-{{ grade }}");
+                        let element = document.getElementById("grade-{{ grade }}");
                         element.onclick = function () {
                             let grades = document.getElementsByClassName("grade_details");
-                            for (var i = 0; i < grades.length; i++) {
+                            for (let i = 0; i < grades.length; i++) {
                                 let g = grades[i];
                                 if (g != this) g.parentElement.open = false;
                             }
@@ -72,10 +72,10 @@
                     {% endfor %}
                 </details>
                 <script>
-                    var element = document.getElementById("season-{{ season }}");
+                    let element = document.getElementById("season-{{ season }}");
                     element.onclick = function () {
                         let seasons = document.getElementsByClassName("season_details");
-                        for (var i = 0; i < seasons.length; i++) {
+                        for (let i = 0; i < seasons.length; i++) {
                             let s = seasons[i];
                             if (s != this) s.parentElement.open = false;
                         }
