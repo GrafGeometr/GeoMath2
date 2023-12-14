@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
+<script>
+    var element = document.getElementById("olimpiads_nav");
+    element.classList.add("bg-sky-500");
+</script>
 <div class="flex justify-center">
 <div class="w-4/5 bg-white rounded-xl border-2 border-stone-200 grid grid-cols-3 mt-4">
     {% for olimpiad in olimpiads %}
