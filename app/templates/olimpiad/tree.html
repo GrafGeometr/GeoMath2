@@ -19,11 +19,11 @@
                         <summary class="grade_details flex flex-row justify-center hover:cursor-pointer" id="grade-{{ grade }}"><span>— {{ grade }}</span></summary>
                         <ul>
                             {% for problem in tree[season][grade].get_nonsecret_problems() %}
-                            <li id="problem-{{ problem.hashed_id }}" class="problem_button text-neutral-500 hover:text-neutral-700 p-1 hover:cursor-pointer">
+                            <li id="{{season}}-{{grade}}-problem-{{ problem.hashed_id }}" class="problem_button text-neutral-500 hover:text-neutral-700 p-1 hover:cursor-pointer">
                                 {{ problem.name }}
                             </li>
                             <script>
-                                var element = document.getElementById("problem-{{ problem.hashed_id }}");
+                                var element = document.getElementById("{{season}}-{{grade}}-problem-{{ problem.hashed_id }}");
                                 element.onclick = function () {
                                     let problems = document.getElementsByClassName("problem_button");
                                     for (var i = 0; i < problems.length; i++) {
