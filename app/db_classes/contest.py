@@ -9,7 +9,7 @@ class Contest(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
     description = db.Column(db.String)
-    grade = db.Column(db.String)
+    grade = db.Column(Grade)
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
     is_public = db.Column(db.Boolean, default=False)
