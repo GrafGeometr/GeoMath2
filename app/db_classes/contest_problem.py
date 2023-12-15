@@ -105,7 +105,7 @@ class Contest_Problem(db.Model):
             return []
         return sorted(
             Contest_Problem.query.filter_by(contest_id=contest.id).all(),
-            key=lambda contest_problem: contest_problem.list_index,
+            key=lambda contest_problem: (contest_problem.list_index if contest_problem.list_index is not None else 0),
         )
 
     def save(self):
