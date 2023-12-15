@@ -27,11 +27,11 @@ class Olimpiad(db.Model):
         db.session.delete(self)
         db.session.commit()
         return self
-    
+
     def num_of_seasons_to_str(self):
         n = len(self.get_structure())
         if n % 10 == 1:
-            if (n%100 == 11):
+            if n % 100 == 11:
                 return f"{n} сезонов"
             return f"{n} сезон"
         if n % 10 == 0:
@@ -56,8 +56,12 @@ class Olimpiad(db.Model):
         return self.contests
 
     def get_structure(self):
-        result = {}
-        for contest in self.contests:
+        result = OrderedDict()
+        for contest in sorted(
+            self.contests,
+            key=lambda contest: (contest.name, contest.grade),
+            reverse=True,
+        ):
             if contest.name not in result:
                 result[contest.name] = {}
             result[contest.name][str(contest.grade)] = contest
