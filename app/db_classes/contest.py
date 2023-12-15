@@ -138,8 +138,9 @@ class Contest(db.Model):
         ]
 
     def get_nonsecret_contest_problems(self):
+        from app.dbc import Contest_Problem
         if self.is_ended() or current_user.is_judge(self) or self.get_active_cu():
-            return [cp for cp in self.contest_problems if cp.is_accessible()]
+            return [cp for cp in Contest_Problem.get_all_by_contest(self) if cp.is_accessible()]
         else:
             return []
 
