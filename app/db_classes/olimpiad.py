@@ -60,7 +60,7 @@ class Olimpiad(db.Model):
         for contest in self.contests:
             if contest.name not in result:
                 result[contest.name] = {}
-            result[contest.name][contest.grade] = contest
+            result[contest.name][str(contest.grade)] = contest
         return result
 
     def get_contest_by_season_and_grade(self, season, grade):
