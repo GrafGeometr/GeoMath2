@@ -356,11 +356,7 @@ class Contest(db.Model):
             return self
         if position > len(self.contest_problems):
             return self  # TODO write normal error handling
-        idx = self.contest_problems.index(cp)
-        self.contest_problems[idx], self.contest_problems[position] = (
-            self.contest_problems[position],
-            self.contest_problems[idx],
-        )
+        cp.act_set_list_index(position)
         return self
 
     def act_add_problem_by_hashed_id(self, hashed_id, position=None, max_score=7):
