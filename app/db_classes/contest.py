@@ -339,7 +339,7 @@ class Contest(db.Model):
             cp.remove()
         return self
 
-    def act_add_problem(self, problem, max_score=7):
+    def act_add_problem(self, problem, position=None, max_score=7):
         from app.dbc import Contest_Problem
 
         if problem is None:
@@ -350,12 +350,23 @@ class Contest(db.Model):
             return self
         cp = Contest_Problem(contest_id=self.id, problem_id=problem.id).add()
         cp.act_set_max_score(max_score)
+        if position is None:
+            return self
+        if position > len(self.contest_problems):
+            return self  # TODO write normal error handling
+        idx = self.contest_problems.index(cp)
+        self.contest_problems[idx], self.contest_problems[position] = (
+            self.contest_problems[position],
+            self.contest_problems[idx],
+        )
         return self
 
-    def act_add_problem_by_hashed_id(self, hashed_id, max_score=7):
+    def act_add_problem_by_hashed_id(self, hashed_id, position=None, max_score=7):
         from app.dbc import Problem
 
-        return self.act_add_problem(Problem.get_by_hashed_id(hashed_id), max_score)
+        return self.act_add_problem(
+            Problem.get_by_hashed_id(hashed_id), position, max_score
+        )
 
     def act_set_problem_score(self, problem, score):
         from app.dbc import Contest_Problem
@@ -381,9 +392,9 @@ class Contest(db.Model):
         if len(hashes) != len(scores):
             return self
         for i in range(len(hashes)):
-            self.act_add_problem_by_hashed_id(hashes[i], scores[i])
-        for i in range(len(hashes)):
-            self.act_set_problem_score_by_hashed_id(hashes[i], scores[i])
+            self.act_add_problem_by_hashed_id(
+                hashes[i], i, scores[i]
+            ).act_set_problem_score_by_hashed_id(hashes[i], scores[i])
         for cp in self.contest_problems:
             if cp.problem.hashed_id not in hashes:
                 cp.remove()
