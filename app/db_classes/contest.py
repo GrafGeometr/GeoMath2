@@ -342,6 +342,7 @@ class Contest(db.Model):
         return self
 
     def act_add_problem(self, problem, position=None, max_score=7):
+        print("saving problem", problem.hashed_id, position)
         from app.dbc import Contest_Problem
 
         if problem is None:
