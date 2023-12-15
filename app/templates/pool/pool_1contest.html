@@ -232,12 +232,12 @@
         }
         
         for (var i = 0; i < inputs.length; i++) {
-            inputs[i].addEventListener("focus", function (event) {
+            inputs[i].onfocus = function (event) {
                 inputs.forEach((input) => {
                     input.classList.remove("border-black", "bg-slate-100");
                 })
                 this.classList.add("border-black", "bg-slate-100");
-                var problem_hashed_id = this.value;
+                let problem_hashed_id = this.value;
                 const href = `${window.location.origin}/get_problem_content/${problem_hashed_id}`
                 fetch(`${href}`).then(response => {
                     if (response.status == 200) return response.json();
@@ -247,7 +247,6 @@
                         throw new Error("Failed to fetch problem");
                     }
                 }).then(json => {
-                    console.log("OK RESPONDED");
                     function render() {
                         display.innerHTML = "";
                         var iframe = renderProblem("", json, ['statement'], "inplace", "display-problem");
@@ -259,7 +258,7 @@
                     renderAreas['display-problem'] = render;
                     render();
                 });
-            })
+            }
         }
     }
 </script>
