@@ -56,7 +56,6 @@ class Contest_Problem(db.Model):
         return self
 
     def is_accessible(self, user=current_user):
-        print(self.is_valid(), self.problem, self.problem.is_statement_available(user))
         return (
             self.is_valid()
             and self.problem is not None
