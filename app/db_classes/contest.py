@@ -350,6 +350,9 @@ class Contest(db.Model):
         if not self.is_my():
             return self
         if problem.is_in_contest(self):
+            cp = Contest_Problem.get_by_contest_and_problem(self, problem)
+            cp.act_set_list_index(position)
+            cp.act_set_max_score(max_score)
             return self
         cp = Contest_Problem(contest_id=self.id, problem_id=problem.id).add()
         cp.act_set_max_score(max_score)
