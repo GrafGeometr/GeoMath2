@@ -244,6 +244,7 @@
                         throw new Error("Failed to fetch problem");
                     }
                 }).then(json => {
+                    console.log("OK RESPONDED");
                     function render() {
                         display.innerHTML = "";
                         var iframe = renderProblem("", json, ['name', 'statement', 'solution', 'tags'], "inplace", "display-problem");
