@@ -74,6 +74,9 @@ def create_app():
     from .club import club as club_blueprint
     app.register_blueprint(club_blueprint)
 
+    from .olimpiad import olimpiad as olimpiad_blueprint
+    app.register_blueprint(olimpiad_blueprint)
+
     from .errorhandlers import err as err_blueprint
     app.register_blueprint(err_blueprint)
 

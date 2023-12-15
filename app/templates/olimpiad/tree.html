@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex justify-center">
+    <div class="w-5/6 bg-white rounded-xl border-2 border-stone-200 flex mt-4">
+        <div class="w-1/4 border-r-2 border-stone-200 p-4">
+            <div class="flex flex-col">
+                <a href="/olimpiad" class="text-lg text-stone-400 hover:text-stone-500 mb-4">← Все олимпиады</a>
+                {% for line in olimpiad.name.split('\\n') %}
+                    <span class="text-lg text-black">{{ line }}</span>
+                {% endfor %}
+            </div>
+            {% set tree = olimpiad.get_structure() %}
+            {% for season in tree %}
+                <div class="h-px w-full bg-neutral-300 my-4"></div>
+                <details style="user-select: none" class="text-lg">
+                    <summary class="season_details flex flex-row items-center hover:cursor-pointer" id="season-{{ season }}">{{ season }}</summary>
+                    {% for grade in tree[season] %}
+                    <details>
+                        <summary class="grade_details flex flex-row justify-center hover:cursor-pointer" id="grade-{{season}}-{{ grade }}"><span>— {{ grade }}</span></summary>
+                        <ul>
+                            {% for problem in tree[season][grade].get_nonsecret_problems() %}
+                            <li id="{{season}}-{{grade}}-problem-{{ problem.hashed_id }}" class="problem_button text-neutral-500 hover:text-neutral-700 p-1 hover:cursor-pointer">
+                                {{ problem.name }}
+                            </li>
+                            <script>
+                                var element_problem = document.getElementById("{{season}}-{{grade}}-problem-{{ problem.hashed_id }}");
+                                element_problem.onclick = function () {
+                                    let problems = document.getElementsByClassName("problem_button");
+                                    for (let i = 0; i < problems.length; i++) {
+                                        let p = problems[i];
+                                        p.classList.add("hover:cursor-pointer", "text-neutral-500", "hover:text-neutral-700");
+                                        p.classList.remove("text-blue-500");
+                                    }
+                                    this.classList.remove("hover:cursor-pointer", "text-neutral-500", "hover:text-neutral-700");
+                                    this.classList.add("text-blue-500");
+
+                                    let problem_name = document.getElementById("problem-name");
+                                    problem_name.innerHTML = "{{ problem.name }}";
+
+
+
+                                    let elem = document.getElementById("statement-latex-output");
+                                    renderAreas["statement"] = () => {
+                                        elem.innerHTML = "";
+                                        imageNameList = [];
+                                        {% for attachment in problem.get_nonsecret_attachments() %}
+                                        imageNameList.push([ {{attachment.db_filename | tojson}}, {{attachment.short_name | tojson}} ]);
+                                        {% endfor %}
+                                        elem.appendChild(getRenderedIframe({{ problem.statement | tojson }}, inputElementId="statement"));
+                                    };
+
+                                    renderAreas["statement"]();
+
+                                    let a = document.getElementById("problem-archive-link");
+                                    a.href = "/archive/problem/{{ problem.hashed_id }}";
+                                    a.classList.remove("hidden");
+                                }
+                            </script>
+                            {% endfor %}
+                        </ul>
+                    </details>
+                    <script>
+                        var element_grade = document.getElementById("grade-{{season}}-{{ grade }}");
+                        element_grade.onclick = function () {
+                            let grades = document.getElementsByClassName("grade_details");
+                            for (var i = 0; i < grades.length; i++) {
+                                let g = grades[i];
+                                if (g.id != this.id) g.parentElement.open = false;
+                            }
+                        }
+                    </script>
+                    {% endfor %}
+                </details>
+                <script>
+                    var element_season = document.getElementById("season-{{ season }}");
+                    element_season.onclick = function () {
+                        let seasons = document.getElementsByClassName("season_details");
+                        for (var i = 0; i < seasons.length; i++) {
+                            let s = seasons[i];
+                            if (s.id != this.id) s.parentElement.open = false;
+                        }
+                    }
+                </script>
+            {% endfor %}
+        </div>
+        <div class="flex grow flex-col p-8">
+            <div class="flex justify-between items-center mb-8">
+                <span id="problem-name" class="font-bold text-3xl"></span>
+                <a id="problem-archive-link" class="hidden">
+                    <img src="/static/images/arrow_right.svg" class="w-16 h-16 rounded-full hover:bg-blue-100">
+                </a>
+            </div>
+            <div id="statement-latex-output" class="w-2/3"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

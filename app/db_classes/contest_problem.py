@@ -48,7 +48,7 @@ class Contest_Problem(db.Model):
         return self.is_valid() and self.problem is not None and self.problem.is_statement_available(user)
 
     def is_valid(self):
-        if self.problem is None or self.contest is None or self.problem.pool is None or self.contest.pool is None:
+        if self.problem is None or self.contest is None:
             return False
         return self.problem.is_archived() or self.problem.pool.id == self.contest.pool.id
 

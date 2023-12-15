@@ -27,6 +27,18 @@ class Olimpiad(db.Model):
         db.session.delete(self)
         db.session.commit()
         return self
+    
+    def num_of_seasons_to_str(self):
+        n = len(self.get_structure())
+        if n % 10 == 1:
+            if (n%100 == 11):
+                return f"{n} сезонов"
+            return f"{n} сезон"
+        if n % 10 == 0:
+            return f"{n} сезонов"
+        if 2 <= n % 10 <= 4:
+            return f"{n} сезона"
+        return f"{n} сезонов"
 
     def act_set_name(self, name):
         self.name = name
