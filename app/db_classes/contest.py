@@ -138,8 +138,6 @@ class Contest(db.Model):
         ]
 
     def get_nonsecret_contest_problems(self):
-        print("ENDED", self.name, self.is_ended())
-        print([cp for cp in self.contest_problems if cp.is_accessible()])
         if self.is_ended() or current_user.is_judge(self) or self.get_active_cu():
             return [cp for cp in self.contest_problems if cp.is_accessible()]
         else:

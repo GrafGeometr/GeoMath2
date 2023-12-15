@@ -88,7 +88,8 @@
                 <div class="border-r-2 border-slate-300 w-1/2">
                     <div class="flex flex-col {% if current_contest.get_problems() %} gap-y-4 {% endif %} mr-4">
                         <ul class="flex flex-col gap-y-2 " id="problems-list">
-                            {% for problem in current_contest.get_nonsecret_problems() %}
+                            {% for cp in current_contest.get_nonsecret_contest_problems() %}
+                            {% with problem = cp.problem %}
                             <li class="flex w-full gap-x-2">
                                 <input type="text" name="problem_hash"
                                     value="{{ problem.hashed_id }}" placeholder="Хеш задачи"
@@ -100,6 +101,7 @@
                                     <button onclick="DeleteProblem(this)"
                                     class="text-lg border-slate-200 border bg-slate-50 hover:bg-slate-100 hover:cursor-pointer px-4 py-2 rounded-lg text-red-600">Удалить</button>
                             </li>
+                            {% endwith %}
                             {% endfor %}
                         </ul>
                         <button onclick="event.preventDefault(); AddProblem(event)"
