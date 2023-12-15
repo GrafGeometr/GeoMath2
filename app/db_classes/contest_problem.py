@@ -56,7 +56,6 @@ class Contest_Problem(db.Model):
         return self
 
     def is_accessible(self, user=current_user):
-        print(self.is_valid(), self.problem, self.problem.is_statement_available(user))
         return (
             self.is_valid()
             and self.problem is not None
@@ -103,10 +102,13 @@ class Contest_Problem(db.Model):
     def get_all_by_contest(contest):
         if contest is None:
             return []
-        return sorted(
+        res = sorted(
             Contest_Problem.query.filter_by(contest_id=contest.id).all(),
-            key=lambda contest_problem: contest_problem.list_index,
+            key=lambda contest_problem: (contest_problem.list_index if contest_problem.list_index is not None else 0),
         )
+        for cp in res:
+            print("DEBUG CP", cp.problem.hashed_id, cp.list_index)
+        return res
 
     def save(self):
         db.session.commit()

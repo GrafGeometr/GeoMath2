@@ -88,7 +88,7 @@
                 <div class="border-r-2 border-slate-300 w-1/2">
                     <div class="flex flex-col {% if current_contest.get_problems() %} gap-y-4 {% endif %} mr-4">
                         <ul class="flex flex-col gap-y-2 " id="problems-list">
-                            {% for cp in current_contest.contest_problems %}
+                            {% for cp in current_contest.get_nonsecret_contest_problems() %}
                             {% with problem = cp.problem %}
                             <li class="flex w-full gap-x-2">
                                 <input type="text" name="problem_hash"
@@ -244,6 +244,7 @@
                         throw new Error("Failed to fetch problem");
                     }
                 }).then(json => {
+                    console.log("OK RESPONDED");
                     function render() {
                         display.innerHTML = "";
                         var iframe = renderProblem("", json, ['name', 'statement', 'solution', 'tags'], "inplace", "display-problem");

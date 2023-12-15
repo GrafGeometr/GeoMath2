@@ -323,7 +323,7 @@ def get_problem_content(problem_hashed_id): # TODO fix access
             { 'name': problem.name
             , 'statement': problem.statement
             , 'solution': problem.solution if problem.is_solution_available() else "Решение скрыто"
-            , 'files': [[file.preview_name, file.db_filename] for file in problem.get_nonsecret_attachments() if file.other_data.get("is_secret", False)]
+            , 'files': [[file.short_name, file.db_filename] for file in problem.get_nonsecret_attachments() if file.other_data.get("is_secret", False)]
             , 'tags': [tag.name for tag in problem.get_tags()]
             }
         )
