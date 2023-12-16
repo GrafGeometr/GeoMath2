@@ -1,11 +1,12 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
-class User_Pool(db.Model):
+from app.db_classes.standart_database_classes import *
+
+class User_Pool(db.Model, StandartModel):
     # --> INITIALIZE
     __tablename__ = "user_pool"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     role = db.Column(RoleType)
 
     # --> RELATIONS
@@ -13,10 +14,6 @@ class User_Pool(db.Model):
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
     # --> FUNCTIONS
-    @staticmethod
-    def get_by_id(id):
-        return User_Pool.query.filter_by(id=id).first()
-    
     @staticmethod
     def get_by_user_and_pool(user, pool):
         if user is None or pool is None:
@@ -40,15 +37,3 @@ class User_Pool(db.Model):
         db.session.commit()
         return self
 
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-        return self
-    
-    def remove(self):
-        db.session.delete(self)
-        db.session.commit()
-    
-    def save(self):
-        db.session.commit()
-        return self

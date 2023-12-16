@@ -1,11 +1,13 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
-class User(UserMixin, db.Model):
+from app.db_classes.standart_database_classes import *
+
+
+class User(UserMixin, db.Model, StandartModel):
     # --> INITIALIZE
     __tablename__ = "user"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, unique=True, nullable=True)
     password = db.Column(db.String, nullable=True)
     admin = db.Column(db.Boolean, default=False)
@@ -36,21 +38,30 @@ class User(UserMixin, db.Model):
 
     def get_pools(self):
         from app.dbc import User_Pool
+
         return User_Pool.query.filter_by(user_id=self.id).all()
 
     def create_new_pool(self, name):
         from app.dbc import Pool, User_Pool
+
         pool = Pool(name=name).add()
 
-        relation = User_Pool(user_id=self.id, pool_id=pool.id, role=Owner, invited_date=current_time(), joined_date=current_time()).add()
+        relation = User_Pool(
+            user_id=self.id,
+            pool_id=pool.id,
+            role=Owner,
+            invited_date=current_time(),
+            joined_date=current_time(),
+        ).add()
 
         return pool.hashed_id
 
     def get_pool_relation(self, pool_id):
         from app.dbc import User_Pool
+
         relation = User_Pool.query.filter_by(user_id=self.id, pool_id=pool_id).first()
         return relation
-    
+
     def is_has_unread_notifications(self):
         for notification in self.notifications:
             if not notification.read:
@@ -59,51 +70,66 @@ class User(UserMixin, db.Model):
 
     def is_chat_owner(self, chat):
         from app.dbc import User_Chat
+
         uc = User_Chat.query.filter_by(user_id=self.id, chat_id=chat.id).first()
         return (uc is not None) and (uc.is_owner())
-    
+
     def is_chat_participant(self, chat):
         from app.dbc import User_Chat
+
         uc = User_Chat.query.filter_by(user_id=self.id, chat_id=chat.id).first()
         return (uc is not None) and (uc.is_participant())
 
     def get_notifications(self):
         from app.dbc import Notification
-        return sorted(Notification.query.filter_by(user_id=self.id).all(), key=lambda n: n.date, reverse=True)
+
+        return sorted(
+            Notification.query.filter_by(user_id=self.id).all(),
+            key=lambda n: n.date,
+            reverse=True,
+        )
 
     def get_chat_relation(self, chat_id):
         from app.dbc import User_Chat
+
         relation = User_Chat.query.filter_by(user_id=self.id, chat_id=chat_id).first()
         return relation
-    
+
     def get_chats(self):
         from app.dbc import User_Chat
+
         chats = [uc.chat for uc in User_Chat.query.filter_by(user_id=self.id).all()]
         return chats
-    
+
     def get_nonclub_chats(self):
         return [chat for chat in self.get_chats() if chat.club_id is None]
-    
+
     def get_sorted_nonclub_chats(self):
         chats = self.get_nonclub_chats()
         chats.sort(key=lambda chat: chat.get_last_message_date(), reverse=True)
         return chats
-    
+
     def get_club_relation(self, club_id):
         from app.dbc import User_Club
+
         relation = User_Club.query.filter_by(user_id=self.id, club_id=club_id).first()
         return relation
-    
+
     def get_friends_from(self):
         from app.dbc import Friend
+
         friends = Friend.query.filter_by(friend_from=self.id, accepted=False).all()
         return [User.query.filter_by(id=f.friend_to).first() for f in friends]
+
     def get_friends_to(self):
         from app.dbc import Friend
+
         friends = Friend.query.filter_by(friend_to=self.id, accepted=False).all()
         return [User.query.filter_by(id=f.friend_from).first() for f in friends]
+
     def get_friends(self):
         from app.dbc import Friend, User
+
         res = []
         for f in Friend.query.filter_by(accepted=True).all():
             if f.friend_from == self.id:
@@ -111,34 +137,36 @@ class User(UserMixin, db.Model):
             elif f.friend_to == self.id:
                 res.append(User.query.filter_by(id=f.friend_from).first())
         return res
-    
+
     def is_pool_access(self, pool_id):
         from app.dbc import User_Pool
+
         relation = User_Pool.query.filter_by(user_id=self.id, pool_id=pool_id).first()
         return (relation is not None) and (not relation.role.isInvited())
-    
+
     def is_judge(self, contest):
         from app.dbc import Contest_Judge
-        return (Contest_Judge.query.filter_by(user_id=self.id, contest_id=contest.id).first() is not None)
-    
-    @staticmethod
-    def get_by_id(id):
-        return User.query.filter_by(id=id).first()
-    
+
+        return (
+            Contest_Judge.query.filter_by(
+                user_id=self.id, contest_id=contest.id
+            ).first()
+            is not None
+        )
+
     @staticmethod
     def get_by_name(name):
         return User.query.filter_by(name=name).first()
-    
+
     @staticmethod
     def get_by_verified_email(email):
         from app.dbc import Email
-        users = [email.user for email in Email.query.filter_by(verified=True, name=email).all()]
+
+        users = [
+            email.user
+            for email in Email.query.filter_by(verified=True, name=email).all()
+        ]
         if users:
             return users[0]
         else:
             return None
-
-    def save(self):
-        db.session.commit()
-        return self
-        
