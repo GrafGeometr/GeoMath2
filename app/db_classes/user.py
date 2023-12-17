@@ -4,11 +4,10 @@ from app.sqlalchemy_custom_types import *
 from app.db_classes.standart_database_classes import *
 
 
-class User(UserMixin, db.Model, StandartModel):
+class User(UserMixin, db.Model, ModelWithName):
     # --> INITIALIZE
     __tablename__ = "user"
 
-    name = db.Column(db.String, unique=True, nullable=True)
     password = db.Column(db.String, nullable=True)
     admin = db.Column(db.Boolean, default=False)
     created_date = db.Column(db.DateTime, default=current_time)
@@ -153,10 +152,6 @@ class User(UserMixin, db.Model, StandartModel):
             ).first()
             is not None
         )
-
-    @staticmethod
-    def get_by_name(name):
-        return User.query.filter_by(name=name).first()
 
     @staticmethod
     def get_by_verified_email(email):

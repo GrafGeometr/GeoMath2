@@ -1,12 +1,12 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
+from app.db_classes.standart_database_classes import *
 
-class Message(db.Model):
+class Message(db.Model, StandartModel):
     # --> INITIALIZE
     __tablename__ = "message"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     content = db.Column(db.String)
     date = db.Column(db.DateTime)
     

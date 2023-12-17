@@ -1,13 +1,13 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
+from app.db_classes.standart_database_classes import *
 
-class Contest(db.Model):
+
+class Contest(db.Model, ModelWithName):
     # --> INITIALIZE
     __tablename__ = "contest"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String)
     description = db.Column(db.String)
     grade = db.Column(GradeClassType)
     start_date = db.Column(db.DateTime)
@@ -139,8 +139,18 @@ class Contest(db.Model):
 
     def get_nonsecret_contest_problems(self):
         from app.dbc import Contest_Problem
-        if self.is_ended() or self.is_my() or current_user.is_judge(self) or self.get_active_cu():
-            return [cp for cp in Contest_Problem.get_all_by_contest(self) if cp.is_accessible()]
+
+        if (
+            self.is_ended()
+            or self.is_my()
+            or current_user.is_judge(self)
+            or self.get_active_cu()
+        ):
+            return [
+                cp
+                for cp in Contest_Problem.get_all_by_contest(self)
+                if cp.is_accessible()
+            ]
         else:
             return []
 
@@ -211,10 +221,6 @@ class Contest(db.Model):
             else:
                 t[i][3] = i + 1
         return t
-
-    def act_set_name(self, name):
-        self.name = name
-        return self.save()
 
     def act_set_description(self, description):
         self.description = description
@@ -420,21 +426,8 @@ class Contest(db.Model):
             return self.act_set_rating_public()
 
     @staticmethod
-    def get_by_id(id):
-        return Contest.query.filter_by(id=id).first()
-
-    @staticmethod
-    def get_by_hashed_id(hashed_id):
-        return Contest.query.filter_by(hashed_id=hashed_id).first()
-
-    @staticmethod
     def get_all_by_pool(pool):
         return Contest.query.filter_by(pool_id=pool.id).all()
-
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-        return self
 
     def remove(self):
         cp_s = self.contest_problems
@@ -455,10 +448,6 @@ class Contest(db.Model):
             l.remove(par=self)
         db.session.delete(self)
         db.session.commit()
-
-    def save(self):
-        db.session.commit()
-        return self
 
     # TAGS BLOCK
 

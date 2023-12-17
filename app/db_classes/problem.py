@@ -4,11 +4,10 @@ from app.sqlalchemy_custom_types import *
 from app.db_classes.standart_database_classes import *
 
 
-class Problem(db.Model, ModelWithHashedId):
+class Problem(db.Model, ModelWithHashedId, ModelWithName):
     # --> INITIALIZE
     __tablename__ = "problem"
 
-    name = db.Column(db.String)
     statement = db.Column(db.String)
     solution = db.Column(db.String)
     is_public = db.Column(db.Boolean, default=False)
@@ -60,10 +59,6 @@ class Problem(db.Model, ModelWithHashedId):
         ).remove()
         return
 
-    def act_set_name(self, name):
-        self.name = name
-        return self.save()
-
     def act_set_statement(self, statement):
         self.statement = statement
         return self.save()
@@ -83,12 +78,6 @@ class Problem(db.Model, ModelWithHashedId):
     def act_make_nonpublic(self):
         self.is_public = False
         return self.save()
-
-    @staticmethod
-    def get_by_hashed_id(hashed_id):
-        if hashed_id is None:
-            return None
-        return Problem.query.filter_by(hashed_id=hashed_id).first()
 
     def is_archived(self):
         return self.is_public
@@ -216,14 +205,11 @@ class Problem(db.Model, ModelWithHashedId):
         return self
 
     def act_add_tag_by_name(self, tag_name):
-        print("DEBUG act_add_tag_by_name", tag_name)
         from app.dbc import Tag
 
         tag = Tag.get_by_name(tag_name)
         if (tag is None) and (current_user.admin):
             tag = Tag(name=tag_name).add()
-
-        print("DEBUG act_add_tag_by_name", tag, tag.name)
 
         return self.act_add_tag(tag)
 

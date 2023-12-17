@@ -19,10 +19,10 @@ class StandartModel:
     def remove(self):
         db.session.delete(self)
         db.session.commit()
-    
-    @staticmethod
-    def get_by_id(self, id):
-        return type(self).query.filter_by(id=id).first()
+
+    @classmethod
+    def get_by_id(cls, id):
+        return cls.query.filter_by(id=id).first()
 
 
 class ModelWithHashedId(StandartModel):
@@ -45,3 +45,27 @@ class ModelWithHashedId(StandartModel):
 
         self.hashed_id = hashed_id
         return self.save()
+
+    @classmethod
+    def get_by_hashed_id(cls, hashed_id):
+        if hashed_id is None:
+            return None
+        return cls.query.filter_by(hashed_id=hashed_id).first()
+
+
+class ModelWithName(StandartModel):
+    # --> INITIALIZE
+
+    name = db.Column(db.String, unique=True)
+
+    # --> FUNCTIONS
+    def act_set_name(self, name):
+        self.name = name
+        return self.save()
+
+    def get_name(self):
+        return self.name
+
+    @classmethod
+    def get_by_name(cls, name):
+        return cls.query.filter_by(name=name).first()

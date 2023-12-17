@@ -1,33 +1,19 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
+from app.db_classes.standart_database_classes import *
 
-class Olimpiad(db.Model):
+
+class Olimpiad(db.Model, ModelWithName):
     # --> INITIALIZE
     __tablename__ = "olimpiad"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String, unique=True)
     category = db.Column(db.String)
 
     # --> RELATIONS
     contests = db.relationship("Contest", backref="olimpiad")
 
     # --> FUNCTIONS
-    def save(self):
-        db.session.commit()
-        return self
-
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-        return self
-
-    def remove(self):
-        db.session.delete(self)
-        db.session.commit()
-        return self
-
     def num_of_seasons_to_str(self):
         n = len(self.get_structure())
         if n % 10 == 1:
@@ -39,10 +25,6 @@ class Olimpiad(db.Model):
         if 2 <= n % 10 <= 4:
             return f"{n} сезона"
         return f"{n} сезонов"
-
-    def act_set_name(self, name):
-        self.name = name
-        return self.save()
 
     def act_set_category(self, category):
         self.category = category
@@ -85,11 +67,3 @@ class Olimpiad(db.Model):
 
     def get_grades_list(self):
         return list(set(contest.grade for contest in self.contests))
-
-    @staticmethod
-    def get_by_id(id):
-        return Olimpiad.query.filter_by(id=id).first()
-
-    @staticmethod
-    def get_by_name(name):
-        return Olimpiad.query.filter_by(name=name).first()

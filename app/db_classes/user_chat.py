@@ -8,8 +8,6 @@ class User_Chat(db.Model, StandartModel):
     # --> INITIALIZE
     __tablename__ = "user_chat"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-
     # --> RELATIONS
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     chat_id = db.Column(db.Integer, db.ForeignKey("chat.id"))
