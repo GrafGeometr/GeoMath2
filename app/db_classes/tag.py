@@ -38,6 +38,9 @@ class Tag(db.Model):
 
 
     def add(self):
+        t = Tag.get_by_name(self.name)
+        if t is not None:
+            return t
         db.session.add(self)
         db.session.commit()
         return self

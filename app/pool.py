@@ -678,7 +678,7 @@ def new_contest(pool_hashed_id):
             season = season.strip()
             grade = grade.strip()
             num_problems = int(num_problems)
-            if (num_problems <= 0):
+            if (num_problems <= 0 or num_problems >= 13):
                 print("WA2")
                 return f"/pool/{pool_hashed_id}/new_contest"
 
@@ -700,10 +700,17 @@ def new_contest(pool_hashed_id):
             tm = current_time("minutes")
             contest = Contest(olimpiad_id=olimpiad.id, name=season, grade=Grade(grade), pool_id=pool.id, start_date=tm, end_date=tm, description="").add().save() 
             season = contest.name
-            grade = contest.grade 
+            grade = str(contest.grade)
             for i in range(num_problems):
                 problem = Problem(statement="", solution="", is_public=0, pool_id=pool.id, name=f"№{i+1} — {short_name}, {season}, {grade}").add().save()
+                problem.act_add_tag(Tag(name=short_name).add())
+                problem.act_add_tag(Tag(name=season).add())
+                problem.act_add_tag(Tag(name=grade).add())
+                problem.act_add_tag(Tag(name=f"№{i+1}").add())
                 contest.act_add_problem(problem, i, 7)
+                contest.act_add_tag(Tag(name=short_name).add())
+                contest.act_add_tag(Tag(name=season).add())
+                contest.act_add_tag(Tag(name=grade).add())
             return f"/pool/{pool_hashed_id}/contest/{contest.id}"
 
     
