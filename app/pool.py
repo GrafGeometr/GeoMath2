@@ -629,13 +629,12 @@ def pool_contests(pool_hashed_id):
             contest.is_public = False
             db.session.commit()
             return redirect(f"/pool/{pool_hashed_id}/contest/{contest_id}")
-    print("OK")
     return render_template(
         "pool/pool_contests.html", current_pool=pool, title=f"{pool.name} - контесты"
     )
 
 # create new contest in pool
-@pool.route("/pool/<pool_hashed_id>/new_contest", methods=["POST"])
+@pool.route("/pool/<pool_hashed_id>/new_contest", methods=["GET", "POST"])
 @login_required
 def new_contest(pool_hashed_id):
     pool = Pool.query.filter_by(hashed_id=pool_hashed_id).first()
@@ -648,10 +647,68 @@ def new_contest(pool_hashed_id):
     if user_checked is not None:
         return redirect(user_checked)
 
-    
-    contest = pool.new_contest()
+    if request.method == "POST":
+        # TODO: Add validation and DB methods
+        data = json.loads(request.get_json())
+        print(data)
+        print(type(data))
+        if (data.get("option") == "custom"):
+            contest = pool.new_contest()
+            return f"/pool/{pool_hashed_id}/contest/{contest.id}"
+        if (data.get("option") is None):
+            return f"/pool/{pool_hashed_id}/new_contest"
+        if (data.get("option") == "archive"):
+            if (data.get("params") is None):
+                return f"/pool/{pool_hashed_id}/new_contest"
+            params = data.get("params")
 
-    return redirect(f"/pool/{pool_hashed_id}/contest/{contest.id}")
+            name = params.get("name")
+            category = params.get("category")
+            short_name = params.get("short_name")
+            season = params.get("season")
+            grade = params.get("grade")
+            num_problems = params.get("num_problems")
+
+            if (name is None) or (category is None) or (season is None) or (grade is None) or (num_problems is None):
+                print("WA1")
+                return f"/pool/{pool_hashed_id}/new_contest"
+            name = name.strip()
+            category = category.strip()
+            short_name = short_name.strip()
+            season = season.strip()
+            grade = grade.strip()
+            num_problems = int(num_problems)
+            if (num_problems <= 0):
+                print("WA2")
+                return f"/pool/{pool_hashed_id}/new_contest"
+
+            olimpiad = Olimpiad.query.filter_by(name=name).first()
+            if olimpiad is None:
+                olimpiad = Olimpiad(name=name, category=category, short_name=short_name).add().save()
+            olimpiad.fix_name()
+
+            name = olimpiad.name
+            category = olimpiad.category
+            short_name = olimpiad.short_name
+
+            contest = Contest.query.filter_by(olimpiad_id=olimpiad.id, name=season, grade=Grade(grade)).first()
+            if contest is not None:
+                print("WA3")
+                return f"/pool/{pool_hashed_id}/contest/{contest.id}"
+            
+            
+            tm = current_time("minutes")
+            contest = Contest(olimpiad_id=olimpiad.id, name=season, grade=Grade(grade), pool_id=pool.id, start_date=tm, end_date=tm, description="").add().save() 
+            season = contest.name
+            grade = contest.grade 
+            for i in range(num_problems):
+                problem = Problem(statement="", solution="", is_public=0, pool_id=pool.id, name=f"№{i+1} — {short_name}, {season}, {grade}").add().save()
+                contest.act_add_problem(problem, i, 7)
+            return f"/pool/{pool_hashed_id}/contest/{contest.id}"
+
+    
+    return render_template("pool/pool_new_contest.html", current_pool=pool, title=f"{pool.name} - новый контест")
+    
 
 
 # show and edit contest in pool

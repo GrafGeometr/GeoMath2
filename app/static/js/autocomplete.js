@@ -8,6 +8,7 @@ function autocomplete(inp, data) {
             if (xhr.readyState == 4 && xhr.status == 200) {
                 var arr = this.response;
                 autocomplete_from_arr(inp, arr);
+                console.log(arr);
             }
         }
     xhr.send(JSON.stringify(data));
@@ -19,6 +20,7 @@ function autocomplete_from_arr(inp, arr) {
     var currentFocus;
     /*execute a function when someone writes in the text field:*/
     inp.addEventListener("input", function (e) {
+        console.log("HI");
         var a, b, i, val = this.value;
         /*close any already open lists of autocompleted values*/
         closeAllLists();
@@ -38,6 +40,7 @@ function autocomplete_from_arr(inp, arr) {
         a.classList.add("mt-4", "mb-4", "rounded-lg", "border-2", "border-black", "bg-neutral-200");
         /*append the DIV element as a child of the autocomplete container:*/
         this.parentNode.appendChild(a);
+        console.log(this.parentNode);
         
 
         /*for each item in the array...*/

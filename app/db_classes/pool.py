@@ -116,7 +116,7 @@ class Pool(db.Model):
     def new_contest(self):
         from app.dbc import Contest
 
-        contest = Contest(description="", name="Название", pool_id=self.id).add()
+        contest = Contest(description="", name="Название", pool_id=self.id, grade=Grade("")).add()
         tm = current_time("minutes")
         return contest.act_set_name(f"Контест #{contest.id}").act_set_date(tm, tm)
         

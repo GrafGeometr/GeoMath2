@@ -73,6 +73,9 @@ def autocomplete():
         return [user.name for user in users]
     elif obj == "pools":
         return [up.pool.name for up in current_user.get_pools()]
+    elif obj == "olimpiads":
+        olimpiads = Olimpiad.query.all()
+        return [olimpiad.name for olimpiad in olimpiads]
     else:
         return []
     

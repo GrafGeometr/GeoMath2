@@ -1,0 +1,88 @@
+{% extends "pool/pool_header.html" %}
+{% block pool_body %}
+
+<div class="flex flex-col items-center">
+    <div class="flex items-center justify-center gap-x-12">
+        <div id="custom_olimpiad_btn" class="w-1/3 flex flex-col justify-between items-center p-4 box_shadow hover:bg-blue-100 m-4 rounded-lg h-40 border border-gray-300 hover:cursor-pointer group">
+            <span class="flex justify-center text-xl font-bold">Создай свой контест</span>
+            <span class="text-md text-slate-400 w-3/4 text-center drop-shadow-md group-hover:text-slate-600">Подбери задачи и опубликуй собственную олимпиаду</span>
+        </div>
+        <div>
+            <span id="or_span" class="font-bold text-2xl">ИЛИ</span>
+        </div>
+        <div id="archive_olimpiad_btn" class="w-1/3 flex flex-col justify-between items-center p-4 box_shadow hover:bg-blue-100 m-4 rounded-lg h-40 border border-gray-300 hover:cursor-pointer group">
+            <span class="flex justify-center text-xl font-bold">Добавь задачи с олимпиады</span>
+            <span class="text-md text-slate-400 w-3/4 text-center drop-shadow-md group-hover:text-slate-600">Ты очень поможешь нам, если опубликуешь задачи прошедшей олимпиады =)</span>
+        </div>
+    </div>
+
+    <form id="archive_form"
+    class="hidden w-1/2 flex flex-col justify-between min-w-fit p-4 box_shadow m-4 rounded-lg border border-gray-300 form-anticlear">
+    <span>Полное название олимпиады <span class="text-red-500">*</span></span>
+    <div class="w-full relative inline-block">
+        <input id="name_input_id" required type="text" name="name" placeholder="Всероссийская олимпиада школьников (Региональный этап)"
+        class="w-full text-lg bg-neutral-100 border-2 border-solid rounded-md p-2 pr-12 focus:border-neutral-300 focus:bg-neutral-100 mb-2">
+        </div>
+    <span>Короткое название</span>
+        <input type="text" name="short_name" placeholder="ВсОШ (рег)"
+        class="w-full text-lg bg-neutral-100 border-2 border-solid rounded-md p-2 pr-12 focus:border-neutral-300 focus:bg-neutral-100 mb-2">
+    <span>Тип</span>
+        <input type="text" name="category" placeholder="Всероссийская"
+        class="w-full text-lg bg-neutral-100 border-2 border-solid rounded-md p-2 pr-12 focus:border-neutral-300 focus:bg-neutral-100 mb-2">
+    <span>Сезон <span class="text-red-500">*</span></span>
+        <input required type="text" name="season" placeholder="2022-2023"
+        class="w-full text-lg bg-neutral-100 border-2 border-solid rounded-md p-2 pr-12 focus:border-neutral-300 focus:bg-neutral-100 mb-2">
+    <span>Уровень сложности <span class="text-red-500">*</span></span>
+        <input required type="text" name="grade" placeholder="9 класс"
+        class="w-full text-lg bg-neutral-100 border-2 border-solid rounded-md p-2 pr-12 focus:border-neutral-300 focus:bg-neutral-100 mb-2">
+    <span>Количество задач <span class="text-red-500">*</span></span>
+        <input required type="number" name="num_problems" placeholder="10" 
+        class="w-full text-lg bg-neutral-100 border-2 border-solid rounded-md p-2 focus:border-neutral-300 focus:bg-neutral-100 mb-2">
+        <input type="submit" value="Создать" class="hover:cursor-pointer border border-gray-300 hover:bg-blue-100 hover:border-gray-500 rounded-md w-1/3 drop-shadow-md px-4 py-2 text-xl m-auto">
+    </form>
+</div>
+
+<script>
+    autocomplete(document.getElementById("name_input_id"), {"obj": "olimpiads"});
+</script>
+
+<script>
+    function send_xhr(data) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', window.location.href, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                window.location.href = this.responseText;
+            }
+        }
+        xhr.send(JSON.stringify(data));
+    }
+</script>
+
+<script>
+    var custom_olimpiad_btn = document.getElementById("custom_olimpiad_btn");
+    var or_span = document.getElementById("or_span");
+    var archive_olimpiad_btn = document.getElementById("archive_olimpiad_btn");
+    var archive_form = document.getElementById("archive_form");
+    custom_olimpiad_btn.onclick = function() {
+        var data = JSON.stringify({
+            "option": "custom",
+            "params": null
+        });
+        send_xhr(data);
+    }
+    archive_olimpiad_btn.onclick = function() {
+        archive_form.classList.toggle("hidden");
+    }
+    archive_form.addEventListener("submit", function(e) {
+        e.preventDefault();
+        var data = JSON.stringify({
+            "option": "archive",
+            "params": Object.fromEntries(new FormData(e.target))
+        })
+        send_xhr(data);
+    })
+</script>
+
+{% endblock %}

@@ -8,6 +8,7 @@ class Olimpiad(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, unique=True)
+    short_name = db.Column(db.String, unique=True)
     category = db.Column(db.String)
 
     # --> RELATIONS
@@ -85,6 +86,11 @@ class Olimpiad(db.Model):
 
     def get_grades_list(self):
         return list(set(contest.grade for contest in self.contests))
+    
+    def fix_name(self):
+        self.name = self.name.replace("\n", " ")
+        db.session.commit()
+        return self
 
     @staticmethod
     def get_by_id(id):

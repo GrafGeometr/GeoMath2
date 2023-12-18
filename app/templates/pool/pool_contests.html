@@ -9,9 +9,9 @@
 
 <div class="flex justify-between">
     <span class="text-2xl font-bold text-blue-800">Контесты</span>
-    <form action="/pool/{{ current_pool.hashed_id }}/new_contest" method="post">
-        <input type="submit" class="hover:cursor-pointer px-12 py-3 rounded-md text-md text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700" value="Новый контест">
-    </form>
+    <a href="/pool/{{ current_pool.hashed_id }}/new_contest"
+    class="hover:cursor-pointer px-12 py-3 rounded-md text-md text-white font-semibold bg-green-500 hover:bg-green-600 active:bg-green-700">
+    Новый контест</a>
 </div>
 
 <script>
