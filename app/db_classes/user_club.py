@@ -1,12 +1,12 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
+from app.db_classes.standart_database_classes import *
 
-class User_Club(db.Model):
+class User_Club(db.Model, StandartModel):
     # --> INITIALIZE
     __tablename__ = "user_club"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     role = db.Column(RoleType)
 
     # --> RELATIONS
@@ -14,11 +14,4 @@ class User_Club(db.Model):
     club_id = db.Column(db.Integer, db.ForeignKey("club.id"))
 
     # --> FUNCTIONS
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def remove(self):
-        db.session.delete(self)
-        db.session.commit()
     

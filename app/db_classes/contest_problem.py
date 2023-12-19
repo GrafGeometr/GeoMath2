@@ -1,12 +1,13 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
+from app.db_classes.standart_database_classes import *
 
-class Contest_Problem(db.Model):
+
+class Contest_Problem(db.Model, StandartModel):
     # --> INITIALIZE
     __tablename__ = "contest_problem"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     max_score = db.Column(db.Integer, default=7)
     list_index = db.Column(db.Integer)
 
@@ -80,12 +81,6 @@ class Contest_Problem(db.Model):
         )
 
     @staticmethod
-    def get_by_id(id):
-        if id is None:
-            return None
-        return Contest_Problem.query.filter_by(id=id).first()
-
-    @staticmethod
     def get_by_contest_and_problem(contest, problem):
         if (
             contest is None
@@ -104,12 +99,12 @@ class Contest_Problem(db.Model):
             return []
         res = sorted(
             Contest_Problem.query.filter_by(contest_id=contest.id).all(),
-            key=lambda contest_problem: (contest_problem.list_index if contest_problem.list_index is not None else 0),
+            key=lambda contest_problem: (
+                contest_problem.list_index
+                if contest_problem.list_index is not None
+                else 0
+            ),
         )
         for cp in res:
             print("DEBUG CP", cp.problem.hashed_id, cp.list_index)
         return res
-
-    def save(self):
-        db.session.commit()
-        return self

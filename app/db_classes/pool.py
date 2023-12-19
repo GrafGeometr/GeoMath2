@@ -1,14 +1,12 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
+from app.db_classes.standart_database_classes import *
 
-class Pool(db.Model):
+
+class Pool(db.Model, ModelWithHashedId, ModelWithName):
     # --> INITIALIZE
     __tablename__ = "pool"
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String, nullable=True)
-    hashed_id = db.Column(db.String, unique=True, nullable=True)
 
     # --> RELATIONS
     user_pools = db.relationship("User_Pool", backref="pool")
@@ -22,19 +20,10 @@ class Pool(db.Model):
 
     def is_my(self):
         return self.is_contains_user(current_user)
-    
-    def act_set_hashed_id(self):
-        while True:
-            hashed_id = generate_token(20)
-            if not Pool.get_by_hashed_id(hashed_id):
-                self.hashed_id = hashed_id
-                break
 
-        self.hashed_id = hashed_id
-        return self.save()
-    
     def act_add_user(self, user=current_user, role=Participant):
         from app.dbc import User_Pool
+
         if user is None:
             return
         if self.is_contains_user(user):
@@ -42,9 +31,10 @@ class Pool(db.Model):
         up = User_Pool(user=user, pool=self, role=role)
         up.add()
         return self
-    
+
     def act_remove_user(self, user=current_user):
         from app.dbc import User_Pool
+
         if user is None:
             return
         if not self.is_contains_user(user):
@@ -52,7 +42,7 @@ class Pool(db.Model):
         up = User_Pool.query.filter_by(user=user, pool=self).first()
         up.remove()
         return self
-    
+
     def act_add_user_by_invite(self, user=current_user, invite=None):
         if (invite is None) or (invite.is_expired()) or (invite.get_parent() != self):
             return
@@ -60,9 +50,10 @@ class Pool(db.Model):
             return
         self.act_add_user(user)
         return self
-    
+
     def act_generate_new_invite_code(self):
         from app.dbc import Invite
+
         Invite.act_refresh_all()
         invite = Invite(parent_type=DbParent.fromType(Pool), parent_id=self.id)
         invite.add()
@@ -80,7 +71,7 @@ class Pool(db.Model):
             else (2, up.user.name)
         )
         return userpools
-    
+
     def get_owners(self):
         return [up.user for up in self.get_users() if up.role.isOwner()]
 
@@ -94,24 +85,23 @@ class Pool(db.Model):
         from app.dbc import Problem
 
         return Problem.get_all_by_pool(self)
-    
+
     def get_all_invites(self):
         from app.dbc import Invite
+
         return Invite.get_all_by_parent(self)
-                
 
     def new_problem(self):
         from app.dbc import Problem
 
         problem = Problem(statement="", solution="", pool_id=self.id).add()
         return problem.act_set_name(f"Задача #{problem.id}")
-        
 
     def new_sheet(self):
         from app.dbc import Sheet
 
         sheet = Sheet(text="", pool_id=self.id).add()
-        return sheet.act_set_name( f"Подборка #{sheet.id}").save()
+        return sheet.act_set_name(f"Подборка #{sheet.id}").save()
 
     def new_contest(self):
         from app.dbc import Contest
@@ -119,26 +109,10 @@ class Pool(db.Model):
         contest = Contest(description="", name="Название", pool_id=self.id, grade=Grade("")).add()
         tm = current_time("minutes")
         return contest.act_set_name(f"Контест #{contest.id}").act_set_date(tm, tm)
-        
 
-    @staticmethod
-    def get_by_id(id):
-        if id is None:
-            return None
-        return Pool.query.filter_by(id=id).first()
-
-    @staticmethod
-    def get_by_hashed_id(hashed_id):
-        if hashed_id is None:
-            return None
-        return Pool.query.filter_by(hashed_id=hashed_id).first()
-
-    def add(self):
-        db.session.add(self.act_set_hashed_id())
-        return self.save()
-    
     def remove(self):
         from app.dbc import User_Pool, Problem, Sheet, Contest
+
         for relation in User_Pool.query.filter_by(pool_id=self.id).all():
             relation.remove()
         for problem in Problem.query.filter_by(pool_id=self.id).all():
@@ -149,7 +123,3 @@ class Pool(db.Model):
             contest.remove()
         db.session.delete(self)
         db.session.commit()
-
-    def save(self):
-        db.session.commit()
-        return self

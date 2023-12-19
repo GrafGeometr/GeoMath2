@@ -1,12 +1,13 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
+from app.db_classes.standart_database_classes import StandartModel
 
-class User_Message(db.Model):
+
+class User_Message(db.Model, StandartModel):
     # --> INITIALIZE
     __tablename__ = "user_message"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     read = db.Column(db.Boolean)
 
     # --> RELATIONS
@@ -14,18 +15,9 @@ class User_Message(db.Model):
     message_id = db.Column(db.Integer, db.ForeignKey("message.id"))
 
     # --> FUNCTIONS
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-        return self
-    
-    def remove(self):
-        db.session.delete(self)
-        db.session.commit()
-
     def is_read(self):
         return self.read
-    
+
     def act_mark_as_read(self):
         self.read = True
         db.session.commit()

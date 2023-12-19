@@ -1,12 +1,13 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
+from app.db_classes.standart_database_classes import *
 
-class Notification(db.Model):
+
+class Notification(db.Model, StandartModel):
     # --> INITIALIZE
     __tablename__ = "notification"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     head = db.Column(db.String)
     content = db.Column(db.String)
     url = db.Column(db.String)
@@ -23,10 +24,6 @@ class Notification(db.Model):
         self.date = current_time()
         db.session.commit()
 
-    def remove(self):
-        db.session.delete(self)
-        db.session.commit()
-
     def is_read(self):
         return int(self.read)
 
@@ -36,16 +33,18 @@ class Notification(db.Model):
     @staticmethod
     def send_to_user(head, content, url, user=current_user):
         from app.dbc import Notification
+
         Notification(head=head, content=content, url=url, user_id=user.id).add()
         return
-    
+
     @staticmethod
     def send_to_users(head, content, url, users=[]):
         from app.dbc import Notification
+
         for user in users:
             Notification.send_to_user(head=head, content=content, url=url, user=user)
         return
-    
+
     @staticmethod
     def send_to_friends(head, content, url, user=current_user):
         friends = user.get_friends()
