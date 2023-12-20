@@ -55,6 +55,10 @@ class Invite(db.Model, StandartModel):
         return Invite.query.filter_by(parent_type=par_class, parent_id=parent.id).all()
 
     @staticmethod
+    def get_by_code(code):
+        return Invite.query.filter_by(code=code).first()
+
+    @staticmethod
     def act_refresh_all():
         for inv in Invite.query.all():
             inv.act_check_expired()

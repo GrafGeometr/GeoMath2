@@ -24,6 +24,10 @@ class StandartModel:
     def get_by_id(cls, id):
         return cls.query.filter_by(id=id).first()
 
+    @classmethod
+    def get_all(cls):
+        return cls.query.all()
+
 
 class ModelWithHashedId(StandartModel):
     # --> INITIALIZE

@@ -26,6 +26,12 @@ class Contest(db.Model, ModelWithName):
     olimpiad_id = db.Column(db.Integer, db.ForeignKey("olimpiad.id"))
 
     # --> FUNCTIONS
+    @staticmethod
+    def get_by_olimpiad_season_and_grade(olimpiad_id: int, season: str, grade: Grade):
+        return Contest.query.filter_by(
+            olimpiad_id=olimpiad_id, season=season, grade=grade
+        ).first()
+
     def is_liked(self):
         from app.dbc import Like
 
@@ -42,7 +48,7 @@ class Contest(db.Model, ModelWithName):
         from app.dbc import Like
 
         Like(parent_type="Contest", parent_id=self.id, user_id=current_user.id).add()
-        return
+        return self
 
     def act_remove_like(self):
         if not self.is_liked():
@@ -52,7 +58,15 @@ class Contest(db.Model, ModelWithName):
         Like.query.filter_by(
             parent_type="Contest", parent_id=self.id, user_id=current_user.id
         ).remove()
-        return
+        return self
+
+    def act_make_non_public(self):
+        self.is_public = False
+        return self.save()
+
+    def act_make_public(self):
+        self.is_public = True
+        return self.save()
 
     def is_rating_public(self):
         return self.rating == "public"
@@ -475,6 +489,11 @@ class Contest(db.Model, ModelWithName):
         if Tag_Relation.get_by_parent_and_tag(self, tag) is None:
             return False
         return True
+
+    def act_add_tags(self, tags):
+        for tag in tags:
+            self.act_add_tag(tag)
+        return self
 
     def act_add_tag(self, tag):
         from app.dbc import Tag_Relation

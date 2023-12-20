@@ -190,6 +190,11 @@ class Problem(db.Model, ModelWithHashedId, ModelWithName):
             return False
         return True
 
+    def act_add_tags(self, tags):
+        for tag in tags:
+            self.act_add_tag(tag)
+        return self
+
     def act_add_tag(self, tag):
         from app.dbc import Tag_Relation
 
