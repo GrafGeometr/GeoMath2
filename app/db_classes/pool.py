@@ -29,6 +29,14 @@ class Pool(db.Model, ModelWithHashedId, ModelWithName):
             Exception_Access_Denied(self).flash()
         return access
     
+    def check_user_owner(self, current_user) -> bool:
+        from app.log import Exception_Access_Denied
+        users = [up.user for up in self.user_pools if up.is_owner()]
+        access = current_user in users
+        if (not access):
+            Exception_Access_Denied(self).flash()
+        return access
+    
     def get_name(self) -> str:
         return self.name
     

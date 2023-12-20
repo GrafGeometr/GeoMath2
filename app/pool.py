@@ -82,27 +82,14 @@ def new_problem(pool_hashed_id):
 @login_required
 def remove_problem_from_pool():
     data = request.get_json()
-    pool_hashed_id = data["pool"]
     problem_hashed_id = data["problem"]
-    pool = Pool.get_by_hashed_id(pool_hashed_id)
-
-    if pool is None:
-        flash("Пул с таким id не найден", "error")
-        return redirect("/myprofile")
-
-    user_checked = check_user_in_pool(current_user, pool)
-    if user_checked is not None:
-        return redirect(user_checked)
-
     problem = Problem.get_by_hashed_id(problem_hashed_id)
+    pool = problem.get_pool()
+    if (pool.check_user_owner(current_user)):
+        problem.remove()
 
-    if problem is None:
-        flash("Задача не найдена", "error")
-        return redirect(f"/pool/{pool_hashed_id}/problems")
-
-    problem.remove()
     return render_template(
-        "pool/pool_problemlist.html", current_pool=pool, title=f"{pool.name} - задачи"
+        "pool/pool_problemlist.html", current_pool=pool, title=f"{pool.get_name()} - задачи"
     )
 
 

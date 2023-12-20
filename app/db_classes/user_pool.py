@@ -14,6 +14,9 @@ class User_Pool(db.Model, StandartModel):
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
 
     # --> FUNCTIONS
+    def is_owner(self) -> bool:
+        return self.role == Owner
+
     @staticmethod
     def get_by_user_and_pool(user, pool):
         if user is None or pool is None:

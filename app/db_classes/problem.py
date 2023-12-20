@@ -36,6 +36,12 @@ class Problem(db.Model, ModelWithHashedId, ModelWithName):
         db.session.commit()
         return self
     
+    def get_pool(self):
+        from app.dbc import Pool_Null
+        if (self.pool):
+            return self.pool
+        return Pool_Null()
+    
     @staticmethod
     def get_by_hashed_id(hashed_id: string) -> "Problem":
         from app.dbc import Problem_Null

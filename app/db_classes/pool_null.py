@@ -13,5 +13,10 @@ class Pool_Null:
         Exception_Access_Denied(self).flash()
         return False
     
+    def check_user_owner(self, current_user) -> bool:
+        from app.log import Exception_Access_Denied
+        Exception_Access_Denied(self).flash()
+        return False
+    
     def get_name(self) -> str:
         return ""
