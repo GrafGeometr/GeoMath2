@@ -39,25 +39,19 @@ def check_management_access(user, pool):
 @pool.route("/pool/<pool_hashed_id>/problems", methods=["GET", "POST"])
 @login_required
 def pool_problems(pool_hashed_id):
-    pool = Pool.get_by_hashed_id(pool_hashed_id)
-
-    if pool is None:
-        flash("Пул с таким id не найден", "error")
+    pool = Pool.get_by_hashed_id(pool_hashed_id) 
+    if (not pool.check_user_access(current_user)):
         return redirect("/myprofile")
-
-    user_checked = check_user_in_pool(current_user, pool)
-    if user_checked is not None:
-        return redirect(user_checked)
 
     if request.method == "POST":
         if request.form.get("back_to_pool") is not None:
             problem_hashed_id = request.form.get("problem_hashed_id")
             problem = Problem.get_by_hashed_id(problem_hashed_id)
-            problem.is_public = problem.moderated = False
-            db.session.commit()
+            problem.set_is_public(False)
             return redirect(f"/pool/{pool_hashed_id}/problem/{problem_hashed_id}")
+        
     return render_template(
-        "pool/pool_problems.html", current_pool=pool, title=f"{pool.name} - задачи"
+        "pool/pool_problems.html", current_pool=pool, title=f"{pool.get_name()} - задачи"
     )
 
 

@@ -31,6 +31,19 @@ class Problem(db.Model, ModelWithHashedId, ModelWithName):
         db.session.delete(self)
         db.session.commit()
 
+    def set_is_public(self, is_public: bool) -> "Problem":
+        self.is_public = is_public
+        db.session.commit()
+        return self
+    
+    @staticmethod
+    def get_by_hashed_id(hashed_id: string) -> "Problem":
+        from app.dbc import Problem_Null
+        problem = Problem.query.filter_by(hashed_id=hashed_id).first()
+        if problem is None:
+            problem = Problem_Null()
+        return problem
+
     def is_liked(self):
         from app.dbc import Like
 

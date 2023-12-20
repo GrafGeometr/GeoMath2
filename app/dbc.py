@@ -15,7 +15,9 @@ from app.db_classes.like import Like
 from app.db_classes.message import Message
 from app.db_classes.notification import Notification
 from app.db_classes.olimpiad import Olimpiad
+from app.db_classes.pool_null import Pool_Null
 from app.db_classes.pool import Pool
+from app.db_classes.problem_null import Problem_Null
 from app.db_classes.problem import Problem
 from app.db_classes.sheet import Sheet
 from app.db_classes.tag_relation import Tag_Relation
@@ -25,3 +27,4 @@ from app.db_classes.user_club import User_Club
 from app.db_classes.user_message import User_Message
 from app.db_classes.user_pool import User_Pool
 from app.db_classes.user import User
+from app.db_classes.user_null import User_Null

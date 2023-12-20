@@ -20,6 +20,25 @@ class Pool(db.Model, ModelWithHashedId, ModelWithName):
 
     def is_my(self):
         return self.is_contains_user(current_user)
+    
+    def check_user_access(self, current_user) -> bool:
+        from app.log import Exception_Access_Denied
+        users = [up.user for up in self.user_pools]
+        access = current_user in users
+        if (not access):
+            Exception_Access_Denied(self).flash()
+        return access
+    
+    def get_name(self) -> str:
+        return self.name
+    
+    @staticmethod
+    def get_by_hashed_id(hashed_id: string) -> "Pool":
+        from app.dbc import Pool_Null
+        pool = Pool.query.filter_by(hashed_id=hashed_id).first()
+        if pool is None:
+            pool = Pool_Null()
+        return pool
 
     def act_add_user(self, user=current_user, role=Participant):
         from app.dbc import User_Pool

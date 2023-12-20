@@ -26,6 +26,16 @@ class User(UserMixin, db.Model, ModelWithName):
     user_messages = db.relationship("User_Message", backref="user")
 
     # --> FUNCTIONS
+    def get_id(self):
+        return self.id
+    
+    @staticmethod
+    def get_current_user():
+        from app.dbc import User_Null
+        if current_user.is_authenticated:
+            return current_user
+        return User_Null
+
     def set_password(self, password):
         self.password = generate_password_hash(password)
 

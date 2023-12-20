@@ -11,6 +11,9 @@ db = SQLAlchemy()
 basedir = os.path.abspath(os.path.dirname(__file__))
 socketio = SocketIO()
 
+from .logger_classes.logger import Logger
+logger = Logger()
+
 
 def create_app():
     app = Flask(__name__)
