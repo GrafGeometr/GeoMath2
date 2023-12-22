@@ -32,3 +32,5 @@ migrations/versions/d5d3131cb36b_commit_message123.py
 migrations
 .idea/GeoMath2.iml
 .idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
