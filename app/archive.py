@@ -33,7 +33,7 @@ def publish_problem(problem_hashed_id):
     if problem is None:
         return redirect(f"/myprofile")
     pool_hashed_id = problem.pool.hashed_id
-    if not current_user.get_pool_relation(problem.pool_id).role.isOwner():
+    if not current_user.get_pool_relation(problem.pool_id).role.is_owner():
         return redirect(f"/pool/{pool_hashed_id}/problems")
     
     if not problem.name:
@@ -61,7 +61,7 @@ def publish_sheet(sheet_id):
     if sheet is None:
         return redirect(f"/myprofile")
     pool_hashed_id = sheet.pool.hashed_id
-    if not current_user.get_pool_relation(sheet.pool_id).role.isOwner():
+    if not current_user.get_pool_relation(sheet.pool_id).role.is_owner():
         return redirect(f"/pool/{pool_hashed_id}/sheets")
     
     if not sheet.name:
@@ -86,7 +86,7 @@ def publish_contest(contest_id):
     if contest is None:
         return redirect(f"/myprofile")
     pool_hashed_id = contest.pool.hashed_id
-    if not current_user.get_pool_relation(contest.pool_id).role.isOwner():
+    if not current_user.get_pool_relation(contest.pool_id).role.is_owner():
         return redirect(f"/pool/{pool_hashed_id}/contests")
     
     if not contest.name:

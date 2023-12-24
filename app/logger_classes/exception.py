@@ -3,7 +3,7 @@ class Exception:
     def __init__(self, target):
         from app.dbc import User
         self.date = current_time()
-        self.user_id = User.get_current_user().get_id()
+        self.user_id = User.get_current_user().id
         self.target = target
         self.log()
     def log(self):

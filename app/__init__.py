@@ -6,12 +6,12 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_socketio import SocketIO
 
-
 db = SQLAlchemy()
 basedir = os.path.abspath(os.path.dirname(__file__))
 socketio = SocketIO()
 
 from .logger_classes.logger import Logger
+
 logger = Logger()
 
 
@@ -26,7 +26,6 @@ def create_app():
     db.init_app(app)
     migrate = Migrate(app, db, compare_type=True)
 
-
     login_manager = LoginManager()
     login_manager.init_app(app)
 
@@ -34,13 +33,13 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
-    
+
     @app.after_request
     def add_header(response):
         response.cache_control.private = True
         response.cache_control.public = False
         return response
-    
+
     from .general import general as general_blueprint
     app.register_blueprint(general_blueprint)
 
@@ -86,6 +85,4 @@ def create_app():
     with app.app_context():
         db.create_all()
 
-
     return app
-

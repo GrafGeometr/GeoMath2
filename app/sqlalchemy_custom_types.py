@@ -1,5 +1,6 @@
 from sqlalchemy import TypeDecorator, String
 
+
 # from app.dbc import Problem, Sheet, Contest, Contest_User_Solution
 
 
@@ -10,28 +11,29 @@ class Role:
     def __eq__(self, object):
         return self.name == object.name
 
-    def isOwner(self):
+    def is_owner(self):
         return self.name == Owner.name
 
-    def setOwner(self):
+    def set_owner(self):
         self.name = Owner.name
 
-    def isParticipant(self):
+    def is_participant(self):
         return self.name == Participant.name
 
-    def setParticipant(self):
+    def set_participant(self):
         self.name = Participant.name
 
-    def isInvited(self):
+    def is_invited(self):
         return self.name == Invited.name
 
-    def setInvited(self):
+    def set_invited(self):
         self.name = Invited.name
 
 
 Owner = Role("Owner")
 Participant = Role("Participant")
 Invited = Role("Invited")
+Null_Role = Role("NullRole")
 
 
 class RoleType(TypeDecorator):
@@ -51,28 +53,28 @@ class DbParent:
     def __eq__(self, object):
         return self.name == object.name
 
-    def toType(self):
-        from app.dbc import Contest, Problem, Sheet, Contest_User_Solution, Pool, Club
+    def to_type(self):
+        from app.dbc import Contest, Problem, Sheet, ContestToUserSolutionRelation, Pool, Club
 
         return {
             "Contest": Contest,
             "Problem": Problem,
             "Sheet": Sheet,
-            "Contest_User_Solution": Contest_User_Solution,
+            "Contest_User_Solution": ContestToUserSolutionRelation,
             "Pool": Pool,
             "Club": Club,
         }.get(self.name, None)
 
     @staticmethod
-    def fromType(type):
-        from app.dbc import Contest, Problem, Sheet, Contest_User_Solution, Pool, Club
+    def from_type(type):
+        from app.dbc import Contest, Problem, Sheet, ContestToUserSolutionRelation, Pool, Club
 
         return DbParent(
             {
                 Contest: "Contest",
                 Problem: "Problem",
                 Sheet: "Sheet",
-                Contest_User_Solution: "Contest_User_Solution",
+                ContestToUserSolutionRelation: "Contest_User_Solution",
                 Pool: "Pool",
                 Club: "Club",
             }.get(type, None)
@@ -144,6 +146,7 @@ IGO_Grades_list = [Beginner, Intermediate, Advanced] = list(
 )
 
 list_of_grades_lists = [School_Grades_list, IGO_Grades_list]
+
 
 class GradeClassType(TypeDecorator):
     impl = String

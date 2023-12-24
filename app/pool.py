@@ -12,7 +12,7 @@ def check_user_in_pool(user, pool):
     if user.get_pool_relation(pool.id) is None:
         flash("Вы не можете просматривать этот пул", "error")
         return "/myprofile"
-    if user.get_pool_relation(pool.id).role.isInvited():
+    if user.get_pool_relation(pool.id).role.is_invited():
         flash("Вы не приняли приглашение в этот пул", "error")
         return f"/profile/user/{user.name}/pools"
     return None
@@ -23,7 +23,7 @@ def check_user_in_pool(user, pool):
 
 # check if user is allowed to manage pool (owner)
 def check_management_access(user, pool):
-    if user.get_pool_relation(pool.id).role.isOwner():
+    if user.get_pool_relation(pool.id).role.is_owner():
         return None
     flash("Вы не можете управлять этим пулом", "error")
     return url_for("pool.pool_participants", pool_hashed_id=pool.hashed_id)
@@ -39,8 +39,8 @@ def check_management_access(user, pool):
 @pool.route("/pool/<pool_hashed_id>/problems", methods=["GET", "POST"])
 @login_required
 def pool_problems(pool_hashed_id):
-    pool = Pool.get_by_hashed_id(pool_hashed_id) 
-    if (not pool.check_user_access(current_user)):
+    pool = Pool.get_by_hashed_id(pool_hashed_id)
+    if not pool.check_user_access(current_user):
         return redirect("/myprofile")
 
     if request.method == "POST":
@@ -49,7 +49,7 @@ def pool_problems(pool_hashed_id):
             problem = Problem.get_by_hashed_id(problem_hashed_id)
             problem.set_is_public(False)
             return redirect(f"/pool/{pool_hashed_id}/problem/{problem_hashed_id}")
-        
+
     return render_template(
         "pool/pool_problems.html", current_pool=pool, title=f"{pool.get_name()} - задачи"
     )
@@ -61,13 +61,8 @@ def pool_problems(pool_hashed_id):
 def new_problem(pool_hashed_id):
     pool = Pool.get_by_hashed_id(pool_hashed_id)
 
-    if pool is None:
-        flash("Пул с таким id не найден", "error")
+    if not pool.check_user_access(current_user):
         return redirect("/myprofile")
-
-    user_checked = check_user_in_pool(current_user, pool)
-    if user_checked is not None:
-        return redirect(user_checked)
 
     problem = pool.new_problem()
 
@@ -85,7 +80,7 @@ def remove_problem_from_pool():
     problem_hashed_id = data["problem"]
     problem = Problem.get_by_hashed_id(problem_hashed_id)
     pool = problem.get_pool()
-    if (pool.check_user_owner(current_user)):
+    if pool.check_user_owner(current_user):
         problem.remove()
 
     return render_template(
@@ -104,16 +99,11 @@ def remove_problem_from_pool():
 def upload_file_to_problem(pool_hashed_id, problem_hashed_id):
     pool = Pool.get_by_hashed_id(pool_hashed_id)
 
-    if pool is None:
-        flash("Пул с таким id не найден", "error")
+    if not pool.check_user_access(current_user):
         return redirect("/myprofile")
 
-    user_checked = check_user_in_pool(current_user, pool)
-    if user_checked is not None:
-        return redirect(user_checked)
-
     problem = Problem.get_by_hashed_id(problem_hashed_id)
-    if problem is None:
+    if problem.is_null():
         flash("Задача не найдена", "error")
         return redirect(f"/pool/{pool_hashed_id}/problems")
 
@@ -136,13 +126,10 @@ def upload_file_to_problem(pool_hashed_id, problem_hashed_id):
             db_folder=directory,
             db_filename=filename,
             short_name="Рисунок",
-            parent_type=DbParent.fromType(type(problem)),
+            parent_type=DbParent.from_type(type(problem)),
             parent_id=problem.id,
             other_data={"is_secret": True},
-        )
-        db.session.add(attachment)
-
-        db.session.commit()
+        ).add()
 
         return f"OK {attachment.db_filename}"
 
@@ -243,7 +230,7 @@ def share_problem(pool_hashed_id, obj_type, obj_id):
         flash("Пул с таким id не найден", "error")
         return redirect("/myprofile")
 
-    if not current_user.get_pool_relation(pool.id).role.isOwner():
+    if not current_user.get_pool_relation(pool.id).role.is_owner():
         flash("Недостаточно прав", "error")
         return redirect(f"/pool/{pool_hashed_id}/problems")
 
@@ -269,7 +256,7 @@ def share_problem(pool_hashed_id, obj_type, obj_id):
     if request.method == "POST":
         if request.form.get("new_pool") is not None:
             new_pool_id = request.form.get("new_pool")
-            new_pool = Pool.get_by_id(new_pool_id)
+            new_pool = Pool.get_by_id(int(new_pool_id))
             if (new_pool is None) or (new_pool == pool):
                 flash("Перемещение невозможно", "error")
                 return redirect(f"/pool/{pool_hashed_id}/share/{obj_type}/{obj_id}")
@@ -368,7 +355,7 @@ def show_problem_attachment(pool_hashed_id, problem_hashed_id, filename):
     if relation is None:
         print("user not in pool")
         return
-    if relation.role.isInvited():
+    if relation.role.is_invited():
         print("user is invited")
         return
     problem = Problem.get_by_hashed_id(problem_hashed_id)
@@ -588,7 +575,7 @@ def upload_file_to_sheet(pool_hashed_id, sheet_id):
             db_folder=directory,
             db_filename=filename,
             short_name="Рисунок",
-            parent_type=DbParent.fromType(type(sheet)),
+            parent_type=DbParent.from_type(type(sheet)),
             parent_id=sheet.id,
             other_data={"is_secret": False},
         )
@@ -670,11 +657,11 @@ def new_contest(pool_hashed_id):
             num_problems = params.get("num_problems")
 
             if (
-                (name is None)
-                or (category is None)
-                or (season is None)
-                or (grade is None)
-                or (num_problems is None)
+                    (name is None)
+                    or (category is None)
+                    or (season is None)
+                    or (grade is None)
+                    or (num_problems is None)
             ):
                 print("WA1")
                 return f"/pool/{pool_hashed_id}/new_contest"
@@ -942,9 +929,7 @@ def create_new_pool():
                     name=name,
                     code=code,
                 )
-            pool = Pool(name=name)
-            pool.add()
-            pool.act_add_user(user=current_user, role=Owner)
+            pool = current_user.create_new_pool(name=name)
             flash("Пул успешно создан", "success")
             return redirect(f"/pool/{pool.hashed_id}/problems")
         elif join:
@@ -1009,7 +994,7 @@ def pool_participants(pool_hashed_id):
                 return redirect(
                     url_for("pool.pool_participants", pool_hashed_id=pool_hashed_id)
                 )
-            if user_relation.role.isOwner() and pool.count_owners() == 1:
+            if user_relation.role.is_owner() and pool.count_owners() == 1:
                 flash(
                     "Вы единственный владелец, сначала удалите пул",
                     "error",
@@ -1056,7 +1041,7 @@ def pool_manager_general(pool_hashed_id):
     if not pool.is_my():
         flash("Вы не состоите в этом пуле", "error")
         return redirect("/profile/pools")
-    if not current_user.get_pool_relation(pool.id).role.isOwner():
+    if not current_user.get_pool_relation(pool.id).role.is_owner():
         flash("Недостаточно прав", "error")
         return redirect(f"/pool/{pool_hashed_id}/chats")
 
@@ -1099,7 +1084,7 @@ def pool_collaborators(pool_hashed_id):
     if not pool.is_my():
         flash("Вы не состоите в этом пуле", "error")
         return redirect("/profile/pools")
-    if not current_user.get_pool_relation(pool.id).role.isOwner():
+    if not current_user.get_pool_relation(pool.id).role.is_owner():
         flash("Недостаточно прав", "error")
         return redirect(f"/pool/{pool_hashed_id}/chats")
 
@@ -1118,12 +1103,12 @@ def pool_collaborators(pool_hashed_id):
                 return redirect(
                     url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
                 )
-            if user_relation.role.isOwner():
+            if user_relation.role.is_owner():
                 flash("Пользователь уже владелец пула", "warning")
                 return redirect(
                     url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
                 )
-            if user_relation.role.isInvited():
+            if user_relation.role.is_invited():
                 flash("Передать права владельца можно только участнику", "warning")
                 return redirect(
                     url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
@@ -1149,12 +1134,12 @@ def pool_collaborators(pool_hashed_id):
                 return redirect(
                     url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
                 )
-            if user_relation.role.isParticipant():
+            if user_relation.role.is_participant():
                 flash("Пользователь уже участник пула", "warning")
                 return redirect(
                     url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
                 )
-            if user_relation.role.isInvited():
+            if user_relation.role.is_invited():
                 flash("Понизить до участника можно только владельца", "warning")
                 return redirect(
                     url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
@@ -1190,7 +1175,7 @@ def pool_collaborators(pool_hashed_id):
                 return redirect(
                     url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)
                 )
-            if user_relation.role.isOwner():
+            if user_relation.role.is_owner():
                 flash("Удалить владельца невозможно, сначала понизьте его до участника")
                 return redirect(
                     url_for("pool.pool_collaborators", pool_hashed_id=pool_hashed_id)

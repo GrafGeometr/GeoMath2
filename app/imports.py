@@ -6,7 +6,7 @@ from . import db, basedir, socketio, logger
 import datetime
 import pytz
 import re
-from .utils_and_functions.decorators import login_required, email_required
+from .utils_and_functions.decorators import login_required
 from werkzeug.utils import secure_filename
 import uuid as uuid
 import os

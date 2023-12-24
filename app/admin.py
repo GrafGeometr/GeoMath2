@@ -8,12 +8,12 @@ admin = Blueprint('admin', __name__)
 @admin.route("/admin/enter", methods=["GET", "POST"])
 @login_required
 def enter():
-    if Admin_Password.query.first() is None:
-        db.session.add(Admin_Password())
+    if AdminPassword.query.first() is None:
+        db.session.add(AdminPassword())
         db.session.commit()
     if request.method == "POST":
         password = request.form.get("password")
-        if check_password_hash(Admin_Password.query.first().password, password):
+        if check_password_hash(AdminPassword.query.first().password, password):
             current_user.admin = True
             db.session.commit()
             print("OKadm")
@@ -33,8 +33,8 @@ def settings():
         if confirm_password != new_password:
             flash("Пароли не совпадают", "error")
             return redirect("/admin/settings")
-        if check_password_hash(Admin_Password.query.first().password, old_password):
-            Admin_Password.query.first().password = generate_password_hash(new_password)
+        if check_password_hash(AdminPassword.query.first().password, old_password):
+            AdminPassword.query.first().password = generate_password_hash(new_password)
             db.session.commit()
 
             for user in User.query.all():

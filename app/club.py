@@ -52,7 +52,7 @@ def club_chats(club_hashed_id):
         flash("Вы не состоите в этом кружке", "error")
         return redirect("/myprofile")
     if request.method == "POST":
-        if not current_user.get_club_relation(club.id).role.isOwner():
+        if not current_user.get_club_relation(club.id).role.is_owner():
             flash("Недостаточно прав", "error")
             return redirect(f"/club/{club_hashed_id}/chats")
         if request.form.get("remove_chat") is not None:
@@ -72,7 +72,7 @@ def create_new_chat(club_hashed_id):
     if not club.is_my():
         flash("Вы не состоите в этом кружке", "error")
         return redirect("/myprofile")
-    if not current_user.get_club_relation(club.id).role.isOwner():
+    if not current_user.get_club_relation(club.id).role.is_owner():
         flash("Недостаточно прав", "error")
         return redirect(f"/club/{club_hashed_id}/chats")
     if request.method == "POST":
@@ -97,7 +97,7 @@ def club_contests(club_hashed_id):
         flash("Вы не состоите в этом кружке", "error")
         return redirect("/myprofile")
     if request.method == "POST":
-        if not current_user.get_club_relation(club.id).role.isOwner():
+        if not current_user.get_club_relation(club.id).role.is_owner():
             flash("Недостаточно прав", "error")
             return redirect(f"/club/{club_hashed_id}/contests")
         if request.form.get("remove_contest") is not None:
@@ -117,7 +117,7 @@ def create_new_contest(club_hashed_id):
     if not club.is_my():
         flash("Вы не состоите в этом кружке", "error")
         return redirect("/myprofile")
-    if not current_user.get_club_relation(club.id).role.isOwner():
+    if not current_user.get_club_relation(club.id).role.is_owner():
         flash("Недостаточно прав", "error")
         return redirect(f"/club/{club_hashed_id}/contests")
     if request.method == "POST":
@@ -144,8 +144,8 @@ def club_participants(club_hashed_id):
     if request.method == "POST":
         if request.form.get("leave_club") is not None:
             user_relation = current_user.get_club_relation(club.id)
-            is_owner = user_relation.role.isOwner()
-            is_participant = user_relation.role.isParticipant()
+            is_owner = user_relation.role.is_owner()
+            is_participant = user_relation.role.is_participant()
             if (not is_owner) and (not is_participant):
                 flash("Такого пользователя нет в кружке", "error")
                 return redirect(url_for("club.club_participants", club_hashed_id=club_hashed_id))
@@ -174,7 +174,7 @@ def club_manager_general(club_hashed_id):
     if not club.is_my():
         flash("Вы не состоите в этом кружке", "error")
         return redirect("/myprofile")
-    if not current_user.get_club_relation(club.id).role.isOwner():
+    if not current_user.get_club_relation(club.id).role.is_owner():
         flash("Недостаточно прав", "error")
         return redirect(f"/club/{club_hashed_id}/chats")
 
@@ -207,7 +207,7 @@ def club_collaborators(club_hashed_id):
     if not club.is_my():
         flash("Вы не состоите в этом кружке", "error")
         return redirect("/profile/clubs")
-    if not current_user.get_club_relation(club.id).role.isOwner():
+    if not current_user.get_club_relation(club.id).role.is_owner():
         flash("Недостаточно прав", "error")
         return redirect(f"/club/{club_hashed_id}/chats")
 
@@ -222,7 +222,7 @@ def club_collaborators(club_hashed_id):
             if user_relation is None:
                 flash("Такого пользователя нет в кружке", "error")
                 return redirect(url_for("chat.chat_collaborators", club_hashed_id=club_hashed_id))
-            if user_relation.role.isOwner():
+            if user_relation.role.is_owner():
                 flash("Пользователь уже владелец кружка", "warning")
                 return redirect(url_for("club.club_collaborators", club_hashed_id=club_hashed_id))
             user_relation.role = Owner
@@ -241,7 +241,7 @@ def club_collaborators(club_hashed_id):
             if user_relation is None:
                 flash("Такого пользователя нет в кружке", "error")
                 return redirect(url_for("chat.chat_collaborators", club_hashed_id=club_hashed_id))
-            if user_relation.role.isParticipant():
+            if user_relation.role.is_participant():
                 flash("Пользователь уже участник кружка", "warning")
                 return redirect(url_for("club.club_collaborators", club_hashed_id=club_hashed_id))
             if user.id == current_user.id and club.count_owners() == 1:
@@ -264,7 +264,7 @@ def club_collaborators(club_hashed_id):
             if user_id == current_user.id:
                 flash("Вы не можете удалить себя из кружка на этой странице", "error")
                 return redirect(url_for("club.club_collaborators", club_hashed_id=club_hashed_id))
-            if user_relation.role.isOwner():
+            if user_relation.role.is_owner():
                 flash("Удалить владельца невозможно, сначала понизьте его до участника")
                 return redirect(url_for("club.club_collaborators", club_hashed_id=club_hashed_id))
             user_relation.remove()
