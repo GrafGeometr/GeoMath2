@@ -31,6 +31,16 @@ class User(UserMixin, ModelWithName, AbstractUser):
     user_messages_ = db.relationship("User_Message", backref="user")
 
     # --> PROPERTIES
+    getter_singleton_ = None
+
+    @classmethod
+    @property
+    def get(cls):
+        if cls.getter_singleton_ is None:
+            from .getter import Getter
+            getter_singleton_ = Getter
+        return cls.getter_singleton_
+
     @property
     def password(self):
         return self.password_
