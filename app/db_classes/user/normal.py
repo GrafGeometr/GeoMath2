@@ -38,7 +38,7 @@ class User(UserMixin, ModelWithName, AbstractUser):
     def get(cls):
         if cls.getter_singleton_ is None:
             from .getter import Getter
-            getter_singleton_ = Getter
+            getter_singleton_ = Getter(User)
         return cls.getter_singleton_
 
     @property

@@ -1,21 +1,8 @@
-from .query_manager import QueryManager
-
-class Getter:
-    manager = QueryManager
-
-    @staticmethod
-    def by_id(id):
-        Getter.manager.filter(Getter.manager.normal_cls.id == id)
+from app.db_classes.getter.getter import BaseGetter
+class Getter(BaseGetter):
+    def by_id(self, id):
+        self.manager.filter(self.manager.normal_cls.id == id)
     
-    @staticmethod
-    def by_name(name):
-        Getter.manager.filter(Getter.manager.normal_cls.name == name)
-
-    @staticmethod
-    def all():
-        return Getter.manager.all()
-    
-    @staticmethod
-    def first():
-        return Getter.manager.first()
+    def by_name(self,name):
+        self.manager.filter(self.manager.normal_cls.name == name)
 
