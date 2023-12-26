@@ -26,7 +26,3 @@ class AbstractTag(AbstractModelWithName):
     @abstractmethod
     def get_all_by_obj(obj) -> list["AbstractTag"]:
         pass
-
-    @abstractmethod
-    def get_hash(self) -> int:
-        pass

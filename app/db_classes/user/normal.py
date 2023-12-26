@@ -4,6 +4,7 @@ from app.sqlalchemy_custom_types import *
 from app.db_classes.model_with_name.normal import ModelWithName
 from app.db_classes.user.abstract import AbstractUser
 from app.db_classes.user.null import NullUser
+from app.db_classes.user.getter import UserGetter
 
 
 class User(UserMixin, ModelWithName, AbstractUser):
@@ -18,21 +19,20 @@ class User(UserMixin, ModelWithName, AbstractUser):
     about_ = db.Column(db.String(), nullable=True, default="")
 
     null_cls = NullUser
+    getter_cls_ = UserGetter
 
     # --> RELATIONS
-    emails_ = db.relationship("Email", backref="user")
-    user_pools_ = db.relationship("UserToPoolRelation", backref="user")
-    contest_judges_ = db.relationship("ContestToJudgeRelation", backref="user")
-    contest_users_ = db.relationship("Contest_User", backref="user")
-    likes_ = db.relationship("Like", backref="user")
-    notifications_ = db.relationship("Notification", backref="user")
-    user_chats_ = db.relationship("UserToChatRelation", backref="user")
-    user_clubs_ = db.relationship("UserToClubRelation", backref="user")
-    user_messages_ = db.relationship("User_Message", backref="user")
+    emails_ = db.relationship("Email", backref="user_")
+    user_pools_ = db.relationship("UserToPoolRelation", backref="user_")
+    contest_judges_ = db.relationship("ContestToJudgeRelation", backref="user_")
+    contest_users_ = db.relationship("Contest_User", backref="user_")
+    likes_ = db.relationship("Like", backref="user_")
+    notifications_ = db.relationship("Notification", backref="user_")
+    user_chats_ = db.relationship("UserToChatRelation", backref="user_")
+    user_clubs_ = db.relationship("UserToClubRelation", backref="user_")
+    user_messages_ = db.relationship("User_Message", backref="user_")
 
     # --> PROPERTIES
-    from .getter import Getter
-    getter_class_ = Getter
 
     @property
     def password(self):
@@ -196,24 +196,32 @@ class User(UserMixin, ModelWithName, AbstractUser):
     def get_pool_relation(self, pool_id):
         from app.dbc import UserToPoolRelation
 
-        return UserToPoolRelation.query.filter_by(user_id_=self.id, pool_id_=pool_id).first()
+        return UserToPoolRelation.query.filter_by(
+            user_id_=self.id, pool_id_=pool_id
+        ).first()
 
     def is_chat_owner(self, chat):
         from app.dbc import UserToChatRelation
 
-        uc = UserToChatRelation.query.filter_by(user_id_=self.id, chat_id_=chat.id).first()
+        uc = UserToChatRelation.query.filter_by(
+            user_id_=self.id, chat_id_=chat.id
+        ).first()
         return uc.is_owner()
 
     def is_chat_participant(self, chat):
         from app.dbc import UserToChatRelation
 
-        uc = UserToChatRelation.query.filter_by(user_id_=self.id, chat_id_=chat.id).first()
+        uc = UserToChatRelation.query.filter_by(
+            user_id_=self.id, chat_id_=chat.id
+        ).first()
         return uc.is_participant()
 
     def get_chats(self):
         from app.dbc import UserToChatRelation
 
-        chats = [uc.chat for uc in UserToChatRelation.query.filter_by(user_id_=self.id).all()]
+        chats = [
+            uc.chat for uc in UserToChatRelation.query.filter_by(user_id_=self.id).all()
+        ]
         return chats
 
     def get_nonclub_chats(self):
@@ -222,7 +230,9 @@ class User(UserMixin, ModelWithName, AbstractUser):
     def get_club_relation(self, club_id):
         from app.dbc import UserToClubRelation
 
-        return UserToClubRelation.query.filter_by(user_id_=self.id, club_id_=club_id).first()
+        return UserToClubRelation.query.filter_by(
+            user_id_=self.id, club_id_=club_id
+        ).first()
 
     def get_friends_from(self):
         from app.dbc import Friend
@@ -265,25 +275,18 @@ class User(UserMixin, ModelWithName, AbstractUser):
     def is_pool_access(self, pool_id):
         from app.dbc import UserToPoolRelation
 
-        relation = UserToPoolRelation.query.filter_by(user_id_=self.id, pool_id_=pool_id).first()
+        relation = UserToPoolRelation.query.filter_by(
+            user_id_=self.id, pool_id_=pool_id
+        ).first()
         return relation.role.is_owner() or relation.role.is_invited()
 
     def is_judge(self, contest):
         from app.dbc import ContestToJudgeRelation
 
-        return not ContestToJudgeRelation.query.filter_by(
-            user_id_=self.id, contest_id_=contest.id
-        ).first().is_null()
-
-    @classmethod
-    def get_by_verified_email(cls, email):
-        from app.dbc import Email
-
-        users = [
-            email.user
-            for email in Email.query.filter_by(verified_=True, name_=email).all()
-        ]
-        if users:
-            return users[0]
-        else:
-            return cls.null_cls()
+        return (
+            not ContestToJudgeRelation.query.filter_by(
+                user_id_=self.id, contest_id_=contest.id
+            )
+            .first()
+            .is_null()
+        )

@@ -214,8 +214,3 @@ class AbstractUser(AbstractModelWithName):
     @abstractmethod
     def is_judge(self, contest: "Contest") -> bool:
         pass
-
-    @classmethod
-    @abstractmethod
-    def get_by_verified_email(cls, email: "Email") -> "AbstractUser":
-        pass

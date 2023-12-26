@@ -1,3 +1,4 @@
+from app.db_classes.model_with_name.getter import ModelWithNameGetter
 from app.imports import *
 from app.db_classes.standard_model.normal import StandardModel
 from app.db_classes.model_with_name.abstract import AbstractModelWithName
@@ -10,6 +11,8 @@ class ModelWithName(StandardModel, AbstractModelWithName):
 
     name_ = db.Column(db.String, unique=True)
     null_cls = NullModelWithName
+
+    getter_cls_ = ModelWithNameGetter
 
     # --> PROPERTIES
     @property

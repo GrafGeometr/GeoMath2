@@ -25,18 +25,5 @@ class NullUserToPoolRelation(NullStandardModel, AbstractUserToPoolRelation):
         return -1
 
     # --> METHODS
-
-    @staticmethod
-    def get_by_user_and_pool(user, pool):
-        return NullUserToPoolRelation()
-
-    @staticmethod
-    def get_all_by_pool(pool):
-        return []
-
-    @staticmethod
-    def get_all_by_user(user):
-        return []
-
     def act_accept_invitation(self):
         pass

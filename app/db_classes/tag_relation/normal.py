@@ -1,7 +1,10 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
-from app.dbc import StandardModel, AbstractTagRelation
+from app.db_classes.tag_relation.abstract import AbstractTagRelation
+from app.db_classes.standard_model.normal import StandardModel
+from app.db_classes.tag_relation.getter import TagRelationGetter
+from app.db_classes.tag_relation.null import NullTagRelation
 
 
 class TagRelation(StandardModel, AbstractTagRelation):
@@ -14,6 +17,9 @@ class TagRelation(StandardModel, AbstractTagRelation):
     # parent_type = db.Column(db.String)  # 'Problem' | 'Sheet'
     parent_id_ = db.Column(db.Integer)
     other_data_ = db.Column(db.JSON, default={})
+
+    null_cls_ = NullTagRelation
+    getter_cls_ = TagRelationGetter
 
     # --> RELATIONS
 
@@ -60,24 +66,3 @@ class TagRelation(StandardModel, AbstractTagRelation):
         if par_type is None:
             return None
         return par_type.get_by_id(self.parent_id)
-
-    @staticmethod
-    def get_all_by_parent(parent):
-        if parent is None:
-            return []
-        parent_type = DbParent.from_type(type(parent))
-        if parent_type is None:
-            return []
-        return TagRelation.query.filter_by(
-            parent_type_=parent_type, parent_id_=parent.id
-        ).all()
-
-    @staticmethod
-    def get_by_parent_and_tag(parent, tag):
-        if parent is None or tag is None:
-            return None
-        return TagRelation.query.filter_by(
-            parent_type_=DbParent.from_type(type(parent)),
-            parent_id_=parent.id,
-            tag_id_=tag.id,
-        ).first()

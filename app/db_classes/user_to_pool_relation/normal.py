@@ -1,7 +1,10 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
-from app.dbc import StandardModel, AbstractUserToPoolRelation
+from app.db_classes.standard_model.normal import StandardModel
+from app.db_classes.user_to_pool_relation.abstract import AbstractUserToPoolRelation
+from app.db_classes.user_to_pool_relation.getter import UserToPoolRelationGetter
+from app.db_classes.user_to_pool_relation.null import NullUserToPoolRelation
 
 
 class UserToPoolRelation(StandardModel, AbstractUserToPoolRelation):
@@ -10,6 +13,9 @@ class UserToPoolRelation(StandardModel, AbstractUserToPoolRelation):
     __tablename__ = "user_pool"
 
     role_ = db.Column(RoleType)
+
+    null_cls_ = NullUserToPoolRelation
+    getter_cls_ = UserToPoolRelationGetter
 
     # --> RELATIONS
     user_id_ = db.Column(db.Integer, db.ForeignKey("user.id_"))
@@ -44,18 +50,6 @@ class UserToPoolRelation(StandardModel, AbstractUserToPoolRelation):
         self.save()
 
     # --> METHODS
-    @staticmethod
-    def get_by_user_and_pool(user, pool):
-        return UserToPoolRelation.query.filter_by(user_id_=user.id, pool_id_=pool.id).first()
-
-    @staticmethod
-    def get_all_by_pool(pool):
-        return UserToPoolRelation.query.filter_by(pool_id_=pool.id).all()
-
-    @staticmethod
-    def get_all_by_user(user):
-        return UserToPoolRelation.query.filter_by(user_id_=user.id).all()
-
     def act_accept_invitation(self):
         self.role = Participant
         return self

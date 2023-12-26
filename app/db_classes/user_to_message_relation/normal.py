@@ -1,6 +1,11 @@
 from app.imports import *
 
-from app.dbc import StandardModel, AbstractUserToMessageRelation
+from app.db_classes.standard_model.normal import StandardModel
+from app.db_classes.user_to_message_relation.abstract import (
+    AbstractUserToMessageRelation,
+)
+from app.db_classes.user_to_message_relation.null import NullUserToMessageRelation
+from app.db_classes.user_to_message_relation.getter import UserToMessageRelationGetter
 
 
 class UserToMessageRelation(StandardModel, AbstractUserToMessageRelation):
@@ -12,6 +17,9 @@ class UserToMessageRelation(StandardModel, AbstractUserToMessageRelation):
     # --> RELATIONS
     user_id_ = db.Column(db.Integer, db.ForeignKey("user.id_"))
     message_id_ = db.Column(db.Integer, db.ForeignKey("message.id_"))
+
+    null_cls_ = NullUserToMessageRelation
+    getter_cls_ = UserToMessageRelationGetter
 
     # --> PROPERTIES
     @property

@@ -1,8 +1,8 @@
-from app.db_classes.getter.getter import BaseGetter
-class Getter(BaseGetter):
-    def by_id(self, id):
-        self.manager.filter(self.manager.normal_cls.id == id)
-    
-    def by_name(self,name):
-        self.manager.filter(self.manager.normal_cls.name == name)
+from app.db_classes.model_with_name.getter import ModelWithNameGetter
+from app.db_classes.model_with_hashed_id.getter import ModelWithHashedIdGetter
 
+
+class UserGetter(ModelWithNameGetter, ModelWithHashedIdGetter):
+    def by_verified_email(self, email):
+        self.manager.filter(self.manager.normal_cls.email.id_ == email.id)
+        return self

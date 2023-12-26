@@ -52,7 +52,3 @@ class NullTagRelation(NullStandardModel, AbstractTagRelation):
     @staticmethod
     def get_all_by_parent(parent):
         return []
-
-    @staticmethod
-    def get_by_parent_and_tag(parent, tag):
-        return NullTagRelation()
