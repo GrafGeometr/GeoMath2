@@ -11,7 +11,20 @@ class StandardModel(AbstractStandardModel):
     id_ = db.Column(db.Integer, primary_key=True, autoincrement=True)
     null_cls = NullStandardModel
 
+    
+
     # --> PROPERTIES
+    
+    from app.db_classes.getter.getter import BaseGetter
+    getter_class_ = BaseGetter
+    getter_singleton_ = None
+    @classmethod
+    @property
+    def get(cls):
+        if cls.getter_singleton_ is None:
+            getter_singleton_ = cls.getter_class_(cls)
+        return cls.getter_singleton_
+    
     @property
     def id(self):
         return self.id_
