@@ -960,7 +960,7 @@ def create_new_pool():
                     name=name,
                     code=code,
                 )
-            pool.act_add_user_by_invite(current_user, i)
+            pool.add_user_by_invite(current_user, i)
             flash("Вы присоединились к пулу", "success")
             return redirect(f"/pool/{pool.hashed_id}/problems")
 

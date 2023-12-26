@@ -17,7 +17,7 @@ def create_new_club():
                 return render_template("club/club_create.html", title=f"Создание кружка", name=name, code=code)
             club = Club(name=name)
             club.add()
-            club.act_add_user(user=current_user, role=Owner)
+            club.add_user(user=current_user, role=Owner)
             flash("Кружок успешно создан", "success")
             return redirect(f"/club/{club.hashed_id}/chats")
         elif (join):
@@ -33,7 +33,7 @@ def create_new_club():
             if type(club) != Club:
                 flash("Код-приглашение не действителен", "error")
                 return render_template("club/club_create.html", title=f"Создание кружка", name=name, code=code)
-            club.act_add_user_by_invite(current_user, i)
+            club.add_user_by_invite(current_user, i)
             flash("Вы присоединились к кружку", "success")
             return redirect(f"/club/{club.hashed_id}/chats")
 

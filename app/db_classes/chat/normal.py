@@ -1,9 +1,10 @@
 from app.imports import *
+from sqlalchemy_custom_types import *
 
 from app.db_classes.standard_model.normal import StandardModel
 from .abstract import AbstractChat
 from .null import NullChat
-from .getter import Getter
+from .getter import ChatGetter
 
 class Chat(AbstractChat, StandardModel):
     # --> INITIALIZE
@@ -13,7 +14,7 @@ class Chat(AbstractChat, StandardModel):
     readonly_ = db.Column(db.Boolean, default=False)
 
     null_cls_ = NullChat
-    getter_cls_ = Getter
+    getter_cls_ = ChatGetter
 
     # --> RELATIONS
     user_chats_ = db.relationship("User_Chat", backref="chat_")
@@ -52,7 +53,7 @@ class Chat(AbstractChat, StandardModel):
     def remove(self):
         from app.dbc import Invite
 
-        for i in Invite.get_all_by_parent(self):
+        for i in Invite.get.by_parent(self).all():
             i.remove()
         for uc in self.user_chats:
             uc.remove()
@@ -100,21 +101,18 @@ class Chat(AbstractChat, StandardModel):
     def count_participants(self):
         return len([uc.user for uc in self.user_chats if uc.is_participant()])
 
-    def act_add_user(self, user=current_user):
-        from app.dbc import User_Chat
+    def add_user(self, user=current_user):
+        from app.dbc import UserToChatRelation
 
         if self.contains_user(user):
             return
-        uc = User_Chat(user=user, chat=self)
+        uc = UserToChatRelation(user=user, chat=self)
         uc.add()
         return self
 
-    def act_remove_user(self, user=current_user):
-        from app.dbc import User_Chat
-
-        if not self.contains_user(user):
-            return
-        uc = User_Chat.query.filter_by(user=user, chat=self).first()
+    def remove_user(self, user=current_user):
+        from app.dbc import UserToChatRelation
+        uc = UserToChatRelation.get.by_user(user).by_chat(self).first()
         uc.remove()
         return self
 
@@ -124,12 +122,12 @@ class Chat(AbstractChat, StandardModel):
 
     def act_generate_new_invite_code(self):
         self.act_refresh_chat_invites()
-        from app.dbc import Chat_Invite
+        from app.dbc import Invite
 
-        ci = Chat_Invite(chat=self)
+        ci = Invite(parent_type=DbParent.from_type(Chat), parent_id=self.id)
         ci.add()
 
     def act_mark_all_as_read(self, user=current_user):
-        for um in self.get_unread_messages(user):
+        for um in self.unread_messages(user):
             um.act_mark_as_read()
         return

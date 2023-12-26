@@ -1,9 +1,10 @@
 from app.imports import *
+from sqlalchemy_custom_types import *
 
 from app.db_classes.standard_model.normal import StandardModel
 from .abstract import AbstractClub
 from .null import NullClub
-from .getter import Getter
+from .getter import ClubGetter
 
 
 class Club(StandardModel):
@@ -12,7 +13,7 @@ class Club(StandardModel):
     __tablename__ = "club"
 
     null_cls_ = NullClub
-    getter_cls_ = Getter
+    getter_cls_ = ClubGetter
 
     # --> RELATIONS
     user_clubs_ = db.relationship("User_Club", backref="club_")
@@ -32,54 +33,53 @@ class Club(StandardModel):
     @property
     def chats(self) -> list["Chat"]:
         return self.chats_
+    
+    @chats.setter
+    def chats(self, chats: list["Chat"]):
+        self.chats_ = chats
+        self.save()
 
     @property
     def club_contests(self) -> list["Club_Contest"]:
         return self.club_contests_
+    
+    @club_contests.setter
+    def club_contests(self, club_contests: list["Club_Contest"]):
+        self.club_contests_ = club_contests
+        self.save()
 
 
 
     # --> FUNCTIONS
-    def is_my(self):
-        return self.contains_user(current_user)
-
-    def contains_user(self, user=current_user):
+    def contains_user(self, user=current_user) -> bool:
         return user in [uc.user for uc in self.user_clubs]
 
-    def act_add_user(self, user=current_user, role=Participant):
-        from app.dbc import User_Club
-
-        if user is None:
-            return
+    def add_user(self, user=current_user, role=Participant):
+        from app.dbc import UserToClubRelation
         if self.contains_user(user):
             return
-        uc = User_Club(user=user, club=self, role=role)
+        uc = UserToClubRelation(user=user, club=self, role=role)
         uc.add()
-        print(self.chats)
         for chat in self.chats:
-            print(chat, "trying to add", user.name)
-            chat.act_add_user(user)
+            chat.add_user(user)
         return self
 
-    def act_remove_user(self, user=current_user):
-        from app.dbc import User_Club
-
-        if user is None:
-            return
+    def remove_user(self, user=current_user):
+        from app.dbc import UserToClubRelation
         if not self.contains_user(user):
             return
-        uc = User_Club.query.filter_by(user=user, club=self).first()
+        uc = UserToClubRelation.get.by_user(user).by_club(self).first()
         uc.remove()
         for chat in self.chats:
-            chat.act_remove_user(user)
+            chat.remove_user(user)
         return self
 
-    def act_add_user_by_invite(self, user=current_user, invite=None):
+    def add_user_by_invite(self, user=current_user, invite=None):
         if (invite is None) or (invite.is_expired()) or (invite.get_parent() != self):
             return
         if self.contains_user(user):
             return
-        self.act_add_user(user)
+        self.add_user(user)
         return self
 
     def act_add_chat(self, name=None):

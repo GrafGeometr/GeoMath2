@@ -50,7 +50,7 @@ class Pool(ModelWithHashedId, ModelWithName):
             pool = Pool_Null()
         return pool
 
-    def act_add_user(self, user=current_user, role=Participant):
+    def add_user(self, user=current_user, role=Participant):
         from app.dbc import User_Pool
 
         if user is None:
@@ -61,7 +61,7 @@ class Pool(ModelWithHashedId, ModelWithName):
         up.add()
         return self
 
-    def act_remove_user(self, user=current_user):
+    def remove_user(self, user=current_user):
         from app.dbc import User_Pool
 
         if user is None:
@@ -72,12 +72,12 @@ class Pool(ModelWithHashedId, ModelWithName):
         up.remove()
         return self
 
-    def act_add_user_by_invite(self, user=current_user, invite=None):
+    def add_user_by_invite(self, user=current_user, invite=None):
         if (invite is None) or (invite.is_expired()) or (invite.get_parent() != self):
             return
         if self.contains_user(user):
             return
-        self.act_add_user(user)
+        self.add_user(user)
         return self
 
     def act_generate_new_invite_code(self):
