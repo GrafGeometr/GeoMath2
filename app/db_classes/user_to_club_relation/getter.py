@@ -3,13 +3,13 @@ from app.db_classes.standard_model.getter import StandardModelGetter
 
 class UserToClubRelationGetter(StandardModelGetter):
     def by_user(self, user):
-        self.manager.filter(self.manager.normal_cls.user_id_ == user.id)
+        self.manager.filter(self.manager.normal_cls.user_id == user.id)
         return self
 
     def by_club(self, club):
-        self.manager.filter(self.manager.normal_cls.pool_id_ == club.id)
+        self.manager.filter(self.manager.normal_cls.pool_id == club.id)
         return self
 
     def by_role(self, role):
-        self.manager.filter(self.manager.normal_cls.role_ == role)
+        self.manager.filter(self.manager.normal_cls.role == role)
         return self

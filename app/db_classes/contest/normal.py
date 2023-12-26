@@ -1,31 +1,162 @@
 from app.imports import *
+from sqlalchemy_custom_types import *
 
 from app.db_classes.standard_model.normal import StandardModel
-from .abstract import AbstractChat
-from .null import NullChat
-from .getter import Getter
+from .abstract import AbstractContest
+from .null import NullContest
+from .getter import ContestGetter
 
 
 class Contest(ModelWithName):
     # --> INITIALIZE
     __tablename__ = "contest"
 
-    description = db.Column(db.String)
-    grade = db.Column(GradeClassType)
-    start_date = db.Column(db.DateTime)
-    end_date = db.Column(db.DateTime)
-    is_public = db.Column(db.Boolean, default=False)
-    rating = db.Column(db.String, default="public")  # 'public' | 'private'
-    total_likes = db.Column(db.Integer, default=0)
-    total_dislikes = db.Column(db.Integer, default=0)
+    null_cls_ = NullContest
+    getter_cls_ = ContestGetter
+
+    description_ = db.Column(db.String)
+    grade_ = db.Column(GradeClassType)
+    start_date_ = db.Column(db.DateTime)
+    end_date_ = db.Column(db.DateTime)
+    is_public_ = db.Column(db.Boolean, default=False)
+    rating_ = db.Column(db.String, default="public")  # 'public' | 'private'
+    total_likes_ = db.Column(db.Integer, default=0)
+    total_dislikes_ = db.Column(db.Integer, default=0)
 
     # --> RELATIONS
-    contest_problems = db.relationship("Contest_Problem", backref="contest")
-    contest_judges = db.relationship("Contest_Judge", backref="contest")
-    contest_users = db.relationship("Contest_User", backref="contest")
-    club_contests = db.relationship("Club_Contest", backref="contest")
-    pool_id = db.Column(db.Integer, db.ForeignKey("pool.id_"))
-    olimpiad_id = db.Column(db.Integer, db.ForeignKey("olimpiad.id_"))
+    contest_problems_ = db.relationship("Contest_Problem", backref="contest_")
+    contest_judges_ = db.relationship("Contest_Judge", backref="contest_")
+    contest_users_ = db.relationship("Contest_User", backref="contest_")
+    club_contests_ = db.relationship("Club_Contest", backref="contest_")
+    pool_id_ = db.Column(db.Integer, db.ForeignKey("pool.id_"))
+    olimpiad_id_ = db.Column(db.Integer, db.ForeignKey("olimpiad.id_"))
+
+    # --> PROPERTIES
+    @property
+    def description(self) -> str:
+        return self.description_ 
+
+    @description.setter
+    def description(self, description: str):
+        self.description_ = description
+        self.save()
+
+    @property
+    def grade(self) -> GradeClassType:
+        return self.grade_
+
+    @grade.setter
+    def grade(self, grade: GradeClassType):
+        self.grade_ = grade
+        self.save()
+
+    @property
+    def start_date(self) -> datetime.datetime:
+        return self.start_date_
+
+    @start_date.setter
+    def start_date(self, start_date: datetime.datetime):
+        self.start_date_ = start_date
+        self.save()
+
+    @property
+    def end_date(self) -> datetime.datetime:
+        return self.end_date_
+
+    @end_date.setter
+    def end_date(self, end_date: datetime.datetime):
+        self.end_date_ = end_date
+        self.save()
+
+    @property
+    def is_public(self) -> bool:
+        return self.is_public_
+
+    @is_public.setter
+    def is_public(self, is_public: bool):
+        self.is_public_ = is_public
+        self.save()
+
+    @property
+    def rating(self) -> str:
+        return self.rating_
+
+    @rating.setter
+    def rating(self, rating: str):
+        self.rating_ = rating
+        self.save()
+
+    @property
+    def total_likes(self) -> int:
+        return self.total_likes_
+
+    @total_likes.setter
+    def total_likes(self, total_likes: int):
+        self.total_likes_ = total_likes
+        self.save()
+
+    @property
+    def total_dislikes(self) -> int:
+        return self.total_dislikes_
+
+    @total_dislikes.setter
+    def total_dislikes(self, total_dislikes: int):
+        self.total_dislikes_ = total_dislikes
+        self.save()
+    
+    @property
+    def contest_problems(self) -> list("ContestToProblemRelation"):
+        return self.contest_problems_
+
+    @contest_problems.setter
+    def contest_problems(self, contest_problems: list["ContestToProblemRelation"]):
+        self.contest_problems_ = contest_problems
+        self.save()
+
+    @property
+    def contest_judges(self) -> list("ContestToJudgeRelation"):
+        return self.contest_judges_
+
+    @contest_judges.setter
+    def contest_judges(self, contest_judges: list["ContestToJudgeRelation"]):
+        self.contest_judges_ = contest_judges
+        self.save()
+
+    @property
+    def contest_users(self) -> list("ContestToUserRelation"):
+        return self.contest_users_
+
+    @contest_users.setter
+    def contest_users(self, contest_users: list["ContestToUserRelation"]):
+        self.contest_users_ = contest_users
+        self.save()
+
+    @property
+    def club_contests(self) -> list["ClubToContestRelation"]:
+        return self.club_contests_
+
+    @club_contests.setter
+    def club_contests(self, club_contests: list["ClubToContestRelation"]):
+        self.club_contests_ = club_contests
+        self.save()
+
+    @property
+    def pool_id(self) -> int:
+        return self.pool_id_
+
+    @pool_id.setter
+    def pool_id(self, pool_id: int):
+        self.pool_id_ = pool_id
+        self.save()
+
+    @property
+    def olimpiad_id(self) -> int:
+        return self.olimpiad_id_
+
+    @olimpiad_id.setter
+    def olimpiad_id(self, olimpiad_id: int):
+        self.olimpiad_id_ = olimpiad_id
+        self.save()
 
     # --> FUNCTIONS
     @staticmethod

@@ -1,22 +1,46 @@
 from app.imports import *
+from sqlalchemy_custom_types import *
 
 from app.db_classes.standard_model.normal import StandardModel
-from .abstract import AbstractChat
-from .null import NullChat
-from .getter import Getter
+from .abstract import AbstractClubToContestRelation
+from .null import NullClubToContestRelation
+from .getter import ClubToContestRelationGetter
 
 
 class ClubToContestRelation(StandardModel):
     # --> INITIALIZE
+    __abstract__ = False
     __tablename__ = "club_contest"
 
+    null_cls_ = NullClubToContestRelation
+    getter_cls_ = ClubToContestRelationGetter
+
     # --> RELATIONS
-    club_id = db.Column(db.Integer, db.ForeignKey("club.id_"))
-    contest_id = db.Column(db.Integer, db.ForeignKey("contest.id_"))
+    club_id_ = db.Column(db.Integer, db.ForeignKey("club.id_"))
+    contest_id_ = db.Column(db.Integer, db.ForeignKey("contest.id_"))
+
+    # --> PROPERTIES
+    @property
+    def club_id(self) -> int:
+        return self.club_id_
+
+    @club_id.setter
+    def club_id(self, club_id: int):
+        self.club_id_ = club_id
+        self.save()
+
+    @property
+    def contest_id(self) -> int:
+        return self.contest_id_
+
+    @contest_id.setter
+    def contest_id(self, contest_id: int):
+        self.contest_id_ = contest_id
+        self.save()
 
     # --> FUNCTIONS
     def is_valid(self):
-        from app.dbc import User_Club, User_Pool
+        from app.dbc import UserToClubRelation, UserToPoolRelation
 
         if (
                 (self.contest is None)
@@ -29,12 +53,12 @@ class ClubToContestRelation(StandardModel):
             return True
         club_owners = [
             uc.user
-            for uc in User_Club.query.filter_by(club=self.club).all()
+            for uc in UserToClubRelation.get.by_club(self.club).all()
             if uc.role.is_owner()
         ]
         contest_owners = [
             up.user
-            for up in User_Pool.query.filter_by(pool=self.contest.pool).all()
+            for up in UserToPoolRelation.get.by_pool(self.contest.pool).all()
             if up.role.is_owner()
         ]
         return any(clo in contest_owners for clo in club_owners)

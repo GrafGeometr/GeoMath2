@@ -21,7 +21,7 @@ class StandardModel(AbstractStandardModel):
     @property
     def get(cls):
         if cls.getter_singleton_ is None:
-            cls.getter_singleton_ = cls.getter_class_(cls)
+            cls.getter_singleton_ = cls.getter_cls_(cls)
         return cls.getter_singleton_
 
     @property
