@@ -56,13 +56,3 @@ class AbstractTagRelation(AbstractStandardModel):
     @abstractmethod
     def get_parent(self):
         pass
-
-    @staticmethod
-    @abstractmethod
-    def get_all_by_parent(parent) -> list["AbstractTagRelation"]:
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def get_by_parent_and_tag(parent, tag) -> "AbstractTagRelation":
-        pass

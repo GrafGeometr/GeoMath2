@@ -1,5 +1,8 @@
 from app.db_classes.model_with_name.null import NullModelWithName
 from app.db_classes.user.abstract import AbstractUser
+from app.db_classes.user_to_club_relation.null import NullUserToClubRelation
+from app.db_classes.user_to_pool_relation.null import NullUserToPoolRelation
+from app.db_classes.pool.null import NullPool
 
 
 class NullUser(NullModelWithName, AbstractUser):
@@ -80,10 +83,10 @@ class NullUser(NullModelWithName, AbstractUser):
         return []
 
     def create_new_pool(self, name):
-        return PoolNull()
+        return NullPool()
 
     def get_pool_relation(self, pool_id):
-        return User_PoolNull()
+        return NullUserToPoolRelation()
 
     def is_chat_owner(self, chat):
         return False
@@ -98,7 +101,7 @@ class NullUser(NullModelWithName, AbstractUser):
         return []
 
     def get_club_relation(self, club_id):
-        return User_ClubNull()
+        return NullUserToClubRelation()
 
     def get_friends_from(self):
         return []
@@ -114,7 +117,3 @@ class NullUser(NullModelWithName, AbstractUser):
 
     def is_judge(self, contest):
         return False
-
-    @classmethod
-    def get_by_verified_email(cls, email):
-        return NullUser()

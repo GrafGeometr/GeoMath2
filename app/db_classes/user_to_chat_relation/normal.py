@@ -1,6 +1,9 @@
 from app.imports import *
 
-from app.dbc import StandardModel, AbstractUserToChatRelation
+from app.db_classes.standard_model.normal import StandardModel
+from app.db_classes.user_to_chat_relation.abstract import AbstractUserToChatRelation
+from app.db_classes.user_to_club_relation.null import NullUserToClubRelation
+from app.db_classes.user_to_chat_relation.getter import UserToChatRelationGetter
 
 
 class UserToChatRelation(StandardModel, AbstractUserToChatRelation):
@@ -11,7 +14,12 @@ class UserToChatRelation(StandardModel, AbstractUserToChatRelation):
     # --> RELATIONS
     user_id_ = db.Column(db.Integer, db.ForeignKey("user.id_"))
     chat_id_ = db.Column(db.Integer, db.ForeignKey("chat.id_"))
-    messages_ = db.relationship("Message", backref="user_chat")  # TODO check all backrefs
+    messages_ = db.relationship(
+        "Message", backref="user_chat_"
+    )  # TODO check all backrefs
+
+    null_cls_ = NullUserToClubRelation
+    getter_cls_ = UserToChatRelationGetter
 
     # --> PROPERTIES
     @property

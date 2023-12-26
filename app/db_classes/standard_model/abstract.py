@@ -12,6 +12,12 @@ class AbstractStandardModel(db.Model):
     __abstract__ = True
 
     # --> PROPERTIES
+    @classmethod
+    @property
+    @abstractmethod
+    def get(cls) -> "StandardModelGetter":
+        pass
+
     @property
     @abstractmethod
     def id(self) -> int:

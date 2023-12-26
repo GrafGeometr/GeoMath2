@@ -2,6 +2,7 @@ from app.imports import *
 from app.db_classes.standard_model.normal import StandardModel
 from app.db_classes.model_with_hashed_id.abstract import AbstractModelWithHashedId
 from app.db_classes.model_with_hashed_id.null import NullModelWithHashedId
+from app.db_classes.model_with_hashed_id.getter import ModelWithHashedIdGetter
 
 
 class ModelWithHashedId(StandardModel, AbstractModelWithHashedId):
@@ -10,6 +11,8 @@ class ModelWithHashedId(StandardModel, AbstractModelWithHashedId):
 
     hashed_id_ = db.Column(db.String, unique=True, nullable=True)
     null_cls_ = NullModelWithHashedId
+
+    getter_cls_ = ModelWithHashedIdGetter
 
     # --> PROPERTIES
     @property
@@ -22,6 +25,18 @@ class ModelWithHashedId(StandardModel, AbstractModelWithHashedId):
         self.save()
 
     # --> METHODS
+    def __init__(self):
+        super().__init__()
+        self.hashed_id = type(self).generate_hashed_id()
+
+    @classmethod
+    def generate_hashed_id(cls):
+        while True:
+            hashed_id = generate_token(20)
+            if cls.get_by_hashed_id(hashed_id).is_null():
+                break
+        return hashed_id
+
     def add(self):
         db.session.add(self)
         self.act_set_hashed_id()

@@ -1,5 +1,7 @@
 from app.imports import *
 from app.log import Exception
+
+
 class Exception_Access_Denied(Exception):
     def __init__(self, *args, **kwargs):
         self.set_content("Отказано в доступе")

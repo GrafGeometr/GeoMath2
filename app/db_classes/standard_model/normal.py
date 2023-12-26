@@ -2,6 +2,7 @@ from app.imports import *
 
 from app.db_classes.standard_model.abstract import AbstractStandardModel
 from app.db_classes.standard_model.null import NullStandardModel
+from app.db_classes.standard_model.getter import StandardModelGetter
 
 
 class StandardModel(AbstractStandardModel):
@@ -11,20 +12,18 @@ class StandardModel(AbstractStandardModel):
     id_ = db.Column(db.Integer, primary_key=True, autoincrement=True)
     null_cls_ = NullStandardModel
 
-    
-
     # --> PROPERTIES
-    
-    from app.db_classes.getter.getter import BaseGetter
-    getter_cls_ = BaseGetter
+
+    getter_cls_ = StandardModelGetter
     getter_singleton_ = None
+
     @classmethod
     @property
     def get(cls):
         if cls.getter_singleton_ is None:
-            cls.getter_singleton_ = cls.getter_cls_(cls)
+            cls.getter_singleton_ = cls.getter_class_(cls)
         return cls.getter_singleton_
-    
+
     @property
     def id(self):
         return self.id_

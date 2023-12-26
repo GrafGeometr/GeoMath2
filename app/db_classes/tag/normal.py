@@ -28,11 +28,9 @@ class Tag(ModelWithName, AbstractTag):
     # --> METHODS
     @staticmethod
     def get_all_by_obj(obj):
-        if obj is None:
-            return []
         from app.dbc import TagRelation
 
-        return [tr.tag for tr in TagRelation.get_all_by_parent(obj)]
+        return [tr.tag for tr in TagRelation.get.by_parent(obj).all()]
 
     def add(self):
         t = Tag.get_by_name(self.name)

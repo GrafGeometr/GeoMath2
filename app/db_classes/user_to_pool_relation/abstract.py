@@ -39,21 +39,6 @@ class AbstractUserToPoolRelation(AbstractStandardModel):
         pass
 
     # --> METHODS
-    @staticmethod
-    @abstractmethod
-    def get_by_user_and_pool(user: "UserAbstract", pool: "PoolAbstract"):
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def get_all_by_pool(pool: "PoolAbstract"):
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def get_all_by_user(user: "UserAbstract"):
-        pass
-
     @abstractmethod
     def act_accept_invitation(self):
         pass
