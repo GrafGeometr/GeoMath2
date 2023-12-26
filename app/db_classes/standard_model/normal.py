@@ -9,20 +9,20 @@ class StandardModel(AbstractStandardModel):
     __abstract__ = True
 
     id_ = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    null_cls = NullStandardModel
+    null_cls_ = NullStandardModel
 
     
 
     # --> PROPERTIES
     
     from app.db_classes.getter.getter import BaseGetter
-    getter_class_ = BaseGetter
+    getter_cls_ = BaseGetter
     getter_singleton_ = None
     @classmethod
     @property
     def get(cls):
         if cls.getter_singleton_ is None:
-            getter_singleton_ = cls.getter_class_(cls)
+            cls.getter_singleton_ = cls.getter_cls_(cls)
         return cls.getter_singleton_
     
     @property
@@ -54,7 +54,7 @@ class StandardModel(AbstractStandardModel):
         result = cls.query.filter_by(id=id_).first()
         if result is not None:
             return result
-        return cls.null_cls()
+        return cls.null_cls_()
 
     @classmethod
     def get_all(cls):

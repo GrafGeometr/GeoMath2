@@ -9,7 +9,7 @@ class ModelWithHashedId(StandardModel, AbstractModelWithHashedId):
     __abstract__ = True
 
     hashed_id_ = db.Column(db.String, unique=True, nullable=True)
-    null_cls = NullModelWithHashedId
+    null_cls_ = NullModelWithHashedId
 
     # --> PROPERTIES
     @property
@@ -39,8 +39,8 @@ class ModelWithHashedId(StandardModel, AbstractModelWithHashedId):
     @classmethod
     def get_by_hashed_id(cls, hashed_id):
         if hashed_id is None:
-            return cls.null_cls()
+            return cls.null_cls_()
         result = cls.query.filter_by(hashed_id=hashed_id).first()
         if result is not None:
             return result
-        return cls.null_cls()
+        return cls.null_cls_()

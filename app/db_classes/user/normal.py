@@ -2,9 +2,10 @@ from app.imports import *
 from app.sqlalchemy_custom_types import *
 
 from app.db_classes.model_with_name.normal import ModelWithName
-from app.db_classes.user.abstract import AbstractUser
-from app.db_classes.user.null import NullUser
 
+from .abstract import AbstractUser
+from .null import NullUser
+from .getter import Getter
 
 class User(UserMixin, ModelWithName, AbstractUser):
     # --> INITIALIZE
@@ -17,7 +18,8 @@ class User(UserMixin, ModelWithName, AbstractUser):
     profile_pic_ = db.Column(db.String(), nullable=True)
     about_ = db.Column(db.String(), nullable=True, default="")
 
-    null_cls = NullUser
+    null_cls_ = NullUser
+    getter_cls_ = Getter
 
     # --> RELATIONS
     emails_ = db.relationship("Email", backref="user")
@@ -31,8 +33,8 @@ class User(UserMixin, ModelWithName, AbstractUser):
     user_messages_ = db.relationship("User_Message", backref="user")
 
     # --> PROPERTIES
-    from .getter import Getter
-    getter_class_ = Getter
+    
+    
 
     @property
     def password(self):
@@ -165,7 +167,7 @@ class User(UserMixin, ModelWithName, AbstractUser):
     def get_current_user(cls):
         if current_user.is_authenticated:
             return current_user
-        return cls.null_cls()
+        return cls.null_cls_()
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -286,4 +288,4 @@ class User(UserMixin, ModelWithName, AbstractUser):
         if users:
             return users[0]
         else:
-            return cls.null_cls()
+            return cls.null_cls_()

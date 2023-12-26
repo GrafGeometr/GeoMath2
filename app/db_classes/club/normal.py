@@ -1,24 +1,49 @@
 from app.imports import *
-from app.sqlalchemy_custom_types import *
 
-from app.db_classes.model_with_hashed_id.normal import ModelWithHashedId
-from app.db_classes.model_with_name.normal import ModelWithName
+from app.db_classes.standard_model.normal import StandardModel
+from .abstract import AbstractClub
+from .null import NullClub
+from .getter import Getter
 
 
-class Club(ModelWithHashedId, ModelWithName):
+class Club(StandardModel):
     # --> INITIALIZE
+    __abstract__ = False
     __tablename__ = "club"
 
+    null_cls_ = NullClub
+    getter_cls_ = Getter
+
     # --> RELATIONS
-    user_clubs = db.relationship("User_Club", backref="club")
-    chats = db.relationship("Chat", backref="club")
-    club_contests = db.relationship("Club_Contest", backref="club")
+    user_clubs_ = db.relationship("User_Club", backref="club_")
+    chats_ = db.relationship("Chat", backref="club_")
+    club_contests_ = db.relationship("Club_Contest", backref="club_")
+
+    # --> PROPERTIES
+    @property
+    def user_clubs(self) -> list["User_Club"]:
+        return self.user_clubs_
+    
+    @user_clubs.setter
+    def user_clubs(self, user_clubs: list["User_Club"]):
+        self.user_clubs_ = user_clubs
+        self.save()
+
+    @property
+    def chats(self) -> list["Chat"]:
+        return self.chats_
+
+    @property
+    def club_contests(self) -> list["Club_Contest"]:
+        return self.club_contests_
+
+
 
     # --> FUNCTIONS
     def is_my(self):
-        return self.is_contains_user(current_user)
+        return self.contains_user(current_user)
 
-    def is_contains_user(self, user=current_user):
+    def contains_user(self, user=current_user):
         return user in [uc.user for uc in self.user_clubs]
 
     def act_add_user(self, user=current_user, role=Participant):
@@ -26,7 +51,7 @@ class Club(ModelWithHashedId, ModelWithName):
 
         if user is None:
             return
-        if self.is_contains_user(user):
+        if self.contains_user(user):
             return
         uc = User_Club(user=user, club=self, role=role)
         uc.add()
@@ -41,7 +66,7 @@ class Club(ModelWithHashedId, ModelWithName):
 
         if user is None:
             return
-        if not self.is_contains_user(user):
+        if not self.contains_user(user):
             return
         uc = User_Club.query.filter_by(user=user, club=self).first()
         uc.remove()
@@ -52,7 +77,7 @@ class Club(ModelWithHashedId, ModelWithName):
     def act_add_user_by_invite(self, user=current_user, invite=None):
         if (invite is None) or (invite.is_expired()) or (invite.get_parent() != self):
             return
-        if self.is_contains_user(user):
+        if self.contains_user(user):
             return
         self.act_add_user(user)
         return self

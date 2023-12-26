@@ -16,4 +16,4 @@ class QueryManager:
         res = self.normal_cls.query.first()
         if res is not None:
             return res
-        return self.normal_cls.null_cls()
+        return self.normal_cls.null_cls_()

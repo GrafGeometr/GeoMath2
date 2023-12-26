@@ -1,18 +1,52 @@
 from app.imports import *
 
-from app.db_classes.model_with_name.normal import ModelWithName
-from app.db_classes.model_with_hashed_id.normal import ModelWithHashedId
+from app.db_classes.standard_model.normal import StandardModel
+from .abstract import AbstractChat
+from .null import NullChat
+from .getter import Getter
 
-
-class Chat(ModelWithHashedId, ModelWithName):
+class Chat(AbstractChat, StandardModel):
     # --> INITIALIZE
+    __abstract__ = False
     __tablename__ = "chat"
 
-    readonly = db.Column(db.Boolean, default=False)
+    readonly_ = db.Column(db.Boolean, default=False)
+
+    null_cls_ = NullChat
+    getter_cls_ = Getter
 
     # --> RELATIONS
-    user_chats = db.relationship("User_Chat", backref="chat")
-    club_id = db.Column(db.Integer, db.ForeignKey("club.id_"))  # if not a dialog
+    user_chats_ = db.relationship("User_Chat", backref="chat_")
+    club_id_ = db.Column(db.Integer, db.ForeignKey("club.id_"))
+
+    # --> PROPERTIES
+    @property
+    def readonly(self) -> bool:
+        return self.readonly_
+
+    @readonly.setter
+    def readonly(self, readonly: bool):
+        self.readonly_ = readonly
+        self.save()
+
+    @property
+    def user_chats(self) -> list["User_Chat"]:
+        return self.user_chats_
+
+    @user_chats.setter
+    def user_chats(self, user_chats: list["User_Chat"]):
+        self.user_chats_ = user_chats
+        self.save()
+
+    @property
+    def club_id(self, club_id: int):
+        return self.club_id_
+
+    @club_id.setter
+    def club_id(self, club_id: int):
+        self.club_id_ = club_id
+        self.save()
+
 
     # --> FUNCTIONS
     def remove(self):
@@ -25,38 +59,29 @@ class Chat(ModelWithHashedId, ModelWithName):
         db.session.delete(self)
         db.session.commit()
 
-    def is_contains_user(self, user=current_user):
+    def contains_user(self, user=current_user) -> bool:
         return user in [uc.user for uc in self.user_chats]
 
-    def is_my(self, user=current_user):
-        from app.dbc import User_Chat
-
-        uc = User_Chat.query.filter_by(user_id=user.id, chat_id=self.id).first()
-        return uc is not None
-
-    def get_all_messages(self):
+    def all_messages(self):
         res = []
         for uc in self.user_chats:
             res.extend(uc.messages)
         return sorted(res, key=lambda m: m.date)
 
-    def get_unread_messages(self, user=current_user):
-        from app.dbc import User_Message
-
+    def unread_messages(self, user=current_user) -> list["Message"]:
         res = []
-        for m in self.get_all_messages():
-            res.extend(
-                User_Message.query.filter_by(user=user, message=m, read=False).all()
-            )
+        for m in self.all_messages():
+            if m.unread_by_user(user):
+                res.append(m)
         return res
 
-    def get_last_message_date(self):
-        messages = self.get_all_messages()
+    def last_message_date(self) -> datetime.datetime:
+        messages = self.all_messages()
         if len(messages) == 0:
             return datetime.datetime.min
         return max([m.date for m in messages])
 
-    def get_other_user(self, user=current_user):
+    def other_user(self, user=current_user):
         if self.club_id is not None:
             return None
 
@@ -78,7 +103,7 @@ class Chat(ModelWithHashedId, ModelWithName):
     def act_add_user(self, user=current_user):
         from app.dbc import User_Chat
 
-        if self.is_contains_user(user):
+        if self.contains_user(user):
             return
         uc = User_Chat(user=user, chat=self)
         uc.add()
@@ -87,7 +112,7 @@ class Chat(ModelWithHashedId, ModelWithName):
     def act_remove_user(self, user=current_user):
         from app.dbc import User_Chat
 
-        if not self.is_contains_user(user):
+        if not self.contains_user(user):
             return
         uc = User_Chat.query.filter_by(user=user, chat=self).first()
         uc.remove()

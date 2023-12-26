@@ -1,8 +1,9 @@
 from app.imports import *
-from app.sqlalchemy_custom_types import *
 
-from app.db_classes.model_with_hashed_id.normal import ModelWithHashedId
-from app.db_classes.model_with_name.normal import ModelWithName
+from app.db_classes.standard_model.normal import StandardModel
+from .abstract import AbstractChat
+from .null import NullChat
+from .getter import Getter
 
 
 class Pool(ModelWithHashedId, ModelWithName):
@@ -16,11 +17,11 @@ class Pool(ModelWithHashedId, ModelWithName):
     contests = db.relationship("Contest", backref="pool")
 
     # --> FUNCTIONS
-    def is_contains_user(self, user=current_user):
+    def contains_user(self, user=current_user):
         return user in [up.user for up in self.user_pools]
 
     def is_my(self):
-        return self.is_contains_user(current_user)
+        return self.contains_user(current_user)
 
     def check_user_access(self, current_user) -> bool:
         from app.log import Exception_Access_Denied
@@ -54,7 +55,7 @@ class Pool(ModelWithHashedId, ModelWithName):
 
         if user is None:
             return
-        if self.is_contains_user(user):
+        if self.contains_user(user):
             return
         up = User_Pool(user=user, pool=self, role=role)
         up.add()
@@ -65,7 +66,7 @@ class Pool(ModelWithHashedId, ModelWithName):
 
         if user is None:
             return
-        if not self.is_contains_user(user):
+        if not self.contains_user(user):
             return
         up = User_Pool.query.filter_by(user=user, pool=self).first()
         up.remove()
@@ -74,7 +75,7 @@ class Pool(ModelWithHashedId, ModelWithName):
     def act_add_user_by_invite(self, user=current_user, invite=None):
         if (invite is None) or (invite.is_expired()) or (invite.get_parent() != self):
             return
-        if self.is_contains_user(user):
+        if self.contains_user(user):
             return
         self.act_add_user(user)
         return self

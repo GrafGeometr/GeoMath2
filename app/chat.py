@@ -32,7 +32,7 @@ def chat_messages(chat_hashed_id):
         flash("Вы не состоите в этом чате", "error")
         return redirect("/profile/chats")
     chat.act_mark_all_as_read()
-    return render_template("chat/chat_messages.html", chat=chat, messages=chat.get_all_messages(), str_from_dt = str_from_dt, title=f"Сообщения")
+    return render_template("chat/chat_messages.html", chat=chat, messages=chat.all_messages(), str_from_dt = str_from_dt, title=f"Сообщения")
 
 
 # redirect to chat/management/general

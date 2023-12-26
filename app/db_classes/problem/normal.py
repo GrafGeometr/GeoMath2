@@ -1,8 +1,9 @@
 from app.imports import *
-from app.sqlalchemy_custom_types import *
 
-from app.db_classes.model_with_hashed_id.normal import ModelWithHashedId
-from app.db_classes.model_with_name.normal import ModelWithName
+from app.db_classes.standard_model.normal import StandardModel
+from .abstract import AbstractChat
+from .null import NullChat
+from .getter import Getter
 
 
 class Problem(ModelWithHashedId, ModelWithName):

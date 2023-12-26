@@ -9,7 +9,7 @@ class ModelWithName(StandardModel, AbstractModelWithName):
     __abstract__ = True
 
     name_ = db.Column(db.String, unique=True)
-    null_cls = NullModelWithName
+    null_cls_ = NullModelWithName
 
     # --> PROPERTIES
     @property
@@ -31,4 +31,4 @@ class ModelWithName(StandardModel, AbstractModelWithName):
         result = cls.query.filter_by(name=name).first()
         if result is not None:
             return result
-        return cls.null_cls()
+        return cls.null_cls_()
