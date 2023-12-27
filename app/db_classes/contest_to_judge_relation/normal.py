@@ -18,7 +18,7 @@ class ContestToJudgeRelation(StandardModel):
     contest_id_ = db.Column(db.Integer, db.ForeignKey("contest.id_"))
     user_id_ = db.Column(db.Integer, db.ForeignKey("user.id_"))
 
-    # --> FUNCTIONS
+    # --> PROPERTIES
     @property
     def contest_id(self) -> int:
         return self.contest_id_

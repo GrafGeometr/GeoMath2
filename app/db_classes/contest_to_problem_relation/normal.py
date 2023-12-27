@@ -8,17 +8,67 @@ from .getter import Getter
 
 class ContestToProblemRelation(StandardModel):
     # --> INITIALIZE
+    __abstract__ = False
     __tablename__ = "contest_problem"
 
-    max_score = db.Column(db.Integer, default=7)
-    list_index = db.Column(db.Integer)
+    null_cls_ = NullContestToJudgeRelation
+    getter_cls_ = ContestToJudgeRelationGetter
+
+    max_score_ = db.Column(db.Integer, default=7)
+    list_index_ = db.Column(db.Integer)
 
     # --> RELATIONS
-    contest_id = db.Column(db.Integer, db.ForeignKey("contest.id_"))
-    problem_id = db.Column(db.Integer, db.ForeignKey("problem.id_"))
-    contest_user_solutions = db.relationship(
+    contest_id_ = db.Column(db.Integer, db.ForeignKey("contest.id_"))
+    problem_id_ = db.Column(db.Integer, db.ForeignKey("problem.id_"))
+    contest_user_solutions_ = db.relationship(
         "Contest_User_Solution", backref="contest_problem"
     )
+
+    # --> PROPERTIES
+    @property
+    def max_score(self) -> int:
+        return self.max_score_
+    
+    @max_score.setter
+    def max_score(self, max_score: int):
+        self.max_score_ = max_score
+        self.save()
+
+    @property
+    def list_index(self) -> int:
+        return self.list_index_
+    
+    @list_index.setter
+    def list_index(self, list_index: int):
+        self.list_index_ = list_index
+        self.save()
+
+    @property
+    def contest_id(self) -> int:
+        return self.contest_id_
+    
+    @contest_id.setter
+    def contest_id(self, contest_id: int):
+        self.contest_id_ = contest_id
+        self.save()
+
+    @property
+    def problem_id(self) -> int:
+        return self.problem_id_
+    
+    @problem_id.setter
+    def problem_id(self, problem_id: int):
+        self.problem_id_ = problem_id
+        self.save()
+
+    @property
+    def contest_user_solutions(self) -> list("Contest_User_Solution"):
+        return self.contest_user_solutions_
+    
+    @contest_user_solutions.setter
+    def contest_user_solutions(self, contest_user_solutions: list("Contest_User_Solution")):
+        self.contest_user_solutions_ = contest_user_solutions
+        self.save()
 
     # --> FUNCTIONS
     def add(self):
