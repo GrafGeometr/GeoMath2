@@ -4,7 +4,7 @@ from app.sqlalchemy_custom_types import *
 from typing import List
 
 from abc import abstractmethod
-from app.dbc import AbstractModelWithName
+from app.db_classes.model_with_name.abstract import AbstractModelWithName
 
 
 class AbstractSheet(AbstractModelWithName):
@@ -39,9 +39,19 @@ class AbstractSheet(AbstractModelWithName):
     def total_likes(self) -> int:
         pass
 
+    @total_likes.setter
+    @abstractmethod
+    def total_likes(self, total_likes: int):
+        pass
+
     @property
     @abstractmethod
     def total_dislikes(self) -> int:
+        pass
+
+    @total_dislikes.setter
+    @abstractmethod
+    def total_dislikes(self, total_dislikes: int):
         pass
 
     @property
@@ -117,7 +127,7 @@ class AbstractSheet(AbstractModelWithName):
         pass
 
     @abstractmethod
-    def is_have_tag(self, tag: "Tag") -> bool:
+    def has_tag(self, tag: "Tag") -> bool:
         pass
 
     @abstractmethod
@@ -141,7 +151,7 @@ class AbstractSheet(AbstractModelWithName):
         pass
 
     @abstractmethod
-    def is_attachment(self, attachment: "Attachment") -> bool:
+    def has_attachment(self, attachment: "Attachment") -> bool:
         pass
 
     @abstractmethod

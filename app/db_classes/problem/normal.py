@@ -1,26 +1,100 @@
 from app.imports import *
+from app.sqlalchemy_custom_types import *
 
-from app.db_classes.standard_model.normal import StandardModel
-from .abstract import AbstractChat
-from .null import NullChat
-from .getter import Getter
+from app.db_classes.model_with_hashed_id.normal import ModelWithHashedId
+from app.db_classes.model_with_name.normal import ModelWithName
+from app.db_classes.problem.abstract import AbstractProblem
+from app.db_classes.problem.null import NullProblem
+from app.db_classes.problem.getter import ProblemGetter
 
 
-class Problem(ModelWithHashedId, ModelWithName):
+class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
     # --> INITIALIZE
+    __abstract__ = False
     __tablename__ = "problem"
 
-    statement = db.Column(db.String)
-    solution = db.Column(db.String)
-    is_public = db.Column(db.Boolean, default=False)
-    total_likes = db.Column(db.Integer, default=0)
-    total_dislikes = db.Column(db.Integer, default=0)
+    statement_ = db.Column(db.String)
+    solution_ = db.Column(db.String)
+    is_public_ = db.Column(db.Boolean, default=False)
+    total_likes_ = db.Column(db.Integer, default=0)
+    total_dislikes_ = db.Column(db.Integer, default=0)
+
+    null_cls_ = NullProblem
+    getter_cls_ = ProblemGetter
 
     # --> RELATIONS
-    pool_id = db.Column(db.Integer, db.ForeignKey("pool.id_"))
-    contest_problems = db.relationship("Contest_Problem", backref="problem")
+    pool_id_ = db.Column(db.Integer, db.ForeignKey("pool.id_"))
+    contest_problems_ = db.relationship("Contest_Problem", backref="problem_")
 
-    # --> FUNCTIONS
+    # --> PROPERTIES
+    @property
+    def statement(self):
+        return self.statement_
+
+    @statement.setter
+    def statement(self, statement):
+        self.statement_ = statement
+        self.save()
+
+    @property
+    def solution(self):
+        return self.solution_
+
+    @solution.setter
+    def solution(self, solution):
+        self.solution_ = solution
+        self.save()
+
+    @property
+    def is_public(self):
+        return self.is_public_
+
+    @is_public.setter
+    def is_public(self, is_public):
+        self.is_public_ = is_public
+        self.save()
+
+    @property
+    def total_likes(self):
+        return self.total_likes_
+
+    @total_likes.setter
+    def total_likes(self, total_likes):
+        self.total_likes_ = total_likes
+        self.save()
+
+    @property
+    def total_dislikes(self):
+        return self.total_dislikes_
+
+    @total_dislikes.setter
+    def total_dislikes(self, total_dislikes):
+        self.total_dislikes_ = total_dislikes
+        self.save()
+
+    @property
+    def pool_id(self):
+        return self.pool_id_
+
+    @pool_id.setter
+    def pool_id(self, pool_id):
+        self.pool_id_ = pool_id
+        self.save()
+
+    @property
+    def pool(self):
+        from app.db_classes.pool.null import NullPool
+
+        if self.pool_ is None:
+            return NullPool()
+        return self.pool_
+
+    @pool.setter
+    def pool(self, pool):
+        self.pool_ = pool
+        self.save()
+
+    # --> METHODS
     def remove(self):
         for cp in self.contest_problems:
             cp.remove()
@@ -33,75 +107,24 @@ class Problem(ModelWithHashedId, ModelWithName):
         db.session.delete(self)
         db.session.commit()
 
-    def is_public(self):
-        return self.is_public
-
-    def set_is_public(self, is_public: bool) -> "Problem":
-        self.is_public = is_public
-        db.session.commit()
-        return self
-
-    def get_pool(self):
-        from app.dbc import Pool_Null
-        if (self.pool):
-            return self.pool
-        return Pool_Null()
-
-    @staticmethod
-    def get_by_hashed_id(hashed_id: string) -> "Problem":
-        from app.dbc import ProblemNull
-        problem = Problem.query.filter_by(hashed_id=hashed_id).first()
-        if problem is None:
-            problem = ProblemNull()
-        return problem
-
     def is_liked(self):
         from app.dbc import Like
 
-        return (
-                Like.query.filter_by(
-                    parent_type="Problem", parent_id=self.id, user_id=current_user.id
-                ).first()
-                is not None
-        )
+        return Like.get.by_parent(self).by_user(current_user).first() is not None
 
     def act_add_like(self):
         if self.is_liked():
-            return
+            return self
         from app.dbc import Like
 
-        Like(parent_type="Problem", parent_id=self.id, user_id=current_user.id).add()
-        return
+        Like(parent_type_="Problem", parent_id_=self.id, user_id_=current_user.id).add()
+        return self
 
     def act_remove_like(self):
-        if not self.is_liked():
-            return
         from app.dbc import Like
 
-        Like.query.filter_by(
-            parent_type="Problem", parent_id=self.id, user_id=current_user.id
-        ).remove()
-        return
-
-    def act_set_statement(self, statement):
-        self.statement = statement
-        return self.save()
-
-    def act_set_solution(self, solution):
-        self.solution = solution
-        return self.save()
-
-    def act_set_is_public(self, is_public):
-        self.is_public = is_public
-        return self.save()
-
-    def act_make_public(self):
-        self.is_public = True
-        return self.save()
-
-    def act_make_nonpublic(self):
-        self.is_public = False
-        return self.save()
+        Like.get.by_parent(self).by_user(current_user).remove()
+        return self
 
     def is_archived(self):
         return self.is_public
@@ -109,27 +132,21 @@ class Problem(ModelWithHashedId, ModelWithName):
     def get_all_contests(self):
         return [cp.contest for cp in self.contest_problems]
 
-    def get_cu_participated(self, user=current_user):
-        from app.dbc import Contest_User
-
-        result = []
-        for c in self.get_all_contests():
-            result.extend(Contest_User.get_all_by_contest_and_user(c, current_user))
-        return result
-
     def get_all_likes(self):
         from app.dbc import Like
 
         return Like.get_all_by_parent(self)
 
-    def get_all_likes_good(self):
+    def get_all_good_likes(self):
         return [like for like in self.get_all_likes() if like.good]
 
-    def get_all_likes_bad(self):
+    def get_all_bad_likes(self):
         return [like for like in self.get_all_likes() if not like.good]
 
     def is_statement_available(self, user=current_user):
-        from app.dbc import Contest_User_Solution
+        from app.db_classes.contest_to_user_solution_relation.normal import (
+            ContestToUserSolutionRelation,
+        )
 
         all_cp = [cp for cp in self.contest_problems if cp.is_valid()]
         if any([user.is_judge(cp.contest) for cp in all_cp]):
@@ -138,7 +155,7 @@ class Problem(ModelWithHashedId, ModelWithName):
         all_cus = []
         for cp in all_cp:
             all_cus.extend(
-                Contest_User_Solution.query.filter_by(contest_problem_id=cp.id).all()
+                ContestToUserSolutionRelation.get.by_contest_problem(cp).all()
             )
         if self.is_archived() or self.is_my():
             if len(all_cus) == 0:
@@ -150,7 +167,9 @@ class Problem(ModelWithHashedId, ModelWithName):
             return all([cus.contest_user.is_started() for cus in all_cus])
 
     def is_solution_available(self, user=current_user):
-        from app.dbc import Contest_User_Solution
+        from app.db_classes.contest_to_user_solution_relation.normal import (
+            ContestToUserSolutionRelation,
+        )
 
         all_cp = [cp for cp in self.contest_problems if cp.is_valid()]
         if any([user.is_judge(cp.contest) for cp in all_cp]):
@@ -159,7 +178,7 @@ class Problem(ModelWithHashedId, ModelWithName):
         all_cus = []
         for cp in all_cp:
             all_cus.extend(
-                Contest_User_Solution.query.filter_by(contest_problem_id=cp.id).all()
+                ContestToUserSolutionRelation.get.by_contest_problem(cp).all()
             )
         if self.is_archived() or self.is_my():
             if len(all_cus) == 0:
@@ -177,42 +196,38 @@ class Problem(ModelWithHashedId, ModelWithName):
         return user.is_pool_access(self.pool_id)
 
     def is_in_contest(self, contest):
-        from app.dbc import Contest_Problem
+        from app.db_classes.contest_to_problem_relation.normal import (
+            ContestToProblemRelation,
+        )
 
-        return Contest_Problem.get_by_contest_and_problem(contest, self) is not None
+        return (
+            not ContestToProblemRelation.get.by_contest(contest)
+            .by_problem(self)
+            .first()
+            .is_null()
+        )
 
     @staticmethod
     def get_all_by_pool(pool):
-        if pool is None:
-            return []
-        return Problem.query.filter_by(pool_id=pool.id).all()
+        return Problem.get.by_pool(pool).all()
 
     # TAGS BLOCK
 
     def get_nonsorted_tags(self):
-        from app.dbc import Tag, Tag_Relation
+        from app.dbc import Tag
 
-        return [
-            Tag.query.filter_by(id=sheet_tag.tag_id).first()
-            for sheet_tag in Tag_Relation.query.filter_by(
-                parent_type=DbParent.from_type(type(self)), parent_id=self.id
-            ).all()
-        ]
+        return Tag.get_all_by_obj(self)
 
     def get_tags(self):
         return sorted(self.get_nonsorted_tags(), key=lambda t: t.name.lower())
 
     def get_tag_names(self):
-        return list(map(lambda t: t.name, self.get_tags()))
+        return [tag.name for tag in self.get_tags()]
 
-    def is_have_tag(self, tag):
-        if tag is None:
-            return False
-        from app.dbc import Tag_Relation
+    def has_tag(self, tag):
+        from app.dbc import TagRelation
 
-        if Tag_Relation.get_by_parent_and_tag(self, tag) is None:
-            return False
-        return True
+        return TagRelation.get.by_parent(self).by_tag(tag).is_null()
 
     def act_add_tags(self, tags):
         for tag in tags:
@@ -220,44 +235,39 @@ class Problem(ModelWithHashedId, ModelWithName):
         return self
 
     def act_add_tag(self, tag):
-        from app.dbc import Tag_Relation
+        from app.dbc import TagRelation
 
-        if tag is None:
+        if not self.is_my() or self.is_have_tag(tag):
             return self
-        if not self.is_my():
-            return self
-        if self.is_have_tag(tag):
-            return self
-        Tag_Relation(
-            parent_type=DbParent.from_type(type(self)), parent_id=self.id, tag_id=tag.id
+        TagRelation(
+            parent_type_=DbParent.from_type(type(self)),
+            parent_id_=self.id,
+            tag_id_=tag.id,
         ).add()
         return self
 
     def act_add_tag_by_name(self, tag_name):
         from app.dbc import Tag
 
-        tag = Tag.get_by_name(tag_name)
-        if (tag is None) and (current_user.admin):
+        tag = Tag.get.by_name(tag_name).first()
+        if tag.is_null() and current_user.admin:
             tag = Tag(name=tag_name).add()
 
         return self.act_add_tag(tag)
 
     def act_remove_tag(self, tag):
-        from app.dbc import Tag_Relation
+        from app.dbc import TagRelation
 
-        if tag is None:
-            return self
         if not self.is_my():
             return self
-        rel = Tag_Relation.get_by_parent_and_tag(self, tag)
-        if rel is not None:
-            rel.remove()
+        rel = TagRelation.get.by_parent(self).by_tag(tag).first()
+        rel.remove()
         return self
 
     def act_remove_tag_by_name(self, tag_name):
         from app.dbc import Tag
 
-        return self.act_remove_tag(Tag.get_by_name(tag_name))
+        return self.act_remove_tag(Tag.get.by_name(tag_name).first())
 
     def act_set_tags(self, names):
         for tag in self.get_nonsorted_tags():
@@ -288,8 +298,8 @@ class Problem(ModelWithHashedId, ModelWithName):
         if attachment is None:
             return False
         return (
-                attachment.parent_type == DbParent.from_type(type(self))
-                and attachment.parent_id == self.id
+            attachment.parent_type == DbParent.from_type(type(self))
+            and attachment.parent_id == self.id
         )
 
     def act_add_attachment(self, attachment):
