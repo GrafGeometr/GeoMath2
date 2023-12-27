@@ -7,8 +7,9 @@ from .null import NullContest
 from .getter import ContestGetter
 
 
-class Contest(ModelWithName):
+class Contest(StandardModel):
     # --> INITIALIZE
+    __abstract__ = False
     __tablename__ = "contest"
 
     null_cls_ = NullContest
