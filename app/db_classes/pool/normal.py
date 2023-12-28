@@ -1,119 +1,155 @@
+from typing import List
+
 from app.imports import *
+from app.sqlalchemy_custom_types import *
 
-from app.db_classes.standard_model.normal import StandardModel
-from .abstract import AbstractChat
-from .null import NullChat
-from .getter import Getter
+from app.db_classes.model_with_name.normal import ModelWithName
+from app.db_classes.model_with_hashed_id.normal import ModelWithHashedId
+from app.db_classes.pool.abstract import AbstractPool
+
+from app.db_classes.pool.null import NullPool
+from app.db_classes.pool.getter import PoolGetter
+
+from app.db_classes.invite.null import NullInvite
 
 
-class Pool(ModelWithHashedId, ModelWithName):
+class Pool(ModelWithHashedId, ModelWithName, AbstractPool):
     # --> INITIALIZE
+    __abstract__ = True
     __tablename__ = "pool"
 
-    # --> RELATIONS
-    user_pools = db.relationship("User_Pool", backref="pool")
-    problems = db.relationship("Problem", backref="pool")
-    sheets = db.relationship("Sheet", backref="pool")
-    contests = db.relationship("Contest", backref="pool")
+    null_cls_ = NullPool
+    getter_cls_ = PoolGetter
 
-    # --> FUNCTIONS
+    # --> RELATIONS
+    user_to_pool_relations_ = db.relationship("UserToPoolRelation", backref="pool_")
+    problems_ = db.relationship("Problem", backref="pool_")
+    sheets_ = db.relationship("Sheet", backref="pool_")
+    contests_ = db.relationship("Contest", backref="pool_")
+
+    # --> PROPERTIES
+    @property
+    def user_to_pool_relations(self):
+        return self.user_to_pool_relations_
+
+    @user_to_pool_relations.setter
+    def user_to_pool_relations(self, value):
+        self.user_to_pool_relations_ = value
+        self.save()
+
+    @property
+    def problems(self):
+        return self.problems_
+
+    @problems.setter
+    def problems(self, value):
+        self.problems_ = value
+        self.save()
+
+    @property
+    def sheets(self):
+        return self.sheets_
+
+    @sheets.setter
+    def sheets(self, value):
+        self.sheets_ = value
+        self.save()
+
+    @property
+    def contests(self):
+        return self.contests_
+
+    @contests.setter
+    def contests(self, value):
+        self.contests_ = value
+        self.save()
+
+    # --> METHODS
     def contains_user(self, user=current_user):
         return user in [up.user for up in self.user_pools]
 
     def is_my(self):
         return self.contains_user(current_user)
 
-    def check_user_access(self, current_user) -> bool:
+    def check_user_access(self, user=current_user) -> bool:
         from app.log import Exception_Access_Denied
-        users = [up.user for up in self.user_pools]
-        access = current_user in users
-        if (not access):
+
+        users = [up.user for up in self.user_to_pool_relations]
+        access = user in users
+        if not access:
             Exception_Access_Denied(self).flash()
         return access
 
-    def check_user_owner(self, current_user) -> bool:
+    def check_user_owner(self, user=current_user) -> bool:
         from app.log import Exception_Access_Denied
+
         users = [up.user for up in self.user_pools if up.is_owner()]
-        access = current_user in users
-        if (not access):
+        access = user in users
+        if not access:
             Exception_Access_Denied(self).flash()
         return access
-
-    def get_name(self) -> str:
-        return self.name
-
-    @staticmethod
-    def get_by_hashed_id(hashed_id: string) -> "Pool":
-        from app.dbc import Pool_Null
-        pool = Pool.query.filter_by(hashed_id=hashed_id).first()
-        if pool is None:
-            pool = Pool_Null()
-        return pool
 
     def add_user(self, user=current_user, role=Participant):
-        from app.dbc import User_Pool
+        from app.db_classes.user_to_pool_relation.normal import UserToPoolRelation
 
-        if user is None:
-            return
         if self.contains_user(user):
-            return
-        up = User_Pool(user=user, pool=self, role=role)
-        up.add()
+            return self
+        UserToPoolRelation(user_=user, pool_=self, role_=role).add()
         return self
 
     def remove_user(self, user=current_user):
-        from app.dbc import User_Pool
+        from app.db_classes.user_to_pool_relation.normal import UserToPoolRelation
 
-        if user is None:
-            return
         if not self.contains_user(user):
-            return
-        up = User_Pool.query.filter_by(user=user, pool=self).first()
-        up.remove()
+            return self
+        UserToPoolRelation.get.by_pool(self).by_user(user).first().remove()
         return self
 
-    def add_user_by_invite(self, user=current_user, invite=None):
-        if (invite is None) or (invite.is_expired()) or (invite.get_parent() != self):
-            return
+    def add_user_by_invite(self, user=current_user, invite=NullInvite()):
+        if invite.is_expired() or invite.get_parent() != self:
+            return self
         if self.contains_user(user):
-            return
-        self.add_user(user)
+            return self
+        self.add_user(user)  # TODO : why we don't remove invite?
         return self
 
     def act_generate_new_invite_code(self):
-        from app.dbc import Invite
+        from app.db_classes.invite.normal import Invite
 
         Invite.act_refresh_all()
-        invite = Invite(parent_type=DbParent.from_type(Pool), parent_id=self.id)
+        invite = Invite(parent_type_=DbParent.from_type(Pool), parent_id_=self.id)
         invite.add()
         return invite
 
     def get_users(self):
-        from app.dbc import User_Pool
-
-        userpools = User_Pool.get_all_by_pool(self)
-        userpools.sort(
+        relations = self.user_to_pool_relations
+        relations.sort(
             key=lambda up: (0, up.user.name)
             if up.role.is_owner()
             else (1, up.user.name)
             if up.role.is_participant()
             else (2, up.user.name)
         )
-        return userpools
+        return relations
 
     def get_owners(self):
-        return [up.user for up in self.get_users() if up.role.is_owner()]
+        return [u_p_rel.user for u_p_rel in self.get_users() if u_p_rel.role.is_owner()]
 
     def count_owners(self):
-        return len([user for user in self.get_users() if user.role.is_owner()])
+        return len(self.get_owners())
+
+    def get_participants(self) -> List["User"]:
+        return [
+            u_p_rel.user
+            for u_p_rel in self.get_users()
+            if u_p_rel.role.is_participant() or u_p_rel.role.is_owner()
+        ]
 
     def count_participants(self):
-        return len([user for user in self.get_users() if user.role.is_participant()])
+        return len(self.get_participants())
 
     def get_problems(self):
-        from app.dbc import Problem
-
-        return Problem.get_all_by_pool(self)
+        return self.problems
 
     def get_all_invites(self):
         from app.dbc import Invite
@@ -123,32 +159,38 @@ class Pool(ModelWithHashedId, ModelWithName):
     def new_problem(self):
         from app.dbc import Problem
 
-        problem = Problem(statement="", solution="", pool_id=self.id).add()
-        return problem.act_set_name(f"Задача #{problem.id}")
+        problem = Problem(pool_id_=self.id).add()
+        problem.name = f"Задача #{problem.id}"
+        return problem
 
     def new_sheet(self):
         from app.dbc import Sheet
 
-        sheet = Sheet(text="", pool_id=self.id).add()
-        return sheet.act_set_name(f"Подборка #{sheet.id}").save()
+        sheet = Sheet(pool_id=self.id).add()
+        sheet.name = f"Подборка #{sheet.id}"
+        return sheet
 
     def new_contest(self):
         from app.dbc import Contest
 
-        contest = Contest(description="", name="Название", pool_id=self.id, grade=Grade("")).add()
+        contest = Contest(
+            description="", name="Название", pool_id=self.id, grade=Grade("")
+        ).add()
         tm = current_time("minutes")
-        return contest.act_set_name(f"Контест #{contest.id}").act_set_date(tm, tm)
+        contest.name = f"Контест #{contest.id}"
+        contest.date = tm, tm
+        return contest
 
     def remove(self):
-        from app.dbc import User_Pool, Problem, Sheet, Contest
+        from app.dbc import UserToPoolRelation, Problem, Sheet, Contest
 
-        for relation in User_Pool.query.filter_by(pool_id=self.id).all():
+        for relation in UserToPoolRelation.get.by_pool(self).all():
             relation.remove()
-        for problem in Problem.query.filter_by(pool_id=self.id).all():
+        for problem in Problem.get.by_pool(self).all():
             problem.remove()
-        for sheet in Sheet.query.filter_by(pool_id=self.id).all():
+        for sheet in Sheet.get.by_pool(self).all():
             sheet.remove()
-        for contest in Contest.query.filter_by(pool_id=self.id).all():
+        for contest in Contest.get.by_pool(self).all():
             contest.remove()
         db.session.delete(self)
         db.session.commit()

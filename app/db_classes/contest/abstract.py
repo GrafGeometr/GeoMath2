@@ -4,6 +4,7 @@ from app.sqlalchemy_custom_types import *
 from abc import abstractmethod
 from app.db_classes.standard_model.normal import AbstractStandardModel
 
+
 class AbstractContest(AbstractStandardModel):
     # --> INITIALIZE
     __abstract__ = True
@@ -22,6 +23,7 @@ class AbstractContest(AbstractStandardModel):
     club_contests = db.relationship("Club_Contest", backref="contest")
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id_"))
     olimpiad_id = db.Column(db.Integer, db.ForeignKey("olimpiad.id_"))
+
     # --> PROPERTIES
     @property
     @abstractmethod
@@ -102,7 +104,7 @@ class AbstractContest(AbstractStandardModel):
     @abstractmethod
     def total_dislikes(self, total_dislikes: int):
         pass
-    
+
     @property
     @abstractmethod
     def contest_problems(self) -> list("ContestToProblemRelation"):

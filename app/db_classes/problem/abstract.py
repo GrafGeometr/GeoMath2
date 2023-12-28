@@ -107,7 +107,6 @@ class AbstractProblem(AbstractModelWithHashedId, AbstractModelWithName):
     def get_all_contests(self) -> List["Contest"]:
         pass
 
-
     @abstractmethod
     def get_all_likes(self) -> List["Like"]:
         pass
@@ -137,11 +136,6 @@ class AbstractProblem(AbstractModelWithHashedId, AbstractModelWithName):
 
     @abstractmethod
     def is_in_contest(self, contest) -> bool:
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def get_all_by_pool(pool) -> List["Problem"]:
         pass
 
     # TAGS BLOCK
@@ -197,7 +191,7 @@ class AbstractProblem(AbstractModelWithHashedId, AbstractModelWithName):
         pass
 
     @abstractmethod
-    def is_attachment(self, attachment: "AbstractAttachment") -> bool:
+    def has_attachment(self, attachment: "AbstractAttachment") -> bool:
         pass
 
     @abstractmethod

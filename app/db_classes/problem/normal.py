@@ -207,10 +207,6 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
             .is_null()
         )
 
-    @staticmethod
-    def get_all_by_pool(pool):
-        return Problem.get.by_pool(pool).all()
-
     # TAGS BLOCK
 
     def get_nonsorted_tags(self):
@@ -294,7 +290,7 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
                     result.append(attachment)
         return result
 
-    def is_attachment(self, attachment):
+    def has_attachment(self, attachment):
         if attachment is None:
             return False
         return (

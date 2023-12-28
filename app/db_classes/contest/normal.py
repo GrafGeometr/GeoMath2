@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from app.imports import *
 from sqlalchemy_custom_types import *
 
@@ -5,6 +7,7 @@ from app.db_classes.standard_model.normal import StandardModel
 from .abstract import AbstractContest
 from .null import NullContest
 from .getter import ContestGetter
+from ...sqlalchemy_custom_types import GradeClassType
 
 
 class Contest(StandardModel):
@@ -35,7 +38,7 @@ class Contest(StandardModel):
     # --> PROPERTIES
     @property
     def description(self) -> str:
-        return self.description_ 
+        return self.description_
 
     @description.setter
     def description(self, description: str):
@@ -104,7 +107,7 @@ class Contest(StandardModel):
     def total_dislikes(self, total_dislikes: int):
         self.total_dislikes_ = total_dislikes
         self.save()
-    
+
     @property
     def contest_problems(self) -> list("ContestToProblemRelation"):
         return self.contest_problems_
@@ -159,9 +162,18 @@ class Contest(StandardModel):
         self.olimpiad_id_ = olimpiad_id
         self.save()
 
+    @property
+    def date(self) -> Tuple[datetime.datetime, datetime.datetime]:
+        return self.start_date, self.end_date
+
+    @date.setter
+    def date(self, date: Tuple[datetime.datetime, datetime.datetime]):
+        self.start_date, self.end_date = date
+        self.save()
+
     # --> FUNCTIONS
     @staticmethod
-    def get_by_olimpiad_season_and_grade(olimpiad_id: int, season: str, grade: Grade):
+    def get_by_olimpiad_season_and_grade(olimpiad_id: int, season: str, grade: "Grade"):
         return Contest.query.filter_by(
             olimpiad_id=olimpiad_id, season=season, grade=grade
         ).first()
@@ -170,10 +182,10 @@ class Contest(StandardModel):
         from app.dbc import Like
 
         return (
-                Like.query.filter_by(
-                    parent_type="Contest", parent_id=self.id, user_id=current_user.id
-                ).first()
-                is not None
+            Like.query.filter_by(
+                parent_type="Contest", parent_id=self.id, user_id=current_user.id
+            ).first()
+            is not None
         )
 
     def act_add_like(self):
@@ -289,10 +301,10 @@ class Contest(StandardModel):
         from app.dbc import Contest_Problem
 
         if (
-                self.is_ended()
-                or self.is_my()
-                or current_user.is_judge(self)
-                or self.get_active_cu()
+            self.is_ended()
+            or self.is_my()
+            or current_user.is_judge(self)
+            or self.get_active_cu()
         ):
             return [
                 cp
@@ -317,7 +329,7 @@ class Contest(StandardModel):
         return cproblems.index(contest_problem) + 1
 
     def get_cu_by_mode_and_part(
-            self, mode="all", part="real", user=current_user, club=None
+        self, mode="all", part="real", user=current_user, club=None
     ):
         if mode not in ["all", "my", "club"]:
             return None
@@ -382,7 +394,7 @@ class Contest(StandardModel):
         return self.save()
 
     def act_register(
-            self, user=current_user, mode="real", start_date=None, end_date=None
+        self, user=current_user, mode="real", start_date=None, end_date=None
     ):
         if user is None:
             return
@@ -410,11 +422,11 @@ class Contest(StandardModel):
             start = dt_from_str(start_date)
             end = dt_from_str(end_date)
             if (
-                    (start is None)
-                    or (end is None)
-                    or (start > end)
-                    or (start < self.start_date)
-                    or (start < current_time())
+                (start is None)
+                or (end is None)
+                or (start > end)
+                or (start < self.start_date)
+                or (start < current_time())
             ):
                 return
             Contest_User(
@@ -606,8 +618,8 @@ class Contest(StandardModel):
             [
                 Tag.query.filter_by(id=sheet_tag.tag_id).first()
                 for sheet_tag in Tag_Relation.query.filter_by(
-                parent_type=DbParent.from_type(type(self)), parent_id=self.id
-            ).all()
+                    parent_type=DbParent.from_type(type(self)), parent_id=self.id
+                ).all()
             ],
             key=lambda t: t.name.lower(),
         )
