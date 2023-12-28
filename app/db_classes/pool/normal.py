@@ -106,11 +106,13 @@ class Pool(ModelWithHashedId, ModelWithName, AbstractPool):
         return self
 
     def add_user_by_invite(self, user=current_user, invite=NullInvite()):
-        if invite.is_expired() or invite.get_parent() != self:
+        if (
+            invite.is_expired()
+            or invite.get_parent() != self
+            or self.contains_user(user)
+        ):
             return self
-        if self.contains_user(user):
-            return self
-        self.add_user(user)  # TODO : why we don't remove invite?
+        self.add_user(user)  # TODO : why don't we remove invite?
         return self
 
     def act_generate_new_invite_code(self):

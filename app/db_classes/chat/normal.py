@@ -1,10 +1,11 @@
 from app.imports import *
-from sqlalchemy_custom_types import *
+from app.sqlalchemy_custom_types import *
 
 from app.db_classes.standard_model.normal import StandardModel
 from .abstract import AbstractChat
 from .null import NullChat
 from .getter import ChatGetter
+
 
 class Chat(AbstractChat, StandardModel):
     # --> INITIALIZE
@@ -47,7 +48,6 @@ class Chat(AbstractChat, StandardModel):
     def club_id(self, club_id: int):
         self.club_id_ = club_id
         self.save()
-
 
     # --> FUNCTIONS
     def remove(self):
@@ -112,6 +112,7 @@ class Chat(AbstractChat, StandardModel):
 
     def remove_user(self, user=current_user):
         from app.dbc import UserToChatRelation
+
         uc = UserToChatRelation.get.by_user(user).by_chat(self).first()
         uc.remove()
         return self

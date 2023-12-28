@@ -39,8 +39,3 @@ class AbstractChat(AbstractStandardModel):
     @abstractmethod
     def club_id(self, club_id: int):
         pass
-
-
-
-
-
