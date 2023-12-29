@@ -27,10 +27,18 @@ class Contest(StandardModel, AbstractContest):
     total_dislikes_ = db.Column(db.Integer, default=0)
 
     # --> RELATIONS
-    contest_problems_ = db.relationship("Contest_Problem", backref="contest_")
-    contest_judges_ = db.relationship("Contest_Judge", backref="contest_")
-    contest_users_ = db.relationship("Contest_User", backref="contest_")
-    club_contests_ = db.relationship("Club_Contest", backref="contest_")
+    contest_to_problem_relations_ = db.relationship(
+        "ContestToProblemRelation", backref="contest_"
+    )
+    contest_to_judge_relations_ = db.relationship(
+        "ContestToJudgeRelation", backref="contest_"
+    )
+    contest_to_user_relations_ = db.relationship(
+        "ContestToUserRelation", backref="contest_"
+    )
+    club_to_contest_relations_ = db.relationship(
+        "ClubToContestRelation", backref="contest_"
+    )
     pool_id_ = db.Column(db.Integer, db.ForeignKey("pool.id_"))
     olimpiad_id_ = db.Column(db.Integer, db.ForeignKey("olimpiad.id_"))
 

@@ -18,7 +18,7 @@ class Chat(AbstractChat, StandardModel):
     getter_cls_ = ChatGetter
 
     # --> RELATIONS
-    user_chats_ = db.relationship("User_Chat", backref="chat_")
+    user_chats_ = db.relationship("UserToChatRelation", backref="chat_")
     club_id_ = db.Column(db.Integer, db.ForeignKey("club.id_"))
 
     # --> PROPERTIES

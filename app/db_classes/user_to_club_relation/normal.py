@@ -10,7 +10,7 @@ from app.db_classes.user_to_club_relation.null import NullUserToClubRelation
 class UserToClubRelation(AbstractUserToClubRelation, StandardModel):
     # --> INITIALIZE
     __abstract__ = False
-    __tablename__ = "user_club"
+    __tablename__ = "user_to_club_relation"
 
     role_ = db.Column(RoleType)
 

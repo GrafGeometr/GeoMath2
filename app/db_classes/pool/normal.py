@@ -15,7 +15,7 @@ from app.db_classes.invite.null import NullInvite
 
 class Pool(ModelWithHashedId, ModelWithName, AbstractPool):
     # --> INITIALIZE
-    __abstract__ = True
+    __abstract__ = False
     __tablename__ = "pool"
 
     null_cls_ = NullPool

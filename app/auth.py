@@ -1,7 +1,7 @@
 from .imports import *
 from .model_imports import *
 
-auth = Blueprint('auth', __name__)
+auth = Blueprint("auth", __name__)
 
 
 @auth.route("/login", methods=["GET", "POST"])
@@ -11,10 +11,11 @@ def login():
         password = request.form.get("password")
         next_url = request.form.get("next")
 
-        user = User.query.filter_by(name = login).first()
-        if user is None:
+        user = User.get.by_name(login).first()
+        print("NULL", user.is_null())
+        if user.is_null():
             user = User.get_by_verified_email(login)
-        if user and user.check_password(password):
+        if user.is_not_null() and user.check_password(password):
             login_user(user, remember=True, duration=datetime.timedelta(days=5))
             confirm_login()
             if next_url:
@@ -22,9 +23,7 @@ def login():
             return redirect("/myprofile")
         else:
             flash("Неверный логин или пароль", "error")
-    
     return render_template("auth/login.html", title="GeoMath - авторизация")
-
 
 
 @auth.route("/register", methods=["POST", "GET"])
@@ -37,14 +36,14 @@ def register():
         next_url = request.form.get("next")
 
         possible_characters = string.ascii_letters + string.digits + "_-."
-        if (login=="") or (not all(c in possible_characters for c in login)):
+        if (login == "") or (not all(c in possible_characters for c in login)):
             flash("Некорректный логин, допустимые символы: A-Z a-z 0-9 _ - .", "error")
             return redirect("/register")
-        
+
         if len(login) < 4:
             flash("Длина логина должна быть не менее 4 символов", "error")
             return redirect("/register")
-        
+
         if login.lower() in [user.name.lower() for user in User.query.all()]:
             flash("Пользователь с таким именем уже существует", "error")
             return redirect("/register")
@@ -57,16 +56,13 @@ def register():
             # passwords don't match
             flash("Пароли не совпадают", "error")
             return redirect("/register")
-        
+
         if len(password) < 6:
             flash("Длина пароля должна быть не менее 6 символов", "error")
             return redirect("/register")
 
-        
-
         user = User(name=login)
         email = Email(name=email_name, user=user)
-
 
         email_token_stuff(email)
 
@@ -83,8 +79,11 @@ def register():
         if next_url:
             return redirect(next_url)
         return redirect("/myprofile")
-    
-    return render_template("auth/register.html", current_user=current_user, title="GeoMath - регистрация")
+
+    return render_template(
+        "auth/register.html", current_user=current_user, title="GeoMath - регистрация"
+    )
+
 
 @auth.route("/logout")
 @login_required

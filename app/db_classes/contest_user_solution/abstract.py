@@ -4,7 +4,8 @@ from app.sqlalchemy_custom_types import *
 from abc import abstractmethod
 from app.db_classes.standard_model.normal import AbstractStandardModel
 
-class AbstractContestUserSolutionRelation(AbstractStandardModel):
+
+class AbstractContestUserSolution(AbstractStandardModel):
     # --> INITIALIZE
     __abstract__ = True
 
@@ -41,30 +42,44 @@ class AbstractContestUserSolutionRelation(AbstractStandardModel):
 
     @property
     @abstractmethod
-    def contest_user_id(self) -> int:
+    def contest_to_user_relation_id(self) -> int:
         pass
 
-    @contest_user_id.setter
+    @contest_to_user_relation_id.setter
     @abstractmethod
-    def contest_user_id(self, contest_user_id: int):
-        pass
-
-    @property
-    @abstractmethod
-    def contest_problem_id(self) -> int:
-        pass
-
-    @contest_problem_id.setter
-    @abstractmethod
-    def contest_problem_id(self, contest_problem_id: int):
+    def contest_to_user_relation_id(self, contest_to_user_relation_id: int):
         pass
 
     @property
     @abstractmethod
-    def contest_user_solution(self) -> "ContestUserSolution":
+    def contest_to_user_relation(self) -> "ContestToUserRelation":
         pass
 
-    @contest_user_solution.setter
+    @contest_to_user_relation.setter
     @abstractmethod
-    def contest_user_solution(self, contest_user_solution: "ContestUserSolution"):
+    def contest_to_user_relation(
+        self, contest_to_user_relation: "ContestToUserRelation"
+    ):
+        pass
+
+    @property
+    @abstractmethod
+    def contest_to_problem_relation_id(self) -> int:
+        pass
+
+    @contest_to_problem_relation_id.setter
+    @abstractmethod
+    def contest_to_problem_relation_id(self, contest_to_problem_relation_id: int):
+        pass
+
+    @property
+    @abstractmethod
+    def contest_to_problem_relation(self) -> "ContestToProblemRelation":
+        pass
+
+    @contest_to_problem_relation.setter
+    @abstractmethod
+    def contest_to_problem_relation(
+        self, contest_to_problem_relation: "ContestToProblemRelation"
+    ):
         pass

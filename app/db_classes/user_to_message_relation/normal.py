@@ -10,7 +10,8 @@ from app.db_classes.user_to_message_relation.getter import UserToMessageRelation
 
 class UserToMessageRelation(StandardModel, AbstractUserToMessageRelation):
     # --> INITIALIZE
-    __tablename__ = "user_message"
+    __abstract__ = False
+    __tablename__ = "user_to_message_relation"
 
     read_ = db.Column(db.Boolean)
 

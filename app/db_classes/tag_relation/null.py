@@ -2,7 +2,8 @@ from app.imports import *
 from app.sqlalchemy_custom_types import *
 
 from abc import abstractmethod
-from app.dbc import NullStandardModel, AbstractTagRelation
+from app.db_classes.standard_model.null import NullStandardModel
+from app.db_classes.tag_relation.abstract import AbstractTagRelation
 
 
 class NullTagRelation(NullStandardModel, AbstractTagRelation):

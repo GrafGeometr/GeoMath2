@@ -1,7 +1,10 @@
 from app.imports import *
 
 from abc import abstractmethod
-from app.dbc import NullStandardModel, AbstractUserToMessageRelation
+from app.db_classes.standard_model.null import NullStandardModel
+from app.db_classes.user_to_message_relation.abstract import (
+    AbstractUserToMessageRelation,
+)
 
 
 class NullUserToMessageRelation(NullStandardModel, AbstractUserToMessageRelation):

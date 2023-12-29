@@ -1,9 +1,9 @@
 from app.imports import *
 
-from app.db_classes.standard_model.normal import StandardModel
-from .abstract import AbstractChat
-from .null import NullChat
-from .getter import Getter
+from app.db_classes.model_with_name.normal import ModelWithName
+from app.db_classes.tag.abstract import AbstractTag
+from app.db_classes.tag.null import NullTag
+from app.db_classes.tag.getter import TagGetter
 
 
 class Tag(ModelWithName, AbstractTag):
@@ -12,6 +12,9 @@ class Tag(ModelWithName, AbstractTag):
     __tablename__ = "tag"
 
     hash_ = db.Column(db.Integer, nullable=True)
+
+    null_cls_ = NullTag
+    getter_cls_ = TagGetter
 
     # --> RELATIONS
 

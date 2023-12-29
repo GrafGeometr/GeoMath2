@@ -6,6 +6,7 @@ from app.db_classes.standard_model.normal import StandardModel
 
 class Attachment(StandardModel):
     # --> INITIALIZE
+    __abstract__ = False
     __tablename__ = "attachment"
 
     db_folder = db.Column(db.String)
@@ -34,8 +35,8 @@ class Attachment(StandardModel):
 
     def is_from_parent(self, obj):
         return (
-                self.parent_type == DbParent.from_type(type(obj))
-                and self.parent_id == obj.id
+            self.parent_type == DbParent.from_type(type(obj))
+            and self.parent_id == obj.id
         )
 
     def remove(self):

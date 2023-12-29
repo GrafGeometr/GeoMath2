@@ -1,6 +1,7 @@
 from app.sqlalchemy_custom_types import *
 
-from app.dbc import NullStandardModel, AbstractUserToPoolRelation
+from app.db_classes.standard_model.null import NullStandardModel
+from app.db_classes.user_to_pool_relation.abstract import AbstractUserToPoolRelation
 
 
 class NullUserToPoolRelation(NullStandardModel, AbstractUserToPoolRelation):

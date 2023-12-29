@@ -10,7 +10,7 @@ from app.db_classes.user_to_pool_relation.null import NullUserToPoolRelation
 class UserToPoolRelation(StandardModel, AbstractUserToPoolRelation):
     # --> INITIALIZE
     __abstract__ = False
-    __tablename__ = "user_pool"
+    __tablename__ = "user_to_pool_relation"
 
     role_ = db.Column(RoleType)
 

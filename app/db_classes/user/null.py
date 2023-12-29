@@ -117,3 +117,7 @@ class NullUser(NullModelWithName, AbstractUser):
 
     def is_judge(self, contest):
         return False
+
+    @staticmethod
+    def get_by_verified_email(email):
+        return NullUser()

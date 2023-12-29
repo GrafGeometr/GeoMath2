@@ -11,6 +11,7 @@ from app.db_classes.sheet.null import NullSheet
 
 class Sheet(ModelWithName, AbstractSheet):
     # --> INITIALIZE
+    __abstract__ = False
     __tablename__ = "sheet"
 
     text_ = db.Column(db.String)

@@ -8,7 +8,8 @@ from .getter import ContestToUserRelationGetter
 
 class ContestToUserRelation(StandardModel):
     # --> INITIALIZE
-    __tablename__ = "contest_user"
+    __abstract__ = False
+    __tablename__ = "contest_to_user_relation"
 
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
@@ -18,7 +19,7 @@ class ContestToUserRelation(StandardModel):
     contest_id = db.Column(db.Integer, db.ForeignKey("contest.id_"))
     user_id = db.Column(db.Integer, db.ForeignKey("user.id_"))
     contest_user_solutions = db.relationship(
-        "Contest_User_Solution", backref="contest_user"
+        "ContestUserSolution", backref="contest_to_user_relation"
     )
 
     # --> FUNCTIONS

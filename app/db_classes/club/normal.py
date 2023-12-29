@@ -16,9 +16,9 @@ class Club(StandardModel):
     getter_cls_ = ClubGetter
 
     # --> RELATIONS
-    user_clubs_ = db.relationship("User_Club", backref="club_")
+    user_clubs_ = db.relationship("UserToClubRelation", backref="club_")
     chats_ = db.relationship("Chat", backref="club_")
-    club_contests_ = db.relationship("Club_Contest", backref="club_")
+    club_contests_ = db.relationship("ClubToContestRelation", backref="club_")
 
     # --> PROPERTIES
     @property

@@ -9,13 +9,13 @@ from app.db_classes.user_to_chat_relation.getter import UserToChatRelationGetter
 class UserToChatRelation(StandardModel, AbstractUserToChatRelation):
     # --> INITIALIZE
     __abstract__ = False
-    __tablename__ = "user_chat"
+    __tablename__ = "user_to_chat_relation"
 
     # --> RELATIONS
     user_id_ = db.Column(db.Integer, db.ForeignKey("user.id_"))
     chat_id_ = db.Column(db.Integer, db.ForeignKey("chat.id_"))
     messages_ = db.relationship(
-        "Message", backref="user_chat_"
+        "Message", backref="user_to_chat_relation_"
     )  # TODO check all backrefs
 
     null_cls_ = NullUserToClubRelation

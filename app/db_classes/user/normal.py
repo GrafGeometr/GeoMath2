@@ -2,13 +2,12 @@ from app.imports import *
 from app.sqlalchemy_custom_types import *
 
 from app.db_classes.model_with_name.normal import ModelWithName
-from app.db_classes.user.abstract import AbstractUser
-from app.db_classes.user.null import NullUser
-from app.db_classes.user.getter import UserGetter
+
 
 from .abstract import AbstractUser
 from .null import NullUser
-from .getter import Getter
+from .getter import UserGetter
+
 
 class User(UserMixin, ModelWithName, AbstractUser):
     # --> INITIALIZE
@@ -28,12 +27,12 @@ class User(UserMixin, ModelWithName, AbstractUser):
     emails_ = db.relationship("Email", backref="user_")
     user_pools_ = db.relationship("UserToPoolRelation", backref="user_")
     contest_judges_ = db.relationship("ContestToJudgeRelation", backref="user_")
-    contest_users_ = db.relationship("Contest_User", backref="user_")
+    contest_users_ = db.relationship("ContestToUserRelation", backref="user_")
     likes_ = db.relationship("Like", backref="user_")
     notifications_ = db.relationship("Notification", backref="user_")
     user_chats_ = db.relationship("UserToChatRelation", backref="user_")
     user_clubs_ = db.relationship("UserToClubRelation", backref="user_")
-    user_messages_ = db.relationship("User_Message", backref="user_")
+    user_messages_ = db.relationship("UserToMessageRelation", backref="user_")
 
     # --> PROPERTIES
 
@@ -269,4 +268,21 @@ class User(UserMixin, ModelWithName, AbstractUser):
     def is_judge(self, contest):
         from app.dbc import ContestToJudgeRelation
 
-        return not ContestToJudgeRelation.get.by_user(self).by_contest(contest).first().is_null()
+        return (
+            not ContestToJudgeRelation.get.by_user(self)
+            .by_contest(contest)
+            .first()
+            .is_null()
+        )
+
+    @staticmethod
+    def get_by_verified_email(email):
+        from app.dbc import Email
+
+        users = [
+            email.user for email in Email.get.by_name(email).by_verified(True).all()
+        ]
+        if users:
+            return users[0]
+        else:
+            return NullUser()

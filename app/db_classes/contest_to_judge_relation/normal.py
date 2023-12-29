@@ -9,7 +9,7 @@ from .getter import ContestToJudgeRelationGetter
 class ContestToJudgeRelation(StandardModel):
     # --> INITIALIZE
     __abstract__ = False
-    __tablename__ = "contest_judge"
+    __tablename__ = "contest_to_judge_relation"
 
     null_cls_ = NullContestToJudgeRelation
     getter_cls_ = ContestToJudgeRelationGetter

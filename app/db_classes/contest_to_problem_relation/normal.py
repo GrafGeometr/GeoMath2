@@ -9,7 +9,7 @@ from .getter import ContestToProblemRelationGetter
 class ContestToProblemRelation(StandardModel):
     # --> INITIALIZE
     __abstract__ = False
-    __tablename__ = "contest_problem"
+    __tablename__ = "contest_to_problem_relation"
 
     null_cls_ = NullContestToProblemRelation
     getter_cls_ = ContestToProblemRelationGetter
@@ -21,14 +21,14 @@ class ContestToProblemRelation(StandardModel):
     contest_id_ = db.Column(db.Integer, db.ForeignKey("contest.id_"))
     problem_id_ = db.Column(db.Integer, db.ForeignKey("problem.id_"))
     contest_user_solutions_ = db.relationship(
-        "Contest_User_Solution", backref="contest_problem"
+        "ContestUserSolution", backref="contest_to_problem_relation_"
     )
 
     # --> PROPERTIES
     @property
     def max_score(self) -> int:
         return self.max_score_
-    
+
     @max_score.setter
     def max_score(self, max_score: int):
         self.max_score_ = max_score
@@ -37,7 +37,7 @@ class ContestToProblemRelation(StandardModel):
     @property
     def list_index(self) -> int:
         return self.list_index_
-    
+
     @list_index.setter
     def list_index(self, list_index: int):
         self.list_index_ = list_index
@@ -46,7 +46,7 @@ class ContestToProblemRelation(StandardModel):
     @property
     def contest_id(self) -> int:
         return self.contest_id_
-    
+
     @contest_id.setter
     def contest_id(self, contest_id: int):
         self.contest_id_ = contest_id
@@ -55,7 +55,7 @@ class ContestToProblemRelation(StandardModel):
     @property
     def problem_id(self) -> int:
         return self.problem_id_
-    
+
     @problem_id.setter
     def problem_id(self, problem_id: int):
         self.problem_id_ = problem_id
@@ -64,9 +64,11 @@ class ContestToProblemRelation(StandardModel):
     @property
     def contest_user_solutions(self) -> list("Contest_User_Solution"):
         return self.contest_user_solutions_
-    
+
     @contest_user_solutions.setter
-    def contest_user_solutions(self, contest_user_solutions: list("Contest_User_Solution")):
+    def contest_user_solutions(
+        self, contest_user_solutions: list("Contest_User_Solution")
+    ):
         self.contest_user_solutions_ = contest_user_solutions
         self.save()
 
@@ -110,16 +112,16 @@ class ContestToProblemRelation(StandardModel):
 
     def is_accessible(self, user=current_user):
         return (
-                self.is_valid()
-                and self.problem is not None
-                and self.problem.is_statement_available(user)
+            self.is_valid()
+            and self.problem is not None
+            and self.problem.is_statement_available(user)
         )
 
     def is_valid(self):
         if self.problem is None or self.contest is None:
             return False
         return (
-                self.problem.is_archived() or self.problem.pool.id == self.contest.pool.id
+            self.problem.is_archived() or self.problem.pool.id == self.contest.pool.id
         )
 
     def get_active_contest_user_solution(self, user=current_user):
@@ -135,13 +137,15 @@ class ContestToProblemRelation(StandardModel):
     @staticmethod
     def get_by_contest_and_problem(contest, problem):
         if (
-                contest is None
-                or problem is None
-                or contest.id is None
-                or problem.id is None
+            contest is None
+            or problem is None
+            or contest.id is None
+            or problem.id is None
         ):
             return None
-        return ContestToProblemRelation.get.by_problem(problem).by_contest(contest).first()
+        return (
+            ContestToProblemRelation.get.by_problem(problem).by_contest(contest).first()
+        )
 
     @staticmethod
     def get_all_by_contest(contest):

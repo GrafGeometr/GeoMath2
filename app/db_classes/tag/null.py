@@ -1,6 +1,7 @@
 from app.imports import *
 
-from app.dbc import NullModelWithName, AbstractTag
+from app.db_classes.model_with_name.null import NullModelWithName
+from app.db_classes.tag.abstract import AbstractTag
 
 
 class NullTag(NullModelWithName, AbstractTag):
@@ -19,3 +20,6 @@ class NullTag(NullModelWithName, AbstractTag):
         pass
 
     # --> METHODS
+    @staticmethod
+    def get_all_by_obj(obj):
+        return []

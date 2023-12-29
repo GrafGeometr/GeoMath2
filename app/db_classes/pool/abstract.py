@@ -11,7 +11,7 @@ from app.db_classes.invite.null import NullInvite
 
 class AbstractPool(AbstractModelWithHashedId, AbstractModelWithName):
     # --> INITIALIZE
-    __abstract__ = False
+    __abstract__ = True
 
     # --> RELATIONS
 

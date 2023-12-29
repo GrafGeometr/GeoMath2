@@ -1,6 +1,7 @@
 from app.imports import *
 
-from app.dbc import AbstractUserToChatRelation, NullStandardModel
+from app.db_classes.user_to_chat_relation.abstract import AbstractUserToChatRelation
+from app.db_classes.standard_model.null import NullStandardModel
 
 
 class NullUserToChatRelation(NullStandardModel, AbstractUserToChatRelation):

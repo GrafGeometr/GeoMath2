@@ -1,7 +1,8 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
-from app.dbc import AbstractUserToClubRelation, NullStandardModel
+from app.db_classes.standard_model.null import NullStandardModel
+from app.db_classes.user_to_club_relation.abstract import AbstractUserToClubRelation
 
 
 class NullUserToClubRelation(AbstractUserToClubRelation, NullStandardModel):

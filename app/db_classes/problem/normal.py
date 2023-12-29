@@ -24,7 +24,7 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
 
     # --> RELATIONS
     pool_id_ = db.Column(db.Integer, db.ForeignKey("pool.id_"))
-    contest_problems_ = db.relationship("Contest_Problem", backref="problem_")
+    contest_problems_ = db.relationship("ContestToProblemRelation", backref="problem_")
 
     # --> PROPERTIES
     @property

@@ -10,7 +10,7 @@ from .getter import ClubToContestRelationGetter
 class ClubToContestRelation(StandardModel):
     # --> INITIALIZE
     __abstract__ = False
-    __tablename__ = "club_contest"
+    __tablename__ = "club_to_contest_relation"
 
     null_cls_ = NullClubToContestRelation
     getter_cls_ = ClubToContestRelationGetter

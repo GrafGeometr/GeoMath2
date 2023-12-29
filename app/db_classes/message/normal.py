@@ -20,7 +20,7 @@ class Message(StandardModel, AbstractMessage):
     getter_cls_ = MessageGetter
 
     # --> RELATIONS
-    user_to_chat_relation_id_ = db.Column(db.Integer, db.ForeignKey("user_chat.id_"))
+    user_to_chat_relation_id_ = db.Column(db.Integer, db.ForeignKey("user_to_chat_relation.id_"))
     user__to_message_relations_ = db.relationship(
         "UserToMessageRelation", backref="message_"
     )

@@ -2,25 +2,97 @@ from app.imports import *
 from app.sqlalchemy_custom_types import *
 
 from app.db_classes.standard_model.normal import StandardModel
-from .abstract import AbstractContestUserSolutionRelation
-from .null import NullContestUserSolutionRelation
-from .getter import ContestUserSolutionRelationGetter
+from .abstract import AbstractContestUserSolution
+from .null import NullContestUserSolution
+from .getter import ContestUserSolutionGetter
 from ..model_with_hashed_id.normal import ModelWithHashedId
 
 
-class ContestUserSolution(ModelWithHashedId):
+class ContestUserSolution(ModelWithHashedId, AbstractContestUserSolution):
     # --> INITIALIZE
+    __abstract__ = False
     __tablename__ = "contest_user_solution"
 
-    score = db.Column(db.Integer, nullable=True)
-    content = db.Column(db.String)
-    judge_comment = db.Column(db.String)
+    score_ = db.Column(db.Integer, nullable=True)
+    content_ = db.Column(db.String)
+    judge_comment_ = db.Column(db.String)
+
+    null_cls_ = NullContestUserSolution
+    getter_cls_ = ContestUserSolutionGetter
 
     # --> RELATIONS
-    contest_user_id = db.Column(db.Integer, db.ForeignKey("contest_user.id_"))
-    contest_problem_id = db.Column(db.Integer, db.ForeignKey("contest_problem.id_"))
+    contest_to_user_relation_id_ = db.Column(
+        db.Integer, db.ForeignKey("contest_to_user_relation.id_")
+    )
+    contest_to_problem_relation_id_ = db.Column(
+        db.Integer, db.ForeignKey("contest_to_problem_relation.id_")
+    )
 
-    # --> FUNCTIONS
+    # --> PROPERTIES
+    @property
+    def score(self):
+        return self.score_
+
+    @score.setter
+    def score(self, score):
+        self.score_ = score
+        self.save()
+
+    @property
+    def content(self):
+        return self.content_
+
+    @content.setter
+    def content(self, content):
+        self.content_ = content
+        self.save()
+
+    @property
+    def judge_comment(self):
+        return self.judge_comment_
+
+    @judge_comment.setter
+    def judge_comment(self, judge_comment):
+        self.judge_comment_ = judge_comment
+        self.save()
+
+    @property
+    def contest_to_user_relation_id(self):
+        return self.contest_to_user_relation_id_
+
+    @contest_to_user_relation_id.setter
+    def contest_to_user_relation_id(self, contest_to_user_relation_id):
+        self.contest_to_user_relation_id_ = contest_to_user_relation_id
+        self.save()
+
+    @property
+    def contest_to_user_relation(self):
+        return self.contest_to_user_relation_
+
+    @contest_to_user_relation.setter
+    def contest_to_user_relation(self, contest_to_user_relation):
+        self.contest_to_user_relation_ = contest_to_user_relation
+        self.save()
+
+    @property
+    def contest_to_problem_relation_id(self):
+        return self.contest_to_problem_relation_id_
+
+    @contest_to_problem_relation_id.setter
+    def contest_to_problem_relation_id(self, contest_to_problem_relation_id):
+        self.contest_to_problem_relation_id_ = contest_to_problem_relation_id
+        self.save()
+
+    @property
+    def contest_to_problem_relation(self):
+        return self.contest_to_problem_relation_
+
+    @contest_to_problem_relation.setter
+    def contest_to_problem_relation(self, contest_to_problem_relation):
+        self.contest_to_problem_relation_ = contest_to_problem_relation
+        self.save()
+
+    # --> METHODS
     def remove(self):
         for att in self.get_attachments():
             att.remove()
