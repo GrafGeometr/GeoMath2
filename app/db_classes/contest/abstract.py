@@ -4,25 +4,9 @@ from app.sqlalchemy_custom_types import *
 from abc import abstractmethod
 from app.db_classes.standard_model.normal import AbstractStandardModel
 
-
 class AbstractContest(AbstractStandardModel):
     # --> INITIALIZE
     __abstract__ = True
-    description = db.Column(db.String)
-    grade = db.Column(GradeClassType)
-    start_date = db.Column(db.DateTime)
-    end_date = db.Column(db.DateTime)
-    is_public = db.Column(db.Boolean, default=False)
-    rating = db.Column(db.String, default="public")  # 'public' | 'private'
-    total_likes = db.Column(db.Integer, default=0)
-    total_dislikes = db.Column(db.Integer, default=0)
-    # --> RELATIONS
-    contest_problems = db.relationship("Contest_Problem", backref="contest")
-    contest_judges = db.relationship("Contest_Judge", backref="contest")
-    contest_users = db.relationship("Contest_User", backref="contest")
-    club_contests = db.relationship("Club_Contest", backref="contest")
-    pool_id = db.Column(db.Integer, db.ForeignKey("pool.id_"))
-    olimpiad_id = db.Column(db.Integer, db.ForeignKey("olimpiad.id_"))
 
     # --> PROPERTIES
     @property
@@ -104,7 +88,7 @@ class AbstractContest(AbstractStandardModel):
     @abstractmethod
     def total_dislikes(self, total_dislikes: int):
         pass
-
+    
     @property
     @abstractmethod
     def contest_problems(self) -> list("ContestToProblemRelation"):
