@@ -1,8 +1,11 @@
+from typing import List
+
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
 from abc import abstractmethod
 from app.db_classes.standard_model.normal import AbstractStandardModel
+
 
 class AbstractContest(AbstractStandardModel):
     # --> INITIALIZE
@@ -88,45 +91,45 @@ class AbstractContest(AbstractStandardModel):
     @abstractmethod
     def total_dislikes(self, total_dislikes: int):
         pass
-    
+
     @property
     @abstractmethod
-    def contest_problems(self) -> list("ContestToProblemRelation"):
+    def contest_problems(self) -> List["ContestToProblemRelation"]:
         pass
 
     @contest_problems.setter
     @abstractmethod
-    def contest_problems(self, contest_problems: list["ContestToProblemRelation"]):
+    def contest_problems(self, contest_problems: List["ContestToProblemRelation"]):
         pass
 
     @property
     @abstractmethod
-    def contest_judges(self) -> list("ContestToJudgeRelation"):
+    def contest_judges(self) -> List["ContestToJudgeRelation"]:
         pass
 
     @contest_judges.setter
     @abstractmethod
-    def contest_judges(self, contest_judges: list["ContestToJudgeRelation"]):
+    def contest_judges(self, contest_judges: List["ContestToJudgeRelation"]):
         pass
 
     @property
     @abstractmethod
-    def contest_users(self) -> list("ContestToUserRelation"):
+    def contest_users(self) -> List["ContestToUserRelation"]:
         pass
 
     @contest_users.setter
     @abstractmethod
-    def contest_users(self, contest_users: list["ContestToUserRelation"]):
+    def contest_users(self, contest_users: List["ContestToUserRelation"]):
         pass
 
     @property
     @abstractmethod
-    def club_contests(self) -> list["ClubToContestRelation"]:
+    def club_contests(self) -> List["ClubToContestRelation"]:
         pass
 
     @club_contests.setter
     @abstractmethod
-    def club_contests(self, club_contests: list["ClubToContestRelation"]):
+    def club_contests(self, club_contests: List["ClubToContestRelation"]):
         pass
 
     @property

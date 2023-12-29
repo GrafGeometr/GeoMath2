@@ -97,8 +97,8 @@ class AbstractAttachment(AbstractStandardModel):
 
     def is_from_parent(self, obj):
         return (
-                self.parent_type == DbParent.from_type(type(obj))
-                and self.parent_id == obj.id
+            self.parent_type == DbParent.from_type(type(obj))
+            and self.parent_id == obj.id
         )
 
     def remove(self):
@@ -108,8 +108,3 @@ class AbstractAttachment(AbstractStandardModel):
             pass
         db.session.delete(self)
         db.session.commit()
-
-
-
-
-

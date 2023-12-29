@@ -1,10 +1,11 @@
 from app.imports import *
-from sqlalchemy_custom_types import *
+from app.sqlalchemy_custom_types import *
 
 from app.db_classes.standard_model.normal import StandardModel
 from .abstract import AbstractContestUserSolutionRelation
 from .null import NullContestUserSolutionRelation
 from .getter import ContestUserSolutionRelationGetter
+from ..model_with_hashed_id.normal import ModelWithHashedId
 
 
 class ContestUserSolution(ModelWithHashedId):
@@ -28,16 +29,16 @@ class ContestUserSolution(ModelWithHashedId):
 
     def is_available(self, user=current_user):
         if (
-                user is None
-                or self.contest_user is None
-                or self.contest_user.user is None
-                or self.contest_user.contest is None
+            user is None
+            or self.contest_user is None
+            or self.contest_user.user is None
+            or self.contest_user.contest is None
         ):
             return False
         return (
-                (self.contest_user.user.id == user.id)
-                or (self.contest_user.contest.is_rating_public())
-                or (user.is_judge(self.contest_user.contest))
+            (self.contest_user.user.id == user.id)
+            or (self.contest_user.contest.is_rating_public())
+            or (user.is_judge(self.contest_user.contest))
         )
 
     def act_set_content(self, content):
@@ -76,13 +77,17 @@ class ContestUserSolution(ModelWithHashedId):
     @staticmethod
     def get_by_contest_problem_and_contest_user(contest_problem, contest_user):
         if (
-                contest_problem is None
-                or contest_user is None
-                or contest_problem.id is None
-                or contest_user.id is None
+            contest_problem is None
+            or contest_user is None
+            or contest_problem.id is None
+            or contest_user.id is None
         ):
             return None
-        return ContestUserSolution.get.by_contest_problem(contest_problem).by_contest_user(contest_user).first()
+        return (
+            ContestUserSolution.get.by_contest_problem(contest_problem)
+            .by_contest_user(contest_user)
+            .first()
+        )
 
     # ATTACHMENTS BLOCK
 
@@ -106,8 +111,8 @@ class ContestUserSolution(ModelWithHashedId):
         if attachment is None:
             return False
         return (
-                attachment.parent_type == DbParent.from_type(type(self))
-                and attachment.parent_id == self.id
+            attachment.parent_type == DbParent.from_type(type(self))
+            and attachment.parent_id == self.id
         )
 
     def act_add_attachment(self, attachment):

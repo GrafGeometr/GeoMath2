@@ -1,7 +1,7 @@
 from typing import Tuple
 
 from app.imports import *
-from sqlalchemy_custom_types import *
+from app.sqlalchemy_custom_types import *
 
 from app.db_classes.standard_model.normal import StandardModel
 from .abstract import AbstractContest
@@ -9,7 +9,7 @@ from .null import NullContest
 from .getter import ContestGetter
 
 
-class Contest(StandardModel):
+class Contest(StandardModel, AbstractContest):
     # --> INITIALIZE
     __abstract__ = False
     __tablename__ = "contest"
@@ -173,7 +173,9 @@ class Contest(StandardModel):
     # --> FUNCTIONS
     @staticmethod
     def get_by_olimpiad_season_and_grade(olimpiad, season: str, grade: "Grade"):
-        return Contest.get.by_olimpiad(olimpiad).by_season(season).by_grade(grade).first()
+        return (
+            Contest.get.by_olimpiad(olimpiad).by_season(season).by_grade(grade).first()
+        )
 
     def is_liked(self):
         from app.dbc import Like
@@ -575,7 +577,6 @@ class Contest(StandardModel):
         else:
             return self.act_set_rating_public()
 
-
     def remove(self):
         cp_s = self.contest_problems
         cu_s = self.contest_users
@@ -602,9 +603,7 @@ class Contest(StandardModel):
         from app.dbc import Tag, Tag_Relation
 
         return sorted(
-            [
-                Tag.get.by_parent(self).all()
-            ],
+            [Tag.get.by_parent(self).all()],
             key=lambda t: t.name.lower(),
         )
 

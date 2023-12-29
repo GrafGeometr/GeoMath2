@@ -4,6 +4,7 @@ from app.sqlalchemy_custom_types import *
 from abc import abstractmethod
 from app.db_classes.standard_model.normal import AbstractStandardModel
 
+
 class AbstractFriend(AbstractStandardModel):
     # --> INITIALIZE
     __abstract__ = True
@@ -13,7 +14,7 @@ class AbstractFriend(AbstractStandardModel):
     @abstractmethod
     def friend_from(self) -> int:
         pass
-    
+
     @friend_from.setter
     @abstractmethod
     def friend_from(self, friend_from: int):

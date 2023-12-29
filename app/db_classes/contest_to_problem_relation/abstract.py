@@ -1,8 +1,11 @@
+from typing import List
+
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
 from abc import abstractmethod
 from app.db_classes.standard_model.normal import AbstractStandardModel
+
 
 class AbstractContestToProblemRelation(AbstractStandardModel):
     # --> INITIALIZE
@@ -51,10 +54,12 @@ class AbstractContestToProblemRelation(AbstractStandardModel):
 
     @property
     @abstractmethod
-    def contest_user_solutions(self) -> list("ContestUserSolution"):
+    def contest_user_solutions(self) -> List["ContestUserSolution"]:
         pass
 
     @contest_user_solutions.setter
     @abstractmethod
-    def contest_user_solutions(self, contest_user_solutions: list("ContestUserSolution")):
+    def contest_user_solutions(
+        self, contest_user_solutions: List["ContestUserSolution"]
+    ):
         pass

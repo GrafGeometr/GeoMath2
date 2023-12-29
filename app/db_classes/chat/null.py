@@ -10,11 +10,17 @@ class NullChat(NullModelWithName, AbstractChat):
     @property
     def readonly(self) -> bool:
         return True
-    
+
     @property
     def user_chats(self) -> list["UserChat"]:
         return []
-    
+
     @property
     def club_id(self):
         return -1
+
+    @property
+    def club(self) -> "AbstractClub":
+        from app.db_classes.club.null import NullClub
+
+        return NullClub()
