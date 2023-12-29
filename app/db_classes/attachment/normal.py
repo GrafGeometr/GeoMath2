@@ -19,21 +19,6 @@ class Attachment(StandardModel):
     # --> RELATIONS
 
     # --> FUNCTIONS
-    @staticmethod
-    def get_by_db_filename(db_filename):
-        if db_filename is None:
-            return None
-        return Attachment.query.filter_by(db_filename=db_filename).first()
-
-    @staticmethod
-    def get_all_by_parent(parent):
-
-        par_class = DbParent.from_type(type(parent))
-        if par_class is None:
-            return None
-        return Attachment.query.filter_by(
-            parent_type=par_class, parent_id=parent.id
-        ).all()
 
     def get_parent(self):
         par_type = self.parent_type.to_type()

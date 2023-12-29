@@ -11,8 +11,8 @@ class ContestToProblemRelation(StandardModel):
     __abstract__ = False
     __tablename__ = "contest_problem"
 
-    null_cls_ = NullContestToJudgeRelation
-    getter_cls_ = ContestToJudgeRelationGetter
+    null_cls_ = NullContestToProblemRelation
+    getter_cls_ = ContestToProblemRelationGetter
 
     max_score_ = db.Column(db.Integer, default=7)
     list_index_ = db.Column(db.Integer)
@@ -141,22 +141,18 @@ class ContestToProblemRelation(StandardModel):
                 or problem.id is None
         ):
             return None
-        return ContestToProblemRelation.query.filter_by(
-            problem_id=problem.id, contest_id=contest.id
-        ).first()
+        return ContestToProblemRelation.get.by_problem(problem).by_contest(contest).first()
 
     @staticmethod
     def get_all_by_contest(contest):
         if contest is None:
             return []
         res = sorted(
-            ContestToProblemRelation.query.filter_by(contest_id=contest.id).all(),
+            ContestToProblemRelation.get.by_contest(contest).all(),
             key=lambda contest_problem: (
                 contest_problem.list_index
                 if contest_problem.list_index is not None
                 else 0
             ),
         )
-        for cp in res:
-            print("DEBUG CP", cp.problem.hashed_id, cp.list_index)
         return res

@@ -1,5 +1,5 @@
 from app.db_classes.standard_model.getter import StandardModelGetter
-class ChatGetter(StandardModelGetter):
+class ContestToJudgeRelationGetter(StandardModelGetter):
     def by_contest(self,contest):
         self.manager.filter(self.manager.normal_cls.contest == contest)
         return self

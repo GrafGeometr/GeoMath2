@@ -91,7 +91,7 @@ class Invite(StandardModel, AbstractInvite):
 
     @staticmethod
     def act_refresh_all():
-        for inv in Invite.query.all():
+        for inv in Invite.get.all():
             inv.act_check_expired()
 
     def get_parent(self):

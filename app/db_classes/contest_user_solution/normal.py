@@ -1,4 +1,5 @@
 from app.imports import *
+from sqlalchemy_custom_types import *
 
 from app.db_classes.standard_model.normal import StandardModel
 from .abstract import AbstractContestUserSolutionRelation
@@ -6,7 +7,7 @@ from .null import NullContestUserSolutionRelation
 from .getter import ContestUserSolutionRelationGetter
 
 
-class ContestToUserSolutionRelation(ModelWithHashedId):
+class ContestUserSolution(ModelWithHashedId):
     # --> INITIALIZE
     __tablename__ = "contest_user_solution"
 
@@ -81,9 +82,7 @@ class ContestToUserSolutionRelation(ModelWithHashedId):
                 or contest_user.id is None
         ):
             return None
-        return ContestToUserSolutionRelation.query.filter_by(
-            contest_problem_id=contest_problem.id, contest_user_id=contest_user.id
-        ).first()
+        return ContestUserSolution.get.by_contest_problem(contest_problem).by_contest_user(contest_user).first()
 
     # ATTACHMENTS BLOCK
 

@@ -111,7 +111,7 @@ class Club(StandardModel):
         return self
 
     def act_add_contest(self, contest_id=None):
-        from app.dbc import Contest, Club_Contest
+        from app.dbc import Contest, ClubToContestRelation
 
         if contest_id is None:
             return
@@ -119,7 +119,7 @@ class Club(StandardModel):
             contest_id = int(contest_id)
         except:
             return
-        contest = Contest.query.filter_by(id=contest_id).first()
+        contest = Contest.get.by_id(contest_id).first()
         if contest is None:
             return
         if not contest.is_archived():

@@ -48,3 +48,13 @@ class AbstractEmail(AbstractStandardModel):
     @abstractmethod
     def user_id(self, user_id: int):
         pass
+
+    @property
+    @abstractmethod
+    def user(self) -> "User":
+        pass
+
+    @user.setter
+    @abstractmethod
+    def user(self, user: "User"):
+        pass

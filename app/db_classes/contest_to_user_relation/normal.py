@@ -73,9 +73,7 @@ class ContestToUserRelation(StandardModel):
     def get_all_by_contest_and_user(contest, user):
         if contest is None or user is None or contest.id is None or user.id is None:
             return None
-        return ContestToUserRelation.query.filter_by(
-            contest_id=contest.id, user_id=user.id
-        ).all()
+        return ContestToUserRelation.get.by_contest(contest).by_user(user).first()
 
     @staticmethod
     def get_active_by_contest_and_user(contest, user):

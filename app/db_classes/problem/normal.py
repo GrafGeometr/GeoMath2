@@ -145,7 +145,7 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
 
     def is_statement_available(self, user=current_user):
         from app.db_classes.contest_to_user_solution_relation.normal import (
-            ContestToUserSolutionRelation,
+            ContestUserSolution,
         )
 
         all_cp = [cp for cp in self.contest_problems if cp.is_valid()]
@@ -155,7 +155,7 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
         all_cus = []
         for cp in all_cp:
             all_cus.extend(
-                ContestToUserSolutionRelation.get.by_contest_problem(cp).all()
+                ContestUserSolution.get.by_contest_problem(cp).all()
             )
         if self.is_archived() or self.is_my():
             if len(all_cus) == 0:
@@ -168,7 +168,7 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
 
     def is_solution_available(self, user=current_user):
         from app.db_classes.contest_to_user_solution_relation.normal import (
-            ContestToUserSolutionRelation,
+            ContestUserSolution,
         )
 
         all_cp = [cp for cp in self.contest_problems if cp.is_valid()]
@@ -178,7 +178,7 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
         all_cus = []
         for cp in all_cp:
             all_cus.extend(
-                ContestToUserSolutionRelation.get.by_contest_problem(cp).all()
+                ContestUserSolution.get.by_contest_problem(cp).all()
             )
         if self.is_archived() or self.is_my():
             if len(all_cus) == 0:

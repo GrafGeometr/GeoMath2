@@ -34,9 +34,9 @@ from app.db_classes.contest_to_user_relation.normal import ContestToUserRelation
 from app.db_classes.contest_to_user_relation.null import NullContestToUserRelation
 from app.db_classes.contest_to_user_relation.abstract import AbstractContestToUserRelation
 
-from app.db_classes.contest_to_user_solution_relation.normal import ContestToUserSolutionRelation
-from app.db_classes.contest_to_user_solution_relation.null import NullContestToUserSolutionRelation
-from app.db_classes.contest_to_user_solution_relation.abstract import AbstractContestToUserSolutionRelation
+from app.db_classes.contest_to_user_solution_relation.normal import ContestUserSolution
+from app.db_classes.contest_to_user_solution_relation.null import NullContestUserSolution
+from app.db_classes.contest_to_user_solution_relation.abstract import AbstractContestUserSolution
 
 from app.db_classes.email.normal import Email
 from app.db_classes.email.null import NullEmail

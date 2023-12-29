@@ -1,21 +1,20 @@
-from .query_manager import QueryManager
+from app.db_classes.standard_model.getter import StandardModelGetter
+from sqlalchemy_custom_types import *
 
-class Getter:
-    manager = QueryManager
-
-    @staticmethod
-    def by_id(id):
-        Getter.manager.filter(Getter.manager.normal_cls.id == id)
+class AttachmentGetter(StandardModelGetter):
+    def by_id(self, id):
+        self.manager.filter(self.manager.normal_cls.id == id)
     
-    @staticmethod
-    def by_short_name(name):
-        Getter.manager.filter(Getter.manager.normal_cls.name == name)
+    def by_short_name(self, name):
+        self.manager.filter(self.manager.normal_cls.name == name)
 
-    @staticmethod
-    def all():
-        return Getter.manager.all()
-    
-    @staticmethod
-    def first():
-        return Getter.manager.first()
+    def by_db_filename(self, name):
+        self.manager.filter(self.manager.normal_cls.db_filename == name)
+
+    def by_parent(self, parent):
+        self.manager.filter(self.manager.normal_cls.parent_id_ == parent.id)
+        self.manager.filter(
+            self.manager.normal_cls.parent_type_ == DbParent.from_type(type(parent))
+        )
+        return self
 
