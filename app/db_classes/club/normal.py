@@ -125,8 +125,7 @@ class Club(StandardModel):
                     not current_user.get_club_relation(self.id).is_owner()
             ):
                 return
-        cc = Club_Contest(contest=contest, club=self)
-        cc.add()
+        ClubToContestRelation(contest=contest, club=self).add()
         return self
 
     def act_remove_contest(self, contest=None):
