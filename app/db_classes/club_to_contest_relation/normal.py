@@ -1,5 +1,5 @@
 from app.imports import *
-from sqlalchemy_custom_types import *
+from app.sqlalchemy_custom_types import *
 
 from app.db_classes.standard_model.normal import StandardModel
 from .abstract import AbstractClubToContestRelation
