@@ -6,13 +6,6 @@ from app.db_classes.standard_model.normal import AbstractStandardModel
 
 
 class AbstractInvite(AbstractStandardModel):
-    code = db.Column(db.String, unique=True, nullable=True)
-    expired_at = db.Column(db.DateTime)
-    parent_type = db.Column(DbParentType)
-    # parent_type = db.Column(db.String)  # 'Pool', 'Club'
-    parent_id = db.Column(db.Integer)
-
-    
     # --> INITIALIZE
     __abstract__ = True
 
@@ -39,12 +32,12 @@ class AbstractInvite(AbstractStandardModel):
 
     @property
     @abstractmethod
-    def parent_type(self) -> str:
+    def parent_type(self) -> "DbParent":
         pass
 
     @parent_type.setter
     @abstractmethod
-    def parent_type(self, parent_type: "DbParentType"):
+    def parent_type(self, parent_type: "DbParent"):
         pass
 
     @property
@@ -55,4 +48,35 @@ class AbstractInvite(AbstractStandardModel):
     @parent_id.setter
     @abstractmethod
     def parent_id(self, parent_id: int):
+        pass
+
+    # --> METHODS
+    @abstractmethod
+    def is_expired(self) -> bool:
+        pass
+
+    @abstractmethod
+    def act_check_expired(self):
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def generate_code() -> str:
+        pass
+
+    @abstractmethod
+    def act_set_expired_at(self):
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def act_refresh_all():
+        pass
+
+    @abstractmethod
+    def get_parent(self) -> "AbstractStandardModel":
+        pass
+
+    @abstractmethod
+    def is_from_parent(self, obj: "AbstractStandardModel") -> bool:
         pass

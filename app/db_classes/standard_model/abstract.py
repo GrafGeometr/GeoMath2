@@ -45,6 +45,9 @@ class AbstractStandardModel(db.Model):
     def is_null(self) -> bool:
         pass
 
+    def is_not_null(self) -> bool:
+        return not self.is_null()
+
     @classmethod
     @abstractmethod
     def get_by_id(cls, id_: int) -> "AbstractStandardModel":
