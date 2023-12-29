@@ -12,7 +12,6 @@ def login():
         next_url = request.form.get("next")
 
         user = User.get.by_name(login).first()
-        print("NULL", user.is_null())
         if user.is_null():
             user = User.get_by_verified_email(login)
         if user.is_not_null() and user.check_password(password):
