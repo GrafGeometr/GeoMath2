@@ -32,7 +32,7 @@ class AbstractChat(AbstractStandardModel):
 
     @property
     @abstractmethod
-    def club_id(self, club_id: int):
+    def club_id(self) -> int:
         pass
 
     @club_id.setter
