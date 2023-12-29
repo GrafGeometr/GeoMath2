@@ -1,9 +1,9 @@
 from app.imports import *
 
 from app.db_classes.standard_model.normal import StandardModel
-from .abstract import AbstractChat
-from .null import NullChat
-from .getter import Getter
+from .abstract import AbstractEmail
+from .null import NullEmail
+from .getter import EmailGetter
 
 
 class Email(ModelWithName):

@@ -7,7 +7,6 @@ from app.db_classes.standard_model.normal import StandardModel
 from .abstract import AbstractContest
 from .null import NullContest
 from .getter import ContestGetter
-from ...sqlalchemy_custom_types import GradeClassType
 
 
 class Contest(StandardModel):
