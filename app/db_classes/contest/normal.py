@@ -172,20 +172,13 @@ class Contest(StandardModel):
 
     # --> FUNCTIONS
     @staticmethod
-    def get_by_olimpiad_season_and_grade(olimpiad_id: int, season: str, grade: "Grade"):
-        return Contest.query.filter_by(
-            olimpiad_id=olimpiad_id, season=season, grade=grade
-        ).first()
+    def get_by_olimpiad_season_and_grade(olimpiad, season: str, grade: "Grade"):
+        return Contest.get.by_olimpiad(olimpiad).by_season(season).by_grade(grade).first()
 
     def is_liked(self):
         from app.dbc import Like
 
-        return (
-            Like.query.filter_by(
-                parent_type="Contest", parent_id=self.id, user_id=current_user.id
-            ).first()
-            is not None
-        )
+        return Like.get.by_parent(self).by_user(current_user).first() is not None
 
     def act_add_like(self):
         if self.is_liked():
@@ -200,9 +193,7 @@ class Contest(StandardModel):
             return
         from app.dbc import Like
 
-        Like.query.filter_by(
-            parent_type="Contest", parent_id=self.id, user_id=current_user.id
-        ).remove()
+        Like.get.by_parent(self).by_user(current_user).first().remove()
         return self
 
     def act_make_non_public(self):
@@ -227,10 +218,10 @@ class Contest(StandardModel):
             return False
         if (self.is_public) or (self.is_my(user)):
             return True
-        from app.dbc import User_Club
+        from app.dbc import UserToClubRelation
 
         all_cc = [cc for cc in self.club_contests if cc.is_valid()]
-        my_clubs = [uc.club for uc in User_Club.query.filter_by(user=user).all()]
+        my_clubs = [uc.club for uc in UserToClubRelation.get.by_user(user).all()]
         return any(cc.club in my_clubs for cc in all_cc)
 
     def is_my(self, user=current_user):
@@ -584,9 +575,6 @@ class Contest(StandardModel):
         else:
             return self.act_set_rating_public()
 
-    @staticmethod
-    def get_all_by_pool(pool):
-        return Contest.query.filter_by(pool_id=pool.id).all()
 
     def remove(self):
         cp_s = self.contest_problems
@@ -615,10 +603,7 @@ class Contest(StandardModel):
 
         return sorted(
             [
-                Tag.query.filter_by(id=sheet_tag.tag_id).first()
-                for sheet_tag in Tag_Relation.query.filter_by(
-                    parent_type=DbParent.from_type(type(self)), parent_id=self.id
-                ).all()
+                Tag.get.by_parent(self).all()
             ],
             key=lambda t: t.name.lower(),
         )

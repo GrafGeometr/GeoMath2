@@ -106,9 +106,7 @@ class Club(StandardModel):
 
         if chat_id is None:
             return self
-        chat = Chat.query.filter_by(id=chat_id).first()
-        self.act_remove_chat(chat)
-        return self
+        Chat.get.by_id(id).first().remove()
 
     def act_add_contest(self, contest_id=None):
         from app.dbc import Contest, ClubToContestRelation
@@ -132,16 +130,11 @@ class Club(StandardModel):
         return self
 
     def act_remove_contest(self, contest=None):
-        from app.dbc import Club_Contest
+        from app.dbc import ClubToContestRelation
 
         if contest is None:
             return self
-        cc = Club_Contest.query.filter_by(
-            club_id=self.id, contest_id=contest.id
-        ).first()
-        if cc is None:
-            return self
-        cc.remove()
+        ClubToContestRelation.get.by_club(self).by_contest(contest).remove()
         return self
 
     def act_remove_contest_by_id(self, contest_id=None):
@@ -149,7 +142,7 @@ class Club(StandardModel):
 
         if contest_id is None:
             return self
-        contest = Contest.query.filter_by(id=contest_id).first()
+        contest = Contest.get.by_id(id).first()
         self.act_remove_contest(contest)
 
     def act_generate_new_invite_code(self):

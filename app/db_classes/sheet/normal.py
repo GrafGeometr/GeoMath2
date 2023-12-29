@@ -112,9 +112,7 @@ class Sheet(ModelWithName, AbstractSheet):
             return
         from app.dbc import Like
 
-        Like.query.filter_by(
-            parent_type="Sheet", parent_id=self.id, user_id=user.id
-        ).remove()
+        Like.get.by_parent(self).by_user(user).remove()
         self.total_likes -= 1
         return self
 

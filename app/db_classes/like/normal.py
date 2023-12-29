@@ -122,9 +122,7 @@ class Like(StandardModel, AbstractLike):
         parent_type = DbParent.from_type(type(parent))
         if parent_type is None:
             return None
-        return Like.query.filter_by(
-            parent_type=parent_type, parent_id=parent.id, user_id=user.id
-        ).first()
+        return Like.get.by_parent(parent).by_user(user).first()
 
     @staticmethod
     def get_all_by_parent(parent):
@@ -133,7 +131,7 @@ class Like(StandardModel, AbstractLike):
         parent_type = DbParent.from_type(type(parent))
         if parent_type is None:
             return []
-        return Like.query.filter_by(parent_type=parent_type, parent_id=parent.id).all()
+        return Like.get.by_parent(parent).all()
 
     @staticmethod
     def exists(parent, user=current_user):

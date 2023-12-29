@@ -1,5 +1,5 @@
 from app.db_classes.standard_model.getter import StandardModelGetter
-class ChatGetter(StandardModelGetter):
+class ContestUserSolutionGetter(StandardModelGetter):
     def by_contest_problem(self, contest_problem):
         self.manager.filter(self.manager.normal_cls.contest_problem_id == contest_problem.id)
         return self
