@@ -13,19 +13,39 @@ class Tag(ModelWithName, AbstractTag):
 
     hash_ = db.Column(db.Integer, nullable=True)
 
+
     null_cls_ = NullTag
     getter_cls_ = TagGetter
 
     # --> RELATIONS
+    topic_id_ = db.Column(db.Integer, db.ForeignKey("topic.id_"))
 
     # --> PROPERTIES
     @property
-    def hash(self):
-        return self.hash_
+    def hash(self) -> int:
+        return self.get_hash()
 
     @hash.setter
-    def hash(self, value):
+    def hash(self, value: int):
         self.hash_ = value
+        self.save()
+
+    @property
+    def topic_id(self) -> int:
+        return self.topic_id_
+    
+    @topic_id.setter
+    def topic_id(self, value: int):
+        self.topic_id_ = value
+        self.save()
+
+    @property
+    def topic(self) -> "Topic":
+        return self.topic
+    
+    @topic.setter
+    def topic(self, value: "Topic"):
+        self.topic_ = value
         self.save()
 
     # --> METHODS
@@ -53,3 +73,8 @@ class Tag(ModelWithName, AbstractTag):
             self.hash = get_string_hash(self.name.lower())
             self.save()
         return self.hash
+    
+    def is_source(self):
+        return self.topic.is_source()
+    def is_theme(self):
+        return self.topic.is_theme()

@@ -3,13 +3,13 @@ from typing import Tuple
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
-from app.db_classes.model_with_name.normal import ModelWithName
+from app.db_classes.standard_model.normal import StandardModel
 from .abstract import AbstractContest
 from .null import NullContest
 from .getter import ContestGetter
 
 
-class Contest(ModelWithName, AbstractContest):
+class Contest(StandardModel, AbstractContest):
     # --> INITIALIZE
     __abstract__ = False
     __tablename__ = "contest"
@@ -17,8 +17,8 @@ class Contest(ModelWithName, AbstractContest):
     null_cls_ = NullContest
     getter_cls_ = ContestGetter
 
+    name_ = db.Column(db.String)
     description_ = db.Column(db.String)
-    grade_ = db.Column(GradeClassType)
     start_date_ = db.Column(db.DateTime)
     end_date_ = db.Column(db.DateTime)
     is_public_ = db.Column(db.Boolean, default=False)
