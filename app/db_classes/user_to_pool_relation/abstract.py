@@ -30,12 +30,32 @@ class AbstractUserToPoolRelation(AbstractStandardModel):
 
     @property
     @abstractmethod
+    def user(self) -> "User":
+        pass
+
+    @user.setter
+    @abstractmethod
+    def user(self, user: "User"):
+        pass
+
+    @property
+    @abstractmethod
     def pool_id(self) -> int:
         pass
 
     @pool_id.setter
     @abstractmethod
     def pool_id(self, value: int):
+        pass
+
+    @property
+    @abstractmethod
+    def pool(self) -> "Pool":
+        pass
+
+    @pool.setter
+    @abstractmethod
+    def pool(self, pool: "Pool"):
         pass
 
     # --> METHODS

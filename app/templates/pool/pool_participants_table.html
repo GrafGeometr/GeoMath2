@@ -10,7 +10,7 @@
             class="block">{{ userpool.user.name }}</a>
         </td>
         <td>
-            {% if userpool.role.isOwner() %}
+            {% if userpool.role.is_owner() %}
             <span class="font-bold text-amber-500">Владелец</span>
             {% elif userpool.role.isParticipant() %}
             <span class="font-bold text-purple-500">Участник</span>

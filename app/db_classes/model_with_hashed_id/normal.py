@@ -25,9 +25,9 @@ class ModelWithHashedId(StandardModel, AbstractModelWithHashedId):
         self.save()
 
     # --> METHODS
-    def __init__(self):
-        super().__init__()
-        self.hashed_id = type(self).generate_hashed_id()
+    #def __init__(self):
+        #super().__init__()
+        #self.hashed_id = type(self).generate_hashed_id()
 
     @classmethod
     def generate_hashed_id(cls):
@@ -45,7 +45,8 @@ class ModelWithHashedId(StandardModel, AbstractModelWithHashedId):
     def act_set_hashed_id(self):
         while True:
             hashed_id = generate_token(20)
-            if type(self).query.filter_by(hashed_id=hashed_id).first().is_null():
+            print("DEBUG")
+            if type(self).get.by_hashed_id(hashed_id).first().is_null():
                 break
 
         self.hashed_id = hashed_id

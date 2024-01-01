@@ -41,12 +41,30 @@ class UserToPoolRelation(StandardModel, AbstractUserToPoolRelation):
         self.save()
 
     @property
+    def user(self):
+        return self.user_
+    
+    @user.setter
+    def user(self, user):
+        self.user_ = user
+        self.save()
+
+    @property
     def pool_id(self):
         return self.pool_id_
 
     @pool_id.setter
     def pool_id(self, value):
         self.pool_id_ = value
+        self.save()
+
+    @property
+    def pool(self):
+        return self.pool_
+    
+    @pool.setter
+    def pool(self, pool):
+        self.pool_ = pool
         self.save()
 
     # --> METHODS

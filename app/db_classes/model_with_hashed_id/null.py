@@ -1,8 +1,8 @@
-from app.db_classes.standard_model.normal import StandardModel
+from app.db_classes.standard_model.null import NullStandardModel
 from app.db_classes.model_with_hashed_id.abstract import AbstractModelWithHashedId
 
 
-class NullModelWithHashedId(StandardModel, AbstractModelWithHashedId):
+class NullModelWithHashedId(NullStandardModel, AbstractModelWithHashedId):
     # --> INITIALIZE
     __abstract__ = True
 

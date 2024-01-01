@@ -22,7 +22,7 @@
                 class="block">{{ user_club.user.name }}</a>
             </td>
             <td>
-                {% if user_club.role.isOwner() %}
+                {% if user_club.role.is_owner() %}
                 <span class="font-bold text-amber-500">Владелец</span>
                 {% else %}
                 <span class="font-bold text-purple-500">Участник</span>

@@ -7,7 +7,7 @@
     element.classList.add("text-blue-600");
 </script>
 
-{% set own = current_user.get_club_relation(club.id).role.isOwner() %}
+{% set own = current_user.get_club_relation(club.id).role.is_owner() %}
 {% if own %}
 <div class="flex justify-between">
     <span class="text-2xl font-bold text-blue-800">Контесты</span>

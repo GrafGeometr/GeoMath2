@@ -1,7 +1,7 @@
 {% extends "pool/pool_header.html" %}
 {% block pool_body %}
 
-{% if current_user.get_pool_relation(current_pool.id).role.isOwner() %}
+{% if current_user.get_pool_relation(current_pool.id).role.is_owner() %}
 <div class="flex justify-between">
     {% if current_problem.is_public %}
     <div class="flex flex-row items-center">

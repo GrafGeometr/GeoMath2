@@ -33,7 +33,7 @@
             </a>
         </td>
         <td class="p-4 font-bold">
-            <span>{{chat.get_unread_messages()|length}}</span>
+            <span>{{chat.unread_messages()|length}}</span>
         </td>
         <td class="p-4 text-right">
             <form action="/profile/chats" method="post" class="inline-block">

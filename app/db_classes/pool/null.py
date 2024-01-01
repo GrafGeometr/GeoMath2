@@ -3,20 +3,27 @@ from typing import List
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
-from app.db_classes.model_with_name.null import NullModelWithName
 from app.db_classes.model_with_hashed_id.null import NullModelWithHashedId
 from app.db_classes.invite.null import NullInvite
 
 from app.db_classes.pool.abstract import AbstractPool
 
 
-class NullPool(NullModelWithHashedId, NullModelWithName, AbstractPool):
+class NullPool(NullModelWithHashedId, AbstractPool):
     # --> INITIALIZE
-    __abstract__ = False
+    __abstract__ = True
 
     # --> RELATIONS
 
     # --> PROPERTIES
+    @property
+    def name(self) -> str:
+        return ""
+
+    @name.setter
+    def name(self, value: str):
+        pass
+
     @property
     def user_to_pool_relations(self) -> List["UserToPoolRelation"]:
         return []

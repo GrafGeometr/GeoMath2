@@ -13,13 +13,15 @@ from app.db_classes.pool.getter import PoolGetter
 from app.db_classes.invite.null import NullInvite
 
 
-class Pool(ModelWithHashedId, ModelWithName, AbstractPool):
+class Pool(ModelWithHashedId, AbstractPool):
     # --> INITIALIZE
     __abstract__ = False
     __tablename__ = "pool"
 
     null_cls_ = NullPool
     getter_cls_ = PoolGetter
+
+    name_ = db.Column(db.String)
 
     # --> RELATIONS
     user_to_pool_relations_ = db.relationship("UserToPoolRelation", backref="pool_")
@@ -28,6 +30,15 @@ class Pool(ModelWithHashedId, ModelWithName, AbstractPool):
     contests_ = db.relationship("Contest", backref="pool_")
 
     # --> PROPERTIES
+    @property
+    def name(self):
+        return self.name_
+    
+    @name.setter
+    def name(self, value):
+        self.name_ = value
+        self.save()
+
     @property
     def user_to_pool_relations(self):
         return self.user_to_pool_relations_
@@ -63,10 +74,11 @@ class Pool(ModelWithHashedId, ModelWithName, AbstractPool):
     def contests(self, value):
         self.contests_ = value
         self.save()
+        
 
     # --> METHODS
     def contains_user(self, user=current_user):
-        return user in [up.user for up in self.user_pools]
+        return user in [up.user for up in self.user_to_pool_relations]
 
     def is_my(self):
         return self.contains_user(current_user)

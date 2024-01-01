@@ -178,14 +178,14 @@ class User(UserMixin, ModelWithName, AbstractUser):
     def create_new_pool(self, name):
         from app.dbc import Pool, UserToPoolRelation
 
-        pool = Pool(name=name).add()
+        
+        pool = Pool(name_=name)
+        pool.add()
 
         UserToPoolRelation(
             user_id=self.id,
             pool_id=pool.id,
-            role=Owner,
-            invited_date=current_time(),
-            joined_date=current_time(),
+            role=Owner
         ).add()
 
         return pool

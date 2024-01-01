@@ -7,7 +7,7 @@
     element.classList.add("text-blue-600");
 </script>
 
-{% set own = current_user.get_club_relation(club.id).role.isOwner() %}
+{% set own = current_user.get_club_relation(club.id).role.is_owner() %}
 {% if own %}
 <div class="flex justify-between">
     <span class="text-2xl font-bold text-blue-800">Чаты</span>
@@ -31,7 +31,7 @@
             <a href="/chat/{{ c.hashed_id }}/messages" class="block hover:underline">{{ c.name }}</a>
         </td>
         <td class="p-4 font-bold">
-            <span>{{c.get_unread_messages()|length}}</span>
+            <span>{{c.unread_messages()|length}}</span>
         </td>
         {% if own %}
         <td class="p-4 text-right">
