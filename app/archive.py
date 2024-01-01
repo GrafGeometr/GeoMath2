@@ -10,7 +10,7 @@ def show_problem_attachment(problem_hashed_id, filename):
     if not current_user.is_authenticated:
         print("not authenticated")
         return
-    problem = Problem.query.filter_by(hashed_id=problem_hashed_id).first()
+    problem = Problem.get.by_hashed_id(problem_hashed_id).first()
     if problem is None:
         print("problem none")
         return
@@ -34,7 +34,7 @@ def show_problem_attachment(problem_hashed_id, filename):
 @arch.route("/archive/publish/problem/<problem_hashed_id>", methods=["POST"])
 @login_required
 def publish_problem(problem_hashed_id):
-    problem = Problem.query.filter_by(hashed_id=problem_hashed_id).first()
+    problem = Problem.get.by_hashed_id(problem_hashed_id).first()
     if problem is None:
         return redirect(f"/myprofile")
     pool_hashed_id = problem.pool.hashed_id
@@ -68,7 +68,7 @@ def publish_problem(problem_hashed_id):
 @arch.route("/archive/publish/sheet/<sheet_id>", methods=["POST"])
 @login_required
 def publish_sheet(sheet_id):
-    sheet = Sheet.query.filter_by(id=sheet_id).first()
+    sheet = Sheet.get.by_id(sheet_id).first()
     if sheet is None:
         return redirect(f"/myprofile")
     pool_hashed_id = sheet.pool.hashed_id
@@ -96,7 +96,7 @@ def publish_sheet(sheet_id):
 @arch.route("/archive/publish/contest/<contest_id>", methods=["POST"])
 @login_required
 def publish_contest(contest_id):
-    contest = Contest.query.filter_by(id=contest_id).first()
+    contest = Contest.get.by_id(contest_id).first()
     if contest is None:
         return redirect(f"/myprofile")
     pool_hashed_id = contest.pool.hashed_id
@@ -183,7 +183,7 @@ def archive_problem_search(username):
     objs_per_page = 10
 
     tag_id_to_hash = {}
-    for t in Tag.query.all():
+    for t in Tag.get.all():
         tag_id_to_hash[t.id] = t.get_hash()
 
     obj_id_to_cnt = {}
@@ -194,8 +194,8 @@ def archive_problem_search(username):
         if idx != len(tags_hashes) and tags_hashes[idx] == tag_hash:
             obj_id_to_cnt[obj_id] = obj_id_to_cnt.get(obj_id, 0) + 1
 
-    objs = Problem.query.all()  # Problem | Sheet | Contest
-    user = User.query.filter_by(name=username).first()
+    objs = Problem.get.all()  # Problem | Sheet | Contest
+    user = User.get.by_name(username).first()
     if user is not None:
         objs = [obj for obj in objs if obj.is_my(user)]
 
@@ -229,7 +229,7 @@ def archive_problem_search(username):
         pages_to_show=pages_to_show,
         current_page=page,
         tags="; ".join(tags),
-        all_tags=sorted(Tag.query.all(), key=lambda t: (t.name).lower()),
+        all_tags=sorted(Tag.get.all(), key=lambda t: (t.name).lower()),
     )
 
 
@@ -270,19 +270,19 @@ def archive_sheet_search(username):
     objs_per_page = 10
 
     tag_id_to_hash = {}
-    for t in Tag.query.all():
+    for t in Tag.get.all():
         tag_id_to_hash[t.id] = t.get_hash()
 
     obj_id_to_cnt = {}
-    for tr in Tag_Relation.query.all():
+    for tr in TagRelation.get.all():
         obj_id = tr.parent_id
         tag_hash = tag_id_to_hash[tr.tag_id]
         idx = bisect.bisect_left(tags_hashes, tag_hash)
         if idx != len(tags_hashes) and tags_hashes[idx] == tag_hash:
             obj_id_to_cnt[obj_id] = obj_id_to_cnt.get(obj_id, 0) + 1
 
-    objs = Sheet.query.all()  # Problem | Sheet | Contest
-    user = User.query.filter_by(name=username).first()
+    objs = Sheet.get.all()  # Problem | Sheet | Contest
+    user = User.get.by_name(username).first()
     if user is not None:
         objs = [obj for obj in objs if obj.is_my(user)]
 
@@ -317,7 +317,7 @@ def archive_sheet_search(username):
         pages_to_show=pages_to_show,
         current_page=page,
         tags="; ".join(tags),
-        all_tags=sorted(Tag.query.all(), key=lambda t: (t.name).lower()),
+        all_tags=sorted(Tag.get.all(), key=lambda t: (t.name).lower()),
     )
 
 
@@ -358,19 +358,19 @@ def archive_contest_search(username):
     objs_per_page = 10
 
     tag_id_to_hash = {}
-    for t in Tag.query.all():
+    for t in Tag.get.all():
         tag_id_to_hash[t.id] = t.get_hash()
 
     obj_id_to_cnt = {}
-    for tr in Tag_Relation.query.all():
+    for tr in TagRelation.get.all():
         obj_id = tr.parent_id
         tag_hash = tag_id_to_hash[tr.tag_id]
         idx = bisect.bisect_left(tags_hashes, tag_hash)
         if idx != len(tags_hashes) and tags_hashes[idx] == tag_hash:
             obj_id_to_cnt[obj_id] = obj_id_to_cnt.get(obj_id, 0) + 1
 
-    objs = Contest.query.all()  # Problem | Sheet | Contest
-    user = User.query.filter_by(name=username).first()
+    objs = Contest.get.all()  # Problem | Sheet | Contest
+    user = User.get.by_name(username).first()
     if user is not None:
         objs = [obj for obj in objs if obj.is_my(user)]
 
@@ -405,14 +405,14 @@ def archive_contest_search(username):
         pages_to_show=pages_to_show,
         current_page=page,
         tags="; ".join(tags),
-        all_tags=sorted(Tag.query.all(), key=lambda t: (t.name).lower()),
+        all_tags=sorted(Tag.get.all(), key=lambda t: (t.name).lower()),
     )
 
 
 @arch.route("/archive/problem/<problem_hashed_id>")
 @login_required
 def arch_problem(problem_hashed_id):
-    problem = Problem.query.filter_by(hashed_id=problem_hashed_id).first()
+    problem = Problem.get.by_hashed_id(problem_hashed_id).first()
     if (problem is None) or (not problem.is_statement_available()):
         return redirect("/archive/problems/all")
     return render_template(
@@ -425,7 +425,7 @@ def arch_problem(problem_hashed_id):
 @arch.route("/archive/sheet/<sheet_id>")
 @login_required
 def arch_sheet(sheet_id):
-    sheet = Sheet.query.filter_by(id=sheet_id).first()
+    sheet = Sheet.get.by_id(sheet_id).first()
     if (sheet is None) or (not sheet.is_text_available()):
         return redirect("/archive/sheets/all")
     return render_template(

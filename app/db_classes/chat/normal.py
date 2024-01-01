@@ -1,3 +1,5 @@
+from typing import List
+
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
@@ -69,7 +71,7 @@ class Chat(AbstractChat, StandardModel):
             res.extend(uc.messages)
         return sorted(res, key=lambda m: m.date)
 
-    def unread_messages(self, user=current_user) -> list["Message"]:
+    def unread_messages(self, user=current_user) -> List["Message"]:
         res = []
         for m in self.all_messages():
             if m.unread_by_user(user):
@@ -120,6 +122,7 @@ class Chat(AbstractChat, StandardModel):
     def act_refresh_chat_invites(self):
         for ci in self.chat_invites:
             ci.act_check_expired()
+        return self
 
     def act_generate_new_invite_code(self):
         self.act_refresh_chat_invites()
@@ -127,8 +130,15 @@ class Chat(AbstractChat, StandardModel):
 
         ci = Invite(parent_type=DbParent.from_type(Chat), parent_id=self.id)
         ci.add()
+        return self
 
     def act_mark_all_as_read(self, user=current_user):
         for um in self.unread_messages(user):
             um.act_mark_as_read()
         return
+
+    def is_my(self, user=current_user):
+        from app.dbc import UserToChatRelation
+
+        uc = UserToChatRelation.get.by_user(user).by_chat(self).first()
+        return uc is not None

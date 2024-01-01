@@ -1,3 +1,5 @@
+from typing import List
+
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
@@ -38,4 +40,57 @@ class AbstractChat(AbstractStandardModel):
     @club_id.setter
     @abstractmethod
     def club_id(self, club_id: int):
+        pass
+
+    # --> METHODS
+    @abstractmethod
+    def contains_user(self, user=current_user) -> bool:
+        pass
+
+    @abstractmethod
+    def all_messages(self) -> List["Message"]:
+        pass
+
+    @abstractmethod
+    def unread_messages(self, user=current_user) -> List["Message"]:
+        pass
+
+    @abstractmethod
+    def last_message_date(self) -> datetime.datetime:
+        pass
+
+    @abstractmethod
+    def other_user(self, user=current_user) -> "AbstractUser":
+        pass
+
+    @abstractmethod
+    def count_owners(self) -> int:
+        pass
+
+    @abstractmethod
+    def count_participants(self) -> int:
+        pass
+
+    @abstractmethod
+    def add_user(self, user=current_user) -> "AbstractChat":
+        pass
+
+    @abstractmethod
+    def remove_user(self, user=current_user) -> "AbstractChat":
+        pass
+
+    @abstractmethod
+    def is_my(self) -> bool:
+        pass
+
+    @abstractmethod
+    def act_refresh_chat_invites(self) -> "AbstractChat":
+        pass
+
+    @abstractmethod
+    def act_generate_new_invite_code(self) -> "AbstractChat":
+        pass
+
+    @abstractmethod
+    def act_mark_all_as_read(self, user=current_user) -> "AbstractChat":
         pass
