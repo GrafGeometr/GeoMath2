@@ -38,7 +38,7 @@ class StandardModel(AbstractStandardModel):
         return self
 
     def add(self):
-        db.session.add(self)
+        db.session.merge(self)
         return self.save()
 
     def remove(self):
@@ -58,6 +58,3 @@ class StandardModel(AbstractStandardModel):
     @classmethod
     def get_all(cls):
         return cls.query.all()
-
-
-StandardModel.query = db.session.query_property()

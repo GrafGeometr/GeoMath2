@@ -59,9 +59,8 @@ def add_email():
 
     # OK
     email = Email(name=email_name, user=current_user)
+    email.add()
     email_token_stuff(email)
-    db.session.add(email)
-    db.session.commit()
 
     flash("Email успешно добавлен, подтвердите его", "success")
     return render_template(
@@ -102,7 +101,9 @@ def remove_email():
         )
 
     # CHECK: USER HASN'T EMAIL
-    email = Email.get.by_name(email_name).by_user(current_user).first()
+    #email = Email.query.filter_by(name_=email_name, user_id_=current_user.id).first()
+    email = Email.get.by_name(email_name).first()
+    #print(type(email))
     if email.is_null():
         # email doesn't exist
         # TODO say something about this
@@ -118,7 +119,7 @@ def remove_email():
     # OK
     # for em in Email.query.all():
     #    print(em.name, em.user_id, bool(em.verified))
-
+    print(email.name)
     email.remove()
     flash("Email успешно удален", "success")
     return render_template(

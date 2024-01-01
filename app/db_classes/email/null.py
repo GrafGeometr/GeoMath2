@@ -49,3 +49,11 @@ class NullEmail(NullStandardModel, AbstractEmail):
         from app.db_classes.user.null import NullUser
 
         return NullUser()
+
+    @property
+    def name(self) -> str:
+        return ""
+    
+    @name.setter
+    def name(self, name: str):
+        pass

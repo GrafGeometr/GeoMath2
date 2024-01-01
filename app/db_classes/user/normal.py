@@ -20,7 +20,7 @@ class User(UserMixin, ModelWithName, AbstractUser):
     profile_pic_ = db.Column(db.String(), nullable=True)
     about_ = db.Column(db.String(), nullable=True, default="")
 
-    null_cls = NullUser
+    null_cls_ = NullUser
     getter_cls_ = UserGetter
 
     # --> RELATIONS
@@ -252,6 +252,9 @@ class User(UserMixin, ModelWithName, AbstractUser):
 
     def get_notifications(self):
         from app.dbc import Notification
+        print("DEBUG", Notification.get)
+        print(Notification.get.all())
+        print(Notification.get.by_user(self))
 
         return sorted(
             Notification.get.by_user(self).all(),
