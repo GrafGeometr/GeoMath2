@@ -101,9 +101,7 @@ def remove_email():
         )
 
     # CHECK: USER HASN'T EMAIL
-    #email = Email.query.filter_by(name_=email_name, user_id_=current_user.id).first()
-    email = Email.get.by_name(email_name).first()
-    #print(type(email))
+    email = Email.get.by_name(email_name).by_user(current_user).first()
     if email.is_null():
         # email doesn't exist
         # TODO say something about this
@@ -119,7 +117,6 @@ def remove_email():
     # OK
     # for em in Email.query.all():
     #    print(em.name, em.user_id, bool(em.verified))
-    print(email.name)
     email.remove()
     flash("Email успешно удален", "success")
     return render_template(

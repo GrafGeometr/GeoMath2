@@ -12,11 +12,14 @@ class QueryManager:
 
     def all(self):
         from sqlalchemy import and_, true
-        return self.normal_cls.query.where(and_(true(), *self.filters)).all()
+        res = self.normal_cls.query.where(and_(true(), *self.filters)).all()
+        self.filters = []
+        return res
     
     def first(self):
         from sqlalchemy import and_, true
         res = self.normal_cls.query.where(and_(true(), *self.filters)).first()
+        self.filters = []
         if res is not None:
             return res
         return self.normal_cls.null_cls_()
