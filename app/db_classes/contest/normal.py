@@ -3,13 +3,13 @@ from typing import Tuple
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
-from app.db_classes.standard_model.normal import StandardModel
+from app.db_classes.model_with_name.normal import ModelWithName
 from .abstract import AbstractContest
 from .null import NullContest
 from .getter import ContestGetter
 
 
-class Contest(StandardModel, AbstractContest):
+class Contest(ModelWithName, AbstractContest):
     # --> INITIALIZE
     __abstract__ = False
     __tablename__ = "contest"
@@ -161,12 +161,30 @@ class Contest(StandardModel, AbstractContest):
         self.save()
 
     @property
+    def pool(self) -> "Pool":
+        return self.pool_
+
+    @pool.setter
+    def pool(self, pool: "Pool"):
+        self.pool_ = pool
+        self.save()
+
+    @property
     def olimpiad_id(self) -> int:
         return self.olimpiad_id_
 
     @olimpiad_id.setter
     def olimpiad_id(self, olimpiad_id: int):
         self.olimpiad_id_ = olimpiad_id
+        self.save()
+
+    @property
+    def olimpiad(self) -> "Olimpiad":
+        return self.olimpiad_
+    
+    @olimpiad.setter
+    def olimpiad(self, olimpiad: "Olimpiad"):
+        self.olimpiad_ = olimpiad
         self.save()
 
     @property
@@ -270,10 +288,10 @@ class Contest(StandardModel, AbstractContest):
 
         return Like.get_all_by_parent(self)
 
-    def get_all_likes_good(self):
+    def get_all_good_likes(self):
         return [like for like in self.get_all_likes() if like.good]
 
-    def get_all_likes_bad(self):
+    def get_all_bad_likes(self):
         return [like for like in self.get_all_likes() if not like.good]
 
     def get_problems(self):

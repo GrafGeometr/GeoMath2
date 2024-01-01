@@ -12,7 +12,7 @@
     }
 </style>
 
-{% if current_user.get_pool_relation(current_pool.id).role.is_owner() %}
+{% if current_user.get_pool_relation(current_pool).role.is_owner() %}
 <div class="flex justify-between">
     {% if current_contest.is_public %}
     <div class="flex flex-row items-center">

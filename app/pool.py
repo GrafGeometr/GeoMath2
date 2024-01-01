@@ -689,11 +689,10 @@ def new_contest(pool_hashed_id):
             name = olimpiad.name
             category = olimpiad.category
             short_name = olimpiad.short_name
+            grade = Grade(grade)
 
-            contest = Contest.get.by_olimpiad_season_and_grade(
-                olimpiad.id, season, Grade(grade)
-            ).first()
-            if contest is not None:
+            contest = Contest.get.by_olimpiad(olimpiad).by_name(season).by_grade(grade).first()
+            if contest.is_not_null():
                 print("WA3")
                 return f"/pool/{pool_hashed_id}/contest/{contest.id}"
 
@@ -701,7 +700,7 @@ def new_contest(pool_hashed_id):
             contest = Contest(
                 olimpiad_id=olimpiad.id,
                 name=season,
-                grade=Grade(grade),
+                grade=grade,
                 pool=pool,
                 start_date=tm,
                 end_date=tm,

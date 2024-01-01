@@ -29,7 +29,7 @@
         {% endif %}
 
         <td class="p-4 grow">
-            +{{ problem.get_all_likes_good()|length }} -{{ problem.get_all_likes_bad()|length }}
+            +{{ problem.get_all_good_likes()|length }} -{{ problem.get_all_bad_likes()|length }}
         </td>
 
         <td class="p-4 grow">

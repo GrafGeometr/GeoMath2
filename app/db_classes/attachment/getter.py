@@ -1,5 +1,5 @@
 from app.db_classes.standard_model.getter import StandardModelGetter
-from sqlalchemy_custom_types import *
+from app.sqlalchemy_custom_types import *
 
 class AttachmentGetter(StandardModelGetter):
     def by_id(self, id):

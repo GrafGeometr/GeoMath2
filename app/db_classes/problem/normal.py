@@ -277,7 +277,7 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
     def get_attachments(self):
         from app.dbc import Attachment
 
-        return Attachment.get_all_by_parent(self)
+        return Attachment.get.by_parent(self).all()
 
     def get_nonsecret_attachments(self):
         result = []

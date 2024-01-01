@@ -2,20 +2,27 @@ from app.imports import *
 from app.sqlalchemy_custom_types import *
 
 from app.db_classes.standard_model.normal import StandardModel
+from .abstract import AbstractAttachment
+from .null import NullAttachment
+from .getter import AttachmentGetter
 
 
-class Attachment(StandardModel):
+class Attachment(AbstractAttachment, StandardModel):
     # --> INITIALIZE
     __abstract__ = False
     __tablename__ = "attachment"
 
-    db_folder = db.Column(db.String)
-    db_filename = db.Column(db.String)
-    short_name = db.Column(db.String)
-    parent_type = db.Column(DbParentType)
+    db_folder_ = db.Column(db.String)
+    db_filename_ = db.Column(db.String)
+    short_name_ = db.Column(db.String)
+    parent_type_ = db.Column(DbParentType)
     # parent_type = db.Column(db.String)  # 'Problem' | 'Sheet' | 'Contest_User_Solution'
-    parent_id = db.Column(db.Integer)
-    other_data = db.Column(db.JSON, default={})
+    parent_id_ = db.Column(db.Integer)
+    other_data_ = db.Column(db.JSON, default={})
+
+    null_cls_ = NullAttachment
+    getter_cls_ = AttachmentGetter
+
 
     # --> RELATIONS
 
