@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 from app.imports import *
 from app.sqlalchemy_custom_types import *
@@ -144,10 +144,244 @@ class AbstractContest(AbstractStandardModel):
 
     @property
     @abstractmethod
+    def pool(self) -> "AbstractPool":
+        pass
+
+    @pool.setter
+    @abstractmethod
+    def pool(self, pool: "AbstractPool"):
+        pass
+
+    @property
+    @abstractmethod
     def olimpiad_id(self) -> int:
         pass
 
     @olimpiad_id.setter
     @abstractmethod
     def olimpiad_id(self, olimpiad_id: int):
+        pass
+
+    @property
+    @abstractmethod
+    def olimpiad(self) -> "AbstractOlimpiad":
+        pass
+
+    @olimpiad.setter
+    @abstractmethod
+    def olimpiad(self, olimpiad: "AbstractOlimpiad"):
+        pass
+
+    @property
+    @abstractmethod
+    def date(self) -> Tuple[datetime.datetime, datetime.datetime]:
+        pass
+
+    @date.setter
+    @abstractmethod
+    def date(self, date: Tuple[datetime.datetime, datetime.datetime]):
+        pass
+
+    # --> METHODS
+    @abstractmethod
+    def is_liked(self, user=current_user) -> bool:
+        pass
+
+    @abstractmethod
+    def act_add_like(self, user=current_user) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_remove_like(self, user=current_user) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def is_rating_public(self) -> bool:
+        pass
+
+    @abstractmethod
+    def is_rating_private(self) -> bool:
+        pass
+
+    @abstractmethod
+    def is_archived(self) -> bool:
+        pass
+
+    @abstractmethod
+    def is_description_available(self) -> bool:
+        pass
+
+    @abstractmethod
+    def is_my(self, user=current_user) -> bool:
+        pass
+
+    @abstractmethod
+    def is_started(self) -> bool:
+        pass
+
+    @abstractmethod
+    def is_ended(self) -> bool:
+        pass
+
+    @abstractmethod
+    def is_rating_available(self) -> bool:
+        pass
+
+    @abstractmethod
+    def is_problem_submitted(self, problem) -> bool:
+        pass
+
+    @abstractmethod
+    def is_tags_available(self) -> bool:
+        pass
+
+    @abstractmethod
+    def get_all_likes(self) -> List["Like"]:
+        pass
+
+    @abstractmethod
+    def get_all_good_likes(self) -> List["Like"]:
+        pass
+
+    @abstractmethod
+    def get_all_bad_likes(self) -> List["Like"]:
+        pass
+
+    @abstractmethod
+    def get_problems(self) -> List["Problem"]:
+        pass
+
+    @abstractmethod
+    def get_judges(self) -> List["User"]:
+        pass
+
+    @abstractmethod
+    def get_nonsecret_contest_problems(self) -> List["ContestToProblemRelation"]:
+        pass
+
+    @abstractmethod
+    def get_nonsecret_problems(self) -> List["Problem"]:
+        pass
+
+    @abstractmethod
+    def get_active_cu(self, user=current_user) -> "ContestToUserRelation":
+        pass
+
+    @abstractmethod
+    def get_idx_by_contest_problem(self, contest_problem) -> int:
+        pass
+
+    @abstractmethod
+    def get_cu_by_mode_and_part(
+        self, mode="all", part="real", user=current_user, club=None
+    ) -> "ContestToUserRelation":
+        pass
+
+    @abstractmethod
+    def get_rating_table(self, all_cu):
+        pass
+
+    @abstractmethod
+    def act_set_date(self, start_date, end_date) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_register(
+        self, user=current_user, mode="all", start_date=None, end_date=None
+    ) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_stop(self, user=current_user) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_add_judge(self, user) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_add_judge_by_name(self, name) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_remove_judge(self, user) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_remove_judge_by_name(self, name) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_set_judges(self, judges) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_remove_problem(self, problem) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_add_problem(self, problem) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_add_problem_by_hashed_id(self, hashed_id) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_set_problem_score(self, problem, score) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_set_problem_score_by_hashed_id(self, hashed_id, score) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_set_problems(self, hashes, scores) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_set_rating_public(self) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_set_rating_private(self) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_toggle_rating(self, mode) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def get_tags(self) -> List["Tag"]:
+        pass
+
+    @abstractmethod
+    def get_tag_names(self) -> List[str]:
+        pass
+
+    @abstractmethod
+    def is_have_tag(self, tag) -> bool:
+        pass
+
+    @abstractmethod
+    def act_add_tag(self, tag) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_add_tags(self, tags) -> "AbstractContest":
+        pass
+
+    def act_add_tag_by_name(self, tag_name) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_remove_tag(self, tag) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_remove_tag_by_name(self, tag_name) -> "AbstractContest":
+        pass
+
+    @abstractmethod
+    def act_set_tags(self, tags) -> "AbstractContest":
         pass

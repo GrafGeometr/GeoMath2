@@ -691,7 +691,12 @@ def new_contest(pool_hashed_id):
             short_name = olimpiad.short_name
             grade = Grade(grade)
 
-            contest = Contest.get.by_olimpiad(olimpiad).by_name(season).by_grade(grade).first()
+            contest = (
+                Contest.get.by_olimpiad(olimpiad)
+                .by_name(season)
+                .by_grade(grade)
+                .first()
+            )
             if contest.is_not_null():
                 print("WA3")
                 return f"/pool/{pool_hashed_id}/contest/{contest.id}"

@@ -1,3 +1,5 @@
+from typing import List
+
 from app.imports import *
 
 from app.db_classes.standard_model.normal import StandardModel
@@ -6,7 +8,7 @@ from .null import NullContestToProblemRelation
 from .getter import ContestToProblemRelationGetter
 
 
-class ContestToProblemRelation(StandardModel):
+class ContestToProblemRelation(StandardModel, AbstractContestToProblemRelation):
     # --> INITIALIZE
     __abstract__ = False
     __tablename__ = "contest_to_problem_relation"
@@ -53,6 +55,15 @@ class ContestToProblemRelation(StandardModel):
         self.save()
 
     @property
+    def contest(self) -> "AbstractContest":
+        return self.contest_
+
+    @contest.setter
+    def contest(self, contest: "AbstractContest"):
+        self.contest_ = contest
+        self.save()
+
+    @property
     def problem_id(self) -> int:
         return self.problem_id_
 
@@ -62,24 +73,33 @@ class ContestToProblemRelation(StandardModel):
         self.save()
 
     @property
-    def contest_user_solutions(self) -> list("Contest_User_Solution"):
+    def problem(self) -> "AbstractProblem":
+        return self.problem_
+
+    @problem.setter
+    def problem(self, problem: "AbstractProblem"):
+        self.problem_ = problem
+        self.save()
+
+    @property
+    def contest_user_solutions(self) -> List["ContestUserSolution"]:
         return self.contest_user_solutions_
 
     @contest_user_solutions.setter
     def contest_user_solutions(
-        self, contest_user_solutions: list("Contest_User_Solution")
+        self, contest_user_solutions: List["ContestUserSolution"]
     ):
         self.contest_user_solutions_ = contest_user_solutions
         self.save()
 
     # --> FUNCTIONS
     def add(self):
-        from app.dbc import Contest_User_Solution
+        from app.dbc import ContestUserSolution
 
         db.session.add(self)
         db.session.commit()
         for cu in self.contest.contest_users:
-            Contest_User_Solution(contest_user=cu, contest_problem=self).add()
+            ContestUserSolution(contest_user=cu, contest_problem=self).add()
         return self
 
     def remove(self):
@@ -125,38 +145,11 @@ class ContestToProblemRelation(StandardModel):
         )
 
     def get_active_contest_user_solution(self, user=current_user):
-        if user is None:
-            return None
-        from app.dbc import Contest_User, Contest_User_Solution
+        from app.dbc import ContestToUserRelation, ContestUserSolution
 
-        contest_user = Contest_User.get_active_by_contest_and_user(self.contest, user)
-        return Contest_User_Solution.get_by_contest_problem_and_contest_user(
-            self, contest_user
+        contest_user = ContestToUserRelation.get_active_by_contest_and_user(
+            self.contest, user
         )
-
-    @staticmethod
-    def get_by_contest_and_problem(contest, problem):
-        if (
-            contest is None
-            or problem is None
-            or contest.id is None
-            or problem.id is None
-        ):
-            return None
-        return (
-            ContestToProblemRelation.get.by_problem(problem).by_contest(contest).first()
+        return ContestUserSolution.get.by_contest_problem(self).get_by_contest_user(
+            contest_user
         )
-
-    @staticmethod
-    def get_all_by_contest(contest):
-        if contest is None:
-            return []
-        res = sorted(
-            ContestToProblemRelation.get.by_contest(contest).all(),
-            key=lambda contest_problem: (
-                contest_problem.list_index
-                if contest_problem.list_index is not None
-                else 0
-            ),
-        )
-        return res

@@ -47,14 +47,3 @@ class StandardModel(AbstractStandardModel):
 
     def is_null(self):
         return False
-
-    @classmethod
-    def get_by_id(cls, id_):
-        result = cls.query.filter_by(id=id_).first()
-        if result is not None:
-            return result
-        return cls.null_cls_()
-
-    @classmethod
-    def get_all(cls):
-        return cls.query.all()

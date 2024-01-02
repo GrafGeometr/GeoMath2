@@ -41,7 +41,7 @@ def add_email():
         )
     # CHECK: EMAIL ALREADY VERIFIED (OTHER USER)
     verified_emails = []
-    for us in User.query.all():
+    for us in User.get.all():
         if us.id == current_user.id:
             continue
         for em in us.emails:
@@ -115,8 +115,6 @@ def remove_email():
         )
 
     # OK
-    # for em in Email.query.all():
-    #    print(em.name, em.user_id, bool(em.verified))
     email.remove()
     flash("Email успешно удален", "success")
     return render_template(
@@ -157,8 +155,8 @@ def send_verifying_link():
         )
 
     # CHECK: USER HASN'T EMAIL
-    email = Email.query.filter_by(name=email_name, user_id=current_user.id).first()
-    if not email:
+    email = Email.get.by_name(email_name).by_user(current_user).first()
+    if email.is_null():
         err = "Error: Email doesn't exist"
         flash("Этот email не используется Вами", "error")
         return render_template(
@@ -170,7 +168,7 @@ def send_verifying_link():
 
     # CHECK: EMAIL ALREADY VERIFIED
     verified_emails = []
-    for us in User.query.all():
+    for us in User.get.all():
         for em in us.emails:
             if em.verified:
                 verified_emails.append(em.name)
@@ -204,8 +202,8 @@ def verify(username, email_name, email_token):
         print(1)
         return redirect("/myprofile")
 
-    email = Email.query.filter_by(name=email_name, user_id=current_user.id).first()
-    if not email:
+    email = Email.get.by_name(email_name).by_user(current_user).first()
+    if email.is_null():
         print(2)
         return redirect("/myprofile")
 
@@ -219,6 +217,5 @@ def verify(username, email_name, email_token):
 
     print(6)
     email.verified = True
-    db.session.commit()
     print(5)
     return redirect("/myprofile")

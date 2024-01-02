@@ -44,12 +44,32 @@ class AbstractContestToProblemRelation(AbstractStandardModel):
 
     @property
     @abstractmethod
+    def contest(self) -> "AbstractContest":
+        pass
+
+    @contest.setter
+    @abstractmethod
+    def contest(self, contest: "AbstractContest"):
+        pass
+
+    @property
+    @abstractmethod
     def problem_id(self) -> int:
         pass
 
     @problem_id.setter
     @abstractmethod
     def problem_id(self, problem_id: int):
+        pass
+
+    @property
+    @abstractmethod
+    def problem(self) -> "AbstractProblem":
+        pass
+
+    @problem.setter
+    @abstractmethod
+    def problem(self, problem: "AbstractProblem"):
         pass
 
     @property
@@ -62,4 +82,28 @@ class AbstractContestToProblemRelation(AbstractStandardModel):
     def contest_user_solutions(
         self, contest_user_solutions: List["ContestUserSolution"]
     ):
+        pass
+
+    # --> METHODS
+
+    @abstractmethod
+    def act_set_list_index(self, list_index: int) -> "AbstractContestToProblemRelation":
+        pass
+
+    @abstractmethod
+    def act_set_max_score(self, max_score: int) -> "AbstractContestToProblemRelation":
+        pass
+
+    @abstractmethod
+    def is_accessible(self, user=current_user) -> bool:
+        pass
+
+    @abstractmethod
+    def is_valid(self) -> bool:
+        pass
+
+    @abstractmethod
+    def get_active_contest_user_solution(
+        self, user=current_user
+    ) -> "AbstractContestUserSolution":
         pass

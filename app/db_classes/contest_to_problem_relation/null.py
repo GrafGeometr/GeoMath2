@@ -40,11 +40,31 @@ class NullContestToProblemRelation(NullStandardModel, AbstractContestToProblemRe
         pass
 
     @property
+    def contest(self):
+        from app.db_classes.contest.null import NullContest
+
+        return NullContest()
+
+    @contest.setter
+    def contest(self, contest):
+        pass
+
+    @property
     def problem_id(self) -> int:
         return -1
 
     @problem_id.setter
     def problem_id(self, problem_id: int):
+        pass
+
+    @property
+    def problem(self):
+        from app.db_classes.problem.null import NullProblem
+
+        return NullProblem()
+
+    @problem.setter
+    def problem(self, problem):
         pass
 
     @property
@@ -56,3 +76,24 @@ class NullContestToProblemRelation(NullStandardModel, AbstractContestToProblemRe
         self, contest_user_solutions: List["ContestUserSolution"]
     ):
         pass
+
+    # --> METHODS
+
+    def act_set_list_index(self, list_index: int) -> "AbstractContestToProblemRelation":
+        pass
+
+    def act_set_max_score(self, max_score: int) -> "AbstractContestToProblemRelation":
+        pass
+
+    def is_accessible(self, user=current_user) -> bool:
+        return False
+
+    def is_valid(self) -> bool:
+        return False
+
+    def get_active_contest_user_solution(
+        self, user=current_user
+    ) -> "AbstractContestUserSolution":
+        from app.db_classes.contest_user_solution.null import NullContestUserSolution
+
+        return NullContestUserSolution()

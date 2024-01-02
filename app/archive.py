@@ -11,10 +11,10 @@ def show_problem_attachment(problem_hashed_id, filename):
         print("not authenticated")
         return
     problem = Problem.get.by_hashed_id(problem_hashed_id).first()
-    if problem is None:
+    if problem.is_null():
         print("problem none")
         return
-    attachment = Attachment.get_by_db_filename(filename)
+    attachment = Attachment.get.by_db_filename(filename).first()
     if not attachment.is_from_parent(problem):
         print("attachment none")
         return
@@ -35,7 +35,7 @@ def show_problem_attachment(problem_hashed_id, filename):
 @login_required
 def publish_problem(problem_hashed_id):
     problem = Problem.get.by_hashed_id(problem_hashed_id).first()
-    if problem is None:
+    if problem.is_null():
         return redirect(f"/myprofile")
     pool_hashed_id = problem.pool.hashed_id
     if not current_user.get_pool_relation(problem.pool_id).role.is_owner():
@@ -69,7 +69,7 @@ def publish_problem(problem_hashed_id):
 @login_required
 def publish_sheet(sheet_id):
     sheet = Sheet.get.by_id(sheet_id).first()
-    if sheet is None:
+    if sheet.is_null():
         return redirect(f"/myprofile")
     pool_hashed_id = sheet.pool.hashed_id
     if not current_user.get_pool_relation(sheet.pool_id).role.is_owner():
@@ -97,7 +97,7 @@ def publish_sheet(sheet_id):
 @login_required
 def publish_contest(contest_id):
     contest = Contest.get.by_id(contest_id).first()
-    if contest is None:
+    if contest.is_null():
         return redirect(f"/myprofile")
     pool_hashed_id = contest.pool.hashed_id
     if not current_user.get_pool_relation(contest.pool_id).role.is_owner():
@@ -196,7 +196,7 @@ def archive_problem_search(username):
 
     objs = Problem.get.all()  # Problem | Sheet | Contest
     user = User.get.by_name(username).first()
-    if user is not None:
+    if user.is_not_null():
         objs = [obj for obj in objs if obj.is_my(user)]
 
     resulting_objs = []
@@ -283,7 +283,7 @@ def archive_sheet_search(username):
 
     objs = Sheet.get.all()  # Problem | Sheet | Contest
     user = User.get.by_name(username).first()
-    if user is not None:
+    if user.is_not_null():
         objs = [obj for obj in objs if obj.is_my(user)]
 
     resulting_objs = []
@@ -371,7 +371,7 @@ def archive_contest_search(username):
 
     objs = Contest.get.all()  # Problem | Sheet | Contest
     user = User.get.by_name(username).first()
-    if user is not None:
+    if user.is_not_null():
         objs = [obj for obj in objs if obj.is_my(user)]
 
     resulting_objs = []
@@ -413,7 +413,7 @@ def archive_contest_search(username):
 @login_required
 def arch_problem(problem_hashed_id):
     problem = Problem.get.by_hashed_id(problem_hashed_id).first()
-    if (problem is None) or (not problem.is_statement_available()):
+    if (problem.is_null()) or (not problem.is_statement_available()):
         return redirect("/archive/problems/all")
     return render_template(
         "archive/archive_problem_template.html",
@@ -426,7 +426,7 @@ def arch_problem(problem_hashed_id):
 @login_required
 def arch_sheet(sheet_id):
     sheet = Sheet.get.by_id(sheet_id).first()
-    if (sheet is None) or (not sheet.is_text_available()):
+    if (sheet.is_null()) or (not sheet.is_text_available()):
         return redirect("/archive/sheets/all")
     return render_template(
         "archive/archive_sheet_template.html",

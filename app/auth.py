@@ -43,7 +43,7 @@ def register():
             flash("Длина логина должна быть не менее 4 символов", "error")
             return redirect("/register")
 
-        if login.lower() in [user.name.lower() for user in User.query.all()]:
+        if login.lower() in [user.name.lower() for user in User.get.all()]:
             flash("Пользователь с таким именем уже существует", "error")
             return redirect("/register")
 

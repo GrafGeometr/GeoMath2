@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, List
 
 from app.imports import *
 from app.sqlalchemy_custom_types import *
@@ -19,6 +19,7 @@ class Contest(StandardModel, AbstractContest):
 
     name_ = db.Column(db.String)
     description_ = db.Column(db.String)
+    grade_ = db.Column(db.String)
     start_date_ = db.Column(db.DateTime)
     end_date_ = db.Column(db.DateTime)
     is_public_ = db.Column(db.Boolean, default=False)
@@ -116,39 +117,39 @@ class Contest(StandardModel, AbstractContest):
         self.save()
 
     @property
-    def contest_problems(self) -> list("ContestToProblemRelation"):
-        return self.contest_problems_
+    def contest_problems(self) -> List["ContestToProblemRelation"]:
+        return self.contest_to_problem_relations_
 
     @contest_problems.setter
-    def contest_problems(self, contest_problems: list["ContestToProblemRelation"]):
-        self.contest_problems_ = contest_problems
+    def contest_problems(self, contest_problems: List["ContestToProblemRelation"]):
+        self.contest_to_problem_relations_ = contest_problems
         self.save()
 
     @property
-    def contest_judges(self) -> list("ContestToJudgeRelation"):
-        return self.contest_judges_
+    def contest_judges(self) -> List["ContestToJudgeRelation"]:
+        return self.contest_to_judge_relations_
 
     @contest_judges.setter
-    def contest_judges(self, contest_judges: list["ContestToJudgeRelation"]):
-        self.contest_judges_ = contest_judges
+    def contest_judges(self, contest_judges: List["ContestToJudgeRelation"]):
+        self.contest_to_judge_relations_ = contest_judges
         self.save()
 
     @property
-    def contest_users(self) -> list("ContestToUserRelation"):
-        return self.contest_users_
+    def contest_users(self) -> List["ContestToUserRelation"]:
+        return self.contest_to_user_relations_
 
     @contest_users.setter
-    def contest_users(self, contest_users: list["ContestToUserRelation"]):
-        self.contest_users_ = contest_users
+    def contest_users(self, contest_users: List["ContestToUserRelation"]):
+        self.contest_to_user_relations_ = contest_users
         self.save()
 
     @property
-    def club_contests(self) -> list["ClubToContestRelation"]:
-        return self.club_contests_
+    def club_contests(self) -> List["ClubToContestRelation"]:
+        return self.club_to_contest_relations_
 
     @club_contests.setter
-    def club_contests(self, club_contests: list["ClubToContestRelation"]):
-        self.club_contests_ = club_contests
+    def club_contests(self, club_contests: List["ClubToContestRelation"]):
+        self.club_to_contest_relations_ = club_contests
         self.save()
 
     @property
@@ -181,7 +182,7 @@ class Contest(StandardModel, AbstractContest):
     @property
     def olimpiad(self) -> "Olimpiad":
         return self.olimpiad_
-    
+
     @olimpiad.setter
     def olimpiad(self, olimpiad: "Olimpiad"):
         self.olimpiad_ = olimpiad
@@ -197,16 +198,10 @@ class Contest(StandardModel, AbstractContest):
         self.save()
 
     # --> FUNCTIONS
-    @staticmethod
-    def get_by_olimpiad_season_and_grade(olimpiad, season: str, grade: "Grade"):
-        return (
-            Contest.get.by_olimpiad(olimpiad).by_season(season).by_grade(grade).first()
-        )
-
-    def is_liked(self):
+    def is_liked(self, user=current_user):
         from app.dbc import Like
 
-        return Like.get.by_parent(self).by_user(current_user).first() is not None
+        return Like.get.by_parent(self).by_user(user).first().is_not_null()
 
     def act_add_like(self):
         if self.is_liked():
@@ -224,14 +219,6 @@ class Contest(StandardModel, AbstractContest):
         Like.get.by_parent(self).by_user(current_user).first().remove()
         return self
 
-    def act_make_non_public(self):
-        self.is_public = False
-        return self.save()
-
-    def act_make_public(self):
-        self.is_public = True
-        return self.save()
-
     def is_rating_public(self):
         return self.rating == "public"
 
@@ -244,7 +231,7 @@ class Contest(StandardModel, AbstractContest):
     def is_description_available(self, user=current_user):
         if user is None:
             return False
-        if (self.is_public) or (self.is_my(user)):
+        if self.is_public or self.is_my(user):
             return True
         from app.dbc import UserToClubRelation
 
@@ -267,18 +254,20 @@ class Contest(StandardModel, AbstractContest):
         return user.is_judge(self) or self.is_rating_public()
 
     def is_problem_submitted(self, problem):
-        from app.dbc import Contest_Problem, Contest_User_Solution
+        from app.dbc import ContestToProblemRelation, ContestUserSolution
 
         if problem is None:
             return False
         cu = self.get_active_cu()
         if cu is None:
             return False
-        cp = Contest_Problem.get_by_contest_and_problem(self, problem)
-        if cp is None:
-            return False
-        cus = Contest_User_Solution.get_by_contest_problem_and_contest_user(cp, cu)
-        return (cus is not None) and (cus.content is not None)
+        cp = ContestToProblemRelation.get.by_contest(self).by_problem(problem).first()
+        cus = (
+            ContestUserSolution.get.by_contest_problem(cp)
+            .by_contest_user(cp, cu)
+            .first()
+        )
+        return cus.is_not_null() and (cus.content is not None)
 
     def is_tags_available(self, user=current_user):
         return self.is_description_available(user)
@@ -295,17 +284,14 @@ class Contest(StandardModel, AbstractContest):
         return [like for like in self.get_all_likes() if not like.good]
 
     def get_problems(self):
-        from app.dbc import Problem, Contest_Problem
+        from app.dbc import Problem, ContestToProblemRelation
 
-        result = list(
-            filter(
-                lambda x: x is not None,
-                [
-                    Problem.get_by_id(id=cp.problem_id)
-                    for cp in Contest_Problem.get_all_by_contest(self)
-                ],
-            )
-        )
+        result = [
+            cp.problem
+            for cp in ContestToProblemRelation.get.by_contest(self).all()
+            if cp.is_not_null()
+        ]
+
         return result
 
     def get_judges(self):
@@ -316,7 +302,7 @@ class Contest(StandardModel, AbstractContest):
         ]
 
     def get_nonsecret_contest_problems(self):
-        from app.dbc import Contest_Problem
+        from app.dbc import ContestToProblemRelation
 
         if (
             self.is_ended()
@@ -326,7 +312,7 @@ class Contest(StandardModel, AbstractContest):
         ):
             return [
                 cp
-                for cp in Contest_Problem.get_all_by_contest(self)
+                for cp in ContestToProblemRelation.get.by_contest(self).all()
                 if cp.is_accessible()
             ]
         else:
@@ -336,9 +322,9 @@ class Contest(StandardModel, AbstractContest):
         return [cp.problem for cp in self.get_nonsecret_contest_problems()]
 
     def get_active_cu(self, user=current_user):
-        from app.dbc import Contest_User
+        from app.dbc import ContestToUserRelation
 
-        return Contest_User.get_active_by_contest_and_user(self, user)
+        return ContestToUserRelation.get_active_by_contest_and_user(self, user)
 
     def get_idx_by_contest_problem(self, contest_problem):
         cproblems = self.get_nonsecret_contest_problems()
@@ -369,7 +355,7 @@ class Contest(StandardModel, AbstractContest):
         return all_cu
 
     def get_rating_table(self, all_cu):
-        from app.dbc import Contest_User_Solution
+        from app.dbc import ContestUserSolution
 
         t = []
         all_cp = self.get_nonsecret_contest_problems()
@@ -380,8 +366,10 @@ class Contest(StandardModel, AbstractContest):
             tr[2] = []  # List of (Contest_Problem, Contest_User_Solution)
             tr[3] = -1  # User's place
             for cp in all_cp:
-                cus = Contest_User_Solution.get_by_contest_problem_and_contest_user(
-                    cp, cu
+                cus = (
+                    ContestUserSolution.get.by_contest_problem(cp)
+                    .by_contest_user(cu)
+                    .first()
                 )
                 print(cus)
                 tr[2].append((cp, cus))
@@ -400,10 +388,6 @@ class Contest(StandardModel, AbstractContest):
                 t[i][3] = i + 1
         return t
 
-    def act_set_description(self, description):
-        self.description = description
-        return self.save()
-
     def act_set_date(self, start_date, end_date):
         if start_date is None or end_date is None or start_date > end_date:
             return self
@@ -419,7 +403,7 @@ class Contest(StandardModel, AbstractContest):
         print(mode, start_date, end_date)
         # регистрация user на контест, если виртуально - то с указанием начала и завершения
         # mode = "real" / "virtual", start=end='%Y-%m-%dT%H:%M' (строка в таком формате, надо преобразовать в datetime)
-        from app.dbc import Contest_User
+        from app.dbc import ContestToUserRelation
 
         if not self.is_description_available():
             return
@@ -428,7 +412,7 @@ class Contest(StandardModel, AbstractContest):
         if mode == "real":
             if self.is_ended():
                 return
-            Contest_User(
+            ContestToUserRelation(
                 contest_id=self.id,
                 user_id=user.id,
                 start_date=self.start_date if not self.is_started() else current_time(),
@@ -447,7 +431,7 @@ class Contest(StandardModel, AbstractContest):
                 or (start < current_time())
             ):
                 return
-            Contest_User(
+            ContestToUserRelation(
                 contest_id=self.id,
                 user_id=user.id,
                 start_date=start,
@@ -468,15 +452,13 @@ class Contest(StandardModel, AbstractContest):
         return self
 
     def act_add_judge(self, user):
-        from app.dbc import Contest_Judge
+        from app.dbc import ContestToJudgeRelation
 
-        if user is None:
-            return self
         if not self.is_my(user):
             return self
         if user.is_judge(self):
             return self
-        Contest_Judge(contest_id=self.id, user_id=user.id).add()
+        ContestToJudgeRelation(contest_id=self.id, user_id=user.id).add()
         return self
 
     def act_add_judge_by_name(self, name):
@@ -485,15 +467,14 @@ class Contest(StandardModel, AbstractContest):
         return self.act_add_judge(User.get_by_name(name))
 
     def act_remove_judge(self, user):
-        from app.dbc import Contest_Judge
+        from app.dbc import ContestToJudgeRelation
 
         if user is None:
             return self
         if not self.is_my():
             return self
-        cj = Contest_Judge.get_by_contest_and_user(self, user)
-        if cj is not None:
-            cj.remove()
+        cj = ContestToJudgeRelation.get.by_contest(self).by_user(user).first()
+        cj.remove()
         return self
 
     def act_remove_judge_by_name(self, name):
@@ -513,30 +494,34 @@ class Contest(StandardModel, AbstractContest):
         return self
 
     def act_remove_problem(self, problem):
-        from app.dbc import Contest_Problem
+        from app.dbc import ContestToProblemRelation
 
         if problem is None:
             return self
         if not self.is_my():
             return self
-        cp = Contest_Problem.get_by_contest_and_problem(self, problem)
+        cp = ContestToProblemRelation.get.by_contest(self).by_problem(problem).first()
         if cp is not None:
             cp.remove()
         return self
 
     def act_add_problem(self, problem, position=None, max_score=7):
-        from app.dbc import Contest_Problem
+        from app.dbc import ContestToProblemRelation
 
         if problem is None:
             return self
         if not self.is_my():
             return self
         if problem.is_in_contest(self):
-            cp = Contest_Problem.get_by_contest_and_problem(self, problem)
+            cp = (
+                ContestToProblemRelation.get.by_contest(self)
+                .by_problem(problem)
+                .first()
+            )
             cp.act_set_list_index(position)
             cp.act_set_max_score(max_score)
             return self
-        cp = Contest_Problem(contest_id=self.id, problem_id=problem.id).add()
+        cp = ContestToProblemRelation(contest_id=self.id, problem_id=problem.id).add()
         cp.act_set_max_score(max_score)
         if position is None:
             return self
@@ -549,27 +534,24 @@ class Contest(StandardModel, AbstractContest):
         from app.dbc import Problem
 
         return self.act_add_problem(
-            Problem.get_by_hashed_id(hashed_id), position, max_score
+            Problem.get.by_hashed_id(hashed_id).first(), position, max_score
         )
 
     def act_set_problem_score(self, problem, score):
-        from app.dbc import Contest_Problem
+        from app.dbc import ContestToProblemRelation
 
-        if problem is None:
-            return self
         if not self.is_my():
             return self
-        if not problem.is_in_contest(self):
-            return self
-        cp = Contest_Problem.get_by_contest_and_problem(self, problem)
-        if cp is not None:
-            cp.act_set_max_score(score)
+        cp = ContestToProblemRelation.get.by_contest(self).by_problem(problem).first()
+        cp.act_set_max_score(score)
         return self
 
     def act_set_problem_score_by_hashed_id(self, hashed_id, score):
         from app.dbc import Problem
 
-        return self.act_set_problem_score(Problem.get_by_hashed_id(hashed_id), score)
+        return self.act_set_problem_score(
+            Problem.get.by_hashed_id(hashed_id).first(), score
+        )
 
     def act_set_problems(self, hashes, scores):
         print(hashes, scores)
@@ -626,7 +608,7 @@ class Contest(StandardModel, AbstractContest):
     # TAGS BLOCK
 
     def get_tags(self):
-        from app.dbc import Tag, Tag_Relation
+        from app.dbc import Tag
 
         return sorted(
             [Tag.get.by_parent(self).all()],
@@ -639,11 +621,9 @@ class Contest(StandardModel, AbstractContest):
     def is_have_tag(self, tag):
         if tag is None:
             return False
-        from app.dbc import Tag_Relation
+        from app.dbc import TagRelation
 
-        if Tag_Relation.get_by_parent_and_tag(self, tag) is None:
-            return False
-        return True
+        return TagRelation.get.by_parent(self).by_tag(tag).first().is_not_null()
 
     def act_add_tags(self, tags):
         for tag in tags:
@@ -651,7 +631,7 @@ class Contest(StandardModel, AbstractContest):
         return self
 
     def act_add_tag(self, tag):
-        from app.dbc import Tag_Relation
+        from app.dbc import TagRelation
 
         if tag is None:
             return self
@@ -659,7 +639,7 @@ class Contest(StandardModel, AbstractContest):
             return self
         if self.is_have_tag(tag):
             return self
-        Tag_Relation(
+        TagRelation(
             parent_type=DbParent.from_type(type(self)), parent_id=self.id, tag_id=tag.id
         ).add()
         return self
@@ -673,15 +653,12 @@ class Contest(StandardModel, AbstractContest):
         return self.act_add_tag(tag)
 
     def act_remove_tag(self, tag):
-        from app.dbc import Tag_Relation
+        from app.dbc import TagRelation
 
-        if tag is None:
-            return self
         if not self.is_my():
             return self
-        rel = Tag_Relation.get_by_parent_and_tag(self, tag)
-        if rel is not None:
-            rel.remove()
+        rel = TagRelation.get.by_parent(self).by_tag(tag).first()
+        rel.remove()
         return self
 
     def act_remove_tag_by_name(self, tag_name):

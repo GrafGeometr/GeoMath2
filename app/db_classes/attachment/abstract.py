@@ -72,10 +72,6 @@ class AbstractAttachment(AbstractStandardModel):
 
     # --> METHODS
 
-    @classmethod
-    @abstractmethod
-    def get_by_db_filename(cls, db_filename):
-        pass
 
     @classmethod
     @abstractmethod

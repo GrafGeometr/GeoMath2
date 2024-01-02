@@ -146,21 +146,6 @@ class ContestUserSolution(ModelWithHashedId, AbstractContestUserSolution):
         db.session.commit()
         return self
 
-    @staticmethod
-    def get_by_contest_problem_and_contest_user(contest_problem, contest_user):
-        if (
-            contest_problem is None
-            or contest_user is None
-            or contest_problem.id is None
-            or contest_user.id is None
-        ):
-            return None
-        return (
-            ContestUserSolution.get.by_contest_problem(contest_problem)
-            .by_contest_user(contest_user)
-            .first()
-        )
-
     # ATTACHMENTS BLOCK
 
     def get_attachments(self):

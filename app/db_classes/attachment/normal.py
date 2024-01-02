@@ -23,8 +23,62 @@ class Attachment(AbstractAttachment, StandardModel):
     null_cls_ = NullAttachment
     getter_cls_ = AttachmentGetter
 
-
     # --> RELATIONS
+
+    # --> PROPERTIES
+    @property
+    def db_folder(self):
+        return self.db_folder_
+
+    @db_folder.setter
+    def db_folder(self, value):
+        self.db_folder_ = value
+        self.save()
+
+    @property
+    def db_filename(self):
+        return self.db_filename_
+
+    @db_filename.setter
+    def db_filename(self, value):
+        self.db_filename_ = value
+        self.save()
+
+    @property
+    def short_name(self):
+        return self.short_name_
+
+    @short_name.setter
+    def short_name(self, value):
+        self.short_name_ = value
+        self.save()
+
+    @property
+    def parent_type(self):
+        return self.parent_type_
+
+    @parent_type.setter
+    def parent_type(self, value):
+        self.parent_type_ = value
+        self.save()
+
+    @property
+    def parent_id(self):
+        return self.parent_id_
+
+    @parent_id.setter
+    def parent_id(self, value):
+        self.parent_id_ = value
+        self.save()
+
+    @property
+    def other_data(self):
+        return self.other_data_
+
+    @other_data.setter
+    def other_data(self, value):
+        self.other_data_ = value
+        self.save()
 
     # --> FUNCTIONS
 

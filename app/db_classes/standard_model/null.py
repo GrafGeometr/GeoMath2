@@ -33,11 +33,3 @@ class NullStandardModel(AbstractStandardModel):
 
     def is_null(self):
         return True
-
-    @classmethod
-    def get_by_id(cls, id_):
-        return cls()
-
-    @classmethod
-    def get_all(cls):
-        return []

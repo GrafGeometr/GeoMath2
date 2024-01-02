@@ -25,14 +25,12 @@ class ContestToUserRelation(StandardModel):
     # --> FUNCTIONS
 
     def add(self):
-        from app.dbc import Contest_User_Solution
+        from app.dbc import ContestUserSolution
 
         db.session.add(self)
         db.session.commit()
         for cp in self.contest.contest_problems:
-            Contest_User_Solution(
-                contest_user_id=self.id, contest_problem_id=cp.id
-            ).add()
+            ContestUserSolution(contest_user_id=self.id, contest_problem_id=cp.id).add()
         return self
 
     def remove(self):
