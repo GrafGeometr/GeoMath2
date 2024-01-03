@@ -180,16 +180,15 @@ class Pool(ModelWithHashedId, AbstractPool):
     def new_sheet(self):
         from app.dbc import Sheet
 
-        sheet = Sheet(pool_id=self.id).add()
+        sheet = Sheet(pool_id_=self.id).add()
         sheet.name = f"Подборка #{sheet.id}"
+        print(sheet.name, sheet.id)
         return sheet
 
     def new_contest(self):
         from app.dbc import Contest
 
-        contest = Contest(
-            description="", name="Название", pool_id=self.id, grade=Grade("")
-        ).add()
+        contest = Contest(description_="", name_="Название", pool_id_=self.id).add()
         tm = current_time("minutes")
         contest.name = f"Контест #{contest.id}"
         contest.date = tm, tm

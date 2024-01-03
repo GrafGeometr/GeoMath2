@@ -80,7 +80,7 @@
             <summary class="text-slate-500 font-bold">Теги:</summary>
             <div class="flex gap-x-8 items-start">
                 <ul class="w-full">
-                    {% for tag in problem.get_tags() %}
+                    {% for tag in problem.tags %}
                     <li class="flex">
                         <span class="text-slate-500 font-bold mr-4">#</span>
                         <div class="w-2/3"><span>{{ tag.name }}</span></div>

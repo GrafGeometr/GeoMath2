@@ -15,7 +15,10 @@ class NullProblem(NullModelWithHashedId, NullModelWithName, AbstractProblem):
     # --> RELATIONS
 
     # --> PROPERTIES
-
+    @property
+    def tags(self) -> List["Tag"]:
+        return []
+    
     @property
     def statement(self) -> str:
         return ""

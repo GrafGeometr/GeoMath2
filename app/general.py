@@ -125,3 +125,41 @@ def notifications():
         Notification.mark_all_as_read()
 
     return "OK"
+
+
+@general.route("/get_tags_structure", methods=["POST"])
+@login_required
+def get_tags_structure():
+    data = request.get_json()
+
+    resp = [topic.JSON for topic in Topic.get.all()]
+
+    return resp
+    
+@general.route("/get_tags_by_problem", methods=["POST"])
+@login_required
+def get_tags_by_problem():
+    data = request.get_json()
+    id = data.get("id")
+    obj = Problem.get.by_id(id).first()
+
+    return [tag.name for tag in obj.tags]
+
+@general.route("/get_tags_by_sheet", methods=["POST"])
+@login_required
+def get_tags_by_sheet():
+    data = request.get_json()
+    id = data.get("id")
+    obj = Sheet.get.by_id(id).first()
+    print(obj.tags)
+
+    return [tag.name for tag in obj.tags]
+
+@general.route("/get_tags_by_contest", methods=["POST"])
+@login_required
+def get_tags_by_contest():
+    data = request.get_json()
+    id = data.get("id")
+    obj = Contest.get.by_id(id).first()
+
+    return [tag.name for tag in obj.tags]

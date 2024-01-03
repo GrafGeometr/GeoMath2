@@ -98,6 +98,10 @@ from app.db_classes.tag_relation.normal import TagRelation
 from app.db_classes.tag_relation.null import NullTagRelation
 from app.db_classes.tag_relation.abstract import AbstractTagRelation
 
+from app.db_classes.topic.normal import Topic
+from app.db_classes.topic.null import NullTopic
+from app.db_classes.topic.abstract import AbstractTopic
+
 from app.db_classes.user.normal import User
 from app.db_classes.user.null import NullUser
 from app.db_classes.user.abstract import AbstractUser

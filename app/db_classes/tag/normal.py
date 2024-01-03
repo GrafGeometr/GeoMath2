@@ -1,4 +1,5 @@
 from app.imports import *
+from typing import List
 
 from app.db_classes.model_with_name.normal import ModelWithName
 from app.db_classes.tag.abstract import AbstractTag
@@ -19,6 +20,17 @@ class Tag(ModelWithName, AbstractTag):
 
     # --> RELATIONS
     topic_id_ = db.Column(db.Integer, db.ForeignKey("topic.id_"))
+    tag_relations_ = db.relationship("TagRelation", backref="tag_")
+
+    # --> JSON
+    @property
+    def JSON(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "hash": self.hash,
+            "topic": self.topic.JSON
+        }
 
     # --> PROPERTIES
     @property
@@ -35,17 +47,26 @@ class Tag(ModelWithName, AbstractTag):
         return self.topic_id_
     
     @topic_id.setter
-    def topic_id(self, value: int):
-        self.topic_id_ = value
+    def topic_id(self, topic_id: int):
+        self.topic_id_ = topic_id
         self.save()
 
     @property
     def topic(self) -> "Topic":
-        return self.topic
+        return self.topic_
     
     @topic.setter
-    def topic(self, value: "Topic"):
-        self.topic_ = value
+    def topic(self, topic: "Topic"):
+        self.topic_ = topic
+        self.save()
+
+    @property
+    def tag_relations(self) -> List["TagRelation"]:
+        return self.tag_relations_
+    
+    @tag_relations.setter
+    def tag_relations(self, tag_relations: List["TagRelation"]):
+        self.tag_relations_ = tag_relations
         self.save()
 
     # --> METHODS

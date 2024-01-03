@@ -22,6 +22,16 @@ class Topic(StandardModel, AbstractTopic):
     # --> RELATIONS
     tags_ = db.relationship("Tag", backref="topic_")
 
+    # --> JSON
+    @property
+    def JSON(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "color": self.color,
+            "tags": [tag.name for tag in self.tags]
+        }
+
     # --> PROPERTIES
     @property
     def color(self) -> str:

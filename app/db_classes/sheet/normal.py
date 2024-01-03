@@ -27,6 +27,11 @@ class Sheet(ModelWithName, AbstractSheet):
 
     # --> PROPERTIES
     @property
+    def tags(self) -> List["Tag"]:
+        from app.dbc import TagRelation
+        return [tr.tag for tr in TagRelation.get.by_parent(self).all()]
+    
+    @property
     def text(self):
         return self.text_
 
@@ -138,7 +143,7 @@ class Sheet(ModelWithName, AbstractSheet):
         return self.is_text_available(user)
 
     def is_my(self, user=current_user):
-        return user.is_pool_access(self.pool_id)
+        return user.is_pool_access(self.pool)
 
     # TAGS BLOCK
 
@@ -151,7 +156,7 @@ class Sheet(ModelWithName, AbstractSheet):
         )
 
     def get_tag_names(self):
-        return [tag.name for tag in self.get_tags()]
+        return [tag.name for tag in self.tags]
 
     def has_tag(self, tag):
         from app.dbc import TagRelation
@@ -171,7 +176,7 @@ class Sheet(ModelWithName, AbstractSheet):
     def act_add_tag_by_name(self, tag_name):
         from app.dbc import Tag
 
-        tag = Tag.get_by_name(tag_name)
+        tag = Tag.get.by_name(tag_name).first()
         if tag.is_null() and current_user.admin:
             tag = Tag(name=tag_name).add()
         return self.act_add_tag(tag)
@@ -191,7 +196,7 @@ class Sheet(ModelWithName, AbstractSheet):
         return self.act_remove_tag(Tag.get.by_name(tag_name).first())
 
     def act_set_tags(self, names):
-        for tag in self.get_tags():
+        for tag in self.tags:
             self.act_remove_tag(tag)
         for name in names:
             self.act_add_tag_by_name(name)

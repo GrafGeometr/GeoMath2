@@ -12,7 +12,6 @@ class TagRelation(StandardModel, AbstractTagRelation):
     __abstract__ = False
     __tablename__ = "tag_relation"
 
-    tag_id_ = db.Column(db.Integer)
     parent_type_ = db.Column(DbParentType)
     # parent_type = db.Column(db.String)  # 'Problem' | 'Sheet'
     parent_id_ = db.Column(db.Integer)
@@ -22,6 +21,7 @@ class TagRelation(StandardModel, AbstractTagRelation):
     getter_cls_ = TagRelationGetter
 
     # --> RELATIONS
+    tag_id_ = db.Column(db.Integer, db.ForeignKey("tag.id_"))
 
     # --> PROPERTIES
     @property
@@ -31,6 +31,15 @@ class TagRelation(StandardModel, AbstractTagRelation):
     @tag_id.setter
     def tag_id(self, value):
         self.tag_id_ = value
+        self.save()
+
+    @property
+    def tag(self) -> "Tag":
+        return self.tag_
+    
+    @tag.setter
+    def tag(self, tag: "Tag"):
+        self.tag_ = tag
         self.save()
 
     @property

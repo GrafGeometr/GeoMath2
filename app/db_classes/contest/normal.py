@@ -3,13 +3,13 @@ from typing import Tuple, List
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
-from app.db_classes.standard_model.normal import StandardModel
+from app.db_classes.model_with_name.normal import ModelWithName
 from .abstract import AbstractContest
 from .null import NullContest
 from .getter import ContestGetter
 
 
-class Contest(StandardModel, AbstractContest):
+class Contest(ModelWithName, AbstractContest):
     # --> INITIALIZE
     __abstract__ = False
     __tablename__ = "contest"
@@ -17,9 +17,7 @@ class Contest(StandardModel, AbstractContest):
     null_cls_ = NullContest
     getter_cls_ = ContestGetter
 
-    name_ = db.Column(db.String)
     description_ = db.Column(db.String)
-    grade_ = db.Column(db.String)
     start_date_ = db.Column(db.DateTime)
     end_date_ = db.Column(db.DateTime)
     is_public_ = db.Column(db.Boolean, default=False)
@@ -44,6 +42,11 @@ class Contest(StandardModel, AbstractContest):
     olimpiad_id_ = db.Column(db.Integer, db.ForeignKey("olimpiad.id_"))
 
     # --> PROPERTIES
+    @property
+    def tags(self) -> List["Tag"]:
+        from app.dbc import TagRelation
+        return [tr.tag for tr in TagRelation.get.by_parent(self).all()]
+    
     @property
     def description(self) -> str:
         return self.description_
@@ -242,7 +245,7 @@ class Contest(StandardModel, AbstractContest):
     def is_my(self, user=current_user):
         if user is None:
             return False
-        return user.is_pool_access(self.pool_id)
+        return user.is_pool_access(self.pool)
 
     def is_started(self):
         return (self.start_date is None) or self.start_date <= current_time()
@@ -609,14 +612,13 @@ class Contest(StandardModel, AbstractContest):
 
     def get_tags(self):
         from app.dbc import Tag
-
         return sorted(
-            [Tag.get.by_parent(self).all()],
+            Tag.get_all_by_obj(self),
             key=lambda t: t.name.lower(),
         )
 
     def get_tag_names(self):
-        return list(map(lambda t: t.name, self.get_tags()))
+        return list(map(lambda t: t.name, self.tags))
 
     def is_have_tag(self, tag):
         if tag is None:
@@ -647,7 +649,7 @@ class Contest(StandardModel, AbstractContest):
     def act_add_tag_by_name(self, tag_name):
         from app.dbc import Tag
 
-        tag = Tag.get_by_name(tag_name)
+        tag = Tag.get.by_name(tag_name).first()
         if (tag is None) and (current_user.admin):
             tag = Tag(name=tag_name).add()
         return self.act_add_tag(tag)
@@ -667,7 +669,7 @@ class Contest(StandardModel, AbstractContest):
         return self.act_remove_tag(Tag.get_by_name(tag_name))
 
     def act_set_tags(self, names):
-        for tag in self.get_tags():
+        for tag in self.tags:
             self.act_remove_tag(tag)
         for name in names:
             self.act_add_tag_by_name(name)

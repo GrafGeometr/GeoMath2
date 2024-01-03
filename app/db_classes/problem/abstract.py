@@ -14,6 +14,10 @@ class AbstractProblem(AbstractModelWithHashedId, AbstractModelWithName):
     # --> RELATIONS
 
     # --> PROPERTIES
+    @property
+    @abstractmethod
+    def tags(self) -> List["Tag"]:
+        pass
 
     @property
     @abstractmethod

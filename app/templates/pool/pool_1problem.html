@@ -83,9 +83,16 @@
 
         <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
             <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Теги:</h2>
+            <div class="flex gap-x-8 items-start" id="tags" object-type="problem" object-id="{{ current_problem.id }}">
+                <script src="/static/js/editor_tags_manager.js"></script>
+            </div>
+        </div>
+
+        <!--<div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
+            <h2 class="text-slate-500 font-bold text-xl ml-2 mb-2">Теги:</h2>
             <div class="flex gap-x-8 items-start">
                 <ul class="w-full" id="tas_list">
-                    {% for tag in current_problem.get_tags() %}
+                    {% for tag in current_problem.tags %}
                     <li class="flex">
                         <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
                         <span class="text-slate-500 font-bold mr-4">#</span>
@@ -107,7 +114,7 @@
                         onclick="AddTag()">Добавить тег</button>
                 </div>
             </div>
-        </div>
+        </div>!-->
 
         
         <div class="w-full bg-white rounded-xl box_shadow hover:shadow-lg p-8">
@@ -181,6 +188,7 @@
 
 
 </div>
+
 
 <script>
     var span = document.getElementById("copy_hash_span");

@@ -38,7 +38,7 @@ class StandardModel(AbstractStandardModel):
         return self
 
     def add(self):
-        db.session.merge(self)
+        db.session.add(self)
         return self.save()
 
     def remove(self):

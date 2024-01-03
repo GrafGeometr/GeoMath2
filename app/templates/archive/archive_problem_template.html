@@ -113,7 +113,7 @@
         </div>
         <div class="flex gap-x-8 items-start">
             <ul class="w-full" id="tas_list">
-                {% for tag in current_problem.get_tags() %}
+                {% for tag in current_problem.tags %}
                 <li class="flex">
                     <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
                     <span class="text-slate-500 font-bold mr-4">#</span>

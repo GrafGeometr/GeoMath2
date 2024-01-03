@@ -315,7 +315,7 @@ def get_problem_content(problem_hashed_id):  # TODO fix access
                     for file in problem.get_nonsecret_attachments()
                     if file.other_data.get("is_secret", False)
                 ],
-                "tags": [tag.name for tag in problem.get_tags()],
+                "tags": [tag.name for tag in problem.tags],
             }
         )
 
@@ -336,7 +336,7 @@ def get_problem_content(problem_hashed_id):  # TODO fix access
                 [file.short_name, file.db_filename]
                 for file in problem.get_nonsecret_attachments()
             ],
-            "tags": [tag.name for tag in problem.get_tags()],
+            "tags": [tag.name for tag in problem.tags],
         }
     )
 
@@ -430,6 +430,9 @@ def new_sheet(pool_hashed_id):
         return redirect(user_checked)
 
     sheet = pool.new_sheet()
+    print(sheet)
+    print(sheet.name)
+    print(sheet.id)
 
     return redirect(f"/pool/{pool_hashed_id}/sheet/{sheet.id}")
 
@@ -756,7 +759,7 @@ def contest(pool_hashed_id, contest_id):
     user_checked = check_user_in_pool(current_user, pool)
     if user_checked is not None:
         return redirect(user_checked)
-
+    
     contest = Contest.get.by_id(contest_id).first()
 
     if (contest.is_null()) or (contest.pool != pool):

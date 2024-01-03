@@ -1,5 +1,6 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
+from typing import List
 
 from app.db_classes.model_with_hashed_id.normal import ModelWithHashedId
 from app.db_classes.model_with_name.normal import ModelWithName
@@ -27,6 +28,11 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
     contest_problems_ = db.relationship("ContestToProblemRelation", backref="problem_")
 
     # --> PROPERTIES
+    @property
+    def tags(self) -> List["Tag"]:
+        from app.dbc import TagRelation
+        return [tr.tag for tr in TagRelation.get.by_parent(self).all()]
+    
     @property
     def statement(self):
         return self.statement_
@@ -193,7 +199,7 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
         return self.is_solution_available()
 
     def is_my(self, user=current_user):
-        return user.is_pool_access(self.pool_id)
+        return user.is_pool_access(self.pool)
 
     def is_in_contest(self, contest):
         from app.db_classes.contest_to_problem_relation.normal import (
@@ -217,8 +223,9 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
     def get_tags(self):
         return sorted(self.get_nonsorted_tags(), key=lambda t: t.name.lower())
 
+
     def get_tag_names(self):
-        return [tag.name for tag in self.get_tags()]
+        return [tag.name for tag in self.tags]
 
     def has_tag(self, tag):
         from app.dbc import TagRelation
@@ -226,15 +233,17 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
         return TagRelation.get.by_parent(self).by_tag(tag).is_null()
 
     def act_add_tags(self, tags):
+        if not self.is_my():
+            return self
+        existing_tags = self.get_tag_names()
         for tag in tags:
+            if tag.name in existing_tags:
+                continue
             self.act_add_tag(tag)
         return self
 
     def act_add_tag(self, tag):
         from app.dbc import TagRelation
-
-        if not self.is_my() or self.is_have_tag(tag):
-            return self
         TagRelation(
             parent_type_=DbParent.from_type(type(self)),
             parent_id_=self.id,

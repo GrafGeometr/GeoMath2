@@ -6,10 +6,6 @@ class ContestGetter(ModelWithNameGetter):
         self.manager.filter(self.manager.normal_cls.pool_id == pool.id)
         return self
     
-    def by_id(self, id):
-        self.manager.filter(self.manager.normal_cls.id == id)
-        return self
-    
     def by_olimpiad(self, olimpiad):
         self.manager.filter(self.manager.normal_cls.olimpiad == olimpiad)
         return self
