@@ -38,8 +38,8 @@ class Tag(ModelWithName, AbstractTag):
         return self.get_hash()
 
     @hash.setter
-    def hash(self, value: int):
-        self.hash_ = value
+    def hash(self, hash: int):
+        self.hash_ = hash
         self.save()
 
     @property
@@ -90,10 +90,9 @@ class Tag(ModelWithName, AbstractTag):
     def get_hash(self):
         from app.utils_and_functions.usefull_functions import get_string_hash
 
-        if self.hash is None:
+        if self.hash_ is None:
             self.hash = get_string_hash(self.name.lower())
-            self.save()
-        return self.hash
+        return self.hash_
     
     def is_source(self):
         return self.topic.is_source()

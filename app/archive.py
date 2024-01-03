@@ -38,7 +38,7 @@ def publish_problem(problem_hashed_id):
     if problem.is_null():
         return redirect(f"/myprofile")
     pool_hashed_id = problem.pool.hashed_id
-    if not current_user.get_pool_relation(problem.pool_id).role.is_owner():
+    if not current_user.get_pool_relation(problem.pool).role.is_owner():
         return redirect(f"/pool/{pool_hashed_id}/problems")
 
     if not problem.name:
