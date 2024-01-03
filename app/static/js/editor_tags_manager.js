@@ -16,8 +16,8 @@ function selectTag(tagEl) {
 
 function removeTag(tagEl) {
     tagEl.classList.remove("selected");
-    tagEl.style.backgroundColor = "white";
-    tagEl.style.color = "black";
+    tagEl.style.backgroundColor = null;
+    tagEl.style.color = null;
     for (i = 0; i < tagList.children.length; i++) {
         if (tagList.children[i].value == tagEl.innerHTML) {
             tagList.children[i].remove();
@@ -64,8 +64,10 @@ function buildTagsMenu(root, structure, tags) {
         for (tag_id in topic["tags"]) {
             tag = topic["tags"][tag_id];
             var tagEl = document.createElement("div");
-            tagEl.classList.add("text-base", "rounded-full", "border", "border-neutral-500", "p-2", "flex", "justify-center", "hover:cursor-pointer");
+            tagEl.classList.add("text-base", "rounded-full", "border", "border-neutral-500", "p-2", "flex", "justify-center", "hover:cursor-pointer", "select-none", "transition-colors");
             tagEl.classList.add("tagEl");
+            tagEl.classList.add("text-neutral-500", "hover:text-neutral-800");
+            tagEl.classList.add("hover:bg-slate-100");
             tagEl.innerHTML = tag;
             topicBody.appendChild(tagEl);
             bindClick(tagEl);
