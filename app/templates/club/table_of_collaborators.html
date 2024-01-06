@@ -22,7 +22,7 @@
                                 <input type="submit" value="Понизить до участника" class="font-bold hover:text-red-500 hover:cursor-pointer">
                             </form>
 
-                        {% elif user_club.role.isParticipant() %} 
+                        {% elif user_club.role.is_participant() %}
                             <summary class="font-bold text-purple-500">
                                 <span>Участник</span>
                             </summary>

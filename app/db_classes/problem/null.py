@@ -4,11 +4,10 @@ from app.imports import *
 
 
 from app.db_classes.model_with_hashed_id.null import NullModelWithHashedId
-from app.db_classes.model_with_name.null import NullModelWithName
 from app.db_classes.problem.abstract import AbstractProblem
 
 
-class NullProblem(NullModelWithHashedId, NullModelWithName, AbstractProblem):
+class NullProblem(NullModelWithHashedId, AbstractProblem):
     # --> INITIALIZE
     __abstract__ = True
 
@@ -16,9 +15,13 @@ class NullProblem(NullModelWithHashedId, NullModelWithName, AbstractProblem):
 
     # --> PROPERTIES
     @property
+    def name(self):
+        return ""
+
+    @property
     def tags(self) -> List["Tag"]:
         return []
-    
+
     @property
     def statement(self) -> str:
         return ""

@@ -4,14 +4,24 @@ from app.imports import *
 from app.sqlalchemy_custom_types import *
 
 from abc import abstractmethod
-from app.db_classes.model_with_name.abstract import AbstractModelWithName
+from app.db_classes.standard_model.abstract import AbstractStandardModel
 
 
-class AbstractContest(AbstractModelWithName):
+class AbstractContest(AbstractStandardModel):
     # --> INITIALIZE
     __abstract__ = True
 
     # --> PROPERTIES
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
+    @name.setter
+    @abstractmethod
+    def name(self, name: str):
+        pass
+
     @property
     @abstractmethod
     def description(self) -> str:

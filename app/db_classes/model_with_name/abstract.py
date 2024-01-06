@@ -18,10 +18,3 @@ class AbstractModelWithName(AbstractStandardModel):
         pass
 
     # --> METHODS
-    @abstractmethod
-    def act_set_name(self, name: str):
-        pass
-
-    @classmethod
-    def get_by_name(cls, name: str) -> "AbstractModelWithName":
-        pass

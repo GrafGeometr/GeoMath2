@@ -3,17 +3,21 @@ from app.sqlalchemy_custom_types import *
 
 from typing import List
 
-from app.db_classes.model_with_name.null import NullModelWithName
+from app.db_classes.standard_model.null import NullStandardModel
 from app.db_classes.sheet.abstract import AbstractSheet
 
 
-class NullSheet(AbstractSheet, NullModelWithName):
+class NullSheet(AbstractSheet, NullStandardModel):
     # --> INITIALIZE
     __abstract__ = True
 
     # --> RELATIONS
 
     # --> PROPERTIES
+    @property
+    def name(self) -> str:
+        return ""
+
     @property
     def text(self) -> str:
         return ""

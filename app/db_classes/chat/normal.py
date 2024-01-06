@@ -14,6 +14,7 @@ class Chat(AbstractChat, StandardModel):
     __abstract__ = False
     __tablename__ = "chat"
 
+    name_ = db.Column(db.String)
     readonly_ = db.Column(db.Boolean, default=False)
 
     null_cls_ = NullChat
@@ -24,6 +25,15 @@ class Chat(AbstractChat, StandardModel):
     club_id_ = db.Column(db.Integer, db.ForeignKey("club.id_"))
 
     # --> PROPERTIES
+    @property
+    def name(self):
+        return self.name_
+
+    @name.setter
+    def name(self, value):
+        self.name_ = value
+        self.save()
+
     @property
     def readonly(self) -> bool:
         return self.readonly_

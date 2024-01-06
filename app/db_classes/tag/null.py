@@ -1,16 +1,20 @@
 from app.imports import *
 
-from app.db_classes.model_with_name.null import NullModelWithName
+from app.db_classes.standard_model.null import NullStandardModel
 from app.db_classes.tag.abstract import AbstractTag
 
 
-class NullTag(NullModelWithName, AbstractTag):
+class NullTag(NullStandardModel, AbstractTag):
     # --> INITIALIZE
     __abstract__ = True
 
     # --> RELATIONS
 
     # --> PROPERTIES
+    @property
+    def name(self):
+        return ""
+
     @property
     def hash(self):
         return -1

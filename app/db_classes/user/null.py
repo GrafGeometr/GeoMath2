@@ -1,15 +1,18 @@
-from app.db_classes.model_with_name.null import NullModelWithName
+from app.db_classes.standard_model.null import NullStandardModel
 from app.db_classes.user.abstract import AbstractUser
 from app.db_classes.user_to_club_relation.null import NullUserToClubRelation
 from app.db_classes.user_to_pool_relation.null import NullUserToPoolRelation
 from app.db_classes.pool.null import NullPool
 
 
-class NullUser(NullModelWithName, AbstractUser):
+class NullUser(NullStandardModel, AbstractUser):
     # --> INITIALIZE
     __abstract__ = True
 
     # --> PROPERTIES
+    @property
+    def name(self):
+        return ""
 
     @property
     def password(self):
@@ -73,7 +76,7 @@ class NullUser(NullModelWithName, AbstractUser):
     def get_current_user(cls):
         return NullUser()
 
-    def set_password(self, password):
+    def set_password_hash(self, password):
         return self
 
     def check_password(self, password):

@@ -1,15 +1,19 @@
 from typing import List
 
-from app.db_classes.model_with_name.null import NullModelWithName
+from app.db_classes.standard_model.null import NullStandardModel
 from .abstract import AbstractChat
 from app.imports import *
 
 
-class NullChat(NullModelWithName, AbstractChat):
+class NullChat(NullStandardModel, AbstractChat):
     # --> INITIALIZE
     __abstract__ = True
 
     # --> PROPERTIES
+    @property
+    def name(self) -> str:
+        return ""
+
     @property
     def readonly(self) -> bool:
         return True

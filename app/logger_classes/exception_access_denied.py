@@ -1,11 +1,7 @@
-from app.imports import *
-from app.log import Exception
+from app.logger_classes.exception import CustomException
 
 
-class Exception_Access_Denied(Exception):
-    def __init__(self, *args, **kwargs):
-        self.set_content("Отказано в доступе")
-        super().__init__(*args, **kwargs)
-
-    def set_content(self, content):
-        self.content = content
+class ExceptionAccessDenied(CustomException):
+    def __init__(self, target, *args):
+        self.content = "Отказано в доступе"
+        super().__init__(target, *args)

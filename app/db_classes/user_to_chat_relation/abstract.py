@@ -23,12 +23,32 @@ class AbstractUserToChatRelation(AbstractStandardModel):
 
     @property
     @abstractmethod
+    def user(self) -> "AbstractUser":
+        pass
+
+    @user.setter
+    @abstractmethod
+    def user(self, value: "AbstractUser"):
+        pass
+
+    @property
+    @abstractmethod
     def chat_id(self) -> int:
         pass
 
     @chat_id.setter
     @abstractmethod
     def chat_id(self, value: int):
+        pass
+
+    @property
+    @abstractmethod
+    def chat(self) -> "AbstractChat":
+        pass
+
+    @chat.setter
+    @abstractmethod
+    def chat(self, value: "AbstractChat"):
         pass
 
     @property

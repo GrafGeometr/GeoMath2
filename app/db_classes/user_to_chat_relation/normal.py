@@ -32,12 +32,30 @@ class UserToChatRelation(StandardModel, AbstractUserToChatRelation):
         self.save()
 
     @property
+    def user(self):
+        return self.user_
+
+    @user.setter
+    def user(self, value):
+        self.user_ = value
+        self.save()
+
+    @property
     def chat_id(self):
         return self.chat_id_
 
     @chat_id.setter
     def chat_id(self, value):
         self.chat_id_ = value
+        self.save()
+
+    @property
+    def chat(self):
+        return self.chat_
+
+    @chat.setter
+    def chat(self, value):
+        self.chat_ = value
         self.save()
 
     @property

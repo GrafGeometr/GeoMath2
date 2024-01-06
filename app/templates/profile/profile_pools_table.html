@@ -11,7 +11,7 @@
         <tr class="odd:bg-white even:bg-neutral-100 hover:bg-neutral-200">
             <td class="text-base h-full"><a class="no-underline flex justify-center items-center h-full w-full text-stone-900 font-bold hover:text-blue-600" href="/pool/{{ userpool.pool.hashed_id }}/problems"><span>{{ userpool.pool.name }}</span></a></td>
             {% if userpool.role.is_owner() %} <td class="text-center text-base py-2 text-amber-500">Владелец</td>
-            {% elif userpool.role.isParticipant() %} <td class="text-center text-base py-2 text-purple-500">Участник</td>
+            {% elif userpool.role.is_participant() %} <td class="text-center text-base py-2 text-purple-500">Участник</td>
             {% elif userpool.role.isInvited() %} <td class="text-center text-base py-2 text-teal-500">Приглашённый</td>
             {% endif %}
             {% if not userpool.role.isInvited() %} <td class="text-center text-base py-2 text-blue-700">Принято</td>

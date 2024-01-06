@@ -33,3 +33,9 @@ class NullStandardModel(AbstractStandardModel):
 
     def is_null(self):
         return True
+
+    def __str__(self):
+        return f"{self.__class__.__name__}()"
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}()"

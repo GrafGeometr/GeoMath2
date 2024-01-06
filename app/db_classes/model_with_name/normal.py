@@ -25,13 +25,3 @@ class ModelWithName(StandardModel, AbstractModelWithName):
         self.save()
 
     # --> METHODS
-    def act_set_name(self, name):
-        self.name = name
-        return self
-
-    @classmethod
-    def get_by_name(cls, name):
-        result = cls.query.filter_by(name=name).first()
-        if result is not None:
-            return result
-        return cls.null_cls_()

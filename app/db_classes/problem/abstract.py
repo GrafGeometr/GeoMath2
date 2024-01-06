@@ -4,16 +4,25 @@ from app.imports import *
 
 from abc import abstractmethod
 from app.db_classes.model_with_hashed_id.abstract import AbstractModelWithHashedId
-from app.db_classes.model_with_name.abstract import AbstractModelWithName
 
 
-class AbstractProblem(AbstractModelWithHashedId, AbstractModelWithName):
+class AbstractProblem(AbstractModelWithHashedId):
     # --> INITIALIZE
     __abstract__ = True
 
     # --> RELATIONS
 
     # --> PROPERTIES
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
+    @name.setter
+    @abstractmethod
+    def name(self, name: str):
+        pass
+
     @property
     @abstractmethod
     def tags(self) -> List["Tag"]:

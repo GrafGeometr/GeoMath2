@@ -30,7 +30,8 @@ class StandardModel(AbstractStandardModel):
 
     @id.setter
     def id(self, value):
-        self.id_ = value
+        self.id_ = value  # TODO : isn't in strange to change id?
+        self.save()
 
     # --> METHODS
     def save(self):

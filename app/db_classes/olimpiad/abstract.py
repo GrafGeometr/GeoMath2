@@ -5,17 +5,26 @@ from app.imports import *
 from app.sqlalchemy_custom_types import *
 
 from abc import abstractmethod
-from app.db_classes.model_with_name.abstract import AbstractModelWithName
-from app.db_classes.olimpiad.getter import OlimpiadGetter
+from app.db_classes.standard_model.abstract import AbstractStandardModel
 
 
-class AbstractOlimpiad(AbstractModelWithName):
+class AbstractOlimpiad(AbstractStandardModel):
     # --> INITIALIZE
     __abstract__ = True
 
     # --> RELATIONS
 
     # --> PROPERTIES
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
+    @name.setter
+    @abstractmethod
+    def name(self, value: str):
+        pass
+
     @property
     @abstractmethod
     def short_name(self) -> str:

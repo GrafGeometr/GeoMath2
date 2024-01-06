@@ -15,17 +15,17 @@ except ImportError:
         print("OK")
     except Exception as e:
         print(e)
-    
 
 
 def send_email(to, link):
+    return
     try:
         print([EMAIL])
         print([PASSWORD])
 
         headers = [
             "Подтверждение электронной почты",
-            "Подтверждение электронной почты на сайте ge0math.ru", 
+            "Подтверждение электронной почты на сайте ge0math.ru",
         ]
 
         texts = [
@@ -34,7 +34,7 @@ def send_email(to, link):
             "Вы добавили эту почту на сайте ge0math.ru. Чтобы подтвердить электронную почту, перейдите по ссылке:",
             "Вы добавили эту почту на сайте ge0math.ru. Если это не вы, проигнорируйте это письмо. Чтобы подтвердить электронную почту, перейдите по ссылке:",
         ]
-        
+
         text = f"""
         <html>
         <body>
@@ -46,14 +46,14 @@ def send_email(to, link):
         """
 
         msg = MIMEMultipart()
-        msg['From'] = EMAIL
-        msg['To'] = to
+        msg["From"] = EMAIL
+        msg["To"] = to
 
-        msg['Subject'] = 'Подтверждение электронной почты'
+        msg["Subject"] = "Подтверждение электронной почты"
         message = text
-        msg.attach(MIMEText(message, 'html'))
+        msg.attach(MIMEText(message, "html"))
 
-        mailserver = smtplib.SMTP('smtp.yandex.ru', 587)
+        mailserver = smtplib.SMTP("smtp.yandex.ru", 587)
         mailserver.ehlo()
         mailserver.starttls()
         mailserver.ehlo()
@@ -62,4 +62,3 @@ def send_email(to, link):
         mailserver.quit()
     except:
         pass
-    

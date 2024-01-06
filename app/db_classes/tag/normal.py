@@ -1,19 +1,20 @@
 from app.imports import *
 from typing import List
 
-from app.db_classes.model_with_name.normal import ModelWithName
+from app.db_classes.standard_model.normal import StandardModel
 from app.db_classes.tag.abstract import AbstractTag
 from app.db_classes.tag.null import NullTag
 from app.db_classes.tag.getter import TagGetter
 
 
-class Tag(ModelWithName, AbstractTag):
+class Tag(StandardModel, AbstractTag):
     # --> INITIALIZE
     __abstract__ = False
     __tablename__ = "tag"
 
-    hash_ = db.Column(db.Integer, nullable=True)
+    name_ = db.Column(db.String, unique=True)
 
+    hash_ = db.Column(db.Integer, nullable=True)
 
     null_cls_ = NullTag
     getter_cls_ = TagGetter
@@ -22,6 +23,16 @@ class Tag(ModelWithName, AbstractTag):
     topic_id_ = db.Column(db.Integer, db.ForeignKey("topic.id_"))
     tag_relations_ = db.relationship("TagRelation", backref="tag_")
 
+    # --> PROPERTIES
+    @property
+    def name(self):
+        return self.name_
+
+    @name.setter
+    def name(self, value):
+        self.name_ = value
+        self.save()
+
     # --> JSON
     @property
     def JSON(self):
@@ -29,7 +40,7 @@ class Tag(ModelWithName, AbstractTag):
             "id": self.id,
             "name": self.name,
             "hash": self.hash,
-            "topic": self.topic.JSON
+            "topic": self.topic.JSON,
         }
 
     # --> PROPERTIES
@@ -45,7 +56,7 @@ class Tag(ModelWithName, AbstractTag):
     @property
     def topic_id(self) -> int:
         return self.topic_id_
-    
+
     @topic_id.setter
     def topic_id(self, topic_id: int):
         self.topic_id_ = topic_id
@@ -54,7 +65,7 @@ class Tag(ModelWithName, AbstractTag):
     @property
     def topic(self) -> "Topic":
         return self.topic_
-    
+
     @topic.setter
     def topic(self, topic: "Topic"):
         self.topic_ = topic
@@ -63,7 +74,7 @@ class Tag(ModelWithName, AbstractTag):
     @property
     def tag_relations(self) -> List["TagRelation"]:
         return self.tag_relations_
-    
+
     @tag_relations.setter
     def tag_relations(self, tag_relations: List["TagRelation"]):
         self.tag_relations_ = tag_relations
@@ -77,7 +88,7 @@ class Tag(ModelWithName, AbstractTag):
         return [tr.tag for tr in TagRelation.get.by_parent(obj).all()]
 
     def add(self):
-        t = Tag.get_by_name(self.name)
+        t = Tag.get.by_name(self.name).first()
         if t is not None:
             return t
         db.session.add(self)
@@ -93,8 +104,9 @@ class Tag(ModelWithName, AbstractTag):
         if self.hash_ is None:
             self.hash = get_string_hash(self.name.lower())
         return self.hash_
-    
+
     def is_source(self):
         return self.topic.is_source()
+
     def is_theme(self):
         return self.topic.is_theme()

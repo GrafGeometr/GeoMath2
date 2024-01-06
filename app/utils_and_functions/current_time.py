@@ -1,8 +1,11 @@
 import datetime, pytz
 
+
 def current_time(accuracy="seconds"):
-    t = datetime.datetime.now(pytz.timezone('Europe/Moscow')) # current Moscow time
-    tm = datetime.datetime(t.year, t.month, t.day, t.hour, t.minute, t.second, t.microsecond) # aware to naive datetime (with tzinfo == None)
+    t = datetime.datetime.now(pytz.timezone("Europe/Moscow"))  # current Moscow time
+    tm = datetime.datetime(
+        t.year, t.month, t.day, t.hour, t.minute, t.second, t.microsecond
+    )  # aware to naive datetime (with tzinfo == None)
 
     if accuracy == "microseconds":
         return tm
@@ -27,6 +30,7 @@ def current_time(accuracy="seconds"):
     tm -= datetime.timedelta(years=tm.year)
     return None
 
+
 def dt_from_str(dt_str, accuracy="minutes"):
     try:
         if accuracy == "microseconds":
@@ -48,7 +52,8 @@ def dt_from_str(dt_str, accuracy="minutes"):
         return dt
     except:
         return None
-    
+
+
 def str_from_dt(dt, accuracy="minutes"):
     try:
         if accuracy == "microseconds":

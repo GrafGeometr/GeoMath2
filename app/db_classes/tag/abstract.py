@@ -1,16 +1,26 @@
 from app.imports import *
 
 from abc import abstractmethod
-from app.dbc import AbstractModelWithName
+from app.db_classes.standard_model.abstract import AbstractStandardModel
 
 
-class AbstractTag(AbstractModelWithName):
+class AbstractTag(AbstractStandardModel):
     # --> INITIALIZE
     __abstract__ = True
 
     # --> RELATIONS
 
     # --> PROPERTIES
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
+    @name.setter
+    @abstractmethod
+    def name(self, name: str):
+        pass
+
     @property
     @abstractmethod
     def hash(self) -> int:

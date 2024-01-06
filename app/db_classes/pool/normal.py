@@ -33,7 +33,7 @@ class Pool(ModelWithHashedId, AbstractPool):
     @property
     def name(self):
         return self.name_
-    
+
     @name.setter
     def name(self, value):
         self.name_ = value
@@ -74,7 +74,6 @@ class Pool(ModelWithHashedId, AbstractPool):
     def contests(self, value):
         self.contests_ = value
         self.save()
-        
 
     # --> METHODS
     def contains_user(self, user=current_user):
@@ -84,21 +83,21 @@ class Pool(ModelWithHashedId, AbstractPool):
         return self.contains_user(current_user)
 
     def check_user_access(self, user=current_user) -> bool:
-        from app.log import Exception_Access_Denied
+        from app.log import ExceptionAccessDenied
 
         users = [up.user for up in self.user_to_pool_relations]
         access = user in users
         if not access:
-            Exception_Access_Denied(self).flash()
+            ExceptionAccessDenied(self).flash()
         return access
 
     def check_user_owner(self, user=current_user) -> bool:
-        from app.log import Exception_Access_Denied
+        from app.log import ExceptionAccessDenied
 
         users = [up.user for up in self.user_pools if up.is_owner()]
         access = user in users
         if not access:
-            Exception_Access_Denied(self).flash()
+            ExceptionAccessDenied(self).flash()
         return access
 
     def add_user(self, user=current_user, role=Participant):
@@ -168,7 +167,7 @@ class Pool(ModelWithHashedId, AbstractPool):
     def get_all_invites(self):
         from app.dbc import Invite
 
-        return Invite.get_all_by_parent(self)
+        return Invite.get.by_parent(self).all()
 
     def new_problem(self):
         from app.dbc import Problem

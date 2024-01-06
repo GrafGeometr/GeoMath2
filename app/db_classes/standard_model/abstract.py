@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod, ABCMeta
 from sqlalchemy.orm import declarative_base, DeclarativeMeta
 from app.imports import *
+from .getter import StandardModelGetter
 
 
 class DeclarativeABCMeta(ABCMeta, DeclarativeMeta):
@@ -47,4 +48,3 @@ class AbstractStandardModel(db.Model):
 
     def is_not_null(self) -> bool:
         return not self.is_null()
-

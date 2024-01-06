@@ -3,17 +3,18 @@ from typing import List
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
-from app.db_classes.model_with_name.normal import ModelWithName
+from app.db_classes.standard_model.normal import StandardModel
 from app.db_classes.sheet.abstract import AbstractSheet
 from app.db_classes.sheet.getter import SheetGetter
 from app.db_classes.sheet.null import NullSheet
 
 
-class Sheet(ModelWithName, AbstractSheet):
+class Sheet(StandardModel, AbstractSheet):
     # --> INITIALIZE
     __abstract__ = False
     __tablename__ = "sheet"
 
+    name_ = db.Column(db.String, unique=True)
     text_ = db.Column(db.String)
     is_public_ = db.Column(db.Boolean, default=False)
     total_likes_ = db.Column(db.Integer, default=0)
@@ -27,10 +28,20 @@ class Sheet(ModelWithName, AbstractSheet):
 
     # --> PROPERTIES
     @property
+    def name(self):
+        return self.name_
+
+    @name.setter
+    def name(self, value):
+        self.name_ = value
+        self.save()
+
+    @property
     def tags(self) -> List["Tag"]:
         from app.dbc import TagRelation
+
         return [tr.tag for tr in TagRelation.get.by_parent(self).all()]
-    
+
     @property
     def text(self):
         return self.text_

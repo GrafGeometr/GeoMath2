@@ -12,7 +12,7 @@
         <td>
             {% if userpool.role.is_owner() %}
             <span class="font-bold text-amber-500">Владелец</span>
-            {% elif userpool.role.isParticipant() %}
+            {% elif userpool.role.is_participant() %}
             <span class="font-bold text-purple-500">Участник</span>
             {% else %}
             <span class="font-boldtext-teal-500">Приглашённый</span>

@@ -20,11 +20,31 @@ class NullUserToChatRelation(NullStandardModel, AbstractUserToChatRelation):
         pass
 
     @property
+    def user(self) -> "AbstractUser":
+        from app.db_classes.user.null import NullUser
+
+        return NullUser()
+
+    @user.setter
+    def user(self, value: "AbstractUser"):
+        pass
+
+    @property
     def chat_id(self) -> int:
         return -1
 
     @chat_id.setter
     def chat_id(self, value: int):
+        pass
+
+    @property
+    def chat(self) -> "AbstractChat":
+        from app.db_classes.chat.null import NullChat
+
+        return NullChat()
+
+    @chat.setter
+    def chat(self, value: "AbstractChat"):
         pass
 
     @property

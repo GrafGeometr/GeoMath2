@@ -1,12 +1,78 @@
 from abc import abstractmethod
-from app.db_classes.model_with_name.abstract import AbstractModelWithName
+from app.db_classes.standard_model.abstract import AbstractStandardModel
+
+from .actions import *
 
 
-class AbstractUser(AbstractModelWithName):
+class AbstractUser(AbstractStandardModel):
     # --> INITIALIZE
     __abstract__ = True
 
+    # --> ACTIONS
+    def get_id(self):
+        return GetId(self)
+
+    def get_name(self):
+        return GetName(self)
+
+    def get_password_hash(self):
+        return GetPasswordHash(self)
+
+    def get_admin(self):
+        return GetAdmin(self)
+
+    def get_created_date(self):
+        return GetCreatedDate(self)
+
+    def get_profile_pic(self):
+        return GetProfilePic(self)
+
+    def get_about(self):
+        return GetAbout(self)
+
+    def get_emails(self):
+        return GetEmails(self)
+
+    def get_user_pools(self):
+        return GetUserPools(self)
+
+    def get_contest_judges(self):
+        return GetContestJudges(self)
+
+    def get_contest_users(self):
+        return GetContestUsers(self)
+
+    def get_likes(self):
+        return GetLikes(self)
+
+    def get_notifications(self):
+        return GetNotifications(self)
+
+    def get_user_chats(self):
+        return GetUserChats(self)
+
+    def set(self, **kwargs):
+        return SetMany(self, **kwargs)
+
+    @staticmethod
+    def register(login="", email_name="", password="", repeat_password=""):
+        return RegisterUser(login, email_name, password, repeat_password)
+
+    @staticmethod
+    def login(login="", password=""):
+        return LoginUser(login, password)
+
     # --> PROPERTIES
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
+    @name.setter
+    @abstractmethod
+    def name(self, name: str):
+        pass
+
     @property
     @abstractmethod
     def password(self) -> str:
@@ -62,19 +128,9 @@ class AbstractUser(AbstractModelWithName):
     def emails(self) -> list["Email"]:
         pass
 
-    @emails.setter
-    @abstractmethod
-    def emails(self, emails: list["Email"]):
-        pass
-
     @property
     @abstractmethod
     def user_pools(self) -> list["User_Pool"]:
-        pass
-
-    @user_pools.setter
-    @abstractmethod
-    def user_pools(self, user_pools: list["User_Pool"]):
         pass
 
     @property
@@ -82,19 +138,9 @@ class AbstractUser(AbstractModelWithName):
     def contest_judges(self) -> list["Contest_Judge"]:
         pass
 
-    @contest_judges.setter
-    @abstractmethod
-    def contest_judges(self, contest_judges: list["Contest_Judge"]):
-        pass
-
     @property
     @abstractmethod
     def contest_users(self) -> list["Contest_User"]:
-        pass
-
-    @contest_users.setter
-    @abstractmethod
-    def contest_users(self, contest_users: list["Contest_User"]):
         pass
 
     @property
@@ -102,19 +148,9 @@ class AbstractUser(AbstractModelWithName):
     def likes(self) -> list["Like"]:
         pass
 
-    @likes.setter
-    @abstractmethod
-    def likes(self, likes: list["Like"]):
-        pass
-
     @property
     @abstractmethod
     def notifications(self) -> list["Notification"]:
-        pass
-
-    @notifications.setter
-    @abstractmethod
-    def notifications(self, notifications: list["Notification"]):
         pass
 
     @property
@@ -122,29 +158,14 @@ class AbstractUser(AbstractModelWithName):
     def user_chats(self) -> list["User_Chat"]:
         pass
 
-    @user_chats.setter
-    @abstractmethod
-    def user_chats(self, user_chats: list["User_Chat"]):
-        pass
-
     @property
     @abstractmethod
     def user_clubs(self) -> list["User_Club"]:
         pass
 
-    @user_clubs.setter
-    @abstractmethod
-    def user_clubs(self, user_clubs: list["User_Club"]):
-        pass
-
     @property
     @abstractmethod
     def user_messages(self) -> list["User_Message"]:
-        pass
-
-    @user_messages.setter
-    @abstractmethod
-    def user_messages(self, user_messages: list["User_Message"]):
         pass
 
     # --> RELATIONS
@@ -153,10 +174,6 @@ class AbstractUser(AbstractModelWithName):
     @classmethod
     @abstractmethod
     def get_current_user(cls) -> "AbstractUser":
-        pass
-
-    @abstractmethod
-    def set_password(self, password: str) -> "AbstractUser":
         pass
 
     @abstractmethod

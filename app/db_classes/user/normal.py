@@ -1,19 +1,20 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
-from app.db_classes.model_with_name.normal import ModelWithName
 
+from app.db_classes.standard_model.normal import StandardModel
 
 from .abstract import AbstractUser
 from .null import NullUser
 from .getter import UserGetter
 
 
-class User(UserMixin, ModelWithName, AbstractUser):
+class User(StandardModel, UserMixin, AbstractUser):
     # --> INITIALIZE
     __abstract__ = False
     __tablename__ = "user"
 
+    name_ = db.Column(db.String, unique=True)
     password_ = db.Column(db.String, nullable=True)
     admin_ = db.Column(db.Boolean, default=False)
     created_date_ = db.Column(db.DateTime, default=current_time)
@@ -35,6 +36,14 @@ class User(UserMixin, ModelWithName, AbstractUser):
     user_messages_ = db.relationship("UserToMessageRelation", backref="user_")
 
     # --> PROPERTIES
+    @property
+    def name(self):
+        return self.name_
+
+    @name.setter
+    def name(self, value):
+        self.name_ = value
+        self.save()
 
     @property
     def password(self):
@@ -42,6 +51,8 @@ class User(UserMixin, ModelWithName, AbstractUser):
 
     @password.setter
     def password(self, password):
+        if password is None:
+            return  # TODO : should we raise an exception?
         self.password_ = password
         self.save()
 
@@ -51,6 +62,8 @@ class User(UserMixin, ModelWithName, AbstractUser):
 
     @admin.setter
     def admin(self, admin):
+        if admin is None:
+            return
         self.admin_ = admin
         self.save()
 
@@ -60,6 +73,8 @@ class User(UserMixin, ModelWithName, AbstractUser):
 
     @created_date.setter
     def created_date(self, created_date):
+        if created_date is None:
+            return
         self.created_date_ = created_date
         self.save()
 
@@ -69,6 +84,8 @@ class User(UserMixin, ModelWithName, AbstractUser):
 
     @profile_pic.setter
     def profile_pic(self, profile_pic):
+        if profile_pic is None:
+            return
         self.profile_pic_ = profile_pic
         self.save()
 
@@ -78,6 +95,8 @@ class User(UserMixin, ModelWithName, AbstractUser):
 
     @about.setter
     def about(self, about):
+        if about is None:
+            return
         self.about_ = about
         self.save()
 
@@ -85,108 +104,56 @@ class User(UserMixin, ModelWithName, AbstractUser):
     def emails(self):
         return self.emails_
 
-    @emails.setter
-    def emails(self, emails):
-        self.emails_ = emails
-        self.save()
-
     @property
     def user_pools(self):
         return self.user_pools_
-
-    @user_pools.setter
-    def user_pools(self, user_pools):
-        self.user_pools_ = user_pools
-        self.save()
 
     @property
     def contest_judges(self):
         return self.contest_judges_
 
-    @contest_judges.setter
-    def contest_judges(self, contest_judges):
-        self.contest_judges_ = contest_judges
-        self.save()
-
     @property
     def contest_users(self):
         return self.contest_users_
-
-    @contest_users.setter
-    def contest_users(self, contest_users):
-        self.contest_users_ = contest_users
-        self.save()
 
     @property
     def likes(self):
         return self.likes_
 
-    @likes.setter
-    def likes(self, likes):
-        self.likes_ = likes
-        self.save()
-
     @property
     def notifications(self):
         return self.notifications_
-
-    @notifications.setter
-    def notifications(self, notifications):
-        self.notifications_ = notifications
-        self.save()
 
     @property
     def user_chats(self):
         return self.user_chats_
 
-    @user_chats.setter
-    def user_chats(self, user_chats):
-        self.user_chats_ = user_chats
-        self.save()
-
     @property
     def user_clubs(self):
         return self.user_clubs_
-
-    @user_clubs.setter
-    def user_clubs(self, user_clubs):
-        self.user_clubs_ = user_clubs
-        self.save()
 
     @property
     def user_messages(self):
         return self.user_messages_
 
-    @user_messages.setter
-    def user_messages(self, user_messages):
-        self.user_messages_ = user_messages
-        self.save()
-
     # --> METHODS
+
     @classmethod
     def get_current_user(cls):
         if current_user.is_authenticated:
             return current_user
         return cls.null_cls_()
 
-    def set_password(self, password):
-        self.password = generate_password_hash(password)
-
     def check_password(self, password):
-        return check_password_hash(self.password, password)
+        return check_password_hash(self.get_password_hash().act(), password)
 
     def create_new_pool(self, name):
         from app.dbc import Pool, UserToPoolRelation
 
-        
         pool = Pool(name_=name)
         pool.add()
 
-        UserToPoolRelation(
-            user_id=self.id,
-            pool_id=pool.id,
-            role=Owner
-        ).add()
+        UserToPoolRelation(user_id=self.id, pool_id=pool.id, role=Owner).add()
 
         return pool
 
@@ -252,6 +219,7 @@ class User(UserMixin, ModelWithName, AbstractUser):
 
     def get_notifications(self):
         from app.dbc import Notification
+
         print("DEBUG", Notification.get)
         print(Notification.get.all())
         print(Notification.get.by_user(self))

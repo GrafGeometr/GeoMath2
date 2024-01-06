@@ -4,17 +4,21 @@ from app.imports import *
 
 from app.sqlalchemy_custom_types import *
 
-from app.db_classes.model_with_name.null import NullModelWithName
+from app.db_classes.standard_model.null import NullStandardModel
 from app.db_classes.olimpiad.abstract import AbstractOlimpiad
 
 
-class NullOlimpiad(AbstractOlimpiad, NullModelWithName):
+class NullOlimpiad(AbstractOlimpiad, NullStandardModel):
     # --> INITIALIZE
     __abstract__ = True
 
     # --> RELATIONS
 
     # --> PROPERTIES
+    @property
+    def name(self) -> str:
+        return ""
+
     @property
     def short_name(self) -> str:
         return ""

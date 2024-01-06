@@ -21,7 +21,7 @@ class Message(StandardModel, AbstractMessage):
 
     # --> RELATIONS
     user_to_chat_relation_id_ = db.Column(db.Integer, db.ForeignKey("user_to_chat_relation.id_"))
-    user__to_message_relations_ = db.relationship(
+    user_to_message_relations_ = db.relationship(
         "UserToMessageRelation", backref="message_"
     )
 

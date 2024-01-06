@@ -9,11 +9,12 @@ from app.db_classes.problem.null import NullProblem
 from app.db_classes.problem.getter import ProblemGetter
 
 
-class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
+class Problem(ModelWithHashedId, AbstractProblem):
     # --> INITIALIZE
     __abstract__ = False
     __tablename__ = "problem"
 
+    name_ = db.Column(db.String, unique=True)
     statement_ = db.Column(db.String)
     solution_ = db.Column(db.String)
     is_public_ = db.Column(db.Boolean, default=False)
@@ -29,10 +30,20 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
 
     # --> PROPERTIES
     @property
+    def name(self):
+        return self.name_
+
+    @name.setter
+    def name(self, value):
+        self.name_ = value
+        self.save()
+
+    @property
     def tags(self) -> List["Tag"]:
         from app.dbc import TagRelation
+
         return [tr.tag for tr in TagRelation.get.by_parent(self).all()]
-    
+
     @property
     def statement(self):
         return self.statement_
@@ -160,9 +171,7 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
 
         all_cus = []
         for cp in all_cp:
-            all_cus.extend(
-                ContestUserSolution.get.by_contest_problem(cp).all()
-            )
+            all_cus.extend(ContestUserSolution.get.by_contest_problem(cp).all())
         if self.is_archived() or self.is_my():
             if len(all_cus) == 0:
                 return True
@@ -183,9 +192,7 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
 
         all_cus = []
         for cp in all_cp:
-            all_cus.extend(
-                ContestUserSolution.get.by_contest_problem(cp).all()
-            )
+            all_cus.extend(ContestUserSolution.get.by_contest_problem(cp).all())
         if self.is_archived() or self.is_my():
             if len(all_cus) == 0:
                 return True
@@ -223,7 +230,6 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
     def get_tags(self):
         return sorted(self.get_nonsorted_tags(), key=lambda t: t.name.lower())
 
-
     def get_tag_names(self):
         return [tag.name for tag in self.tags]
 
@@ -244,6 +250,7 @@ class Problem(ModelWithHashedId, ModelWithName, AbstractProblem):
 
     def act_add_tag(self, tag):
         from app.dbc import TagRelation
+
         TagRelation(
             parent_type_=DbParent.from_type(type(self)),
             parent_id_=self.id,

@@ -2,17 +2,19 @@ from app.imports import *
 
 from app.sqlalchemy_custom_types import *
 
-from app.db_classes.model_with_name.normal import ModelWithName
+from app.db_classes.standard_model.normal import StandardModel
 
 from app.db_classes.olimpiad.abstract import AbstractOlimpiad
 from app.db_classes.olimpiad.null import NullOlimpiad
 from app.db_classes.olimpiad.getter import OlimpiadGetter
 
 
-class Olimpiad(ModelWithName, AbstractOlimpiad):
+class Olimpiad(StandardModel, AbstractOlimpiad):
     # --> INITIALIZE
     __abstract__ = False
     __tablename__ = "olimpiad"
+
+    name_ = db.Column(db.String, unique=True)
 
     short_name_ = db.Column(db.String, unique=True)
     category_ = db.Column(db.String)
@@ -24,6 +26,15 @@ class Olimpiad(ModelWithName, AbstractOlimpiad):
     contests_ = db.relationship("Contest", backref="olimpiad_")
 
     # --> PROPERTIES
+    @property
+    def name(self):
+        return self.name_
+
+    @name.setter
+    def name(self, value):
+        self.name_ = value
+        self.save()
+
     @property
     def short_name(self):
         return self.short_name_

@@ -1,16 +1,17 @@
 from app.imports import *
 
-from app.db_classes.model_with_name.normal import ModelWithName
+from app.db_classes.standard_model.normal import StandardModel
 from .abstract import AbstractEmail
 from .null import NullEmail
 from .getter import EmailGetter
 
 
-class Email(ModelWithName, AbstractEmail):
+class Email(StandardModel, AbstractEmail):
     # --> INITIALIZE
     __abstract__ = False
     __tablename__ = "email"
 
+    name_ = db.Column(db.String)
     created_date_ = db.Column(db.DateTime, default=current_time)
     verified_ = db.Column(db.Boolean, default=False)
     token_ = db.Column(db.String, nullable=True)
@@ -22,6 +23,15 @@ class Email(ModelWithName, AbstractEmail):
     user_id_ = db.Column(db.Integer, db.ForeignKey("user.id_"))
 
     # --> PROPERTIES
+    @property
+    def name(self):
+        return self.name_
+
+    @name.setter
+    def name(self, value):
+        self.name_ = value
+        self.save()
+
     @property
     def created_date(self):
         return self.created_date_

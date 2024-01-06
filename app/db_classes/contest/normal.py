@@ -3,13 +3,13 @@ from typing import Tuple, List
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
-from app.db_classes.model_with_name.normal import ModelWithName
+from app.db_classes.standard_model.normal import StandardModel
 from .abstract import AbstractContest
 from .null import NullContest
 from .getter import ContestGetter
 
 
-class Contest(ModelWithName, AbstractContest):
+class Contest(StandardModel, AbstractContest):
     # --> INITIALIZE
     __abstract__ = False
     __tablename__ = "contest"
@@ -17,6 +17,7 @@ class Contest(ModelWithName, AbstractContest):
     null_cls_ = NullContest
     getter_cls_ = ContestGetter
 
+    name_ = db.Column(db.String)
     description_ = db.Column(db.String)
     start_date_ = db.Column(db.DateTime)
     end_date_ = db.Column(db.DateTime)
@@ -43,10 +44,20 @@ class Contest(ModelWithName, AbstractContest):
 
     # --> PROPERTIES
     @property
+    def name(self):
+        return self.name_
+
+    @name.setter
+    def name(self, value):
+        self.name_ = value
+        self.save()
+
+    @property
     def tags(self) -> List["Tag"]:
         from app.dbc import TagRelation
+
         return [tr.tag for tr in TagRelation.get.by_parent(self).all()]
-    
+
     @property
     def description(self) -> str:
         return self.description_
@@ -467,7 +478,7 @@ class Contest(ModelWithName, AbstractContest):
     def act_add_judge_by_name(self, name):
         from app.dbc import User
 
-        return self.act_add_judge(User.get_by_name(name))
+        return self.act_add_judge(User.get.by_name(name).first())
 
     def act_remove_judge(self, user):
         from app.dbc import ContestToJudgeRelation
@@ -483,7 +494,7 @@ class Contest(ModelWithName, AbstractContest):
     def act_remove_judge_by_name(self, name):
         from app.dbc import User
 
-        return self.act_remove_judge(User.get_by_name(name))
+        return self.act_remove_judge(User.get.by_name(name).first())
 
     def act_set_judges(self, names):
         for judge in [
@@ -612,6 +623,7 @@ class Contest(ModelWithName, AbstractContest):
 
     def get_tags(self):
         from app.dbc import Tag
+
         return sorted(
             Tag.get_all_by_obj(self),
             key=lambda t: t.name.lower(),
@@ -666,7 +678,7 @@ class Contest(ModelWithName, AbstractContest):
     def act_remove_tag_by_name(self, tag_name):
         from app.dbc import Tag
 
-        return self.act_remove_tag(Tag.get_by_name(tag_name))
+        return self.act_remove_tag(Tag.get.by_name(tag_name).first())
 
     def act_set_tags(self, names):
         for tag in self.tags:

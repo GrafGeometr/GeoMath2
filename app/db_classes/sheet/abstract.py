@@ -4,16 +4,26 @@ from app.sqlalchemy_custom_types import *
 from typing import List
 
 from abc import abstractmethod
-from app.db_classes.model_with_name.abstract import AbstractModelWithName
+from app.db_classes.standard_model.abstract import AbstractStandardModel
 
 
-class AbstractSheet(AbstractModelWithName):
+class AbstractSheet(AbstractStandardModel):
     # --> INITIALIZE
     __abstract__ = True
 
     # --> RELATIONS
 
     # --> PROPERTIES
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
+    @name.setter
+    @abstractmethod
+    def name(self, name: str):
+        pass
+
     @property
     @abstractmethod
     def text(self) -> str:

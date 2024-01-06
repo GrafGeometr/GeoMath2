@@ -19,7 +19,7 @@ class ContestToUserRelation(StandardModel):
     contest_id = db.Column(db.Integer, db.ForeignKey("contest.id_"))
     user_id = db.Column(db.Integer, db.ForeignKey("user.id_"))
     contest_user_solutions = db.relationship(
-        "ContestUserSolution", backref="contest_to_user_relation"
+        "ContestUserSolution", backref="contest_to_user_relation_"
     )
 
     # --> FUNCTIONS
