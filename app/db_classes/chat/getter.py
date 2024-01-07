@@ -1,7 +1,6 @@
 from app.db_classes.model_with_name.getter import ModelWithNameGetter
+from app.db_classes.model_with_hashed_id.getter import ModelWithHashedIdGetter
 
 
-class ChatGetter(ModelWithNameGetter):
-    def by_name(self, name):
-        self.manager.filter(self.manager.normal_cls.name == name)
-        return self
+class ChatGetter(ModelWithNameGetter, ModelWithHashedIdGetter):
+    pass

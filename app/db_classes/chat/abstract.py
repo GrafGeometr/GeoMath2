@@ -4,10 +4,10 @@ from app.imports import *
 from app.sqlalchemy_custom_types import *
 
 from abc import abstractmethod
-from app.db_classes.standard_model.normal import AbstractStandardModel
+from app.db_classes.model_with_hashed_id.abstract import AbstractModelWithHashedId
 
 
-class AbstractChat(AbstractStandardModel):
+class AbstractChat(AbstractModelWithHashedId):
     # --> INITIALIZE
     __abstract__ = True
 

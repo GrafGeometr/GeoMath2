@@ -9,47 +9,47 @@ class AbstractUser(AbstractStandardModel):
     __abstract__ = True
 
     # --> ACTIONS
-    def get_id(self):
-        return GetId(self)
+    def get_id(self, actor=current_user):
+        return GetId(self, actor=actor)
 
-    def get_name(self):
-        return GetName(self)
+    def get_name(self, actor=current_user):
+        return GetName(self, actor=actor)
 
-    def get_password_hash(self):
-        return GetPasswordHash(self)
+    def get_password_hash(self, actor=current_user):
+        return GetPasswordHash(self, actor=actor)
 
-    def get_admin(self):
-        return GetAdmin(self)
+    def get_admin(self, actor=current_user):
+        return GetAdmin(self, actor=actor)
 
-    def get_created_date(self):
-        return GetCreatedDate(self)
+    def get_created_date(self, actor=current_user):
+        return GetCreatedDate(self, actor=actor)
 
-    def get_profile_pic(self):
-        return GetProfilePic(self)
+    def get_profile_pic(self, actor=current_user):
+        return GetProfilePic(self, actor=actor)
 
-    def get_about(self):
-        return GetAbout(self)
+    def get_about(self, actor=current_user):
+        return GetAbout(self, actor=actor)
 
-    def get_emails(self):
-        return GetEmails(self)
+    def get_emails(self, actor=current_user):
+        return GetEmails(self, actor=actor)
 
-    def get_user_pools(self):
-        return GetUserPools(self)
+    def get_user_pools(self, actor=current_user):
+        return GetUserPools(self, actor=actor)
 
-    def get_contest_judges(self):
-        return GetContestJudges(self)
+    def get_contest_judges(self, actor=current_user):
+        return GetContestJudges(self, actor=actor)
 
-    def get_contest_users(self):
-        return GetContestUsers(self)
+    def get_contest_users(self, actor=current_user):
+        return GetContestUsers(self, actor=actor)
 
-    def get_likes(self):
-        return GetLikes(self)
+    def get_likes(self, actor=current_user):
+        return GetLikes(self, actor=actor)
 
-    def get_notifications(self):
-        return GetNotifications(self)
+    def get_notifications(self, actor=current_user):
+        return GetNotifications(self, actor=actor)
 
-    def get_user_chats(self):
-        return GetUserChats(self)
+    def get_user_chats(self, actor=current_user):
+        return GetUserChats(self, actor=actor)
 
     def set(self, **kwargs):
         return SetMany(self, **kwargs)

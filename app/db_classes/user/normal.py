@@ -42,6 +42,8 @@ class User(StandardModel, UserMixin, AbstractUser):
 
     @name.setter
     def name(self, value):
+        if value is None:
+            return
         self.name_ = value
         self.save()
 

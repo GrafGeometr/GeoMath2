@@ -1,11 +1,11 @@
 from typing import List
 
-from app.db_classes.standard_model.null import NullStandardModel
+from app.db_classes.model_with_hashed_id.null import NullModelWithHashedId
 from .abstract import AbstractChat
 from app.imports import *
 
 
-class NullChat(NullStandardModel, AbstractChat):
+class NullChat(NullModelWithHashedId, AbstractChat):
     # --> INITIALIZE
     __abstract__ = True
 

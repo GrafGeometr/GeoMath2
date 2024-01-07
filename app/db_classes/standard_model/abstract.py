@@ -48,3 +48,9 @@ class AbstractStandardModel(db.Model):
 
     def is_not_null(self) -> bool:
         return not self.is_null()
+
+    def __str__(self):
+        return f"{self.__class__.__name__}({', '.join(f'{k}={v}' for k, v in self.__dict__.items())})"
+
+    def __repr__(self):
+        return self.__str__()

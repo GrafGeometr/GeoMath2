@@ -55,7 +55,7 @@ class CheckForAdmin(AbstractAction):
     actor: "AbstractUser"
 
     def check_possibility(self):
-        if self.actor.get_admin().act(context=self):
+        if self.actor.get_admin(actor=self.actor).act(context=self):
             return
         if self.user.id == self.actor.id:
             return
@@ -85,6 +85,7 @@ class SetName(Action, StandardUserSetAction, CheckForAdmin):
     def act(self, context=None):
         super().act(context)
         self.user.name = self.value
+        print("OK:", self.user.name)
 
 
 class GetPasswordHash(Action, StandardUserGetAction):
@@ -101,7 +102,7 @@ class SetPasswordHash(ContextOnlyAction, StandardUserSetAction):
 
 class GetAdmin(Action, StandardUserGetAction):
     def check_possibility(self):
-        if self.actor.is_admin:
+        if self.actor.admin:
             return
         if self.user.id == self.actor.id:
             return
@@ -109,13 +110,13 @@ class GetAdmin(Action, StandardUserGetAction):
 
     def act(self, context=None):
         super().act(context)
-        return self.user.is_admin
+        return self.user.admin
 
 
 class SetAdmin(ContextOnlyAction, StandardUserSetAction):
     def act(self, context=None):
         super().act(context)
-        self.user.is_admin = self.value
+        self.user.admin = self.value
 
 
 class GetCreatedDate(Action, StandardUserGetAction):
@@ -232,25 +233,37 @@ class SetMany(Action):
         self.created_date = created_date
         self.profile_pic = profile_pic
         self.actor = actor
+        print(
+            id, name, password_hash, password, admin, about, created_date, profile_pic
+        )
 
     def act(self, context=None):
         super().act(context)
-        SetId(user=self.user, value=self.id).act(context)
-        SetName(user=self.user, value=self.name).act(context)
-        SetPasswordHash(user=self.user, value=self.password_hash).act(context)
-        SetPassword(user=self.user, value=self.password).act(context)
-        SetAdmin(user=self.user, value=self.admin).act(context)
-        SetAbout(user=self.user, value=self.about).act(context)
-        SetCreatedDate(user=self.user, value=self.created_date).act(context)
-        SetProfilePic(user=self.user, value=self.profile_pic).act(context)
+        SetId(user=self.user, value=self.id, actor=self.actor).act(context)
+        SetName(user=self.user, value=self.name, actor=self.actor).act(context)
+        SetPasswordHash(user=self.user, value=self.password_hash, actor=self.actor).act(
+            context
+        )
+        if self.password is not None:
+            SetPassword(user=self.user, value=self.password, actor=self.actor).act(
+                context
+            )
+        SetAdmin(user=self.user, value=self.admin, actor=self.actor).act(context)
+        SetAbout(user=self.user, value=self.about, actor=self.actor).act(context)
+        SetCreatedDate(user=self.user, value=self.created_date, actor=self.actor).act(
+            context
+        )
+        SetProfilePic(user=self.user, value=self.profile_pic, actor=self.actor).act(
+            context
+        )
 
 
 class SetPassword(ContextOnlyAction, StandardUserSetAction):
     def act(self, context=None):
         super().act(context)
-        self.user.set(password_hash=generate_password_hash(self.value)).act(
-            context=self
-        )
+        self.user.set(
+            password_hash=generate_password_hash(self.value), actor=self.actor
+        ).act(context=self)
 
 
 class RegisterUser(Action):
@@ -283,16 +296,18 @@ class RegisterUser(Action):
         from app.db_classes.email.normal import Email
 
         user = User()
-        user.set(name=self.login).act(context=self)
+        user.set(name=self.login, actor=user).act(context=self)
         email = Email(name=self.email_name, user=user)
         email_token_stuff(email)
-        user.set(password=self.password).act(context=self)
+        user.set(password=self.password, actor=user).act(context=self)
         db.session.add(user)  # TODO : replace with user.add()
         db.session.add(email)  # TODO : replace with email.add()
         db.session.commit()
 
         login_user(user, remember=True, duration=datetime.timedelta(days=5))
         confirm_login()
+
+        print(user)
 
         return user
 
