@@ -6,6 +6,7 @@ var tagList;
 function selectTag(tagEl) {
     topicColor = tagEl.parentElement.parentElement.getAttribute("color");
     tagEl.classList.add("selected");
+    tagEl.style.borderColor = topicColor;
     tagEl.style.backgroundColor = topicColor;
     tagEl.style.color = "white";
     var inputEl = document.createElement("input");
@@ -16,6 +17,7 @@ function selectTag(tagEl) {
 
 function removeTag(tagEl) {
     tagEl.classList.remove("selected");
+    tagEl.style.borderColor = null;
     tagEl.style.backgroundColor = null;
     tagEl.style.color = null;
     for (i = 0; i < tagList.children.length; i++) {
