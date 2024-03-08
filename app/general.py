@@ -1,7 +1,8 @@
 from .imports import *
 from .model_imports import *
 
-general = Blueprint('general', __name__)
+general = Blueprint("general", __name__)
+
 
 # get problem image
 @general.route("/get_image/<db_filename>", methods=["GET", "POST"])
@@ -23,7 +24,7 @@ def get_image(db_filename):
                 flag = par.is_statement_available()
             else:
                 flag = par.is_solution_available()
-            if (flag):
+            if flag:
                 print("OK, sending", attachment.short_name)
                 img = send_from_directory(
                     os.path.join(basedir, attachment.db_folder.split("app/")[1]),
@@ -36,29 +37,29 @@ def get_image(db_filename):
                     db_filename,
                     as_attachment=True,
                 )
-            
+
         if pt.name == "Sheet":
             flag = par.is_text_available()
-            if (flag):
+            if flag:
                 return send_from_directory(
                     os.path.join(basedir, attachment.db_folder.split("app/")[1]),
                     db_filename,
                     as_attachment=True,
                 )
-            
+
         if pt.name == "Contest_User_Solution":
             flag = par.is_available()
-            if (flag):
+            if flag:
                 return send_from_directory(
                     os.path.join(basedir, attachment.db_folder.split("app/")[1]),
                     db_filename,
                     as_attachment=True,
                 )
-    
+
     except Exception as e:
         print(e)
         return
-    
+
 
 @general.route("/autocomplete", methods=["POST"])
 @login_required
@@ -78,12 +79,13 @@ def autocomplete():
         return [olimpiad.name for olimpiad in olimpiads]
     else:
         return []
-    
+
+
 @general.route("/like", methods=["POST"])
 @login_required
 def like():
     data = request.get_json()
-    
+
     parent_type = data.get("parent_type")
     parent_id = int(data.get("parent_id"))
     action = data.get("action")
@@ -110,6 +112,7 @@ def like():
     cnt_dislikes = parent.total_dislikes
     return {"check": check, "cnt_likes": cnt_likes, "cnt_dislikes": cnt_dislikes}
 
+
 @general.route("/notifications", methods=["POST"])
 @login_required
 def notifications():
@@ -121,5 +124,5 @@ def notifications():
             notification.remove()
     elif data.get("mark_all_as_read") is not None:
         Notification.mark_all_as_read()
-    
+
     return "OK"

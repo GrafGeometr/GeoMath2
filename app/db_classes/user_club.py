@@ -21,4 +21,3 @@ class User_Club(db.Model):
     def remove(self):
         db.session.delete(self)
         db.session.commit()
-    

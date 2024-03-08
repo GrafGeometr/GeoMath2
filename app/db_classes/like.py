@@ -1,6 +1,7 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
+
 class Like(db.Model):
     # --> INITIALIZE
     __tablename__ = "like"
@@ -51,11 +52,11 @@ class Like(db.Model):
             db.session.commit()
         db.session.delete(self)
         self.save()
-    
+
     @staticmethod
     def get_by_id(id):
         return Like.query.filter_by(id=id).first()
-    
+
     @staticmethod
     def get_by_parent_and_user(parent, user=current_user):
         if parent is None or user is None:
@@ -63,8 +64,10 @@ class Like(db.Model):
         parent_type = DbParent.fromType(type(parent))
         if parent_type is None:
             return None
-        return Like.query.filter_by(parent_type=parent_type, parent_id=parent.id, user_id=user.id).first()
-    
+        return Like.query.filter_by(
+            parent_type=parent_type, parent_id=parent.id, user_id=user.id
+        ).first()
+
     @staticmethod
     def get_all_by_parent(parent):
         if parent is None:
@@ -73,17 +76,22 @@ class Like(db.Model):
         if parent_type is None:
             return []
         return Like.query.filter_by(parent_type=parent_type, parent_id=parent.id).all()
-    
+
     @staticmethod
     def is_has_like(parent, user=current_user):
-        return (Like.get_by_parent_and_user(parent, user) is not None)
-    
+        return Like.get_by_parent_and_user(parent, user) is not None
+
     @staticmethod
     def act_add_like_to_parent(parent, user=current_user, good=True):
         if parent is None or user is None:
             return
         Like.act_remove_like_from_parent(parent, user)
-        Like(parent_type=DbParent.fromType(type(parent)), parent_id=parent.id, user_id=user.id, good=good).add()
+        Like(
+            parent_type=DbParent.fromType(type(parent)),
+            parent_id=parent.id,
+            user_id=user.id,
+            good=good,
+        ).add()
 
     @staticmethod
     def act_remove_like_from_parent(parent, user=current_user):
@@ -92,7 +100,6 @@ class Like(db.Model):
         if Like.is_has_like(parent, user):
             like = Like.get_by_parent_and_user(parent, user)
             like.remove()
-        
 
     def save(self):
         db.session.commit()

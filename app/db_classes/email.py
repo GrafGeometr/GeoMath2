@@ -1,6 +1,7 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
+
 class Email(db.Model):
     # --> INITIALIZE
     __tablename__ = "email"

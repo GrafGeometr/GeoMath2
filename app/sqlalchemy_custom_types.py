@@ -145,6 +145,7 @@ IGO_Grades_list = [Beginner, Intermediate, Advanced] = list(
 
 list_of_grades_lists = [School_Grades_list, IGO_Grades_list]
 
+
 class GradeClassType(TypeDecorator):
     impl = String
 

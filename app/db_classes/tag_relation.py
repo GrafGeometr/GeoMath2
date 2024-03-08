@@ -1,6 +1,7 @@
 from app.imports import *
 from app.sqlalchemy_custom_types import *
 
+
 class Tag_Relation(db.Model):
     # --> INITIALIZE
     __tablename__ = "tag_relation"
@@ -29,11 +30,11 @@ class Tag_Relation(db.Model):
     def remove(self):
         db.session.delete(self)
         db.session.commit()
-    
+
     @staticmethod
     def get_by_id(id):
         return Tag_Relation.query.filter_by(id=id).first()
-    
+
     @staticmethod
     def get_all_by_parent(parent):
         if parent is None:
@@ -41,13 +42,19 @@ class Tag_Relation(db.Model):
         parent_type = DbParent.fromType(type(parent))
         if parent_type is None:
             return []
-        return Tag_Relation.query.filter_by(parent_type=parent_type, parent_id=parent.id).all()
-    
+        return Tag_Relation.query.filter_by(
+            parent_type=parent_type, parent_id=parent.id
+        ).all()
+
     @staticmethod
     def get_by_parent_and_tag(parent, tag):
         if parent is None or tag is None:
             return None
-        return Tag_Relation.query.filter_by(parent_type=DbParent.fromType(type(parent)), parent_id=parent.id, tag_id=tag.id).first()
+        return Tag_Relation.query.filter_by(
+            parent_type=DbParent.fromType(type(parent)),
+            parent_id=parent.id,
+            tag_id=tag.id,
+        ).first()
 
     def save(self):
         db.session.commit()

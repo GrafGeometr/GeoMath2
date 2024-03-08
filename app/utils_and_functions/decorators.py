@@ -14,7 +14,9 @@ def email_required(f):
             # TODO redirect to verification page
             return redirect("/profile/user/{current_user.name}/settings")
         return f(*args, **kwargs)
+
     return decorated_function
+
 
 def login_required(f):
     @wraps(f)
@@ -27,11 +29,12 @@ def login_required(f):
 
     return secure_function
 
+
 def admin_required(f):
     @wraps(f)
     def secure_function(*args, **kwargs):
         if (not current_user.is_authenticated) or (not current_user.admin):
             return redirect("/admin/enter")
         return f(*args, **kwargs)
-    
+
     return secure_function

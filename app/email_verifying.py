@@ -1,7 +1,7 @@
 from .imports import *
 from .model_imports import *
 
-emv = Blueprint('emv', __name__)
+emv = Blueprint("emv", __name__)
 
 
 @emv.route("/add_email", methods=["POST"])
@@ -23,12 +23,22 @@ def add_email():
     if not email_validity_checker(email_name):
         err = "Error: Invalid email name"
         flash("Некорректный email", "error")
-        return render_template("profile/profile_settings.html", title="Настройки", form_email=email_name, user=current_user)
+        return render_template(
+            "profile/profile_settings.html",
+            title="Настройки",
+            form_email=email_name,
+            user=current_user,
+        )
     # CHECK: EMAIL ALREADY EXISTS (CURRENT USER)
     if email_name in [em.name for em in current_user.emails]:
         err = "Error: Email already exists"
         flash("Этот email уже используется Вами", "warning")
-        return render_template("profile/profile_settings.html", title="Настройки", form_email=email_name, user=current_user)
+        return render_template(
+            "profile/profile_settings.html",
+            title="Настройки",
+            form_email=email_name,
+            user=current_user,
+        )
     # CHECK: EMAIL ALREADY VERIFIED (OTHER USER)
     verified_emails = []
     for us in User.query.all():
@@ -40,7 +50,12 @@ def add_email():
     if email_name in verified_emails:
         err = "Error: Email already verified (other user)"
         flash("Этот email уже используется другим пользователем", "warning")
-        return render_template("profile/profile_settings.html", title="Настройки", form_email=email_name, user=current_user)
+        return render_template(
+            "profile/profile_settings.html",
+            title="Настройки",
+            form_email=email_name,
+            user=current_user,
+        )
 
     # OK
     email = Email(name=email_name, user=current_user)
@@ -49,7 +64,12 @@ def add_email():
     db.session.commit()
 
     flash("Email успешно добавлен, подтвердите его", "success")
-    return render_template("profile/profile_settings.html", title="Настройки", form_email=email_name, user=current_user)
+    return render_template(
+        "profile/profile_settings.html",
+        title="Настройки",
+        form_email=email_name,
+        user=current_user,
+    )
 
 
 @emv.route("/remove_email", methods=["POST"])
@@ -64,30 +84,50 @@ def remove_email():
     # CHECK: USER DOESN'T EXIST
     if not current_user:
         err = "Error: User doesn't exist"
-        return render_template("profile/profile_settings.html", title="Настройки", form_email=email_name, user=current_user)
+        return render_template(
+            "profile/profile_settings.html",
+            title="Настройки",
+            form_email=email_name,
+            user=current_user,
+        )
     # CHECK: INVALID EMAIL NAME
     if not email_validity_checker(email_name):
         err = "Error: Invalid email name"
         flash("Некорректный email", "error")
-        return render_template("profile/profile_settings.html", title="Настройки", form_email=email_name, user=current_user)
+        return render_template(
+            "profile/profile_settings.html",
+            title="Настройки",
+            form_email=email_name,
+            user=current_user,
+        )
 
     # CHECK: USER HASN'T EMAIL
-    email = Email.query.filter_by(name = email_name, user_id = current_user.id).first()
+    email = Email.query.filter_by(name=email_name, user_id=current_user.id).first()
     if not email:
         # email doesn't exist
         # TODO say something about this
         err = "Error: Email doesn't exist"
         flash("Этот email не используется Вами", "error")
-        return render_template("profile/profile_settings.html", title="Настройки", form_email=email_name, user=current_user)
+        return render_template(
+            "profile/profile_settings.html",
+            title="Настройки",
+            form_email=email_name,
+            user=current_user,
+        )
 
     # OK
     for em in Email.query.all():
         print(em.name, em.user_id, bool(em.verified))
-    
+
     db.session.delete(email)
     db.session.commit()
     flash("Email успешно удален", "success")
-    return render_template("profile/profile_settings.html", title="Настройки", form_email=email_name, user=current_user)
+    return render_template(
+        "profile/profile_settings.html",
+        title="Настройки",
+        form_email=email_name,
+        user=current_user,
+    )
 
 
 @emv.route("/send_verifying_link", methods=["POST"])
@@ -102,19 +142,34 @@ def send_verifying_link():
     # CHECK: USER DOESN'T EXIST
     if not current_user:
         err = "Error: User doesn't exist"
-        return render_template("profile/profile_settings.html", title="Настройки", form_email=email_name, user=current_user)
+        return render_template(
+            "profile/profile_settings.html",
+            title="Настройки",
+            form_email=email_name,
+            user=current_user,
+        )
     # CHECK: INVALID EMAIL NAME
     if not email_validity_checker(email_name):
         err = "Error: Invalid email name"
         flash("Некорректный email", "error")
-        return render_template("profile/profile_settings.html", title="Настройки", form_email=email_name, user=current_user)
+        return render_template(
+            "profile/profile_settings.html",
+            title="Настройки",
+            form_email=email_name,
+            user=current_user,
+        )
 
     # CHECK: USER HASN'T EMAIL
-    email = Email.query.filter_by(name = email_name, user_id = current_user.id).first()
+    email = Email.query.filter_by(name=email_name, user_id=current_user.id).first()
     if not email:
         err = "Error: Email doesn't exist"
         flash("Этот email не используется Вами", "error")
-        return render_template("profile/profile_settings.html", title="Настройки", form_email=email_name, user=current_user)
+        return render_template(
+            "profile/profile_settings.html",
+            title="Настройки",
+            form_email=email_name,
+            user=current_user,
+        )
 
     # CHECK: EMAIL ALREADY VERIFIED
     verified_emails = []
@@ -125,13 +180,23 @@ def send_verifying_link():
     if email_name in verified_emails:
         err = "Error: Email already verified"
         flash("Email уже подтверждён", "warnings")
-        return render_template("profile/profile_settings.html", title="Настройки", form_email=email_name, user=current_user)
+        return render_template(
+            "profile/profile_settings.html",
+            title="Настройки",
+            form_email=email_name,
+            user=current_user,
+        )
 
     # OK
     email_token_stuff(email)
     db.session.commit()
     flash("Письмо с подтверждением успешно отправлено", "success")
-    return render_template("profile/profile_settings.html", title="Настройки", form_email=email_name, user=current_user)
+    return render_template(
+        "profile/profile_settings.html",
+        title="Настройки",
+        form_email=email_name,
+        user=current_user,
+    )
 
 
 @emv.route("/verify/<username>/<email_name>/<email_token>")
@@ -142,7 +207,7 @@ def verify(username, email_name, email_token):
         print(1)
         return redirect("/myprofile")
 
-    email = Email.query.filter_by(name = email_name, user_id = current_user.id).first()
+    email = Email.query.filter_by(name=email_name, user_id=current_user.id).first()
     if not email:
         print(2)
         return redirect("/myprofile")

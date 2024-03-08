@@ -1,8 +1,7 @@
 from .imports import *
 from .model_imports import *
 
-chat = Blueprint('chat', __name__)
-
+chat = Blueprint("chat", __name__)
 
 
 @chat.route("/chat/create", methods=["POST", "GET"])
@@ -13,12 +12,14 @@ def create_new_chat():
         user = User.query.filter_by(name=name).first()
         if user is None:
             flash("Пользователь не найден", "error")
-            return render_template("chat/chat_create.html", title=f"Найти пользователя", name=name)
+            return render_template(
+                "chat/chat_create.html", title=f"Найти пользователя", name=name
+            )
         return redirect(f"/profile/user/{name}")
 
-        
-
-    return render_template("chat/chat_create.html", title=f"Найти пользователя", name="")
+    return render_template(
+        "chat/chat_create.html", title=f"Найти пользователя", name=""
+    )
 
 
 @chat.route("/chat/<chat_hashed_id>/messages", methods=["GET", "POST"])
@@ -32,7 +33,13 @@ def chat_messages(chat_hashed_id):
         flash("Вы не состоите в этом чате", "error")
         return redirect("/profile/chats")
     chat.act_mark_all_as_read()
-    return render_template("chat/chat_messages.html", chat=chat, messages=chat.get_all_messages(), str_from_dt = str_from_dt, title=f"Сообщения")
+    return render_template(
+        "chat/chat_messages.html",
+        chat=chat,
+        messages=chat.get_all_messages(),
+        str_from_dt=str_from_dt,
+        title=f"Сообщения",
+    )
 
 
 # redirect to chat/management/general
@@ -85,7 +92,6 @@ def chat_manager_general(chat_hashed_id):
     )
 
 
-
 # chat management - collaborators
 @chat.route("/chat/<chat_hashed_id>/management/collaborators", methods=["GET", "POST"])
 @login_required
@@ -99,7 +105,7 @@ def chat_collaborators(chat_hashed_id):
     if not chat.is_my():
         flash("Вы не состоите в этом чате", "error")
         return redirect("/profile/chats")
-    
+
     if chat.club_id is None:
         flash("Страница недоступна", "error")
         return redirect(f"/chat/{chat_hashed_id}/messages")
@@ -111,7 +117,7 @@ def chat_collaborators(chat_hashed_id):
                 url_for("chat.chat_collaborators", chat_hashed_id=chat_hashed_id)
             )
         if request.form.get("toggle_access") is not None:
-            chat.readonly = (request.form.get("toggle_access") == "true")
+            chat.readonly = request.form.get("toggle_access") == "true"
             db.session.commit()
 
     return render_template(
@@ -120,19 +126,22 @@ def chat_collaborators(chat_hashed_id):
         title=f"{chat.name} - участники",
     )
 
+
 @socketio.on("connect")
 def connect(auth):
     for uc in current_user.user_chats:
         join_room(uc.chat.hashed_id)
+
 
 @socketio.on("disconnect")
 def disconnect():
     for uc in current_user.user_chats:
         leave_room(uc.chat.hashed_id)
 
+
 @socketio.on("message")
 def message(data):
-    room = data['room']
+    room = data["room"]
     chat = Chat.query.filter_by(hashed_id=room).first()
     if chat is None:
         flash("Чат с таким id не найден", "error")
@@ -141,16 +150,16 @@ def message(data):
     if uc is None:
         flash("Вы не присоединились к этому чату", "error")
         return
-    if (chat.readonly and (not current_user.is_chat_owner(chat))):
+    if chat.readonly and (not current_user.is_chat_owner(chat)):
         flash("Недостаточно прав", "error")
         return
-    message = Message(content=data['message'], user_chat=uc)
+    message = Message(content=data["message"], user_chat=uc)
     message.add()
 
     content = {
         "user": current_user.name,
-        "message": data['message'],
-        "date": str_from_dt(message.date)
+        "message": data["message"],
+        "date": str_from_dt(message.date),
     }
 
     send(content, to=room)

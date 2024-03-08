@@ -18,14 +18,14 @@ class User_Message(db.Model):
         db.session.add(self)
         db.session.commit()
         return self
-    
+
     def remove(self):
         db.session.delete(self)
         db.session.commit()
 
     def is_read(self):
         return self.read
-    
+
     def act_mark_as_read(self):
         self.read = True
         db.session.commit()

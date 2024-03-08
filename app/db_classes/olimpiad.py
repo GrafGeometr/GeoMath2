@@ -86,7 +86,7 @@ class Olimpiad(db.Model):
 
     def get_grades_list(self):
         return list(set(contest.grade for contest in self.contests))
-    
+
     def fix_name(self):
         self.name = self.name.replace("\n", " ")
         db.session.commit()

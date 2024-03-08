@@ -17,13 +17,13 @@ class User_Chat(db.Model):
     def is_owner(self):
         if self.chat.club is None:
             return True
-        
+
         return self.user.get_club_relation(self.chat.club.id).role.isOwner()
 
     def is_participant(self):
         if self.chat.club is None:
             return False
-        
+
         return self.user.get_club_relation(self.chat.club.id).role.isParticipant()
 
     def add(self):
@@ -35,4 +35,3 @@ class User_Chat(db.Model):
             m.remove()
         db.session.delete(self)
         db.session.commit()
-    

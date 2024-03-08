@@ -9,7 +9,6 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     content = db.Column(db.String)
     date = db.Column(db.DateTime)
-    
 
     # --> RELATIONS
     user_chat_id = db.Column(db.Integer, db.ForeignKey("user_chat.id"))
@@ -18,6 +17,7 @@ class Message(db.Model):
     # --> FUNCTIONS
     def add(self):
         from app.dbc import User_Message
+
         db.session.add(self)
         db.session.commit()
         self.date = current_time()

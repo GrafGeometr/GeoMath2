@@ -1,7 +1,8 @@
 from .imports import *
 from .model_imports import *
 
-nav = Blueprint('nav', __name__)
+nav = Blueprint("nav", __name__)
+
 
 @nav.route("/")
 @login_required
@@ -18,31 +19,22 @@ def feed():
 @nav.route("/contests")
 @login_required
 def contests():
-    return render_template("wip/contests.html", current_user=current_user, title="Соревнования")
+    return render_template(
+        "wip/contests.html", current_user=current_user, title="Соревнования"
+    )
 
 
 @nav.route("/sheets")
 @login_required
 def sheets():
-    return render_template("wip/sheets.html", current_user=current_user, title="Подборки")
+    return render_template(
+        "wip/sheets.html", current_user=current_user, title="Подборки"
+    )
 
 
 @nav.route("/editor")
 @login_required
 def editor():
-    return render_template("wip/editor.html", current_user=current_user, title="Редактор")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return render_template(
+        "wip/editor.html", current_user=current_user, title="Редактор"
+    )
