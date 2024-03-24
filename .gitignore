@@ -30,3 +30,4 @@ migrations/README
 migrations/script.py.mako
 migrations/versions/d5d3131cb36b_commit_message123.py
 migrations
+/app/sql/test.db
