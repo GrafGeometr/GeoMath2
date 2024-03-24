@@ -69,6 +69,7 @@ class SQLBasedDB(AbstractDB):
                 if isinstance(getattr(cls, name), relationship)
             ]
             for name, field, other_class_table_name, backref in relations:
+                print(name, field, other_class_table_name, backref)
                 other_cls = [
                     cls
                     for cls in cls_list
@@ -119,6 +120,7 @@ class SQLBasedDB(AbstractDB):
         tablename = cls.__tablename__
         conn = sqlite3.connect(self.filename)
         cur = conn.cursor()
+        print(f"SELECT {col_name} FROM {tablename} WHERE id = ?", (obj_id,))
         cur.execute(f"SELECT {col_name} FROM {tablename} WHERE id = ?", (obj_id,))
         return cur.fetchone()[0]
 

@@ -16,5 +16,5 @@ class OtherTable:
 
     example_table_id = Int(default=None)
     example_table = relationship(
-        example_table_id, "example_table", backref="other_tables"
+        "example_table_id", "example_table", backref="other_tables"
     )
