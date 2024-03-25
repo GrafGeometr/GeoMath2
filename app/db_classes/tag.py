@@ -11,9 +11,18 @@ class Tag(db.Model):
 
     hash = db.Column(db.Integer, nullable=True)
 
+    topic_id = db.Column(db.Integer, db.ForeignKey("topic.id"))
+
     # --> RELATIONS
 
     # --> FUNCTIONS
+    @staticmethod
+    def add_by_name_and_topic(name, topic):
+        from app.db_classes.topic import Topic
+
+        topic = Topic.get_by_name(topic)
+        return Tag(name=name, topic_id=topic.id).add()
+
     @staticmethod
     def get_by_id(id):
         return Tag.query.filter_by(id=id).first()
@@ -44,7 +53,13 @@ class Tag(db.Model):
         return self
 
     def remove(self):
-        raise NotImplementedError("Emplement remove tag")
+        from app.db_classes.tag_relation import Tag_Relation
+
+        tr = Tag_Relation.get_all_by_tag_id(self.id)
+        for el in tr:
+            db.session.delete(el)
+        db.session.delete(self)
+        db.session.commit()
 
     def save(self):
         db.session.commit()
