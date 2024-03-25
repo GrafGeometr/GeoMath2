@@ -9,8 +9,8 @@ from bs4 import BeautifulSoup
 import time
 import re
 import json
- 
- 
+
+
 # --> НЕКОТОРЫЕ ПОЛЕЗНЫЕ ФУНКЦИИ <--
 def get_soup(
     url, clear=False
@@ -23,20 +23,20 @@ def get_soup(
             text = text.replace(f"<{bad_tag}>", " ")
     soup = BeautifulSoup(text, "html.parser")
     return soup
- 
- 
+
+
 def stripper(s):  # убирает пробельные символы по краям
     return s.strip("\n").strip("\t").strip("\r")
- 
- 
+
+
 def clearing(s):  # убирает множественные пробелы
     return " ".join(el for el in s.split() if el != "")
- 
- 
+
+
 def fix_year(n):  # записывает год в формате 2023/24
     return str(n - 1) + "/" + str(n)[-2:]
- 
- 
+
+
 def get_all_numbers(s):  # считывает числа из строки, в том числе диапазоны
     _s = ""
     for c in s:
@@ -53,14 +53,14 @@ def get_all_numbers(s):  # считывает числа из строки, в �
             for i in range(int(r[0]), int(r[1]) + 1):
                 res.append(str(i))
     return res
- 
- 
+
+
 def work(id):  # записывает данные о задаче в JSON
     p = parse(id)
     with open(f"problem-{id}.json", "w") as f:
         f.write(str(p))
- 
- 
+
+
 # --> СПИСОК ТЕМ <--
 # TODO: ПЕРЕНЕСТИ ИХ В ОТДЕЛЬНЫЙ ФАЙЛ ИЛИ В SQL)
 themes_renamer = {
@@ -72,7 +72,7 @@ themes_renamer = {
     "Математический анализ": "Алгебра",
     "Методы": "Комбинаторика",
 }
- 
+
 second_themes_renamer = {
     "Математическая логика": "Комбинаторика",
     "Теория множеств": "Комбинаторика",
@@ -144,8 +144,8 @@ second_themes_renamer = {
     "Методы решения задач с параметром": "Алгебра",
     "Оценка + пример": "Комбинаторика",
 }
- 
- 
+
+
 # --> ПАРСЕР ТЕМ <--
 def parse_theme_root(url):  # парсит корень по themes_renamer
     soup = get_soup(f"https://problems.ru{url}")
@@ -160,10 +160,10 @@ def parse_theme_root(url):  # парсит корень по themes_renamer
                     break
             a = a.previousSibling
         break
- 
+
     return themes_renamer.get(root, None)
- 
- 
+
+
 def parse_theme_preroot(url):  # парсит корень из second_themes_renamer
     soup = get_soup(f"https://problems.ru{url}")
     tmp = soup.findAll("a")
@@ -178,15 +178,15 @@ def parse_theme_preroot(url):  # парсит корень из second_themes_re
             a = a.previousSibling
         break
     return second_themes_renamer.get(root, None)
- 
- 
+
+
 def parse_latex(RESP):
     latex_statement = ""
     latex_solution = ""
- 
+
     images = {}
     link_to_image_name = {}
- 
+
     statement_source: list = RESP["statement"]
     statement_source.remove({"type": "header", "content": "Условие"})
     for block in statement_source:
@@ -210,7 +210,7 @@ def parse_latex(RESP):
             else:
                 name = link_to_image_name[block["content"]]
             latex_statement += f"\\img[{name}]{{{name}}}" + "\n\n"
- 
+
     solution_source: list = RESP["solution"]
     solution_source.remove({"type": "header", "content": "Решение"})
     for block in solution_source:
@@ -234,10 +234,10 @@ def parse_latex(RESP):
             else:
                 name = link_to_image_name[block["content"]]
             latex_solution += f"\\img[{name}]{{{name}}}" + "\n\n"
- 
+
     return {"statement": latex_statement, "solution": latex_solution, "images": images}
- 
- 
+
+
 # --> ПАРСЕР ИСТОЧНИКОВ <--
 def parse_source_tags(table):
     res = []
@@ -249,15 +249,19 @@ def parse_source_tags(table):
     "Номер": str (1)
     "Вариант": str (Региональный этап)
     """
- 
+
     # TODO: БАГИ С 'Олимпиада Эйлера' (на сайте нет деления на отборочный и заключительный)
- 
+
     tr_header = ""
     for tr in table.findChildren(recursive=False):  # считываем таблицу построчно
         if len(tr.findChildren("td")) == 1:
             tr_header = clearing(tr.findChild().text.lower())
             # пометка про заочный тур Шарыгина
-            if len(res) and res[-1]["Олимпиада"] == "Олимпиада по геометрии имени И.Ф. Шарыгина" and tr_header == "заочный тур":
+            if (
+                len(res)
+                and res[-1]["Олимпиада"] == "Олимпиада по геометрии имени И.Ф. Шарыгина"
+                and tr_header == "заочный тур"
+            ):
                 res[-1]["Вариант"] = "Заочный тур"
         elif len(tr.findChildren("td")) == 0:
             continue
@@ -266,7 +270,7 @@ def parse_source_tags(table):
                 clearing(tr.findChildren("td")[0].text.lower()),
                 clearing(tr.findChildren("td")[1].text),
             )
- 
+
             # AND добавляется из-за некрасивого формата 'Белорусских олимпиад'
             if tr_header == "олимпиада" and not (
                 len(res)
@@ -279,16 +283,22 @@ def parse_source_tags(table):
                 )
             if len(res) == 0:
                 continue
- 
+
             # определяем, в какой контест нужно положить задачу (если есть несколько вариантов)
             olimp = res[-1]["Олимпиада"]
             if olimp == "Московская математическая олимпиада":  # 1 и 2 тур
                 if param == "тур":
                     res[-1]["Вариант"] = f"{value} тур"
-            elif olimp == "Турнир городов":  # Осенний тур, базовый вариант (обрезали класс)
+            elif (
+                olimp == "Турнир городов"
+            ):  # Осенний тур, базовый вариант (обрезали класс)
                 if param == "вариант":
                     res[-1]["Вариант"] = ",".join(value.split(",")[:2]).capitalize()
-                if tr_header == "тур" and param == "тур" and value.lower() == "устный тур":
+                if (
+                    tr_header == "тур"
+                    and param == "тур"
+                    and value.lower() == "устный тур"
+                ):
                     res[-1]["Вариант"] = "Устный тур"
             elif olimp == "Турнир им.Ломоносова":
                 pass
@@ -298,7 +308,7 @@ def parse_source_tags(table):
                 pass
             elif olimp == "Белорусские республиканские математические олимпиады":
                 pass
-            elif olimp == "Олимпиада по геометрии имени И.Ф. Шарыгина": 
+            elif olimp == "Олимпиада по геометрии имени И.Ф. Шарыгина":
                 pass
             elif olimp == "Московская устная олимпиада по геометрии":
                 pass
@@ -322,7 +332,7 @@ def parse_source_tags(table):
                 pass
             if res[-1].get("Вариант") is None:  # если всё лежит в одном комплекте задач
                 res[-1]["Вариант"] = "Задачи олимпиады"
- 
+
             if tr_header == "задача":  # парсим номер задачи
                 _value = ""
                 it = 0
@@ -350,7 +360,7 @@ def parse_source_tags(table):
                     if sp[i].startswith("класс") or sp[i].startswith("кл]"):
                         res[-1]["Класс"] = get_all_numbers(sp[i - 1])
                         break
- 
+
             # парсим год олимпиады, используя библиотеку re
             # хотим обрабатывать "2022" -> "2021/22", "2010/11" -> "2010/11", "2005/2006" -> "2005/06"
             for i in range(len(value) - 4, -1, -1):
@@ -361,7 +371,7 @@ def parse_source_tags(table):
                 if re.match("[1-2][0-9]{3}", value[i : i + 4]):
                     res[-1]["Год"] = fix_year(int(value[i : i + 4]))
                     break
- 
+
     # Сейчас несколько классов лежит в одной карточке (например, 8 и 9)
     # Давайте сделаем для каждого класса свою карточку источника
     res2 = []
@@ -372,12 +382,12 @@ def parse_source_tags(table):
             res2.append(dict(el))
             res2[-1]["Класс"] = grade
     return res2
- 
- 
+
+
 # --> ОСНОВНОЙ ПАРСЕР <--
 def parse_func(id):
     soup = get_soup(f"https://problems.ru/view_problem_details_new.php?id={id}", True)
- 
+
     RESP = dict()
     """
     "name": str
@@ -399,7 +409,7 @@ def parse_func(id):
     RESP["solution"] = []
     RESP["tags"] = []
     RESP["source"] = []
- 
+
     themes = soup.findAll("tr", class_="problemdetailssubjecttablecell")
     for tr in themes:
         a = tr.find("a")
@@ -408,7 +418,7 @@ def parse_func(id):
             root = parse_theme_root(a["href"])
         theme = stripper(a.text)
         RESP["tags"].append({"topic": root, "tag": theme})
- 
+
     # remove block with author info
     author_div = soup.find("div", class_="catalogueproblemauthorold")
     if author_div is not None:
@@ -416,23 +426,23 @@ def parse_func(id):
         author_div.decompose()
     else:
         authors = []
- 
+
     # remove block with source info
     tmp = soup.findAll("h3")
     for i in range(len(tmp)):
         if tmp[i].text == "Источники и прецеденты использования":
             tmp[i].decompose()
- 
+
     # process source info
     source_table = soup.find("table", class_="problemdetailssourcetable")
     RESP["source"] = parse_source_tags(source_table)
     source_table.decompose()
     soup.find("div", class_="problemdetailssourcetablecontainer").decompose()
- 
+
     box = soup.find("div", class_="componentboxcontents")
     topics_table = box.find("table", class_="problemdetailscaptiontable")
     topics_table.decompose()
- 
+
     # parse contents
     tmp = box.findAll("h3")
     for i in range(len(tmp)):
@@ -445,7 +455,7 @@ def parse_func(id):
         # Check if ch is 'h3' (so we need to break)
         while (ch is not None) and (ch.name != "h3"):
             img = None
- 
+
             # check if ch contains image
             if ch.name == "img":
                 img = ch
@@ -453,28 +463,57 @@ def parse_func(id):
                 img = ch.findChild("img", recursive=True)
             if img is not None:
                 RESP[area].append({"type": "img", "content": img["src"]})
- 
+
             else:
                 RESP[area].append({"type": "text", "content": ch.text})
- 
+
             # cycle over all siblings of tmp[i]
             ch = ch.nextSibling
- 
+
     if authors is not None:
         for author in authors:
             RESP["tags"].append({"topic": "Автор", "tag": author})
- 
+
     latex = parse_latex(RESP)
     RESP["statement"] = latex["statement"]
     RESP["solution"] = latex["solution"]
     RESP["images"] = latex["images"]
- 
+
     return RESP
+
 
 @parse.route("/parse", methods=["GET"])
 def parse_problems():
     id = request.args.get("id")
     return parse_func(id)
+
+@parse.route("/remove_tags", methods=["GET"])
+@admin_required
+def remove_tags():
+    for tag in Tag.query.all():
+        db.session.delete(tag)
+    for tag_relation in Tag_Relation.query.all():
+        db.session.delete(tag_relation)
+    db.session.commit()
+    return "OK"
+
+@parse.route("/init_topics")
+@admin_required
+def init_topics():
+    for topic in Topic.query.all():
+        topic.remove()
+    topics = ["Алгебра", "Геометрия", "Комбинаторика", "Теория чисел", "Автор"]
+    colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b"]
+    for name, color in zip(topics, colors):
+        Topic(name=name, color=color).add()
+    db.session.commit()
+    return "OK"
+
+
+def add_tags(problem_hashed_id, tags: [(str, str)]):
+    problem = Problem.get_by_hashed_id(problem_hashed_id)
+    for topic, tag in tags:
+        problem.act_add_tag(Tag.add_by_name_and_topic(tag, topic))
 
 @parse.route("/process_sources")
 @admin_required

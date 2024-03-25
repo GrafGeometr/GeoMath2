@@ -26,3 +26,4 @@ from app.db_classes.user_club import User_Club
 from app.db_classes.user_message import User_Message
 from app.db_classes.user_pool import User_Pool
 from app.db_classes.user import User
+from app.db_classes.topic import Topic

@@ -24,8 +24,7 @@ class Tag_Relation(db.Model):
 
     def add(self):
         db.session.add(self)
-        db.session.commit()
-        return self
+        return self.save()
 
     def remove(self):
         db.session.delete(self)
