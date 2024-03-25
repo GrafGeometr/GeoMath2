@@ -12,7 +12,7 @@ class Olimpiad(db.Model):
     category = db.Column(db.String)
 
     # --> RELATIONS
-    contests = db.relationship("Contest", backref="olimpiad")
+    olimpiad_variants = db.relationship("Olimpiad_Variant", backref="olimpiad")
 
     # --> FUNCTIONS
     def save(self):
@@ -25,6 +25,8 @@ class Olimpiad(db.Model):
         return self
 
     def remove(self):
+        for ov in self.olimpiad_variants:
+            ov.remove()
         db.session.delete(self)
         db.session.commit()
         return self

@@ -475,4 +475,47 @@ def parse_func(id):
 def parse_problems():
     id = request.args.get("id")
     return parse_func(id)
-    
+
+@parse.route("/process_sources")
+@admin_required
+def process_sources(hashed_id, sources):
+    problem = Problem.query.filter_by(hashed_id=hashed_id).first()
+    if problem is None:
+        return None
+    for source in sources:
+        variant = source["Вариант"]
+        olimpiad_name = source["Олимпиада"]
+        year = source["Год"]
+        grade = source["Класс"]
+        num = int(source["Номер"])
+
+        olimpiad = Olimpiad.query.filter_by(name=olimpiad_name).first()
+        if olimpiad is None:
+            olimpiad = Olimpiad(name=olimpiad_name)
+            olimpiad.short_name = olimpiad_name
+            olimpiad.category = ""
+            olimpiad.add()
+        ov = Olimpiad_Variant.query.filter_by(variant=variant, olimpiad=olimpiad, year=year, grade=grade).first()
+        if ov is None:
+            ov = Olimpiad_Variant(variant=variant, olimpiad=olimpiad, year=year, grade=grade)
+            ov.add()
+
+        contest = None
+        if len(ov.contests):
+            contest = ov.contests[0]
+        else:
+            contest = Contest()
+            contest.olimpiad_variant = ov
+            contest.name = ov.variant
+            contest.description = f"""\\textbf{{Контест по задачам прошедшей олимпиады}}\n
+            {ov.olimpipad.name}, {ov.year}, {ov.grade}"""
+            contest.start_date = datetime.now()
+            contest.end_date = contest.start_date
+            contest.is_public = True
+            contest.rating = "public"
+            contest.pool = problem.pool
+            contest.add()
+        cp = Contest_Problem.query.filter_by(contest=contest, list_index=num).first()
+        if cp is None:
+            cp = Contest_Problem(contest=contest, problem=problem, list_index=num)
+            cp.add()

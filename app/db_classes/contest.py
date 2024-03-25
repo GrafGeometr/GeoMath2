@@ -23,7 +23,7 @@ class Contest(db.Model):
     contest_users = db.relationship("Contest_User", backref="contest")
     club_contests = db.relationship("Club_Contest", backref="contest")
     pool_id = db.Column(db.Integer, db.ForeignKey("pool.id"))
-    olimpiad_id = db.Column(db.Integer, db.ForeignKey("olimpiad.id"))
+    olimpiad_variant_id = db.Column(db.Integer, db.ForeignKey("olimpiad_variant.id"))
 
     # --> FUNCTIONS
     def is_liked(self):
