@@ -8,6 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import re
+import json
  
  
 # --> НЕКОТОРЫЕ ПОЛЕЗНЫЕ ФУНКЦИИ <--
@@ -473,5 +474,5 @@ def parse_func(id):
 @parse.route("/parse", methods=["GET"])
 def parse_problems():
     id = request.args.get("id")
-    return parse_func(id)
+    return json.loads(parse_func(id))
     
