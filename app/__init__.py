@@ -98,6 +98,7 @@ def create_app():
 
     from .parse import parse as parse_blueprint
     app.register_blueprint(parse_blueprint)
+    app.json.ensure_ascii = False
 
     with app.app_context():
         db.create_all()

@@ -474,5 +474,5 @@ def parse_func(id):
 @parse.route("/parse", methods=["GET"])
 def parse_problems():
     id = request.args.get("id")
-    return json.dumps(parse_func(id), ensure_ascii=False)
+    return parse_func(id)
     
