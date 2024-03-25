@@ -510,3 +510,9 @@ def init_topics():
         Topic(name=name, color=color).add()
     db.session.commit()
     return "OK"
+
+
+def add_tags(problem_hashed_id, tags: [(str, str)]):
+    problem = Problem.get_by_hashed_id(problem_hashed_id)
+    for topic, tag in tags:
+        problem.act_add_tag(Tag.add_by_name_and_topic(tag, topic))
