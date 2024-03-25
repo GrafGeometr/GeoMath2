@@ -256,6 +256,9 @@ def parse_source_tags(table):
     for tr in table.findChildren(recursive=False):  # считываем таблицу построчно
         if len(tr.findChildren("td")) == 1:
             tr_header = clearing(tr.findChild().text.lower())
+            # пометка про заочный тур Шарыгина
+            if len(res) and res[-1]["Олимпиада"] == "Олимпиада по геометрии имени И.Ф. Шарыгина" and tr_header == "заочный тур":
+                res[-1]["Вариант"] = "Заочный тур"
         elif len(tr.findChildren("td")) == 0:
             continue
         else:
@@ -295,11 +298,8 @@ def parse_source_tags(table):
                 pass
             elif olimp == "Белорусские республиканские математические олимпиады":
                 pass
-            elif (
-                olimp == "Олимпиада по геометрии имени И.Ф. Шарыгина"
-            ):  # пометка про заочный тур Шарыгина
-                if tr_header == "заочный тур":
-                    res[-1]["Вариант"] = "Заочный тур"
+            elif olimp == "Олимпиада по геометрии имени И.Ф. Шарыгина": 
+                pass
             elif olimp == "Московская устная олимпиада по геометрии":
                 pass
             elif olimp == "Московская математическая регата":
