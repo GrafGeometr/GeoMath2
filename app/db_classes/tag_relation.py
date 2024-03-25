@@ -54,6 +54,10 @@ class Tag_Relation(db.Model):
             parent_id=parent.id,
             tag_id=tag.id,
         ).first()
+    
+    @staticmethod
+    def get_all_by_tag_id(tag_id):
+        return Tag_Relation.query.filter_by(tag_id=tag_id).all()
 
     def save(self):
         db.session.commit()

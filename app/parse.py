@@ -510,17 +510,18 @@ def init_topics():
     return "OK"
 
 
-def add_tags(problem_hashed_id, tags: [(str, str)]):
-    problem = Problem.get_by_hashed_id(problem_hashed_id)
+def add_tags(problem, tags: [(str, str)]):
     for topic, tag in tags:
         problem.act_add_tag(Tag.add_by_name_and_topic(tag, topic))
 
-@parse.route("/process_sources")
-@admin_required
-def process_sources(hashed_id, sources):
-    problem = Problem.query.filter_by(hashed_id=hashed_id).first()
-    if problem is None:
-        return None
+def process_tags(problem, tags):
+    for tag in tags:
+        topic = tag["topic"]
+        tagname = tag["tag"]
+        add_tags(problem, [topic, tagname])
+
+
+def process_sources(problem, sources):
     for source in sources:
         variant = source["Вариант"]
         olimpiad_name = source["Олимпиада"]
@@ -558,3 +559,46 @@ def process_sources(hashed_id, sources):
         if cp is None:
             cp = Contest_Problem(contest=contest, problem=problem, list_index=num)
             cp.add()
+            print("added contest problem")
+            print(cp.list_index)
+
+
+
+
+
+def process_images(problem, images):
+    for key,val in images.items():
+        directory = "app/database/attachments/problems"
+        src = val["url"]
+        is_public = val["is_public"]
+        file = requests.get(src).content
+        filenames = safe_image_upload([file], directory, 5 * 1024 * 1024)
+        filename = filenames[0]
+        if filename is None:
+            continue
+        attachment = Attachment(
+            db_folder=directory,
+            db_filename=filename,
+            short_name=key,
+            parent_type=DbParent.fromType(type(problem)),
+            parent_id=problem.id,
+            other_data={"is_secret": not is_public},
+        )
+        attachment.add()
+        print("added attachment")
+        print(attachment.db_filename)
+
+
+def main_processer(content, pool_hashed_id="I65Y2znSQACd0ki4qvRp"):
+    pool = Pool.get_by_hashed_id(pool_hashed_id)
+    if pool is None:
+        return None
+    problem = Problem().add()
+    problem.name = content["name"]
+    problem.statement = content["statement"]
+    problem.solution = content["solution"]
+    problem.pool = pool
+    problem.save()
+    process_tags(problem, content["tags"])
+    process_sources(problem, content["source"])
+    process_images(problem, content["images"])
