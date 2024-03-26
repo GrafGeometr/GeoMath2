@@ -538,7 +538,24 @@ def process_sources(problem, sources):
         variant = source["Вариант"]
         olimpiad_name = source["Олимпиада"]
         year = source["Год"]
-        grade = Grade(source["Класс"])
+        grade = Grade(
+            {
+                "5": "5 класс",
+                "6": "6 класс",
+                "7": "7 класс",
+                "8": "8 класс",
+                "9": "9 класс",
+                "10": "10 класс",
+                "11": "11 класс",
+                "5 класс": "5 класс",
+                "6 класс": "6 класс",
+                "7 класс": "7 класс",
+                "8 класс": "8 класс",
+                "9 класс": "9 класс",
+                "10 класс": "10 класс",
+                "11 класс": "11 класс",
+            }[source["Класс"]]
+        )
         num = int(source["Номер"])
 
         # print(source["Класс"], type(grade), grade.name)
@@ -630,4 +647,12 @@ def main_processer(content, pool_hashed_id="I65Y2znSQACd0ki4qvRp"):
 @admin_required
 def parse_(problem_id, pool_hashed_id):
     main_processer(parse_func(int(problem_id)), pool_hashed_id)
+    return "OK"
+
+
+@parse.route("/parse_multiple/<begin>/<end>/<pool_hashed_id>", methods=["GET"])
+@admin_required
+def parse_multiple(begin, end, pool_hashed_id):
+    for i in range(int(begin), int(end) + 1):
+        main_processer(parse_func(i), pool_hashed_id)
     return "OK"
