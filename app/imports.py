@@ -19,7 +19,7 @@ from werkzeug.utils import secure_filename
 import uuid as uuid
 import os
 
-# import cv2
+import cv2
 import numpy
 import copy
 from PIL import Image

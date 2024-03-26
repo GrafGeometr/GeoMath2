@@ -1,7 +1,7 @@
+import imghdr
+
 from .imports import *
 from .model_imports import *
-
-parse = Blueprint("parse", __name__)
 
 import bs4
 import requests
@@ -9,6 +9,8 @@ from bs4 import BeautifulSoup
 import time
 import re
 import json
+
+parse = Blueprint("parse", __name__)
 
 
 # --> НЕКОТОРЫЕ ПОЛЕЗНЫЕ ФУНКЦИИ <--
@@ -234,6 +236,11 @@ def parse_latex(RESP):
             else:
                 name = link_to_image_name[block["content"]]
             latex_solution += f"\\img[{name}]{{{name}}}" + "\n\n"
+
+    for key in images.keys():
+        url = images[key]["url"]
+        if "https://problems.ru/" not in url:
+            images[key]["url"] = "https://problems.ru/" + url
 
     return {"statement": latex_statement, "solution": latex_solution, "images": images}
 
@@ -485,7 +492,10 @@ def parse_func(id):
 @parse.route("/parse", methods=["GET"])
 def parse_problems():
     id = request.args.get("id")
-    return parse_func(id)
+    return parse_func(
+        id,
+    )
+
 
 @parse.route("/remove_tags", methods=["GET"])
 @admin_required
@@ -496,6 +506,7 @@ def remove_tags():
         db.session.delete(tag_relation)
     db.session.commit()
     return "OK"
+
 
 @parse.route("/init_topics")
 @admin_required
@@ -514,11 +525,12 @@ def add_tags(problem, tags: [(str, str)]):
     for topic, tag in tags:
         problem.act_add_tag(Tag.add_by_name_and_topic(tag, topic))
 
+
 def process_tags(problem, tags):
     for tag in tags:
         topic = tag["topic"]
         tagname = tag["tag"]
-        add_tags(problem, [topic, tagname])
+        add_tags(problem, [(topic, tagname)])
 
 
 def process_sources(problem, sources):
@@ -526,8 +538,10 @@ def process_sources(problem, sources):
         variant = source["Вариант"]
         olimpiad_name = source["Олимпиада"]
         year = source["Год"]
-        grade = source["Класс"]
+        grade = Grade(source["Класс"])
         num = int(source["Номер"])
+
+        # print(source["Класс"], type(grade), grade.name)
 
         olimpiad = Olimpiad.query.filter_by(name=olimpiad_name).first()
         if olimpiad is None:
@@ -535,9 +549,13 @@ def process_sources(problem, sources):
             olimpiad.short_name = olimpiad_name
             olimpiad.category = ""
             olimpiad.add()
-        ov = Olimpiad_Variant.query.filter_by(variant=variant, olimpiad=olimpiad, year=year, grade=grade).first()
+        ov = Olimpiad_Variant.query.filter_by(
+            variant=variant, olimpiad=olimpiad, year=year, grade=grade
+        ).first()
         if ov is None:
-            ov = Olimpiad_Variant(variant=variant, olimpiad=olimpiad, year=year, grade=grade)
+            ov = Olimpiad_Variant(
+                variant=variant, olimpiad=olimpiad, year=year, grade=grade
+            )
             ov.add()
 
         contest = None
@@ -548,10 +566,11 @@ def process_sources(problem, sources):
             contest.olimpiad_variant = ov
             contest.name = ov.variant
             contest.description = f"""\\textbf{{Контест по задачам прошедшей олимпиады}}\n
-            {ov.olimpipad.name}, {ov.year}, {ov.grade}"""
-            contest.start_date = datetime.now()
+            {ov.olimpiad.name}, {ov.year}, {ov.grade}"""
+            contest.start_date = datetime.datetime.now()
             contest.end_date = contest.start_date
             contest.is_public = True
+            contest.grade = grade
             contest.rating = "public"
             contest.pool = problem.pool
             contest.add()
@@ -563,17 +582,20 @@ def process_sources(problem, sources):
             print(cp.list_index)
 
 
-
-
-
 def process_images(problem, images):
-    for key,val in images.items():
+    for key, val in images.items():
+        # print(key, val)
         directory = "app/database/attachments/problems"
         src = val["url"]
         is_public = val["is_public"]
-        file = requests.get(src).content
-        filenames = safe_image_upload([file], directory, 5 * 1024 * 1024)
-        filename = filenames[0]
+        file = requests.get(src)
+        # print(file)
+        file = file.content
+        file_type = imghdr.what(None, file)
+        # print(file_type)
+        filename = str(uuid.uuid1()) + "." + file_type
+        with open(f"{directory}/{filename}", "wb") as f:
+            f.write(file)
         if filename is None:
             continue
         attachment = Attachment(
@@ -602,3 +624,10 @@ def main_processer(content, pool_hashed_id="I65Y2znSQACd0ki4qvRp"):
     process_tags(problem, content["tags"])
     process_sources(problem, content["source"])
     process_images(problem, content["images"])
+
+
+@parse.route("/parse/<problem_id>/<pool_hashed_id>", methods=["GET"])
+@admin_required
+def parse_(problem_id, pool_hashed_id):
+    main_processer(parse_func(int(problem_id)), pool_hashed_id)
+    return "OK"

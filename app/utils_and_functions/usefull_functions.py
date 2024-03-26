@@ -64,7 +64,8 @@ def safe_image_upload(files, directory, maxsize=2 * 1024 * 1024):
                     cv2.IMREAD_UNCHANGED,
                 )
                 checker = tmp_image.shape
-            except:
+            except Exception as e:
+                print(e)
                 raise Exception
             # at least it isn't a VIRUS, we can save it
             cv2.imwrite(path, tmp_image)
@@ -75,7 +76,8 @@ def safe_image_upload(files, directory, maxsize=2 * 1024 * 1024):
                 raise Exception
             # well, you've won this time
             result.append(pic_name)
-        except:
+        except Exception as e:
+            print(e)
             result.append(None)
     return result
 

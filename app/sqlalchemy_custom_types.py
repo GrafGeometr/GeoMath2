@@ -126,6 +126,7 @@ class Grade:
 
 
 School_Grades_list = [
+    Fifth_Grade,
     Sixth_Grade,
     Seventh_Grade,
     Eighth_Grade,
@@ -135,7 +136,7 @@ School_Grades_list = [
 ] = list(
     map(
         Grade,
-        ["6 класс", "7 класс", "8 класс", "9 класс", "10 класс", "11 класс"],
+        ["5 класс", "6 класс", "7 класс", "8 класс", "9 класс", "10 класс", "11 класс"],
     )
 )
 
