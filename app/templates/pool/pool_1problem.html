@@ -88,7 +88,7 @@
                     {% for tag in current_problem.get_tags() %}
                     <li class="flex">
                         <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
-                        <span class="text-slate-500 font-bold mr-4">#</span>
+                        <span class="font-bold mr-4" style="color: {{ tag.topic.color }}">#</span>
                         <div class="w-2/3"><span>{{ tag.name }}</span></div>
                         <span class="text-slate-500 font-bold mx-4">|</span>
                         <button type="button" class="hover:font-bold hover:cursor-pointer hover:text-red-600"

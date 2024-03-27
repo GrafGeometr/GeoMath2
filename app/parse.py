@@ -9,20 +9,49 @@ from bs4 import BeautifulSoup
 import time
 import re
 import json
+import urllib
+import random
+from fp.fp import FreeProxy
 
 parse = Blueprint("parse", __name__)
 
-
 # --> НЕКОТОРЫЕ ПОЛЕЗНЫЕ ФУНКЦИИ <--
-def get_soup(
-    url, clear=False
-):  # парсит HTML со страницы и удаляет теги <p>, если clear
+def init_session(): # создаём сеанс, выбирая произвольный прокси
+    global session
+    session = requests.Session()
+    proxy = FreeProxy(rand=True).get()
+    session.proxies = {"http": proxy, "https": proxy}
+
+def get_content(url, timeout):
     time.sleep(0.5)
-    page = requests.get(url)
+    flag = 0
+    for _ in range(5):
+        try:
+            content = session.get(url, timeout=timeout)
+            flag = 1
+        except:
+            pass
+        if flag:
+            break
+    if flag:
+        return content
+    else:
+        init_session()
+        print("NEW SESSION")
+        print(session.proxies)
+        return get_content(url, timeout)
+        
+
+def get_soup(url, clear=False):  # парсит HTML со страницы и удаляет теги <p>, если clear
+    global session
+    print(url)
+    page = get_content(url, 1)
+    print(session.proxies)
     text = page.text
     if clear:
         for bad_tag in ["p", "/p", "p/"]:
             text = text.replace(f"<{bad_tag}>", " ")
+        text = text.replace("<b>", "<h3>").replace("</b>.", ".</h3>")
     soup = BeautifulSoup(text, "html.parser")
     return soup
 
@@ -214,7 +243,8 @@ def parse_latex(RESP):
             latex_statement += f"\\img[{name}]{{{name}}}" + "\n\n"
 
     solution_source: list = RESP["solution"]
-    solution_source.remove({"type": "header", "content": "Решение"})
+    if {"type": "header", "content": "Решение"} in solution_source:
+        solution_source.remove({"type": "header", "content": "Решение"})
     for block in solution_source:
         if block["type"] == "text":
             block["content"] = block["content"].replace("\n", " ")
@@ -393,100 +423,103 @@ def parse_source_tags(table):
 
 # --> ОСНОВНОЙ ПАРСЕР <--
 def parse_func(id):
-    soup = get_soup(f"https://problems.ru/view_problem_details_new.php?id={id}", True)
+    try:
+        soup = get_soup(f"https://problems.ru/view_problem_details_new.php?id={id}", True)
 
-    RESP = dict()
-    """
-    "name": str
-    "statement": str with actual statement in ge0math format
-    "solution": str with actual solution in ge0math format
-    "images": dict from name (str) to dict with "url": str and "is_public": bool
-    "tags": list of
-        "topic": str
-        "tag": str
-    "source": list of
-        "Олимпиада": str
-        "Год": str
-        "Класс": str
-        "Номер": str
-        "Вариант": str
-    """
-    RESP["name"] = f"#{id} problems.ru"
-    RESP["statement"] = []
-    RESP["solution"] = []
-    RESP["tags"] = []
-    RESP["source"] = []
+        RESP = dict()
+        """
+        "name": str
+        "statement": str with actual statement in ge0math format
+        "solution": str with actual solution in ge0math format
+        "images": dict from name (str) to dict with "url": str and "is_public": bool
+        "tags": list of
+            "topic": str
+            "tag": str
+        "source": list of
+            "Олимпиада": str
+            "Год": str
+            "Класс": str
+            "Номер": str
+            "Вариант": str
+        """
+        RESP["name"] = f"#{id} problems.ru"
+        RESP["statement"] = []
+        RESP["solution"] = []
+        RESP["tags"] = []
+        RESP["source"] = []
 
-    themes = soup.findAll("tr", class_="problemdetailssubjecttablecell")
-    for tr in themes:
-        a = tr.find("a")
-        root = parse_theme_preroot(a["href"])
-        if root is None:
-            root = parse_theme_root(a["href"])
-        theme = stripper(a.text)
-        RESP["tags"].append({"topic": root, "tag": theme})
+        themes = soup.findAll("tr", class_="problemdetailssubjecttablecell")
+        for tr in themes:
+            a = tr.find("a")
+            root = parse_theme_preroot(a["href"])
+            if root is None:
+                root = parse_theme_root(a["href"])
+            theme = stripper(a.text)
+            RESP["tags"].append({"topic": root, "tag": theme})
 
-    # remove block with author info
-    author_div = soup.find("div", class_="catalogueproblemauthorold")
-    if author_div is not None:
-        authors = [a.text for a in author_div.findAll("a")]
-        author_div.decompose()
-    else:
-        authors = []
-
-    # remove block with source info
-    tmp = soup.findAll("h3")
-    for i in range(len(tmp)):
-        if tmp[i].text == "Источники и прецеденты использования":
-            tmp[i].decompose()
-
-    # process source info
-    source_table = soup.find("table", class_="problemdetailssourcetable")
-    RESP["source"] = parse_source_tags(source_table)
-    source_table.decompose()
-    soup.find("div", class_="problemdetailssourcetablecontainer").decompose()
-
-    box = soup.find("div", class_="componentboxcontents")
-    topics_table = box.find("table", class_="problemdetailscaptiontable")
-    topics_table.decompose()
-
-    # parse contents
-    tmp = box.findAll("h3")
-    for i in range(len(tmp)):
-        if i == 0:
-            area = "statement"
+        # remove block with author info
+        author_div = soup.find("div", class_="catalogueproblemauthorold")
+        if author_div is not None:
+            authors = [a.text for a in author_div.findAll("a")]
+            author_div.decompose()
         else:
-            area = "solution"
-        RESP[area].append({"type": "header", "content": tmp[i].text})
-        ch = tmp[i].nextSibling
-        # Check if ch is 'h3' (so we need to break)
-        while (ch is not None) and (ch.name != "h3"):
-            img = None
+            authors = []
 
-            # check if ch contains image
-            if ch.name == "img":
-                img = ch
-            elif not isinstance(ch, bs4.NavigableString):
-                img = ch.findChild("img", recursive=True)
-            if img is not None:
-                RESP[area].append({"type": "img", "content": img["src"]})
+        # remove block with source info
+        tmp = soup.findAll("h3")
+        for i in range(len(tmp)):
+            if tmp[i].text == "Источники и прецеденты использования":
+                tmp[i].decompose()
 
+        # process source info
+        source_table = soup.find("table", class_="problemdetailssourcetable")
+        RESP["source"] = parse_source_tags(source_table)
+        source_table.decompose()
+        soup.find("div", class_="problemdetailssourcetablecontainer").decompose()
+
+        box = soup.find("div", class_="componentboxcontents")
+        topics_table = box.find("table", class_="problemdetailscaptiontable")
+        topics_table.decompose()
+
+        # parse contents
+        tmp = box.findAll("h3")
+        for i in range(len(tmp)):
+            if i == 0:
+                area = "statement"
             else:
-                RESP[area].append({"type": "text", "content": ch.text})
+                area = "solution"
+            RESP[area].append({"type": "header", "content": clearing(tmp[i].text)})
+            ch = tmp[i].nextSibling
+            # Check if ch is 'h3' (so we need to break)
+            while (ch is not None) and (ch.name != "h3"):
+                img = None
 
-            # cycle over all siblings of tmp[i]
-            ch = ch.nextSibling
+                # check if ch contains image
+                if ch.name == "img":
+                    img = ch
+                elif not isinstance(ch, bs4.NavigableString):
+                    img = ch.findChild("img", recursive=True)
+                if img is not None:
+                    RESP[area].append({"type": "img", "content": img["src"]})
 
-    if authors is not None:
-        for author in authors:
-            RESP["tags"].append({"topic": "Автор", "tag": author})
+                else:
+                    RESP[area].append({"type": "text", "content": clearing(ch.text)})
 
-    latex = parse_latex(RESP)
-    RESP["statement"] = latex["statement"]
-    RESP["solution"] = latex["solution"]
-    RESP["images"] = latex["images"]
+                # cycle over all siblings of tmp[i]
+                ch = ch.nextSibling
 
-    return RESP
+        if authors is not None:
+            for author in authors:
+                RESP["tags"].append({"topic": "Автор", "tag": author})
+
+        latex = parse_latex(RESP)
+        RESP["statement"] = latex["statement"]
+        RESP["solution"] = latex["solution"]
+        RESP["images"] = latex["images"]
+
+        return RESP
+    except:
+        return None
 
 
 @parse.route("/parse", methods=["GET"])
@@ -513,8 +546,8 @@ def remove_tags():
 def init_topics():
     for topic in Topic.query.all():
         topic.remove()
-    topics = ["Алгебра", "Геометрия", "Комбинаторика", "Теория чисел", "Автор"]
-    colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b"]
+    topics = ["Алгебра", "Геометрия", "Комбинаторика", "Теория чисел", "Комбинаторная геометрия", "Автор"]
+    colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#212121"]
     for name, color in zip(topics, colors):
         Topic(name=name, color=color).add()
     db.session.commit()
@@ -554,6 +587,7 @@ def process_sources(problem, sources):
                 "9 класс": "9 класс",
                 "10 класс": "10 класс",
                 "11 класс": "11 класс",
+                None: "класс не указан",
             }[source["Класс"]]
         )
         num = int(source["Номер"])
@@ -584,7 +618,7 @@ def process_sources(problem, sources):
             contest.name = ov.variant
             contest.description = f"""\\textbf{{Контест по задачам прошедшей олимпиады}}\n
             {ov.olimpiad.name}, {ov.year}, {ov.grade}"""
-            contest.start_date = datetime.datetime.now()
+            contest.start_date = current_time()
             contest.end_date = contest.start_date
             contest.is_public = True
             contest.grade = grade
@@ -595,17 +629,16 @@ def process_sources(problem, sources):
         if cp is None:
             cp = Contest_Problem(contest=contest, problem=problem, list_index=num)
             cp.add()
-            print("added contest problem")
-            print(cp.list_index)
-
+        
 
 def process_images(problem, images):
+
     for key, val in images.items():
         # print(key, val)
         directory = "app/database/attachments/problems"
         src = val["url"]
         is_public = val["is_public"]
-        file = requests.get(src)
+        file = get_content(src, 1)
         # print(file)
         file = file.content
         file_type = imghdr.what(None, file)
@@ -624,11 +657,11 @@ def process_images(problem, images):
             other_data={"is_secret": not is_public},
         )
         attachment.add()
-        print("added attachment")
-        print(attachment.db_filename)
 
 
 def main_processer(content, pool_hashed_id="I65Y2znSQACd0ki4qvRp"):
+    if content is None:
+        return
     pool = Pool.get_by_hashed_id(pool_hashed_id)
     if pool is None:
         return None
@@ -636,8 +669,10 @@ def main_processer(content, pool_hashed_id="I65Y2znSQACd0ki4qvRp"):
     problem.name = content["name"]
     problem.statement = content["statement"]
     problem.solution = content["solution"]
+    problem.is_public = True
     problem.pool = pool
     problem.save()
+    print(content)
     process_tags(problem, content["tags"])
     process_sources(problem, content["source"])
     process_images(problem, content["images"])

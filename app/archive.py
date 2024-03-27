@@ -151,15 +151,24 @@ def get_correct_page_slice(num_of_pages, len_of_slice, index_of_current_page):
 def archive_problem_search(username):
     if request.method == "POST":
         tags = request.form.get("tags")
+        olimpiads = ';'.join(request.form.getlist("olimpiads"))
+        years = ';'.join(request.form.getlist("years"))
+        grades = ';'.join(request.form.getlist("grades"))
+        variants = ';'.join(request.form.getlist("variants"))
+
         if tags is not None:
             return redirect(
                 url_for(
-                    "arch.archive_problem_search", tags=tags, page=1, username=username
+                    "arch.archive_problem_search", tags=tags, page=1, username=username, olimpiads=olimpiads, years=years, grades=grades, variants=variants
                 )
             )
 
     tags = request.args.get("tags")
     page = request.args.get("page")
+    olimpiads = request.args.get("olimpiads", "").split(';')
+    years = request.args.get("years", "").split(';')
+    grades = request.args.get("grades", "").split(';')
+    variants = request.args.get("variants", "").split(';')
 
     if page is None:
         page = 1
@@ -198,6 +207,16 @@ def archive_problem_search(username):
     user = User.query.filter_by(name=username).first()
     if user is not None:
         objs = [obj for obj in objs if obj.is_my(user)]
+    
+    filter_by_source = set()
+    for ov in Olimpiad_Variant.query.all():
+        if ov.olimpiad.name in olimpiads and ov.year in years and str(ov.grade) in grades and ov.variant in variants:
+            for contest in ov.contests:
+                for cp in contest.contest_problems:
+                    p = cp.problem
+                    filter_by_source.add(p.id)
+    objs = [obj for obj in objs if (obj.id in filter_by_source) or (obj.get_olimpiad_variant() is None)]
+    
 
     resulting_objs = []
 
@@ -230,6 +249,10 @@ def archive_problem_search(username):
         current_page=page,
         tags="; ".join(tags),
         all_tags=sorted(Tag.query.all(), key=lambda t: (t.name).lower()),
+        olimpiads = ';'.join(olimpiads),
+        years = ';'.join(years),
+        grades = ';'.join(grades),
+        variants = ';'.join(variants),
     )
 
 

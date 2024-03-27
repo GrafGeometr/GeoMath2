@@ -9,12 +9,21 @@
         <!-- search panel -->
 
         <form autocomplete="off" class="flex w-full" action="/archive/problems/{{ username }}" method="POST">
-            <div class="w-2/3 relative inline-block">
-                <input id="search_tags" type="text" placeholder="Введите теги через точку с запятой" name="tags"
-                    class="w-full border-slate-400 border-2 rounded px-2 h-8" {% if tags %} value="{{ tags }}" {% endif %}>
+            <div class="flex flex-col w-full">
+                <div class="flex flex-row w-full">
+                <div class="w-2/3 relative inline-block">
+                    <input id="search_tags" type="text" placeholder="Введите теги через точку с запятой" name="tags"
+                        class="w-full border-slate-400 border-2 rounded px-2 h-8" {% if tags %} value="{{ tags }}" {% endif %}>
+                </div>
+                <span class="text-slate-700 font-bold mx-4">|</span>
+                <input type="submit" value="Найти" class="hover:font-bold hover:cursor-pointer hover:text-green-600">
+                </div>
+
+                <div id="archive_sources_search"></div>
+                <script>
+                    fill_archive_sources_search();
+                </script>
             </div>
-            <span class="text-slate-700 font-bold mx-4">|</span>
-            <input type="submit" value="Найти" class="hover:font-bold hover:cursor-pointer hover:text-green-600">
         </form>
 
         <div class="flex mt-4 gap-x-4">
@@ -30,7 +39,7 @@
                         </li>
                     {% else %}
                         <li>
-                            <a class="hover:underline" href="{{ url_for('arch.archive_problem_search', tags=tags, page=x, username=username) }}">
+                            <a class="hover:underline" href="{{ url_for('arch.archive_problem_search', tags=tags, page=x, username=username, olimpiads=olimpiads, years=years, grades=grades, variants=variants) }}">
                                 <div class="w-6 h-6 rounded-full bg-blue-200"></div>
                             </a>
                         </li>
@@ -88,6 +97,8 @@
     <script>
         autocomplete(document.getElementById("search_tags"), {"obj": "tags"});
     </script>
+
+    
 
 
 {% endblock %}

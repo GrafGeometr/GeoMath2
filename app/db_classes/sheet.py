@@ -142,7 +142,7 @@ class Sheet(db.Model):
                     parent_type=DbParent.fromType(type(self)), parent_id=self.id
                 ).all()
             ],
-            key=lambda t: t.name.lower(),
+            key=lambda t: (t.topic.name, t.name.lower()),
         )
 
     def get_tag_names(self):

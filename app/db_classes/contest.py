@@ -474,7 +474,6 @@ class Contest(db.Model):
 
     def get_tags(self):
         from app.dbc import Tag, Tag_Relation
-
         return sorted(
             [
                 Tag.query.filter_by(id=sheet_tag.tag_id).first()
@@ -482,7 +481,7 @@ class Contest(db.Model):
                     parent_type=DbParent.fromType(type(self)), parent_id=self.id
                 ).all()
             ],
-            key=lambda t: t.name.lower(),
+            key=lambda t: (t.topic.name, t.name.lower()),
         )
 
     def get_tag_names(self):

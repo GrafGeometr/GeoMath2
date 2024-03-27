@@ -212,7 +212,7 @@ class Problem(db.Model):
         ]
 
     def get_tags(self):
-        return sorted(self.get_nonsorted_tags(), key=lambda t: t.name.lower())
+        return sorted(self.get_nonsorted_tags(), key=lambda t: (t.topic.name, t.name.lower()))
 
     def get_tag_names(self):
         return list(map(lambda t: t.name, self.get_tags()))
@@ -336,3 +336,11 @@ class Problem(db.Model):
             page=1,
             username="all",
         )
+    
+    def get_olimpiad_variant(self):
+        for cp in self.contest_problems:
+            c = cp.contest
+            print("D", c.id, c.olimpiad_variant.id)
+            if c.olimpiad_variant is not None:
+                return c.olimpiad_variant
+        return None

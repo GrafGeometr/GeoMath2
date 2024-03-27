@@ -75,7 +75,7 @@
                 {% for tag in current_sheet.get_tags() %}
                 <li class="flex">
                     <input type="hidden" name="tag {{ tag.name }}" value="{{ tag.name }}">
-                    <span class="text-slate-500 font-bold mr-4">#</span>
+                    <span class="font-bold mr-4" style="color: {{tag.topic.color}}">#</span>
                     <div class="w-2/3"><span>{{ tag.name }}</span></div>
                 </li>
                 {% endfor %}

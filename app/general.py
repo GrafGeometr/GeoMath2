@@ -77,6 +77,12 @@ def autocomplete():
     elif obj == "olimpiads":
         olimpiads = Olimpiad.query.all()
         return [olimpiad.name for olimpiad in olimpiads]
+    elif obj == "olimpiad_variants":
+        olimpiad_variants = Olimpiad_Variant.query.all()
+        res = []
+        for ov in olimpiad_variants:
+            res.append({"grade": str(ov.grade), "year": ov.year, "variant": ov.variant, "olimpiad": ov.olimpiad.name})
+        return res 
     else:
         return []
 
