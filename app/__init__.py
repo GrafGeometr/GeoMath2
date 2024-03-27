@@ -97,6 +97,7 @@ def create_app():
     app.register_blueprint(err_blueprint)
 
     from .parse import parse as parse_blueprint
+
     app.register_blueprint(parse_blueprint)
     app.json.ensure_ascii = False
 
